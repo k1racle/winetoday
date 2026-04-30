@@ -1530,6 +1530,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               status: form.status,
               publishedAtCustom: form.publishedAtCustom ? new Date(form.publishedAtCustom).toISOString() : new Date().toISOString(),
               readingTime: form.readingTime,
+              coverSource: form.coverSource,
               sources: form.sources.filter((item) => item.name.trim() || item.url.trim()),
               startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : "",
               endsAt: form.endsAt ? new Date(form.endsAt).toISOString() : "",
@@ -1887,6 +1888,16 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   openLabel="Открыть библиотеку"
                 />
               </div>
+            </Field>
+          </div>
+          <div>
+            <Field label="Источник фото">
+              <input
+                value={form.coverSource}
+                onChange={(event) => updateForm("coverSource", event.target.value)}
+                className={inputClassName}
+                placeholder="Например: Фото автора, Unsplash, архив бренда"
+              />
             </Field>
           </div>
         </div>

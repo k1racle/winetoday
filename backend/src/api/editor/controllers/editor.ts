@@ -77,11 +77,19 @@ function sanitizeEditorDataForRuntime(strapi: any, type: EditorType, data: Recor
     return data;
   }
 
-  if (Object.prototype.hasOwnProperty.call(data, 'coverSource') && !runtimeHasAttribute(strapi, type, 'coverSource')) {
-    strapi.log.warn(
-      `[editor.save] Runtime schema for ${TYPE_CONFIG[type].uid} does not contain coverSource; dropping field before save.`,
-    );
-    delete data.coverSource;
+  const runtimeAttributes = strapi.contentTypes?.[TYPE_CONFIG[type].uid]?.attributes;
+
+  if (!runtimeAttributes) {
+    return data;
+  }
+
+  for (const key of Object.keys(data)) {
+    if (!Object.prototype.hasOwnProperty.call(runtimeAttributes, key)) {
+      strapi.log.warn(
+        `[editor.save] Runtime schema for ${TYPE_CONFIG[type].uid} does not contain ${key}; dropping field before save.`,
+      );
+      delete data[key];
+    }
   }
 
   return data;
