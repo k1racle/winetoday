@@ -6,14 +6,24 @@ export async function POST(request: Request) {
     const token = await getAuthToken();
     const incomingFormData = await request.formData();
     const forwardedFormData = new FormData();
+    let fileCount = 0;
+    const filenames: string[] = [];
 
     for (const [key, value] of incomingFormData.entries()) {
+      if (value instanceof File) {
+        forwardedFormData.append(key, value, value.name);
+        fileCount += 1;
+        filenames.push(value.name);
+        continue;
+      }
+
       forwardedFormData.append(key, value);
     }
 
     console.info("[editor-upload-proxy] forwarding upload request", {
       fieldCount: Array.from(incomingFormData.keys()).length,
-      fileFieldCount: Array.from(incomingFormData.values()).filter((value) => value instanceof File).length,
+      fileCount,
+      filenames,
     });
 
     const headers = new Headers();
