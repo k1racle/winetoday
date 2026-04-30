@@ -100,7 +100,7 @@ function createInitialState(type: EditorContentType): FormState {
     tags: [],
     homepageSpecialBlock: false,
     status: "draft",
-    publishedAtCustom: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
+    publishedAtCustom: toDateTimeLocalValue(new Date().toISOString()),
     readingTime: "5",
     sources: [{ name: "", url: "" }],
     startsAt: "",
@@ -117,6 +117,20 @@ function createInitialState(type: EditorContentType): FormState {
     seo: { ...EMPTY_SEO },
     blocks: [{ ...EMPTY_RICH_BLOCK }],
   };
+}
+
+function toDateTimeLocalValue(value: string | null | undefined) {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
 
 function getErrorMessage(payload: EditorApiError | null, fallback: string) {
@@ -210,7 +224,7 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
     tags: Array.isArray(entry.tags) ? entry.tags.map((item: any) => item?.id).filter(Boolean) : [],
     homepageSpecialBlock: entry.homepageSpecialBlock === true,
     status: entry.editorStatus === "published" || entry.publishedAt ? "published" : "draft",
-    publishedAtCustom: typeof entry.publishedAtCustom === "string" ? entry.publishedAtCustom.slice(0, 16) : "",
+    publishedAtCustom: toDateTimeLocalValue(typeof entry.publishedAtCustom === "string" ? entry.publishedAtCustom : null),
     readingTime: entry.readingTime ? String(entry.readingTime) : state.readingTime,
     sources: normalizedSources.length
       ? normalizedSources

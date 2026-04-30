@@ -1526,10 +1526,12 @@ function withStatus(path: string, status?: "draft" | "published") {
 async function fetchStrapi<T>(path: string, options?: { revalidate?: number | false; status?: "draft" | "published" }) {
   const revalidate = options?.revalidate;
   const shouldUseNoStore = options?.status === "draft" || revalidate === false || !HAS_REVALIDATE_SECRET;
+  const authToken = options?.status === "draft" ? (await cookies()).get("vino_auth_jwt")?.value ?? null : null;
   const response = await fetch(`${CMS_URL}${withStatus(path, options?.status)}`, {
     cache: shouldUseNoStore ? "no-store" : undefined,
     next: shouldUseNoStore ? undefined : { revalidate: revalidate ?? DEFAULT_REVALIDATE_SECONDS },
     headers: {
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       "Content-Type": "application/json",
     },
   });
