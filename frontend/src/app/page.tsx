@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Script from "next/script";
-import type { CSSProperties } from "react";
 import {
   CMS_API_URL,
   SITE_URL,
@@ -17,7 +16,6 @@ import {
   getSiteSeo,
   getSidebarForPath,
   getTagCloud,
-  type HomepageSpecialCard,
   type NewsSummary,
   withLoggedFallback,
 } from "@/lib/strapi";
@@ -30,11 +28,6 @@ import { HomepageSpecialVideoTile } from "@/components/homepage-special-video-ti
 import { HomepageNewsSidebar, type HomepageNewsSidebarItem } from "@/components/homepage-news-sidebar";
 
 export const revalidate = 120;
-
-const specialVideoScrollbarStyle = {
-  scrollbarWidth: "thin",
-  scrollbarColor: "rgba(16, 185, 129, 0.45) rgba(13, 49, 50, 0.14)",
-} satisfies CSSProperties;
 
 function formatHomepageNewsTime(value?: string | null) {
   return formatRussianDateTime(value) ?? "--:--";
@@ -299,8 +292,6 @@ export default async function Home() {
   const specialLead = homepageSpecial.featureCards[0] ?? null;
   const specialSecondary = homepageSpecial.featureCards.slice(1, 3);
   const specialVideos = homepageSpecial.videos;
-  const specialVideoLead = specialVideos[0] ?? null;
-  const specialVideoStack = specialVideos.slice(1);
   const hasHomepageSpecialBlock = Boolean(specialLead || specialSecondary.length || specialVideos.length);
   const hasHomepageNewsWidget = Boolean(latestNewsSidebarItems.length || popularNewsSidebarItems.length);
 
@@ -487,62 +478,24 @@ export default async function Home() {
                       </div>
                     </div>
 
-                    {specialVideoLead ? (
-                      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] lg:items-start">
-                        <HomepageSpecialVideoTile
-                          key={specialVideoLead.documentId}
-                          href={specialVideoLead.href}
-                          title={specialVideoLead.title}
-                          coverUrl={specialVideoLead.cover?.url ?? null}
-                          coverAlt={specialVideoLead.cover?.alternativeText ?? specialVideoLead.title}
-                          videoUrl={specialVideoLead.videoUrl}
-                          meta={buildCategoryDateOverlayMeta(specialVideoLead.categories, specialVideoLead.publishedAt, specialVideoLead.publishedAtCustom)}
-                          className="lg:self-start"
-                          mediaClassName="aspect-[16/10] lg:min-h-[32rem]"
-                          titleClassName="type-h3"
-                          imageSizes="(max-width: 1023px) 100vw, 66vw"
-                        />
-
-                        <div
-                          className="homepage-special-video-stack grid gap-4 sm:grid-cols-2 lg:max-h-[32rem] lg:grid-cols-1 lg:content-start lg:overflow-y-auto lg:pr-1"
-                          style={specialVideoScrollbarStyle}
-                        >
-                          {specialVideoStack.map((video) => (
-                            <HomepageSpecialVideoTile
-                              key={video.documentId}
-                              href={video.href}
-                              title={video.title}
-                              coverUrl={video.cover?.url ?? null}
-                              coverAlt={video.cover?.alternativeText ?? video.title}
-                              videoUrl={video.videoUrl}
-                              meta={buildCategoryDateOverlayMeta(video.categories, video.publishedAt, video.publishedAtCustom)}
-                              mediaClassName="aspect-[16/9]"
-                              imageSizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 34vw"
-                            />
-                          ))}
-                        </div>
+                    {specialVideos.length ? (
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        {specialVideos.map((video) => (
+                          <HomepageSpecialVideoTile
+                            key={video.documentId}
+                            href={video.href}
+                            title={video.title}
+                            coverUrl={video.cover?.url ?? null}
+                            coverAlt={video.cover?.alternativeText ?? video.title}
+                            videoUrl={video.videoUrl}
+                            meta={buildCategoryDateOverlayMeta(video.categories, video.publishedAt, video.publishedAtCustom)}
+                            mediaClassName="aspect-video"
+                            titleClassName="type-h4"
+                            imageSizes="(max-width: 639px) 100vw, 50vw"
+                          />
+                        ))}
                       </div>
                     ) : null}
-                    <style>{`
-                      .homepage-special-video-stack::-webkit-scrollbar {
-                        width: 8px;
-                      }
-
-                      .homepage-special-video-stack::-webkit-scrollbar-track {
-                        background: rgba(13, 49, 50, 0.14);
-                        border-radius: 9999px;
-                      }
-
-                      .homepage-special-video-stack::-webkit-scrollbar-thumb {
-                        background: linear-gradient(180deg, rgba(16, 185, 129, 0.72), rgba(13, 148, 136, 0.72));
-                        border-radius: 9999px;
-                        border: 1px solid rgba(255, 255, 255, 0.16);
-                      }
-
-                      .homepage-special-video-stack::-webkit-scrollbar-thumb:hover {
-                        background: linear-gradient(180deg, rgba(16, 185, 129, 0.88), rgba(13, 148, 136, 0.88));
-                      }
-                    `}</style>
                   </div>
 
                   {hasHomepageNewsWidget ? (

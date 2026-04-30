@@ -499,7 +499,9 @@ export function SiteHeader({
       (desktopTopPinned ? topRowHeight : 0) +
       (desktopMiddlePinned ? middleRowHeight : 0) +
       (desktopBottomPinned ? bottomRowHeight : 0);
-    const stickyOffset = isMobileViewport ? mobileRowHeight : desktopStickyOffset;
+    const stickyOffset = isMobileViewport
+      ? mobileRowHeight + (isMenuOpen ? 1 : 0)
+      : desktopStickyOffset;
 
     root.style.setProperty("--site-header-offset", `${stickyOffset}px`);
     root.style.setProperty("--site-header-offset-with-gap", `calc(${stickyOffset}px + 1.5rem)`);
@@ -508,7 +510,7 @@ export function SiteHeader({
       root.style.removeProperty("--site-header-offset");
       root.style.removeProperty("--site-header-offset-with-gap");
     };
-  }, [bottomRowHeight, isMobileViewport, middleRowHeight, mobileRowHeight, theme.bottomPinned, theme.middlePinned, theme.topPinned, topRowHeight]);
+  }, [bottomRowHeight, isMenuOpen, isMobileViewport, middleRowHeight, mobileRowHeight, theme.bottomPinned, theme.middlePinned, theme.topPinned, topRowHeight]);
 
   if (!hasHeaderContent) {
     return null;
@@ -1141,7 +1143,7 @@ export function SiteHeader({
         </>
       ) : null}
 
-      <div ref={mobileRowRef} className="border-t border-black/5 md:hidden dark:border-white/10" style={mobileThemeStyle}>
+      <div ref={mobileRowRef} className="sticky top-0 z-50 border-t border-black/5 md:hidden dark:border-white/10" style={mobileThemeStyle}>
         <div
           className="grid gap-3 px-4"
           style={mobileRowMetrics.rowHeight

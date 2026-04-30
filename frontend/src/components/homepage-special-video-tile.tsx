@@ -78,7 +78,7 @@ export function HomepageSpecialVideoTile({
       onFocus={() => setIsHovered(true)}
       onBlur={() => setIsHovered(false)}
     >
-      <div className={["relative aspect-[16/10] w-full overflow-hidden bg-black", mediaClassName].filter(Boolean).join(" ")}>
+      <div className={["relative aspect-video w-full overflow-hidden bg-black", mediaClassName].filter(Boolean).join(" ")}>
         <Link href={href} aria-label={title} className="block h-full w-full">
           {coverUrl ? (
             <Image

@@ -39,6 +39,11 @@ export default {
       method: 'POST',
       path: '/editor/upload',
       handler: 'editor.upload',
+      config: {
+        body: {
+          multipart: true,
+        },
+      },
     },
     {
       method: 'POST',
