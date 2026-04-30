@@ -1160,9 +1160,11 @@ export function SiteHeader({
         </>
       ) : null}
 
+      <div aria-hidden="true" className="md:hidden" style={{ height: mobileRowHeight ? `${mobileRowHeight}px` : undefined }} />
+
       <div
         ref={mobileRowRef}
-        className="sticky top-0 z-[90] border-t border-black/5 md:hidden dark:border-white/10"
+        className="fixed inset-x-0 top-0 z-[90] border-t border-black/5 md:hidden dark:border-white/10"
         style={mobileThemeStyle}
       >
         <div
