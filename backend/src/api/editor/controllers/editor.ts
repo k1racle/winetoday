@@ -66,6 +66,28 @@ function buildEditorPopulate(type: EditorType) {
   };
 }
 
+function runtimeHasAttribute(strapi: any, type: EditorType, attributeName: string) {
+  const uid = TYPE_CONFIG[type].uid;
+  const attributes = strapi.contentTypes?.[uid]?.attributes;
+
+  return Boolean(attributes && Object.prototype.hasOwnProperty.call(attributes, attributeName));
+}
+
+function sanitizeEditorDataForRuntime(strapi: any, type: EditorType, data: Record<string, unknown>) {
+  if (type === 'homepage') {
+    return data;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(data, 'coverSource') && !runtimeHasAttribute(strapi, type, 'coverSource')) {
+    strapi.log.warn(
+      `[editor.save] Runtime schema for ${TYPE_CONFIG[type].uid} does not contain coverSource; dropping field before save.`,
+    );
+    delete data.coverSource;
+  }
+
+  return data;
+}
+
 function createEmptyTiptapDocument() {
   return {
     type: 'doc',
@@ -934,6 +956,13 @@ export default factories.createCoreController('api::member-profile.member-profil
       ? (payload.author ? Number(payload.author) : null)
       : await resolveAuthorIdForProfile(strapi, access.profile);
     const normalized = normalizePayload(rawType, payload, access.profile.id, resolvedAuthorId);
+
+    if (rawType !== 'homepage') {
+      strapi.log.info(
+        `[editor.save] type=${rawType} uid=${TYPE_CONFIG[rawType].uid} runtimeHasCoverSource=${String(runtimeHasAttribute(strapi, rawType, 'coverSource'))}`,
+      );
+      sanitizeEditorDataForRuntime(strapi, rawType, normalized.data);
+    }
 
     if (rawType === 'homepage') {
       if (!documentId) {
