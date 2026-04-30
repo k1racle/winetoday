@@ -22,6 +22,7 @@ type HomepageSpecialVideoTileProps = {
   hideTitle?: boolean;
   titleBelow?: boolean;
   bodyClassName?: string;
+  bodyWrapperClassName?: string;
 };
 
 function resolvePreviewEmbedUrl(videoUrl?: string | null) {
@@ -72,6 +73,7 @@ export function HomepageSpecialVideoTile({
   hideTitle,
   titleBelow,
   bodyClassName,
+  bodyWrapperClassName,
 }: HomepageSpecialVideoTileProps) {
   const [isHovered, setIsHovered] = useState(false);
   const embedUrl = useMemo(() => resolvePreviewEmbedUrl(videoUrl), [videoUrl]);
@@ -118,9 +120,9 @@ export function HomepageSpecialVideoTile({
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <span className={[
             "flex items-center justify-center rounded-full bg-white/92 text-[#10351d] shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition duration-300 group-hover:scale-105 group-hover:bg-white",
-            compactPlayButton ? "h-12 w-12" : "h-16 w-16",
+            compactPlayButton ? "h-16 w-16 xl:h-12 xl:w-12" : "h-16 w-16",
           ].join(" ")}>
-            <svg viewBox="0 0 24 24" className={["ml-1 fill-current", compactPlayButton ? "h-5 w-5" : "h-7 w-7"].join(" ")} aria-hidden="true">
+            <svg viewBox="0 0 24 24" className={["ml-1 fill-current", compactPlayButton ? "h-7 w-7 xl:h-5 xl:w-5" : "h-7 w-7"].join(" ")} aria-hidden="true">
               <path d="M8 6.5v11l9-5.5-9-5.5Z" />
             </svg>
           </span>
@@ -142,7 +144,7 @@ export function HomepageSpecialVideoTile({
         </div>
       </div>
       {!hideTitle && titleBelow ? (
-        <div className={["px-5 py-4 sm:px-6", bodyClassName].filter(Boolean).join(" ")}>
+        <div className={["px-5 py-4 sm:px-6", bodyWrapperClassName, bodyClassName].filter(Boolean).join(" ")}>
           <h3 className={[
             "text-[#0d3132] dark:text-white",
             titleClassName ?? "type-h4",
