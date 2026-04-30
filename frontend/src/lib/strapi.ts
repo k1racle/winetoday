@@ -39,6 +39,22 @@ const CONTENT_POPULATE_QUERY = [
   "populate[sources]=true",
 ].join("&");
 
+const VIDEO_CONTENT_POPULATE_QUERY = [
+  "populate[content][populate]=*",
+  "populate[content][on][blocks.archive-feed]=true",
+  "populate[content][on][blocks.cta][populate][link]=true",
+  "populate[content][on][blocks.embed]=true",
+  "populate[content][on][blocks.html-editor]=true",
+  "populate[content][on][blocks.image-gallery][populate][images]=true",
+  "populate[content][on][blocks.image-slider][populate][images]=true",
+  "populate[content][on][blocks.link-grid][populate][links]=true",
+  "populate[content][on][blocks.rich-text]=true",
+  "populate[content][on][blocks.quote]=true",
+  "populate[content][on][blocks.image-highlight][populate][image]=true",
+  "populate[content][on][blocks.hero][populate][backgroundImage]=true",
+  "populate[content][on][blocks.hero][populate][backgroundVideo]=true",
+].join("&");
+
 const HOMEPAGE_BLOCKS_POPULATE_QUERY = [
   "populate[blocks]=true",
   "populate[blocks][on][blocks.archive-feed]=true",
@@ -1994,7 +2010,7 @@ export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) 
       { status },
     ),
     fetchStrapi<VideoSummary[]>(
-      `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&${CONTENT_POPULATE_QUERY}`,
+      `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&${VIDEO_CONTENT_POPULATE_QUERY}`,
       { status },
     ),
   ]);
