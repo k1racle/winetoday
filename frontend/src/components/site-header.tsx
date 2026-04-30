@@ -503,6 +503,7 @@ export function SiteHeader({
       scrollY: window.scrollY,
       mobileRowHeight,
       pathname,
+      mobileRowMode: "sticky",
     });
   }, [isMenuOpen, isMobileViewport, mobileRowHeight, pathname]);
 
@@ -1159,7 +1160,11 @@ export function SiteHeader({
         </>
       ) : null}
 
-      <div ref={mobileRowRef} className="relative z-50 border-t border-black/5 md:hidden dark:border-white/10" style={mobileThemeStyle}>
+      <div
+        ref={mobileRowRef}
+        className="sticky top-0 z-[90] border-t border-black/5 md:hidden dark:border-white/10"
+        style={mobileThemeStyle}
+      >
         <div
           className="grid gap-3 px-4"
           style={mobileRowMetrics.rowHeight

@@ -2,20 +2,31 @@ import { cmsFetch } from "@/lib/editor";
 
 export async function POST(request: Request) {
   try {
-    const contentType = request.headers.get("content-type") ?? "";
-    const requestInit: RequestInit & { duplex: "half" } = {
-      method: "POST",
-      headers: contentType ? { "Content-Type": contentType } : {},
-      body: request.body,
-      duplex: "half",
-    };
+    const formData = await request.formData();
+    const forwardedFormData = new FormData();
+
+    for (const [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        forwardedFormData.append(key, value, value.name);
+        continue;
+      }
+
+      forwardedFormData.append(key, value);
+    }
+
+    const fileEntries = Array.from(formData.entries()).filter(([, value]) => value instanceof File);
 
     console.info("[editor-upload-proxy] forwarding upload request", {
-      contentType,
-      hasBody: request.body !== null,
+      contentType: request.headers.get("content-type") ?? "",
+      formKeys: Array.from(new Set(Array.from(formData.keys()))),
+      fileCount: fileEntries.length,
+      fileFieldNames: fileEntries.map(([key]) => key),
     });
 
-    const response = await cmsFetch("/api/editor/upload", requestInit);
+    const response = await cmsFetch("/api/editor/upload", {
+      method: "POST",
+      body: forwardedFormData,
+    });
     const body = await response.text();
 
     console.info("[editor-upload-proxy] cms response", {
