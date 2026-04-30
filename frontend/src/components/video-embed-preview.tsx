@@ -2,10 +2,14 @@
 
 type VideoEmbedPreviewProps = {
   title: string;
-  videoUrl: string;
+  videoUrl?: string | null;
 };
 
-function resolveEmbedUrl(videoUrl: string) {
+function resolveEmbedUrl(videoUrl?: string | null) {
+  if (!videoUrl) {
+    return null;
+  }
+
   try {
     const url = new URL(videoUrl);
 
@@ -47,6 +51,10 @@ function resolveEmbedUrl(videoUrl: string) {
 
 export function VideoEmbedPreview({ title, videoUrl }: VideoEmbedPreviewProps) {
   const embedUrl = resolveEmbedUrl(videoUrl);
+
+  if (!embedUrl) {
+    return null;
+  }
 
   return (
     <div className="overflow-hidden bg-black">

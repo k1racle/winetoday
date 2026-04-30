@@ -69,10 +69,12 @@ export default async function VideoDetailPage({ params }: PageProps) {
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />
           <MaterialEditButton type="video" documentId={video.documentId} authorSlug={video.author?.slug} />
-          <VideoEmbedPreview
-            title={video.title}
-            videoUrl={video.videoUrl}
-          />
+          {video.videoUrl ? (
+            <VideoEmbedPreview
+              title={video.title}
+              videoUrl={video.videoUrl}
+            />
+          ) : null}
 
           <header className="space-y-4">
             <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Видео", href: "/videos" }, { label: video.title }]} />
