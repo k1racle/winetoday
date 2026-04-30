@@ -1891,11 +1891,11 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           <textarea value={form.excerpt} onChange={(event) => updateForm("excerpt", event.target.value)} rows={4} className={inputClassName} />
         </Field>
 
-        <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
-          <div className="grid gap-4">
-            <Field label="Статус">
-              <select value={form.status} onChange={(event) => updateForm("status", event.target.value as FormState["status"])} className={inputClassName}>
-                <option value="draft">Черновик</option>
+          <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
+            <div className="grid gap-4">
+              <Field label="Статус">
+                <select value={form.status} onChange={(event) => updateForm("status", event.target.value as FormState["status"])} className={inputClassName}>
+                  <option value="draft">Черновик</option>
                 <option value="published">Опубликовать</option>
               </select>
             </Field>
@@ -1910,6 +1910,20 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                     <option key={author.id} value={author.id}>{author.name}</option>
                   ))}
                 </select>
+              </Field>
+            ) : null}
+
+            {canEditAll ? (
+              <Field label="Главная">
+                <label className="flex items-center gap-3 rounded-none border border-black/10 px-3 py-3 text-sm text-zinc-700 dark:border-white/10 dark:text-zinc-200">
+                  <input
+                    type="checkbox"
+                    checked={form.homepageSpecialBlock}
+                    onChange={(event) => updateForm("homepageSpecialBlock", event.target.checked)}
+                    className="h-4 w-4 rounded-none border-black/20 text-black focus:ring-black dark:border-white/20 dark:bg-[#08110b] dark:text-white dark:focus:ring-white"
+                  />
+                  <span>Вывести на главную в спецблок</span>
+                </label>
               </Field>
             ) : null}
           </div>
