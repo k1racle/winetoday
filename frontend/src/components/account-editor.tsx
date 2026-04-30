@@ -298,21 +298,35 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
 }
 
 async function uploadFile(file: File) {
-  const formData = new FormData();
-  formData.append("files", file);
+  const arrayBuffer = await file.arrayBuffer();
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = "";
+
+  for (let index = 0; index < bytes.length; index += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+  }
+
+  const payload = {
+    fileName: file.name,
+    mimeType: file.type || "application/octet-stream",
+    contentBase64: btoa(binary),
+  };
 
   const response = await fetch("/api/editor/upload", {
     method: "POST",
-    body: formData,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
   });
 
-  const payload = await parseJson<UploadedAsset[] | EditorApiError>(response);
+  const responsePayload = await parseJson<UploadedAsset[] | EditorApiError>(response);
 
-  if (!response.ok || !Array.isArray(payload) || !payload[0]?.id) {
-    throw new Error(getErrorMessage(payload as EditorApiError | null, "Не удалось загрузить файл."));
+  if (!response.ok || !Array.isArray(responsePayload) || !responsePayload[0]?.id) {
+    throw new Error(getErrorMessage(responsePayload as EditorApiError | null, "Не удалось загрузить файл."));
   }
 
-  return payload[0].id;
+  return responsePayload[0].id;
 }
 
 async function refreshMediaAssets() {

@@ -1,5 +1,8 @@
 import { factories } from '@strapi/strapi';
 import { errors } from '@strapi/utils';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { resolveUsersPermissionsUser, resolveUsersPermissionsUserFromCookie } from '../../../utils/auth';
 
 const { ForbiddenError, NotFoundError, ValidationError } = errors;
@@ -131,6 +134,60 @@ function normalizeRequestFiles(files: unknown): any[] {
   }
 
   return [];
+}
+
+function normalizeBase64Payload(value: unknown) {
+  if (typeof value !== 'string') {
+    return null;
+  }
+
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  const dataUrlMatch = /^data:([^;,]+)?;base64,(.+)$/i.exec(trimmed);
+
+  if (dataUrlMatch) {
+    return {
+      mimeType: dataUrlMatch[1] || undefined,
+      base64: dataUrlMatch[2],
+    };
+  }
+
+  return {
+    mimeType: undefined,
+    base64: trimmed,
+  };
+}
+
+async function createUploadFileFromBase64(body: Record<string, any>) {
+  const normalized = normalizeBase64Payload(body.contentBase64 ?? body.fileBase64 ?? body.dataUrl ?? null);
+
+  if (!normalized?.base64) {
+    return null;
+  }
+
+  const fileName = typeof body.fileName === 'string' && body.fileName.trim() ? body.fileName.trim() : 'upload.bin';
+  const mimeType = typeof body.mimeType === 'string' && body.mimeType.trim()
+    ? body.mimeType.trim()
+    : (normalized.mimeType ?? 'application/octet-stream');
+  const buffer = Buffer.from(normalized.base64, 'base64');
+  const tempDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'editor-upload-'));
+  const tempFilePath = path.join(tempDirectory, fileName);
+
+  await fs.writeFile(tempFilePath, buffer);
+
+  return {
+    cleanupDirectory: tempDirectory,
+    file: {
+      filepath: tempFilePath,
+      originalFilename: fileName,
+      mimetype: mimeType,
+      size: buffer.byteLength,
+    },
+  };
 }
 
 function resolveAssetPreviewUrl(asset: Record<string, any>) {
@@ -820,19 +877,39 @@ export default factories.createCoreController('api::member-profile.member-profil
       `[editor.upload] content-type=${ctx.request.headers?.['content-type'] ?? 'unknown'} files=${files.length} bodyKeys=${Object.keys(ctx.request.body ?? {}).join(',') || 'none'}`,
     );
 
-    if (!files.length) {
+    let cleanupDirectory: string | null = null;
+    let resolvedFiles = files;
+
+    if (!resolvedFiles.length) {
+      const fallbackUpload = await createUploadFileFromBase64(ctx.request.body ?? {});
+
+      if (fallbackUpload) {
+        cleanupDirectory = fallbackUpload.cleanupDirectory;
+        resolvedFiles = [fallbackUpload.file];
+        strapi.log.warn('[editor.upload] multipart parsing returned no files, using base64 fallback upload');
+      }
+    }
+
+    if (!resolvedFiles.length) {
       strapi.log.warn('[editor.upload] upload rejected: request did not contain files');
       throw new ValidationError('Не передан файл для загрузки.');
     }
 
     const fileInfo = ctx.request.body?.fileInfo;
     const data = fileInfo ? { fileInfo } : {};
-    const uploaded = await strapi.plugin('upload').service('upload').upload({
-      data,
-      files: files.length === 1 ? files[0] : files,
-    });
 
-    ctx.body = (Array.isArray(uploaded) ? uploaded : [uploaded]).map((asset: Record<string, any>) => serializeUploadedAsset(asset));
+    try {
+      const uploaded = await strapi.plugin('upload').service('upload').upload({
+        data,
+        files: resolvedFiles.length === 1 ? resolvedFiles[0] : resolvedFiles,
+      });
+
+      ctx.body = (Array.isArray(uploaded) ? uploaded : [uploaded]).map((asset: Record<string, any>) => serializeUploadedAsset(asset));
+    } finally {
+      if (cleanupDirectory) {
+        await fs.rm(cleanupDirectory, { recursive: true, force: true });
+      }
+    }
   },
 
   async save(ctx: any) {
