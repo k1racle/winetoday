@@ -61,7 +61,6 @@ function buildEditorPopulate(type: EditorType) {
     categories: true,
     tags: true,
     sources: true,
-    coverSource: true,
     seo: true,
   };
 }

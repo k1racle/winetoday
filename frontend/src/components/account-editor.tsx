@@ -1523,7 +1523,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               slug: form.slug,
               excerpt: form.excerpt,
               cover: form.cover,
-              coverSource: form.coverSource,
               author: form.author,
               categories: form.categories,
               tags: form.tags,
@@ -1875,6 +1874,10 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           <div>
             <Field label="Обложка">
               <div className="grid gap-3">
+                <input type="file" accept="image/*" onChange={(event) => void handleCoverUpload(event)} className={fileInputClassName} />
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {coverAsset ? `Выбран файл: ${coverAsset.name || `Файл #${coverAsset.id}`}` : "Файл не выбран. Можно загрузить новую обложку или выбрать уже загруженную в библиотеке."}
+                </p>
                 <MediaSummaryCard
                   asset={coverAsset}
                   accept="image"
@@ -1883,9 +1886,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   onClear={() => updateForm("cover", null)}
                   openLabel="Открыть библиотеку"
                 />
-                <Field label="Источник обложки/изображения">
-                  <input value={form.coverSource} onChange={(event) => updateForm("coverSource", event.target.value)} className={inputClassName} placeholder="Например: фото автора или название агентства" />
-                </Field>
               </div>
             </Field>
           </div>
