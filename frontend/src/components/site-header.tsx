@@ -491,6 +491,22 @@ export function SiteHeader({
   }, [isMenuOpen, isSearchOpen]);
 
   useEffect(() => {
+    if (!isMobileViewport || typeof window === "undefined") {
+      return;
+    }
+
+    if (!isMenuOpen) {
+      return;
+    }
+
+    console.info("[site-header] mobile menu opened", {
+      scrollY: window.scrollY,
+      mobileRowHeight,
+      pathname,
+    });
+  }, [isMenuOpen, isMobileViewport, mobileRowHeight, pathname]);
+
+  useEffect(() => {
     const root = document.documentElement;
     const desktopTopPinned = theme.topPinned ?? true;
     const desktopMiddlePinned = theme.middlePinned ?? true;
@@ -1143,7 +1159,7 @@ export function SiteHeader({
         </>
       ) : null}
 
-      <div ref={mobileRowRef} className="sticky top-0 z-50 border-t border-black/5 md:hidden dark:border-white/10" style={mobileThemeStyle}>
+      <div ref={mobileRowRef} className="relative z-50 border-t border-black/5 md:hidden dark:border-white/10" style={mobileThemeStyle}>
         <div
           className="grid gap-3 px-4"
           style={mobileRowMetrics.rowHeight

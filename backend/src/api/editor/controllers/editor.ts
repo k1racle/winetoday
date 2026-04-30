@@ -810,7 +810,12 @@ export default factories.createCoreController('api::member-profile.member-profil
 
     const files = normalizeRequestFiles(ctx.request.files);
 
+    strapi.log.info(
+      `[editor.upload] content-type=${ctx.request.headers?.['content-type'] ?? 'unknown'} files=${files.length} bodyKeys=${Object.keys(ctx.request.body ?? {}).join(',') || 'none'}`,
+    );
+
     if (!files.length) {
+      strapi.log.warn('[editor.upload] upload rejected: request did not contain files');
       throw new ValidationError('Не передан файл для загрузки.');
     }
 
