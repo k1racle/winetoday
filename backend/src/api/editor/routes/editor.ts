@@ -41,9 +41,6 @@ export default {
       handler: 'editor.upload',
       config: {
         auth: false,
-        body: {
-          multipart: true,
-        },
       },
     },
     {
