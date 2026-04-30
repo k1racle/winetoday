@@ -1,5 +1,8 @@
 import { getAuthToken } from "@/lib/auth";
 import { CMS_API_URL } from "@/lib/strapi";
+import FormData from "form-data";
+
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
@@ -11,7 +14,13 @@ export async function POST(request: Request) {
 
     for (const [key, value] of incomingFormData.entries()) {
       if (value instanceof File) {
-        forwardedFormData.append(key, value, value.name);
+        const buffer = Buffer.from(await value.arrayBuffer());
+
+        forwardedFormData.append(key, buffer, {
+          filename: value.name,
+          contentType: value.type || "application/octet-stream",
+          knownLength: buffer.length,
+        });
         fileCount += 1;
         filenames.push(value.name);
         continue;
@@ -24,9 +33,17 @@ export async function POST(request: Request) {
       fieldCount: Array.from(incomingFormData.keys()).length,
       fileCount,
       filenames,
+      transport: "form-data-buffer",
     });
 
     const headers = new Headers();
+    const multipartHeaders = forwardedFormData.getHeaders();
+
+    for (const [key, value] of Object.entries(multipartHeaders)) {
+      headers.set(key, value);
+    }
+
+    headers.set("Content-Length", String(forwardedFormData.getLengthSync()));
 
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
@@ -35,7 +52,7 @@ export async function POST(request: Request) {
     const response = await fetch(new URL("/api/editor/upload", CMS_API_URL), {
       method: "POST",
       headers,
-      body: forwardedFormData,
+      body: new Uint8Array(forwardedFormData.getBuffer()),
       cache: "no-store",
     });
     const responseContentType = response.headers.get("Content-Type") ?? "application/octet-stream";
