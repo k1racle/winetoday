@@ -1939,16 +1939,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           </div>
         </div>
 
-        <label className="inline-flex items-center gap-3 text-sm text-zinc-700 dark:text-zinc-200">
-          <input
-            type="checkbox"
-            checked={form.homepageSpecialBlock}
-            onChange={(event) => updateForm("homepageSpecialBlock", event.target.checked)}
-            className="h-4 w-4 border-black/20 text-emerald-700 focus:ring-emerald-600 dark:border-white/20 dark:bg-[#08110b] dark:text-emerald-400"
-          />
-          Вывести на главную в спецблок
-        </label>
-
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Рубрики">
             <select multiple value={form.categories.map(String)} onChange={(event) => updateMultiSelect("categories", Array.from(event.target.selectedOptions).map((option) => option.value))} className={`${inputClassName} min-h-[180px]`}>

@@ -24,7 +24,7 @@ import { SidebarPanel } from "@/components/sidebar-panel";
 import Link from "next/link";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { ArchiveOverlayMeta } from "@/components/archive-overlay-meta";
-import { HomepageSpecialVideoTile } from "@/components/homepage-special-video-tile";
+import { HomepageSpecialVideoCarousel } from "@/components/homepage-special-video-carousel";
 import { HomepageNewsSidebar, type HomepageNewsSidebarItem } from "@/components/homepage-news-sidebar";
 
 export const revalidate = 120;
@@ -454,22 +454,16 @@ export default async function Home() {
                     </div>
 
                     {specialVideos.length ? (
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        {specialVideos.map((video) => (
-                          <HomepageSpecialVideoTile
-                            key={video.documentId}
-                            href={video.href}
-                            title={video.title}
-                            coverUrl={video.cover?.url ?? null}
-                            coverAlt={video.cover?.alternativeText ?? video.title}
-                            videoUrl={video.videoUrl}
-                            meta={buildCategoryDateOverlayMeta(video.categories, video.publishedAt, video.publishedAtCustom)}
-                            mediaClassName="aspect-video"
-                            titleClassName="type-h4"
-                            imageSizes="(max-width: 639px) 100vw, 50vw"
-                          />
-                        ))}
-                      </div>
+                      <HomepageSpecialVideoCarousel
+                        videos={specialVideos.map((video) => ({
+                          documentId: video.documentId,
+                          href: video.href,
+                          title: video.title,
+                          cover: video.cover ?? null,
+                          videoUrl: video.videoUrl,
+                          meta: buildCategoryDateOverlayMeta(video.categories, video.publishedAt, video.publishedAtCustom),
+                        }))}
+                      />
                     ) : null}
                   </div>
 

@@ -2023,7 +2023,7 @@ export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) 
 
 export async function getHomepageSpecialItems() {
   const [articles, news, videos] = await Promise.all([getArticles(), getNews(), getVideos()]);
-  const homepageSpecialVideoLimit = 4;
+  const homepageSpecialVideoLimit = 10;
 
   const cards: HomepageSpecialCard[] = sortPublishedItems([
     ...articles

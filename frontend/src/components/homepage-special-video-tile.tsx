@@ -17,6 +17,8 @@ type HomepageSpecialVideoTileProps = {
   mediaClassName?: string;
   titleClassName?: string;
   imageSizes?: string;
+  contentClassName?: string;
+  compactPlayButton?: boolean;
 };
 
 function resolvePreviewEmbedUrl(videoUrl?: string | null) {
@@ -62,6 +64,8 @@ export function HomepageSpecialVideoTile({
   mediaClassName,
   titleClassName,
   imageSizes,
+  contentClassName,
+  compactPlayButton,
 }: HomepageSpecialVideoTileProps) {
   const [isHovered, setIsHovered] = useState(false);
   const embedUrl = useMemo(() => resolvePreviewEmbedUrl(videoUrl), [videoUrl]);
@@ -70,7 +74,7 @@ export function HomepageSpecialVideoTile({
   return (
     <article
       className={[
-        "group relative overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]",
+        "group relative aspect-video overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]",
         className,
       ].filter(Boolean).join(" ")}
       onMouseEnter={() => setIsHovered(true)}
@@ -78,7 +82,7 @@ export function HomepageSpecialVideoTile({
       onFocus={() => setIsHovered(true)}
       onBlur={() => setIsHovered(false)}
     >
-      <div className={["relative aspect-video w-full overflow-hidden bg-black", mediaClassName].filter(Boolean).join(" ")}>
+      <div className={["relative h-full w-full overflow-hidden bg-black", mediaClassName].filter(Boolean).join(" ")}>
         <Link href={href} aria-label={title} className="block h-full w-full">
           {coverUrl ? (
             <Image
@@ -106,27 +110,28 @@ export function HomepageSpecialVideoTile({
 
         <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-t from-black/88 via-black/34 to-black/12 transition duration-300 group-hover:from-black/80 group-hover:via-black/28 group-hover:to-black/6" />
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/92 text-[#10351d] shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition duration-300 group-hover:scale-105 group-hover:bg-white">
-            <svg viewBox="0 0 24 24" className="ml-1 h-7 w-7 fill-current" aria-hidden="true">
+          <span className={[
+            "flex items-center justify-center rounded-full bg-white/92 text-[#10351d] shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition duration-300 group-hover:scale-105 group-hover:bg-white",
+            compactPlayButton ? "h-12 w-12" : "h-16 w-16",
+          ].join(" ")}>
+            <svg viewBox="0 0 24 24" className={["ml-1 fill-current", compactPlayButton ? "h-5 w-5" : "h-7 w-7"].join(" ")} aria-hidden="true">
               <path d="M8 6.5v11l9-5.5-9-5.5Z" />
             </svg>
           </span>
         </div>
-        <div className="absolute inset-x-0 bottom-0 z-20 p-4 text-white">
+        <div className={["absolute inset-x-0 bottom-0 z-20 p-4 text-white", contentClassName].filter(Boolean).join(" ")}>
           {meta?.length ? (
             <ArchiveOverlayMeta itemId={href} meta={meta} />
           ) : null}
+          <h3 className={[
+            "mt-3 text-[#fff]",
+            titleClassName ?? "type-h4",
+          ].join(" ")}>
+            <Link href={href} className="pointer-events-auto transition hover:text-emerald-200">
+              {title}
+            </Link>
+          </h3>
         </div>
-      </div>
-      <div className="p-4">
-        <h3 className={[
-          titleClassName,
-          "text-[#0d3132] dark:text-white",
-        ].filter(Boolean).join(" ")}>
-          <Link href={href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
-            {title}
-          </Link>
-        </h3>
       </div>
     </article>
   );

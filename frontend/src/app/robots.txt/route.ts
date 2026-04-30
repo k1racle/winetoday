@@ -4,6 +4,10 @@ import { SITE_URL, getSiteSeo, withLoggedFallback } from "@/lib/strapi";
 
 const DEFAULT_SITE_URL = SITE_URL;
 
+function normalizeSiteUrl(value?: string | null) {
+  return (value?.trim() || DEFAULT_SITE_URL).replace(/\/+$/, "");
+}
+
 function splitRuleLines(value?: string | null) {
   return (value ?? "")
     .split(/\r?\n/)
@@ -22,7 +26,7 @@ export async function GET() {
     });
   }
 
-  const siteUrl = siteSeo?.siteUrl?.trim() || DEFAULT_SITE_URL;
+  const siteUrl = normalizeSiteUrl(siteSeo?.siteUrl);
   const rules = siteSeo?.robotsRules?.length
     ? siteSeo.robotsRules
     : [{ userAgent: "*", allow: "/", disallow: "/admin/" }];

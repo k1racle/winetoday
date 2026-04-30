@@ -5,6 +5,10 @@ import { SITE_URL, getArticles, getNews, getPages, getSiteSeo, getSitemapCategor
 const DEFAULT_SITE_URL = SITE_URL;
 const RESERVED_PAGE_SLUGS = new Set(["account", "api", "articles", "categories", "news", "robots.txt", "search", "sitemap.xml", "tags", "videos"]);
 
+function normalizeSiteUrl(value?: string | null) {
+  return (value?.trim() || DEFAULT_SITE_URL).replace(/\/+$/, "");
+}
+
 function normalizeDate(value?: string | null) {
   if (!value) {
     return undefined;
@@ -21,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [];
   }
 
-  const siteUrl = siteSeo?.siteUrl?.trim() || DEFAULT_SITE_URL;
+  const siteUrl = normalizeSiteUrl(siteSeo?.siteUrl);
   const excludedPaths = new Set(
     (siteSeo?.sitemapExcludePaths ?? "")
       .split(/\r?\n/)
