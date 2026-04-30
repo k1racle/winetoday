@@ -1,49 +1,31 @@
 import { getAuthToken } from "@/lib/auth";
 import { CMS_API_URL } from "@/lib/strapi";
-import FormData from "form-data";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
     const token = await getAuthToken();
-    const incomingFormData = await request.formData();
-    const forwardedFormData = new FormData();
-    let fileCount = 0;
-    const filenames: string[] = [];
-
-    for (const [key, value] of incomingFormData.entries()) {
-      if (value instanceof File) {
-        const buffer = Buffer.from(await value.arrayBuffer());
-
-        forwardedFormData.append(key, buffer, {
-          filename: value.name,
-          contentType: value.type || "application/octet-stream",
-          knownLength: buffer.length,
-        });
-        fileCount += 1;
-        filenames.push(value.name);
-        continue;
-      }
-
-      forwardedFormData.append(key, value);
-    }
+    const contentType = request.headers.get("content-type");
+    const contentLength = request.headers.get("content-length");
+    const body = await request.arrayBuffer();
 
     console.info("[editor-upload-proxy] forwarding upload request", {
-      fieldCount: Array.from(incomingFormData.keys()).length,
-      fileCount,
-      filenames,
-      transport: "form-data-buffer",
+      contentType,
+      contentLength,
+      bodyBytes: body.byteLength,
+      transport: "raw-body",
     });
 
     const headers = new Headers();
-    const multipartHeaders = forwardedFormData.getHeaders();
 
-    for (const [key, value] of Object.entries(multipartHeaders)) {
-      headers.set(key, value);
+    if (contentType) {
+      headers.set("Content-Type", contentType);
     }
 
-    headers.set("Content-Length", String(forwardedFormData.getLengthSync()));
+    if (contentLength) {
+      headers.set("Content-Length", contentLength);
+    }
 
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
@@ -52,7 +34,7 @@ export async function POST(request: Request) {
     const response = await fetch(new URL("/api/editor/upload", CMS_API_URL), {
       method: "POST",
       headers,
-      body: new Uint8Array(forwardedFormData.getBuffer()),
+      body: new Uint8Array(body),
       cache: "no-store",
     });
     const responseContentType = response.headers.get("Content-Type") ?? "application/octet-stream";
