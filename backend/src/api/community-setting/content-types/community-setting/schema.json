@@ -1,0 +1,43 @@
+{
+  "kind": "singleType",
+  "collectionName": "community_settings",
+  "info": {
+    "singularName": "community-setting",
+    "pluralName": "community-settings",
+    "displayName": "Сообщество",
+    "description": "Настройки кабинетов, комментариев, лайков и шаринга"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "allowGuestComments": {
+      "type": "boolean",
+      "default": true
+    },
+    "commentModerationEnabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "commentBlockedMessage": {
+      "type": "text",
+      "default": "Комментарий не может быть отправлен из-за запрещенных слов"
+    },
+    "commentMaxLength": {
+      "type": "integer",
+      "min": 100,
+      "default": 3000
+    },
+    "commentStopWords": {
+      "type": "component",
+      "repeatable": true,
+      "component": "community.stop-word"
+    },
+    "shareNetworks": {
+      "type": "component",
+      "repeatable": true,
+      "component": "community.share-network"
+    }
+  }
+}

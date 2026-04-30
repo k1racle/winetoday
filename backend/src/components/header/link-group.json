@@ -1,0 +1,52 @@
+{
+  "collectionName": "components_header_link_groups",
+  "info": {
+    "displayName": "Группа ссылок хедера",
+    "description": "Группа ссылок для верхнего, среднего или нижнего ряда хедера"
+  },
+  "options": {},
+  "attributes": {
+    "enabled": {
+      "displayName": "Показывать группу",
+      "description": "Если выключено, вся группа ссылок скрывается из хедера.",
+      "type": "boolean",
+      "default": true
+    },
+    "title": {
+      "displayName": "Заголовок группы",
+      "description": "Необязательный заголовок группы ссылок, полезен для нижнего ряда хедера.",
+      "type": "string"
+    },
+    "titleColor": {
+      "displayName": "Цвет заголовка группы",
+      "description": "Цвет подписи группы, например названий разделов или служебных меток.",
+      "type": "customField",
+      "customField": "global::color"
+    },
+    "backgroundColor": {
+      "displayName": "Фон группы",
+      "description": "Цвет фона всей группы внутри ряда хедера.",
+      "type": "customField",
+      "customField": "global::color"
+    },
+    "position": {
+      "displayName": "Позиция группы",
+      "description": "Где размещать группу в ряду хедера: слева, по центру или справа.",
+      "type": "enumeration",
+      "enum": [
+        "left",
+        "center",
+        "right"
+      ],
+      "default": "left",
+      "required": true
+    },
+    "items": {
+      "displayName": "Элементы группы",
+      "description": "Группа может содержать как обычные ссылки, так и системные элементы хедера.",
+      "type": "component",
+      "repeatable": true,
+      "component": "header.item"
+    }
+  }
+}

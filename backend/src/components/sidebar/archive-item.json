@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_sidebar_archive_items",
+  "info": {
+    "displayName": "Элемент архива",
+    "description": "Элемент архива в сайдбаре, формируемый из коллекций контента"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string",
+      "required": true
+    },
+    "href": {
+      "type": "string",
+      "required": true
+    },
+    "meta": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}

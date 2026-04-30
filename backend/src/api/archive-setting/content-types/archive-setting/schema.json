@@ -1,0 +1,20 @@
+{
+  "kind": "singleType",
+  "collectionName": "archive_settings",
+  "info": {
+    "singularName": "archive-setting",
+    "pluralName": "archive-settings",
+    "displayName": "Настройки архива",
+    "description": "Настройки внешнего вида карточек архива"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "enableCardEffects": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

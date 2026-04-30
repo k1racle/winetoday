@@ -1,0 +1,65 @@
+{
+  "collectionName": "components_shared_typography_settings",
+  "info": {
+    "displayName": "Настройки типографики",
+    "description": "Настройка типографики для меню, текста, заголовков, подписей и кнопок"
+  },
+  "options": {},
+  "attributes": {
+    "menu": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.typography-style"
+    },
+    "body": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.typography-style"
+    },
+    "hero": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.typography-style"
+    },
+    "heroEyebrow": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.typography-style"
+    },
+    "h1": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.typography-style"
+    },
+    "h2": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.typography-style"
+    },
+    "h3": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.typography-style"
+    },
+    "h4": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.typography-style"
+    },
+    "small": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.typography-style"
+    },
+    "caption": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.typography-style"
+    },
+    "button": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.typography-style"
+    }
+  }
+}

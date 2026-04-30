@@ -1,0 +1,68 @@
+{
+  "collectionName": "components_shared_typography_styles",
+  "info": {
+    "displayName": "Типографический стиль",
+    "description": "Семейство шрифта и размер для типографического слота"
+  },
+  "options": {},
+  "attributes": {
+    "fontFamily": {
+      "type": "enumeration",
+      "enum": [
+        "inter",
+        "oswald",
+        "tt-norms-condensed-medium",
+        "tt-norms-condensed-normal",
+        "tt-norms-condensed-regular",
+        "tt-norms-regular",
+        "tt-norms-normal",
+        "tt-norms-medium",
+        "tt-norms-light",
+        "tt-norms-extra-light",
+        "tt-norms-thin",
+        "tt-norms-bold",
+        "tt-norms-extra-bold",
+        "tt-norms-black",
+        "tt-norms-extra-black",
+        "system-sans",
+        "system-serif"
+      ],
+      "default": "inter",
+      "required": true
+    },
+    "fontSize": {
+      "type": "string",
+      "required": true,
+      "default": "16px"
+    },
+    "mobileFontSize": {
+      "type": "string",
+      "default": "16px"
+    },
+    "fontWeight": {
+      "type": "string",
+      "default": "400"
+    },
+    "lineHeight": {
+      "type": "string",
+      "default": "1.4"
+    },
+    "mobileLineHeight": {
+      "type": "string",
+      "default": "1.4"
+    },
+    "letterSpacing": {
+      "type": "string",
+      "default": "normal"
+    },
+    "mobileLetterSpacing": {
+      "type": "string",
+      "default": "normal"
+    },
+    "textTransform": {
+      "type": "enumeration",
+      "enum": ["none", "uppercase"],
+      "default": "none"
+    }
+  }
+}

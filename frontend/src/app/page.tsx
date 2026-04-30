@@ -1,0 +1,583 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Script from "next/script";
+import type { CSSProperties } from "react";
+import {
+  CMS_API_URL,
+  SITE_URL,
+  buildCategoryDateOverlayMeta,
+  buildSeoMetadata,
+  comparePublishedDesc,
+  formatRussianDateTime,
+  getGlobalSettings,
+  getHomepage,
+  getHomepageSpecialItems,
+  getLatestNews,
+  getNews,
+  getSiteSeo,
+  getSidebarForPath,
+  getTagCloud,
+  type HomepageSpecialCard,
+  type NewsSummary,
+  withLoggedFallback,
+} from "@/lib/strapi";
+import { RichContent } from "@/components/rich-content";
+import { SidebarPanel } from "@/components/sidebar-panel";
+import Link from "next/link";
+import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
+import { ArchiveOverlayMeta } from "@/components/archive-overlay-meta";
+import { HomepageSpecialVideoTile } from "@/components/homepage-special-video-tile";
+import { HomepageNewsSidebar, type HomepageNewsSidebarItem } from "@/components/homepage-news-sidebar";
+
+export const revalidate = 120;
+
+const specialVideoScrollbarStyle = {
+  scrollbarWidth: "thin",
+  scrollbarColor: "rgba(16, 185, 129, 0.45) rgba(13, 49, 50, 0.14)",
+} satisfies CSSProperties;
+
+function formatHomepageNewsTime(value?: string | null) {
+  return formatRussianDateTime(value) ?? "--:--";
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [settings, homepage, siteSeo] = await Promise.all([
+    withLoggedFallback("home metadata global settings", () => getGlobalSettings(), null),
+    withLoggedFallback("home metadata homepage", () => getHomepage(), null),
+    withLoggedFallback("home metadata site seo", () => getSiteSeo(), null),
+  ]);
+
+  return buildSeoMetadata({
+    title: homepage?.title ?? settings?.siteName ?? "Виноделие сегодня",
+    description:
+      homepage?.description ??
+      settings?.siteDescription ??
+      "Русскоязычный портал о вине, винодельческих регионах, новостях индустрии, событиях и редакционных материалах.",
+    seo: homepage?.seo ?? null,
+    siteSeo,
+    path: "/",
+    image: settings?.logo?.url,
+  });
+}
+
+function renderBackgroundMedia(options: {
+  imageUrl?: string | null;
+  videoUrl?: string | null;
+  overlayClassName?: string;
+  videoClassName?: string;
+}) {
+  if (!options.videoUrl && !options.imageUrl) {
+    return null;
+  }
+
+  return (
+    <>
+      {options.videoUrl ? (
+        <video
+          className={options.videoClassName ?? "absolute inset-0 h-full w-full object-cover"}
+          src={options.videoUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+        />
+      ) : options.imageUrl ? (
+        <Image
+          src={options.imageUrl}
+          alt=""
+          fill
+          sizes="100vw"
+          className={options.videoClassName ?? "absolute inset-0 h-full w-full object-cover"}
+        />
+      ) : null}
+      {options.overlayClassName ? <div className={`pointer-events-none ${options.overlayClassName}`} /> : null}
+    </>
+  );
+}
+
+async function getNewsLikeCount(targetDocumentId: string) {
+  try {
+    const query = new URLSearchParams({
+      contentTypeUid: "api::news.news",
+      targetDocumentId,
+    });
+    const response = await fetch(`${new URL(`/api/reactions/summary?${query.toString()}`, CMS_API_URL).toString()}`, {
+      next: { revalidate },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      return 0;
+    }
+
+    const data = (await response.json()) as { count?: number };
+    return typeof data?.count === "number" ? data.count : 0;
+  } catch {
+    return 0;
+  }
+}
+
+type HomepageNewsItem = NewsSummary & {
+  popularityCount: number;
+};
+
+type InfographicSlot =
+  | "topRectangle"
+  | "topSquare"
+  | "topStrip"
+  | "bottomSquare"
+  | "bottomCircle"
+  ;
+
+function infographicSlotClass(slot: InfographicSlot) {
+  switch (slot) {
+    case "topRectangle":
+      return "min-h-[240px] aspect-[16/10] sm:min-h-[280px] xl:h-full xl:min-h-0 xl:w-full xl:aspect-auto";
+    case "topSquare":
+    case "bottomSquare":
+      return "min-h-[220px] aspect-square sm:min-h-[280px] xl:h-full xl:min-h-0 xl:w-full xl:aspect-auto";
+    case "topStrip":
+      return "min-h-[110px] aspect-[16/6] sm:min-h-[132px] xl:h-full xl:min-h-0 xl:w-full xl:aspect-auto";
+    case "bottomCircle":
+      return "aspect-square min-h-[220px] w-full rounded-[999px] sm:min-h-[260px] xl:h-auto xl:min-h-0 xl:w-full xl:max-w-[270px]";
+    default:
+      return "min-h-[220px] aspect-square sm:min-h-[280px] xl:h-full xl:min-h-0 xl:w-full xl:aspect-auto";
+  }
+}
+
+function infographicThemeClass(theme?: "light" | "dark" | null) {
+  return theme === "dark"
+    ? "border border-white/10 bg-[#081c22] text-white"
+    : "border border-black/10 bg-white text-[#0d3132]";
+}
+
+type InfographicCard = {
+  shape?: "square" | "rectangle" | "circle";
+  title?: string | null;
+  description?: string | null;
+  href?: string | null;
+  accentText?: string | null;
+  backgroundImage?: { url: string } | null;
+  backgroundVideo?: { url: string } | null;
+  theme?: "light" | "dark" | null;
+};
+
+function renderInfographicCard(
+  card: InfographicCard | undefined,
+  slot: InfographicSlot,
+  className: string,
+  options?: { compact?: boolean; titleClassName?: string; paddingClassName?: string; slotClassName?: string },
+) {
+  if (!card) {
+    return null;
+  }
+
+  const title = card.title?.trim();
+  const href = card.href?.trim();
+  const isDark = card.theme === "dark";
+  const hasBackgroundMedia = Boolean(card.backgroundImage?.url || card.backgroundVideo?.url);
+  const hasContent = Boolean(title || hasBackgroundMedia);
+
+  if (!hasContent) {
+    return null;
+  }
+
+  const themeClass = hasBackgroundMedia
+    ? isDark
+      ? "bg-transparent text-white"
+      : "bg-transparent text-[#0d3132]"
+    : infographicThemeClass(card.theme);
+  const textClassName = isDark ? "text-white" : "text-[#0d3132]";
+  const accentClassName = textClassName;
+  const compact = options?.compact ?? false;
+  const paddingClassName = options?.paddingClassName ?? "p-5";
+  const slotClassName = options?.slotClassName ?? infographicSlotClass(slot);
+  const rootClassName = `group relative block min-w-0 overflow-hidden transition-transform hover:-translate-y-0.5 ${className} ${themeClass} ${slotClassName}`;
+  const content = (
+    <>
+      {renderBackgroundMedia({
+        imageUrl: card.backgroundImage?.url,
+        videoUrl: card.backgroundVideo?.url,
+      })}
+      <div
+        className={`absolute inset-0 z-10 flex min-w-0 flex-col justify-end ${paddingClassName}`}
+      >
+        {title ? (
+          <div className="min-w-0">
+            <div
+              className={`type-h4 w-full max-w-[11rem] break-words [overflow-wrap:anywhere] md:break-normal md:[overflow-wrap:normal] sm:max-w-[16rem] xl:max-w-[18rem] ${
+                options?.titleClassName ?? ""
+              } ${textClassName}`}
+            >
+              {title}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </>
+  );
+
+  return href ? (
+    <Link href={href} className={rootClassName}>
+      {content}
+    </Link>
+  ) : (
+    <div className={rootClassName}>
+      {content}
+    </div>
+  );
+}
+
+export default async function Home() {
+  const [settings, homepage, sidebar, tagCloud, latestNews, allNews, homepageSpecial] = await Promise.all([
+    withLoggedFallback("home global settings", () => getGlobalSettings(), null),
+    withLoggedFallback("home homepage", () => getHomepage(), null),
+    withLoggedFallback("home sidebar", () => getSidebarForPath("/"), null),
+    withLoggedFallback("home tag cloud", () => getTagCloud(), []),
+    withLoggedFallback("home latest news", () => getLatestNews(), []),
+    withLoggedFallback("home all news", () => getNews(), []),
+    withLoggedFallback("home homepage special items", () => getHomepageSpecialItems(), { featureCards: [], videos: [] }),
+  ]);
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: settings?.siteName ?? "Виноделие сегодня",
+    description:
+      settings?.siteDescription ??
+      "Русскоязычный портал о вине, винодельческих регионах, новостях индустрии, событиях и редакционных материалах.",
+    url: SITE_URL,
+    logo: settings?.logo?.url,
+  };
+  const infographicCards = (
+    homepage?.infographicCards?.filter((card) =>
+      Boolean(card?.title?.trim() || card?.description?.trim() || card?.accentText?.trim() || card?.backgroundImage?.url || card?.backgroundVideo?.url),
+    ) ?? []
+  );
+  const infographicDisplayCards = infographicCards.filter((_, index) => index !== 4 && index !== 9);
+  const topRowCards = infographicDisplayCards.slice(0, 4);
+  const bottomRowCards = infographicDisplayCards.slice(4, 8);
+  const mobileCards = infographicDisplayCards.slice(0, 8);
+  const regularSidebar = sidebar
+    ? {
+        ...sidebar,
+        archiveBlocks: (sidebar.archiveBlocks ?? []).filter((block) => block?.__component !== "sidebar.homepage-news-block"),
+      }
+    : null;
+  const hasSidebar = Boolean(regularSidebar?.sections?.length || regularSidebar?.links?.length || regularSidebar?.archiveBlocks?.length);
+  const popularNewsBase = allNews.slice(0, 20);
+  const popularNews: HomepageNewsItem[] = (await Promise.all(
+    popularNewsBase.map(async (item) => ({
+      ...item,
+      popularityCount: await getNewsLikeCount(item.documentId),
+    })),
+  ))
+    .sort((left, right) => (right.popularityCount !== left.popularityCount
+      ? right.popularityCount - left.popularityCount
+      : comparePublishedDesc(left.publishedAtCustom ?? left.publishedAt, right.publishedAtCustom ?? right.publishedAt)))
+    .slice(0, 10);
+  const latestNewsItems: HomepageNewsItem[] = latestNews.slice(0, 10).map((item) => ({
+    ...item,
+    popularityCount: 0,
+  }));
+  const latestNewsSidebarItems: HomepageNewsSidebarItem[] = latestNewsItems.map((item) => ({
+    documentId: item.documentId,
+    slug: item.slug,
+    title: item.title,
+    publishedLabel: formatHomepageNewsTime(item.publishedAtCustom ?? item.publishedAt),
+    popularityCount: item.popularityCount,
+  }));
+  const popularNewsSidebarItems: HomepageNewsSidebarItem[] = popularNews.map((item) => ({
+    documentId: item.documentId,
+    slug: item.slug,
+    title: item.title,
+    publishedLabel: formatHomepageNewsTime(item.publishedAtCustom ?? item.publishedAt),
+    popularityCount: item.popularityCount,
+  }));
+  const specialLead = homepageSpecial.featureCards[0] ?? null;
+  const specialSecondary = homepageSpecial.featureCards.slice(1, 3);
+  const specialVideos = homepageSpecial.videos;
+  const specialVideoLead = specialVideos[0] ?? null;
+  const specialVideoStack = specialVideos.slice(1);
+  const hasHomepageSpecialBlock = Boolean(specialLead || specialSecondary.length || specialVideos.length);
+  const hasHomepageNewsWidget = Boolean(latestNewsSidebarItems.length || popularNewsSidebarItems.length);
+
+  return (
+    <main className="px-4 py-10 text-foreground max-md:pt-0 sm:px-8 lg:px-12">
+      <Script id="home-organization-jsonld" type="application/ld+json">
+        {JSON.stringify(organizationJsonLd)}
+      </Script>
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-10 max-md:-mx-4 max-md:mt-2 max-md:w-[calc(100%+2rem)]">
+        <div className="grid gap-8 px-4 max-md:pt-0 sm:px-0">
+          <MobileSidebarBridge sidebar={regularSidebar} />
+          <div className="min-w-0 space-y-10">
+            {hasHomepageNewsWidget ? (
+              <HomepageNewsSidebar latest={latestNewsSidebarItems} popular={popularNewsSidebarItems} className="md:hidden" />
+            ) : null}
+            {infographicCards.length ? (
+              <section className="space-y-4">
+                <div className="grid gap-4 md:hidden">
+                  {mobileCards.map((card, index) => {
+                    const slot = card.shape === "circle"
+                      ? "bottomCircle"
+                      : index === 1
+                        ? "bottomSquare"
+                      : card.shape === "rectangle"
+                        ? (index === 0 ? "topRectangle" : "topStrip")
+                      : card.shape === "square"
+                        ? "bottomSquare"
+                        : "bottomSquare";
+
+                    return renderInfographicCard(card, slot, slot === "bottomCircle" ? "mx-auto w-full max-w-[320px]" : "w-full", {
+                      compact: true,
+                      titleClassName: "max-w-[11rem]",
+                      slotClassName: slot === "bottomCircle"
+                        ? "aspect-square min-h-[220px] w-full rounded-full"
+                        : slot === "bottomSquare"
+                          ? "aspect-square min-h-[220px] w-full"
+                          : "min-h-[180px] w-full aspect-auto",
+                    });
+                  })}
+                </div>
+
+                <div className="hidden gap-4 md:grid md:grid-cols-2 xl:hidden">
+                  {infographicDisplayCards.map((card, index) => {
+                    const slot = card.shape === "circle"
+                      ? "bottomCircle"
+                      : card.shape === "rectangle"
+                        ? "topRectangle"
+                        : "bottomSquare";
+
+                    return renderInfographicCard(card, slot, slot === "bottomCircle" ? "mx-auto w-full max-w-[320px] md:max-w-none" : "w-full", {
+                      compact: true,
+                      titleClassName: slot === "topRectangle" ? "max-w-[14rem]" : "max-w-[11rem]",
+                      slotClassName: slot === "bottomCircle"
+                        ? "aspect-square w-full rounded-full"
+                        : slot === "topRectangle"
+                          ? "min-h-[220px] w-full"
+                          : "aspect-square w-full",
+                    });
+                  })}
+                </div>
+
+                <div className="hidden gap-4 xl:grid xl:grid-cols-4 xl:auto-rows-[clamp(11rem,18vw,20rem)] xl:w-full">
+                  {topRowCards[0] ? (
+                    <div className="col-span-2 row-start-1 h-full">
+                      {renderInfographicCard(topRowCards[0], "topRectangle", "h-full", {
+                        compact: true,
+                        titleClassName: "max-w-[18ch]",
+                      })}
+                    </div>
+                  ) : null}
+
+                  {topRowCards[1] ? (
+                    <div className="col-span-1 row-start-1 h-full">
+                      {renderInfographicCard(topRowCards[1], "topSquare", "h-full", {
+                        compact: true,
+                        titleClassName: "max-w-[14ch]",
+                      })}
+                    </div>
+                  ) : null}
+
+                  {topRowCards[2] || topRowCards[3] ? (
+                    <div className="col-span-1 row-start-1 grid h-full gap-4 grid-rows-2">
+                      {topRowCards[2] ? renderInfographicCard(topRowCards[2], "topStrip", "h-full", {
+                        compact: true,
+                        titleClassName: "max-w-[18ch]",
+                      }) : null}
+                      {topRowCards[3] ? renderInfographicCard(topRowCards[3], "topStrip", "h-full", {
+                        compact: true,
+                        titleClassName: "max-w-[18ch]",
+                      }) : null}
+                    </div>
+                  ) : null}
+
+                  {bottomRowCards[0] ? (
+                    <div className="col-span-1 row-start-2 h-full">
+                      {renderInfographicCard(bottomRowCards[0], "bottomSquare", "h-full", {
+                        compact: true,
+                        titleClassName: "max-w-[14ch]",
+                      })}
+                    </div>
+                  ) : null}
+
+                  {bottomRowCards[1] ? (
+                    <div className="col-span-1 row-start-2 h-full">
+                      {renderInfographicCard(bottomRowCards[1], "bottomSquare", "h-full", {
+                        compact: true,
+                        titleClassName: "max-w-[14ch]",
+                      })}
+                    </div>
+                  ) : null}
+
+                  {bottomRowCards[2] ? (
+                    <div className="col-span-1 row-start-2 flex h-full items-center justify-center">
+                      {renderInfographicCard(bottomRowCards[2], "bottomCircle", "h-full w-full", {
+                        compact: true,
+                        titleClassName: "max-w-[14ch] text-center",
+                      })}
+                    </div>
+                  ) : null}
+
+                  {bottomRowCards[3] ? (
+                    <div className="col-span-1 row-start-2 h-full">
+                      {renderInfographicCard(bottomRowCards[3], "bottomSquare", "h-full", {
+                        compact: true,
+                        titleClassName: "max-w-[14ch]",
+                      })}
+                    </div>
+                  ) : null}
+
+                </div>
+              </section>
+            ) : null}
+
+            {hasHomepageSpecialBlock ? (
+              <section className="space-y-6 border border-black/8 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,247,0.98))] p-5 shadow-[0_24px_80px_-40px_rgba(6,78,59,0.38)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,_rgba(52,211,153,0.16),_transparent_32%),linear-gradient(180deg,rgba(8,22,35,0.96),rgba(7,18,29,0.98))] sm:p-6 xl:p-8">
+                <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+                  <div className="space-y-6">
+                    <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] lg:items-stretch">
+                      {specialLead ? (
+                        <article className="group relative aspect-square overflow-hidden border border-emerald-950/10 bg-black shadow-[0_20px_60px_-36px_rgba(6,78,59,0.45)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 lg:h-full lg:aspect-auto">
+                          <div className="absolute inset-0 overflow-hidden">
+                            <Link href={specialLead.href} aria-label={specialLead.title} className="block h-full">
+                              {specialLead.cover?.url ? (
+                                <Image
+                                  src={specialLead.cover.url}
+                                  alt={specialLead.cover.alternativeText ?? specialLead.title}
+                                  width={960}
+                                  height={960}
+                                  className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                                />
+                              ) : (
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(28,55,40,0.5),_rgba(0,0,0,0.96))]" />
+                              )}
+                            </Link>
+                              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
+                            </div>
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
+                            <ArchiveOverlayMeta itemId={specialLead.documentId} meta={buildCategoryDateOverlayMeta(specialLead.categories, specialLead.publishedAt, specialLead.publishedAtCustom)} />
+                            <h2 className="type-h2 mt-4 text-white"><Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">{specialLead.title}</Link></h2>
+                            {specialLead.excerpt ? <p className="type-body mt-4 hidden max-w-[44ch] text-white/85 md:block">{specialLead.excerpt}</p> : null}
+                          </div>
+                        </article>
+                      ) : null}
+
+                      <div className="grid gap-4 lg:h-full lg:grid-rows-2">
+                        {specialSecondary.map((item) => (
+                          <article key={item.documentId} className="flex h-full flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]">
+                            <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
+                              <Link href={item.href} aria-label={item.title} className="block h-full">
+                                {item.cover?.url ? (
+                                  <Image src={item.cover.url} alt={item.cover.alternativeText ?? item.title} width={640} height={360} className="h-full w-full object-cover" />
+                                ) : null}
+                              </Link>
+                              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[52%] bg-gradient-to-t from-black/90 via-black/55 to-transparent" />
+                              <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4">
+                                <ArchiveOverlayMeta itemId={item.documentId} meta={buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom)} />
+                              </div>
+                            </div>
+                            <div className="p-4">
+                              <h3 className="type-h4 text-[#0d3132] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    </div>
+
+                    {specialVideoLead ? (
+                      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] lg:items-start">
+                        <HomepageSpecialVideoTile
+                          key={specialVideoLead.documentId}
+                          href={specialVideoLead.href}
+                          title={specialVideoLead.title}
+                          coverUrl={specialVideoLead.cover?.url ?? null}
+                          coverAlt={specialVideoLead.cover?.alternativeText ?? specialVideoLead.title}
+                          videoUrl={specialVideoLead.videoUrl}
+                          meta={buildCategoryDateOverlayMeta(specialVideoLead.categories, specialVideoLead.publishedAt, specialVideoLead.publishedAtCustom)}
+                          className="lg:self-start"
+                          mediaClassName="aspect-[16/10] lg:min-h-[32rem]"
+                          titleClassName="type-h3"
+                          imageSizes="(max-width: 1023px) 100vw, 66vw"
+                        />
+
+                        <div
+                          className="homepage-special-video-stack grid gap-4 sm:grid-cols-2 lg:max-h-[32rem] lg:grid-cols-1 lg:content-start lg:overflow-y-auto lg:pr-1"
+                          style={specialVideoScrollbarStyle}
+                        >
+                          {specialVideoStack.map((video) => (
+                            <HomepageSpecialVideoTile
+                              key={video.documentId}
+                              href={video.href}
+                              title={video.title}
+                              coverUrl={video.cover?.url ?? null}
+                              coverAlt={video.cover?.alternativeText ?? video.title}
+                              videoUrl={video.videoUrl}
+                              meta={buildCategoryDateOverlayMeta(video.categories, video.publishedAt, video.publishedAtCustom)}
+                              mediaClassName="aspect-[16/9]"
+                              imageSizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 34vw"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+                    <style>{`
+                      .homepage-special-video-stack::-webkit-scrollbar {
+                        width: 8px;
+                      }
+
+                      .homepage-special-video-stack::-webkit-scrollbar-track {
+                        background: rgba(13, 49, 50, 0.14);
+                        border-radius: 9999px;
+                      }
+
+                      .homepage-special-video-stack::-webkit-scrollbar-thumb {
+                        background: linear-gradient(180deg, rgba(16, 185, 129, 0.72), rgba(13, 148, 136, 0.72));
+                        border-radius: 9999px;
+                        border: 1px solid rgba(255, 255, 255, 0.16);
+                      }
+
+                      .homepage-special-video-stack::-webkit-scrollbar-thumb:hover {
+                        background: linear-gradient(180deg, rgba(16, 185, 129, 0.88), rgba(13, 148, 136, 0.88));
+                      }
+                    `}</style>
+                  </div>
+
+                  {hasHomepageNewsWidget ? (
+                    <div className="hidden xl:block">
+                      <HomepageNewsSidebar latest={latestNewsSidebarItems} popular={popularNewsSidebarItems} />
+                    </div>
+                  ) : null}
+                </div>
+              </section>
+            ) : null}
+
+          </div>
+
+          {homepage?.blocks?.length || hasSidebar ? (
+            <section className="border border-black/8 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,247,0.98))] p-5 shadow-[0_24px_80px_-40px_rgba(6,78,59,0.38)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,_rgba(52,211,153,0.16),_transparent_32%),linear-gradient(180deg,rgba(8,22,35,0.96),rgba(7,18,29,0.98))] sm:p-6 xl:p-8">
+              <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+                <div className="min-w-0">
+                  {homepage?.blocks?.length ? <RichContent blocks={homepage.blocks} /> : null}
+                  {hasSidebar ? (
+                    <div className="mt-10 lg:hidden">
+                      <SidebarPanel sidebar={regularSidebar} tagCloud={tagCloud} stacked mobile />
+                    </div>
+                  ) : null}
+                </div>
+                {hasSidebar ? (
+                  <div className="hidden lg:sticky lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+                    <SidebarPanel sidebar={regularSidebar} tagCloud={tagCloud} />
+                  </div>
+                ) : null}
+              </div>
+            </section>
+          ) : null}
+        </div>
+
+      </div>
+    </main>
+  );
+}

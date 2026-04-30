@@ -1,0 +1,61 @@
+{
+  "collectionName": "components_tasting_notes",
+  "info": {
+    "displayName": "Дегустационная заметка",
+    "description": "Поля дегустационных метрик вина и радарной диаграммы"
+  },
+  "options": {},
+  "attributes": {
+    "summary": {
+      "type": "text"
+    },
+    "aroma": {
+      "type": "decimal",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    "taste": {
+      "type": "decimal",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    "acidity": {
+      "type": "decimal",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    "tannins": {
+      "type": "decimal",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    "body": {
+      "type": "decimal",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    "sweetness": {
+      "type": "decimal",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    "finish": {
+      "type": "decimal",
+      "min": 0,
+      "max": 10,
+      "default": 0
+    },
+    "servingTemperature": {
+      "type": "string"
+    },
+    "pairing": {
+      "type": "text"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "kind": "singleType",
+  "collectionName": "homepages",
+  "info": {
+    "singularName": "homepage",
+    "pluralName": "homepages",
+    "displayName": "Главная страница",
+    "description": "Редактор главной страницы"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "default": "Wine Today"
+    },
+    "description": {
+      "type": "text"
+    },
+    "infographicTitle": {
+      "type": "string"
+    },
+    "infographicDescription": {
+      "type": "text"
+    },
+    "infographicCards": {
+      "type": "component",
+      "repeatable": true,
+      "component": "homepage.infographic-card",
+      "min": 10,
+      "max": 10
+    },
+    "blocks": {
+      "type": "dynamiczone",
+      "components": [
+        "blocks.hero",
+        "blocks.archive-feed",
+        "blocks.cta",
+        "blocks.embed",
+        "blocks.html-editor",
+        "blocks.image-gallery",
+        "blocks.image-slider",
+        "blocks.link-grid",
+        "blocks.rich-text",
+        "blocks.quote",
+        "blocks.image-highlight"
+      ]
+    },
+    "seo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    }
+  }
+}

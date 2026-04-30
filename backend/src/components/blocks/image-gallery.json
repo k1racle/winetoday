@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_blocks_image_galleries",
+  "info": {
+    "displayName": "Галерея изображений",
+    "description": "Адаптивный блок галереи изображений"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["images"]
+    }
+  }
+}

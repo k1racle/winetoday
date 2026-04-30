@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_community_stop_words",
+  "info": {
+    "displayName": "Стоп-слово",
+    "description": "Слово или фраза, запрещенная в комментариях"
+  },
+  "options": {},
+  "attributes": {
+    "value": {
+      "type": "string",
+      "required": true
+    },
+    "matchMode": {
+      "type": "enumeration",
+      "enum": ["contains", "exact"],
+      "default": "contains"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": true
+    }
+  }
+}

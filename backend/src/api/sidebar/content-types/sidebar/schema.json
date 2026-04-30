@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "sidebars",
+  "info": {
+    "singularName": "sidebar",
+    "pluralName": "sidebars",
+    "displayName": "Сайдбар",
+    "description": "Варианты сайдбара, привязанные к страницам"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "paths": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.route-target"
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.navigation-link"
+    },
+    "sections": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.navigation-section"
+    },
+    "archiveBlocks": {
+      "type": "dynamiczone",
+      "components": [
+        "sidebar.archive-block",
+        "sidebar.tag-cloud-block",
+        "sidebar.homepage-news-block"
+      ]
+    },
+    "socialLinks": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.social-links"
+    }
+  }
+}

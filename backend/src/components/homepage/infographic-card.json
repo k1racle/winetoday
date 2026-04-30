@@ -1,0 +1,42 @@
+{
+  "collectionName": "components_homepage_infographic_cards",
+  "info": {
+    "displayName": "Карточка инфографики",
+    "description": "Элемент инфографики для главной страницы"
+  },
+  "options": {},
+  "attributes": {
+    "shape": {
+      "type": "enumeration",
+      "enum": ["square", "rectangle", "circle"],
+      "default": "square"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "href": {
+      "type": "string"
+    },
+    "backgroundImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "backgroundVideo": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["videos"]
+    },
+    "accentText": {
+      "type": "string"
+    },
+    "theme": {
+      "type": "enumeration",
+      "enum": ["light", "dark"],
+      "default": "light"
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "kind": "collectionType",
+  "collectionName": "member_profiles",
+  "info": {
+    "singularName": "member-profile",
+    "pluralName": "member-profiles",
+    "displayName": "Профили участников",
+    "description": "Публичные и ролевые данные авторов и подписчиков"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "accountType": {
+      "type": "enumeration",
+      "enum": ["editor", "author", "subscriber"],
+      "default": "subscriber"
+    },
+    "displayName": {
+      "type": "string"
+    },
+    "avatar": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "bio": {
+      "type": "text"
+    },
+    "isApprovedAuthor": {
+      "type": "boolean",
+      "default": false
+    },
+    "author": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::author.author",
+      "inversedBy": "memberProfile"
+    },
+    "authorSlug": {
+      "type": "uid",
+      "targetField": "displayName"
+    },
+    "articles": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::article.article",
+      "mappedBy": "memberProfile"
+    },
+    "newsItems": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::news.news",
+      "mappedBy": "memberProfile"
+    },
+    "videos": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::video.video",
+      "mappedBy": "memberProfile"
+    }
+  }
+}

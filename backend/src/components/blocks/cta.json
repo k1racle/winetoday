@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_blocks_ctas",
+  "info": {
+    "displayName": "Блок призыва к действию",
+    "description": "Выделенный блок с призывом к действию, текстом и ссылкой"
+  },
+  "options": {},
+  "attributes": {
+    "eyebrow": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "link": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.navigation-link"
+    },
+    "theme": {
+      "type": "enumeration",
+      "enum": ["light", "dark"],
+      "default": "dark"
+    }
+  }
+}

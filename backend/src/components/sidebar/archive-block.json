@@ -1,0 +1,37 @@
+{
+  "collectionName": "components_sidebar_archive_blocks",
+  "info": {
+    "displayName": "Блок архива",
+    "description": "Архивная лента в сайдбаре для статей, новостей или видео"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    },
+    "contentType": {
+      "type": "enumeration",
+      "enum": [
+        "articles",
+        "news",
+        "videos"
+      ],
+      "required": true,
+      "default": "articles"
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::category.category"
+    },
+    "limit": {
+      "type": "integer",
+      "default": 5,
+      "min": 1,
+      "max": 12
+    }
+  }
+}

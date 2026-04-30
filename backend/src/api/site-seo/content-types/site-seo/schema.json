@@ -1,0 +1,74 @@
+{
+  "kind": "singleType",
+  "collectionName": "site_seos",
+  "info": {
+    "singularName": "site-seo",
+    "pluralName": "site-seos",
+    "displayName": "SEO",
+    "description": "Глобальные настройки SEO, robots.txt и sitemap.xml"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "siteUrl": {
+      "type": "string",
+      "required": true,
+      "default": "http://localhost"
+    },
+    "defaultSeo": {
+      "type": "component",
+      "repeatable": false,
+      "component": "shared.seo"
+    },
+    "openGraphImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "twitterImage": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "robotsEnabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "robotsRules": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.robots-rule"
+    },
+    "robotsAdditionalSitemaps": {
+      "type": "text"
+    },
+    "robotsHost": {
+      "type": "string"
+    },
+    "sitemapEnabled": {
+      "type": "boolean",
+      "default": true
+    },
+    "sitemapIncludeArticles": {
+      "type": "boolean",
+      "default": true
+    },
+    "sitemapIncludeNews": {
+      "type": "boolean",
+      "default": true
+    },
+    "sitemapIncludeVideos": {
+      "type": "boolean",
+      "default": true
+    },
+    "sitemapIncludePages": {
+      "type": "boolean",
+      "default": true
+    },
+    "sitemapExcludePaths": {
+      "type": "text"
+    }
+  }
+}

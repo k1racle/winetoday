@@ -1,0 +1,457 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+  font-family: "TT Norms Pro Medium";
+  src: url("/fonts/TTNormsPro-Medium.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "TT Norms Pro Regular";
+  src: url("/fonts/TTNormsPro-Regular.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "TT Norms Pro Normal";
+  src: url("/fonts/TTNormsPro-Normal.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "TT Norms Pro Light";
+  src: url("/fonts/TTNormsPro-Light.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "TT Norms Pro ExtraLight";
+  src: url("/fonts/TTNormsPro-ExtraLight.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: "TT Norms Pro Thin";
+  src: url("/fonts/TTNormsPro-Thin.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: "TT Norms Pro Bold";
+  src: url("/fonts/TTNormsPro-Bold.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "TT Norms Pro ExtraBold";
+  src: url("/fonts/TTNormsPro-ExtraBold.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 800;
+}
+
+@font-face {
+  font-family: "TT Norms Pro Black";
+  src: url("/fonts/TTNormsPro-Black.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: "TT Norms Pro ExtraBlack";
+  src: url("/fonts/TTNormsPro-ExtraBlack.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 900;
+}
+
+:root {
+  --background: #f6f8f3;
+  --foreground: #0d1710;
+  --font-body-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body-size: 16px;
+  --font-menu-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-menu-size: 14px;
+  --font-menu-size-mobile: 14px;
+  --font-h1-family: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
+  --font-h1-size: 56px;
+  --font-h1-size-mobile: 56px;
+  --font-hero-family: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
+  --font-hero-size: 56px;
+  --font-hero-size-mobile: 56px;
+  --font-hero-eyebrow-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-hero-eyebrow-size: 14px;
+  --font-hero-eyebrow-size-mobile: 14px;
+  --font-h2-family: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
+  --font-h2-size: 32px;
+  --font-h2-size-mobile: 32px;
+  --font-h3-family: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
+  --font-h3-size: 24px;
+  --font-h3-size-mobile: 24px;
+  --font-h4-family: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
+  --font-h4-size: 20px;
+  --font-h4-size-mobile: 20px;
+  --font-small-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-small-size: 14px;
+  --font-small-size-mobile: 14px;
+  --font-caption-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-caption-size: 12px;
+  --font-caption-size-mobile: 12px;
+  --font-button-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-button-size: 14px;
+  --font-button-size-mobile: 14px;
+  --font-body-size-mobile: 16px;
+}
+
+html.dark {
+  --background: #08110b;
+  --foreground: #eef5ef;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-heading: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  width: 100%;
+  overflow-x: clip;
+  min-height: 100%;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body-family);
+  font-size: var(--font-body-size);
+  text-rendering: optimizeLegibility;
+}
+
+h1 {
+  font-family: var(--font-h1-family);
+  font-size: var(--font-h1-size);
+}
+
+h2 {
+  font-family: var(--font-h2-family);
+  font-size: var(--font-h2-size);
+}
+
+h3,
+h5,
+h6 {
+  font-family: var(--font-h3-family);
+  font-size: var(--font-h3-size);
+}
+
+h4 {
+  font-family: var(--font-h4-family);
+  font-size: var(--font-h4-size);
+}
+
+.font-heading {
+  font-family: var(--font-h2-family);
+}
+
+.font-menu {
+  font-family: var(--font-menu-family);
+  font-size: var(--font-menu-size);
+  font-weight: var(--font-menu-weight);
+  line-height: var(--font-menu-line-height);
+  letter-spacing: var(--font-menu-letter-spacing);
+  text-transform: var(--font-menu-transform);
+}
+
+.type-body {
+  font-family: var(--font-body-family);
+  font-size: var(--font-body-size);
+  font-weight: var(--font-body-weight);
+  line-height: var(--font-body-line-height);
+  letter-spacing: var(--font-body-letter-spacing);
+  text-transform: var(--font-body-transform);
+}
+
+.type-h1 {
+  font-family: var(--font-h1-family);
+  font-size: var(--font-h1-size);
+  font-weight: var(--font-h1-weight);
+  line-height: var(--font-h1-line-height);
+  letter-spacing: var(--font-h1-letter-spacing);
+  text-transform: var(--font-h1-transform);
+}
+
+.type-hero {
+  font-family: var(--font-hero-family);
+  font-size: var(--font-hero-size);
+  font-weight: var(--font-hero-weight);
+  line-height: var(--font-hero-line-height);
+  letter-spacing: var(--font-hero-letter-spacing);
+  text-transform: var(--font-hero-transform);
+}
+
+.mobile-hero-title-stroke {
+  text-stroke: 0.4px black;
+  -webkit-text-stroke: 0.4px black;
+  text-shadow: -0.4px 0 black, 0 0.4px black, 0.4px 0 black, 0 -0.4px black;
+}
+
+.type-hero-eyebrow {
+  font-family: var(--font-hero-eyebrow-family);
+  font-size: var(--font-hero-eyebrow-size);
+  font-weight: var(--font-hero-eyebrow-weight);
+  line-height: var(--font-hero-eyebrow-line-height);
+  letter-spacing: var(--font-hero-eyebrow-letter-spacing);
+  text-transform: var(--font-hero-eyebrow-transform);
+}
+
+.type-h2 {
+  font-family: var(--font-h2-family);
+  font-size: var(--font-h2-size);
+  font-weight: var(--font-h2-weight);
+  line-height: var(--font-h2-line-height);
+  letter-spacing: var(--font-h2-letter-spacing);
+  text-transform: var(--font-h2-transform);
+}
+
+.type-h3 {
+  font-family: var(--font-h3-family);
+  font-size: var(--font-h3-size);
+  font-weight: var(--font-h3-weight);
+  line-height: var(--font-h3-line-height);
+  letter-spacing: var(--font-h3-letter-spacing);
+  text-transform: var(--font-h3-transform);
+}
+
+.type-h4 {
+  font-family: var(--font-h4-family);
+  font-size: var(--font-h4-size);
+  font-weight: var(--font-h4-weight);
+  line-height: var(--font-h4-line-height);
+  letter-spacing: var(--font-h4-letter-spacing);
+  text-transform: var(--font-h4-transform);
+}
+
+.type-small {
+  font-family: var(--font-small-family);
+  font-size: var(--font-small-size);
+  font-weight: var(--font-small-weight);
+  line-height: var(--font-small-line-height);
+  letter-spacing: var(--font-small-letter-spacing);
+  text-transform: var(--font-small-transform);
+}
+
+.type-caption {
+  font-family: var(--font-caption-family);
+  font-size: var(--font-caption-size);
+  font-weight: var(--font-caption-weight);
+  line-height: var(--font-caption-line-height);
+  letter-spacing: var(--font-caption-letter-spacing);
+  text-transform: var(--font-caption-transform);
+}
+
+.type-button {
+  font-family: var(--font-button-family);
+  font-size: var(--font-button-size);
+  font-weight: var(--font-button-weight);
+  line-height: var(--font-button-line-height);
+  letter-spacing: var(--font-button-letter-spacing);
+  text-transform: var(--font-button-transform);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--font-button-family);
+  font-size: var(--font-button-size);
+}
+
+@media (max-width: 767px) {
+  body {
+    font-size: var(--font-body-size-mobile);
+  }
+
+  h1 {
+    font-size: var(--font-h1-size-mobile);
+  }
+
+  h2 {
+    font-size: var(--font-h2-size-mobile);
+  }
+
+  h3,
+  h5,
+  h6 {
+    font-size: var(--font-h3-size-mobile);
+  }
+
+  h4 {
+    font-size: var(--font-h4-size-mobile);
+  }
+
+  .font-menu {
+    font-size: var(--font-menu-size-mobile);
+    line-height: var(--font-menu-line-height-mobile);
+    letter-spacing: var(--font-menu-letter-spacing-mobile);
+  }
+
+  .type-body {
+    font-size: var(--font-body-size-mobile);
+    line-height: var(--font-body-line-height-mobile);
+    letter-spacing: var(--font-body-letter-spacing-mobile);
+  }
+
+  .type-h1 {
+    font-size: var(--font-h1-size-mobile);
+    line-height: var(--font-h1-line-height-mobile);
+    letter-spacing: var(--font-h1-letter-spacing-mobile);
+  }
+
+  .type-hero {
+    font-size: var(--font-hero-size-mobile);
+    line-height: var(--font-hero-line-height-mobile);
+    letter-spacing: var(--font-hero-letter-spacing-mobile);
+  }
+
+  .type-hero-eyebrow {
+    font-size: var(--font-hero-eyebrow-size-mobile);
+    line-height: var(--font-hero-eyebrow-line-height-mobile);
+    letter-spacing: var(--font-hero-eyebrow-letter-spacing-mobile);
+  }
+
+  .type-h2 {
+    font-size: var(--font-h2-size-mobile);
+    line-height: var(--font-h2-line-height-mobile);
+    letter-spacing: var(--font-h2-letter-spacing-mobile);
+  }
+
+  .type-h3 {
+    font-size: var(--font-h3-size-mobile);
+    line-height: var(--font-h3-line-height-mobile);
+    letter-spacing: var(--font-h3-letter-spacing-mobile);
+  }
+
+  .type-h4 {
+    font-size: var(--font-h4-size-mobile);
+    line-height: var(--font-h4-line-height-mobile);
+    letter-spacing: var(--font-h4-letter-spacing-mobile);
+  }
+
+  .type-small {
+    font-size: var(--font-small-size-mobile);
+    line-height: var(--font-small-line-height-mobile);
+    letter-spacing: var(--font-small-letter-spacing-mobile);
+  }
+
+  .type-caption {
+    font-size: var(--font-caption-size-mobile);
+    line-height: var(--font-caption-line-height-mobile);
+    letter-spacing: var(--font-caption-letter-spacing-mobile);
+  }
+
+  .type-button,
+  button {
+    font-size: var(--font-button-size-mobile);
+    line-height: var(--font-button-line-height-mobile);
+    letter-spacing: var(--font-button-letter-spacing-mobile);
+  }
+}
+
+:focus-visible {
+  outline: 2px solid rgba(16, 53, 29, 0.72);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgba(42, 110, 65, 0.18);
+}
+
+.header-ticker {
+  position: relative;
+  width: 100%;
+  border-left: 0;
+  border-right: 0;
+}
+
+.header-ticker__track {
+  display: flex;
+  width: max-content;
+  min-width: 100%;
+  align-items: center;
+  gap: 0;
+  white-space: nowrap;
+  will-change: transform;
+  animation: header-ticker-marquee 24s linear infinite;
+}
+
+.header-ticker:hover .header-ticker__track {
+  animation-play-state: paused;
+}
+
+.header-ticker__segment {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  padding-inline: 0 2rem;
+}
+
+.header-ticker__segment::after {
+  content: "•";
+  flex: 0 0 auto;
+  color: currentColor;
+  opacity: 0.55;
+}
+
+.header-ticker__image {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 auto;
+  object-fit: cover;
+}
+
+@keyframes header-ticker-marquee {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
