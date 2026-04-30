@@ -60,7 +60,7 @@ function buildEditorPopulate(type: EditorType) {
     author: true,
     categories: true,
     tags: true,
-    sources: true,
+    ...(type === 'article' || type === 'news' ? { sources: true } : {}),
     seo: true,
   };
 }
