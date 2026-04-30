@@ -12,6 +12,17 @@ function isPreviewType(value: string | null): value is PreviewType {
   return value === "article" || value === "news" || value === "video";
 }
 
+function getRequestOrigin(request: Request) {
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+
+  if (forwardedHost && forwardedProto) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+
+  return new URL(request.url).origin;
+}
+
 function buildPreviewPath(type: PreviewType, slug: string) {
   if (!slug || slug.includes("/")) {
     return null;
@@ -54,7 +65,9 @@ export async function GET(request: Request) {
   const draft = await draftMode();
   draft.enable();
 
-  const response = NextResponse.redirect(new URL(previewPath, request.url));
+  const response = NextResponse.redirect(
+    new URL(previewPath, getRequestOrigin(request)),
+  );
   response.cookies.set(PREVIEW_PATH_COOKIE, previewPath, {
     httpOnly: true,
     sameSite: "lax",

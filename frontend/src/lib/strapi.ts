@@ -919,10 +919,11 @@ export function buildCategoryDateOverlayMeta(
   publishedAt?: string | null,
   publishedAtCustom?: string | null,
 ) {
+  void publishedAt;
+  void publishedAtCustom;
   const primaryCategory = getPrimaryCategory(categories);
   const items: Array<OverlayMetaValue | null> = [
     primaryCategory ? { label: primaryCategory.name, href: primaryCategory.slug ? `/categories/${primaryCategory.slug}` : null } : null,
-    formatRussianDateTime(publishedAtCustom ?? publishedAt) ?? 'Без даты',
   ];
 
   return items.filter((value): value is OverlayMetaValue => value !== null);

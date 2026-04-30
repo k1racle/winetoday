@@ -70,7 +70,7 @@ export function HomepageSpecialVideoTile({
   return (
     <article
       className={[
-        "group relative block overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]",
+        "group relative overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]",
         className,
       ].filter(Boolean).join(" ")}
       onMouseEnter={() => setIsHovered(true)}
@@ -114,18 +114,19 @@ export function HomepageSpecialVideoTile({
         </div>
         <div className="absolute inset-x-0 bottom-0 z-20 p-4 text-white">
           {meta?.length ? (
-            <ArchiveOverlayMeta itemId={href} meta={meta} className="mb-3" />
+            <ArchiveOverlayMeta itemId={href} meta={meta} />
           ) : null}
-          <Link
-            href={href}
-            className={[
-              titleClassName,
-              "type-h4 relative z-10 block !text-white [color:#fff] drop-shadow-[0_2px_14px_rgba(0,0,0,0.7)] transition-colors hover:!text-white focus-visible:!text-white",
-            ].filter(Boolean).join(" ")}
-          >
+        </div>
+      </div>
+      <div className="p-4">
+        <h3 className={[
+          titleClassName,
+          "text-[#0d3132] dark:text-white",
+        ].filter(Boolean).join(" ")}>
+          <Link href={href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
             {title}
           </Link>
-        </div>
+        </h3>
       </div>
     </article>
   );
