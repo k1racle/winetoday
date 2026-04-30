@@ -82,6 +82,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
             {item.cover?.url ? (
               <>
                 <Image src={item.cover.url} alt={item.cover.alternativeText ?? item.title} width={1280} height={720} sizes="100vw" className="h-auto max-h-[450px] w-full object-cover" />
+                {item.coverSource ? <p className="type-caption text-zinc-500 dark:text-zinc-400">Источник обложки: {item.coverSource}</p> : null}
                 <SourceLinks sources={item.sources} className="pt-4" />
               </>
             ) : null}

@@ -1,5 +1,7 @@
 import { draftMode } from "next/headers";
-import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
+
+const PREVIEW_PATH_COOKIE = "nvt-preview-path";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -9,5 +11,8 @@ export async function GET(request: Request) {
   const draft = await draftMode();
   draft.disable();
 
-  redirect(safeUrl);
+  const response = NextResponse.redirect(new URL(safeUrl, request.url));
+  response.cookies.delete(PREVIEW_PATH_COOKIE);
+
+  return response;
 }

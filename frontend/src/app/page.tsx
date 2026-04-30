@@ -252,7 +252,6 @@ export default async function Home() {
   const infographicDisplayCards = infographicCards.filter((_, index) => index !== 4 && index !== 9);
   const topRowCards = infographicDisplayCards.slice(0, 4);
   const bottomRowCards = infographicDisplayCards.slice(4, 8);
-  const mobileCards = infographicDisplayCards.slice(0, 8);
   const regularSidebar = sidebar
     ? {
         ...sidebar,
@@ -308,31 +307,7 @@ export default async function Home() {
               <HomepageNewsSidebar latest={latestNewsSidebarItems} popular={popularNewsSidebarItems} className="md:hidden" />
             ) : null}
             {infographicCards.length ? (
-              <section className="space-y-4">
-                <div className="grid gap-4 md:hidden">
-                  {mobileCards.map((card, index) => {
-                    const slot = card.shape === "circle"
-                      ? "bottomCircle"
-                      : index === 1
-                        ? "bottomSquare"
-                      : card.shape === "rectangle"
-                        ? (index === 0 ? "topRectangle" : "topStrip")
-                      : card.shape === "square"
-                        ? "bottomSquare"
-                        : "bottomSquare";
-
-                    return renderInfographicCard(card, slot, slot === "bottomCircle" ? "mx-auto w-full max-w-[320px]" : "w-full", {
-                      compact: true,
-                      titleClassName: "max-w-[11rem]",
-                      slotClassName: slot === "bottomCircle"
-                        ? "aspect-square min-h-[220px] w-full rounded-full"
-                        : slot === "bottomSquare"
-                          ? "aspect-square min-h-[220px] w-full"
-                          : "min-h-[180px] w-full aspect-auto",
-                    });
-                  })}
-                </div>
-
+              <section className="hidden space-y-4 md:block">
                 <div className="hidden gap-4 md:grid md:grid-cols-2 xl:hidden">
                   {infographicDisplayCards.map((card, index) => {
                     const slot = card.shape === "circle"

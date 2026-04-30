@@ -34,6 +34,7 @@ export function HomepageNewsSidebar({ latest, popular, className }: HomepageNews
   return (
     <section className={className}>
       <NewsStrip
+        key={activeTab}
         items={activeConfig.items}
         emptyLabel={activeConfig.emptyLabel}
         activeTab={activeTab}
@@ -51,6 +52,10 @@ type NewsStripProps = {
 };
 
 function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps) {
+  const [isExpandedMobile, setIsExpandedMobile] = useState(false);
+
+  const mobileItems = isExpandedMobile ? items.slice(0, 10) : items.slice(0, 4);
+
   return (
     <aside className="overflow-hidden border border-black/10 bg-white text-foreground shadow-[0_24px_60px_-42px_rgba(15,23,42,0.25)] dark:border-white/10 dark:bg-[#12202d] dark:text-white">
       <div className="border-b border-black/10 px-5 py-4 dark:border-white/10">
@@ -80,20 +85,51 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
 
       <div>
         {items.length ? (
-          items.map((item) => (
-            <Link
-              key={`${activeTab}-${item.documentId}`}
-              href={`/news/${item.slug}`}
-              className="block border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
-            >
-              <div className="type-h4 text-[15px] leading-5 text-foreground">
-                <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
-                  {item.publishedLabel}
-                </span>
-                <span>{item.title}</span>
-              </div>
-            </Link>
-          ))
+          <>
+            <div className="md:hidden">
+              {mobileItems.map((item) => (
+                <Link
+                  key={`${activeTab}-${item.documentId}`}
+                  href={`/news/${item.slug}`}
+                  className="block border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
+                >
+                  <div className="type-h4 text-[15px] leading-5 text-foreground">
+                    <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
+                      {item.publishedLabel}
+                    </span>
+                    <span>{item.title}</span>
+                  </div>
+                </Link>
+              ))}
+              {!isExpandedMobile && items.length > 4 ? (
+                <button
+                  type="button"
+                  onClick={() => setIsExpandedMobile(true)}
+                  className="type-small font-menu inline-flex items-center gap-2 px-5 py-4 text-emerald-700 transition-colors hover:text-foreground dark:text-emerald-300 dark:hover:text-white"
+                >
+                  Еще
+                  <span aria-hidden="true">&darr;</span>
+                </button>
+              ) : null}
+            </div>
+
+            <div className="hidden md:block">
+              {items.map((item) => (
+                <Link
+                  key={`${activeTab}-${item.documentId}`}
+                  href={`/news/${item.slug}`}
+                  className="block border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
+                >
+                  <div className="type-h4 text-[15px] leading-5 text-foreground">
+                    <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
+                      {item.publishedLabel}
+                    </span>
+                    <span>{item.title}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </>
         ) : (
           <div className="type-body p-5 text-zinc-600 dark:text-zinc-400">{emptyLabel}</div>
         )}

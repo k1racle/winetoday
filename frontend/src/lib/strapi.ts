@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { draftMode } from "next/headers";
+import { cookies, draftMode } from "next/headers";
 import { cache } from "react";
 
 export const SITE_URL = process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://127.0.0.1";
@@ -16,6 +16,7 @@ function resolveMediaUrl(path: string) {
 const DEFAULT_REVALIDATE_SECONDS = 300;
 const SETTINGS_REVALIDATE_SECONDS = 300;
 const HOMEPAGE_REVALIDATE_SECONDS = 120;
+const PREVIEW_PATH_COOKIE = "nvt-preview-path";
 const CATEGORY_FIELDS_QUERY = [
   "populate[0]=categories",
   "populate[categories][fields][0]=name",
@@ -35,6 +36,7 @@ const CONTENT_POPULATE_QUERY = [
   "populate[content][on][blocks.image-highlight][populate][image]=true",
   "populate[content][on][blocks.hero][populate][backgroundImage]=true",
   "populate[content][on][blocks.hero][populate][backgroundVideo]=true",
+  "populate[sources]=true",
 ].join("&");
 
 const HOMEPAGE_BLOCKS_POPULATE_QUERY = [
@@ -550,6 +552,7 @@ export type ArticleSummary = {
 export type ArticleDetail = ArticleSummary & {
   content?: StrapiBlock[] | null;
   sources?: SourceLink[] | null;
+  coverSource?: string | null;
   seo?: SeoFields | null;
 };
 
@@ -574,6 +577,7 @@ export type NewsSummary = {
 export type NewsDetail = NewsSummary & {
   content?: StrapiBlock[] | null;
   sources?: SourceLink[] | null;
+  coverSource?: string | null;
   sourceUrl?: string | null;
   seo?: SeoFields | null;
 };
@@ -595,6 +599,7 @@ export type VideoSummary = {
   categories?: CategorySummaryList | null;
   tags?: TagSummary[] | null;
   content?: StrapiBlock[] | null;
+  coverSource?: string | null;
   seo?: SeoFields | null;
 };
 
@@ -1497,6 +1502,18 @@ async function isPreviewEnabled() {
   return (await draftMode()).isEnabled;
 }
 
+async function getPreviewPath() {
+  return (await cookies()).get(PREVIEW_PATH_COOKIE)?.value?.trim() || null;
+}
+
+async function shouldUseDraftForPath(pathname: string) {
+  if (!(await isPreviewEnabled())) {
+    return false;
+  }
+
+  return (await getPreviewPath()) === pathname;
+}
+
 function withStatus(path: string, status?: "draft" | "published") {
   if (!status) {
     return path;
@@ -1506,11 +1523,10 @@ function withStatus(path: string, status?: "draft" | "published") {
   return `${path}${separator}status=${status}`;
 }
 
-async function fetchStrapi<T>(path: string, options?: { revalidate?: number | false }) {
-  const previewEnabled = await isPreviewEnabled();
+async function fetchStrapi<T>(path: string, options?: { revalidate?: number | false; status?: "draft" | "published" }) {
   const revalidate = options?.revalidate;
-  const shouldUseNoStore = previewEnabled || revalidate === false || !HAS_REVALIDATE_SECRET;
-  const response = await fetch(`${CMS_URL}${withStatus(path, previewEnabled ? "draft" : undefined)}`, {
+  const shouldUseNoStore = options?.status === "draft" || revalidate === false || !HAS_REVALIDATE_SECRET;
+  const response = await fetch(`${CMS_URL}${withStatus(path, options?.status)}`, {
     cache: shouldUseNoStore ? "no-store" : undefined,
     next: shouldUseNoStore ? undefined : { revalidate: revalidate ?? DEFAULT_REVALIDATE_SECONDS },
     headers: {
@@ -1833,12 +1849,16 @@ export async function getArticles() {
 }
 
 export const getArticleBySlug = cache(async function getArticleBySlug(slug: string) {
+  const pathname = `/articles/${slug}`;
+  const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<ArticleDetail[]>(
       `/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      { status },
     ),
     fetchStrapi<ArticleDetail[]>(
       `/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}&${CONTENT_POPULATE_QUERY}`,
+      { status },
     ),
   ]);
 
@@ -1862,6 +1882,7 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
     content: normalizeBlocks(article.content),
     cover: normalizeContentCardMedia(article.cover),
     sources: normalizeSourceLinks(article.sources),
+    coverSource: typeof article.coverSource === "string" && article.coverSource.trim() ? article.coverSource.trim() : null,
   });
 });
 
@@ -1903,12 +1924,16 @@ export async function getNews() {
 }
 
 export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
+  const pathname = `/news/${slug}`;
+  const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<NewsDetail[]>(
-      `/api/news-entries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=sourceName&fields[7]=sourceUrl&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      `/api/news-entries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=sourceName&fields[7]=sourceUrl&fields[8]=publishedAt&fields[9]=publishedAtCustom&fields[10]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      { status },
     ),
     fetchStrapi<NewsDetail[]>(
       `/api/news-entries?filters[slug][$eq]=${encodeURIComponent(slug)}&${CONTENT_POPULATE_QUERY}`,
+      { status },
     ),
   ]);
 
@@ -1932,6 +1957,7 @@ export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
     content: normalizeBlocks(item.content),
     cover: normalizeContentCardMedia(item.cover),
     sources: normalizeSourceLinks(item.sources),
+    coverSource: typeof item.coverSource === "string" && item.coverSource.trim() ? item.coverSource.trim() : null,
   });
 });
 
@@ -1957,12 +1983,16 @@ export async function getVideos() {
 }
 
 export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) {
+  const pathname = `/videos/${slug}`;
+  const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<VideoSummary[]>(
-      `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=videoUrl&fields[4]=duration&fields[5]=pinned&fields[6]=homepageLead&fields[7]=publishedAt&fields[8]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=videoUrl&fields[4]=duration&fields[5]=pinned&fields[6]=homepageLead&fields[7]=publishedAt&fields[8]=publishedAtCustom&fields[9]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      { status },
     ),
     fetchStrapi<VideoSummary[]>(
       `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&${CONTENT_POPULATE_QUERY}`,
+      { status },
     ),
   ]);
 
@@ -1984,6 +2014,7 @@ export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) 
     tags: normalizeTagSummaryList(video.tags),
     content: normalizeBlocks(video.content),
     cover: normalizeContentCardMedia(video.cover),
+    coverSource: typeof video.coverSource === "string" && video.coverSource.trim() ? video.coverSource.trim() : null,
   });
 });
 

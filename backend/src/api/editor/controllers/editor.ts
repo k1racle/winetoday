@@ -61,6 +61,7 @@ function buildEditorPopulate(type: EditorType) {
     categories: true,
     tags: true,
     sources: true,
+    coverSource: true,
     seo: true,
   };
 }
@@ -548,6 +549,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
   const categories = normalizeRelationIds(payload.categories);
   const tags = normalizeRelationIds(payload.tags);
   const sources = normalizeSources(payload.sources);
+  const coverSource = typeof payload.coverSource === 'string' ? payload.coverSource.trim() : '';
 
   if (!title || !excerpt) {
     throw new ValidationError('Укажите заголовок и краткое описание.');
@@ -564,6 +566,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     publishedAtCustom: publishedAtCustom || new Date().toISOString(),
     categories,
     tags,
+    coverSource: coverSource || null,
     homepageSpecialBlock: payload.homepageSpecialBlock === true,
     seo: seoPayload
       ? {

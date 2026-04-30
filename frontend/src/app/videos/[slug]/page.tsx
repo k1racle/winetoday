@@ -72,8 +72,6 @@ export default async function VideoDetailPage({ params }: PageProps) {
           <VideoEmbedPreview
             title={video.title}
             videoUrl={video.videoUrl}
-            coverUrl={video.cover?.url ?? null}
-            coverAlt={video.cover?.alternativeText ?? video.title}
           />
 
           <header className="space-y-4">

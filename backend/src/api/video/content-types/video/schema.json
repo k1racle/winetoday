@@ -30,6 +30,9 @@
       "multiple": false,
       "allowedTypes": ["images"]
     },
+    "coverSource": {
+      "type": "string"
+    },
     "videoUrl": {
       "type": "string",
       "required": true
