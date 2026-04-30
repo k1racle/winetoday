@@ -1,40 +1,43 @@
-import { cmsFetch } from "@/lib/editor";
+import { getAuthToken } from "@/lib/auth";
+import { CMS_API_URL } from "@/lib/strapi";
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData();
-    const forwardedFormData = new FormData();
-
-    for (const [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        forwardedFormData.append(key, value, value.name);
-        continue;
-      }
-
-      forwardedFormData.append(key, value);
-    }
-
-    const fileEntries = Array.from(formData.entries()).filter(([, value]) => value instanceof File);
+    const token = await getAuthToken();
+    const contentType = request.headers.get("content-type") ?? "";
+    const contentLength = request.headers.get("content-length");
+    const requestBody = await request.arrayBuffer();
 
     console.info("[editor-upload-proxy] forwarding upload request", {
-      contentType: request.headers.get("content-type") ?? "",
-      formKeys: Array.from(new Set(Array.from(formData.keys()))),
-      fileCount: fileEntries.length,
-      fileFieldNames: fileEntries.map(([key]) => key),
+      contentType,
+      contentLength,
+      bodyBytes: requestBody.byteLength,
     });
 
-    const response = await cmsFetch("/api/editor/upload", {
+    const headers = new Headers();
+
+    if (contentType) {
+      headers.set("Content-Type", contentType);
+    }
+
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    const response = await fetch(new URL("/api/editor/upload", CMS_API_URL), {
       method: "POST",
-      body: forwardedFormData,
+      headers,
+      body: requestBody,
+      cache: "no-store",
     });
-    const body = await response.text();
+    const responseBody = await response.text();
 
     console.info("[editor-upload-proxy] cms response", {
       status: response.status,
       contentType: response.headers.get("Content-Type") ?? null,
     });
 
-    return new Response(body, {
+    return new Response(responseBody, {
       status: response.status,
       headers: {
         "Content-Type": response.headers.get("Content-Type") ?? "application/json",
