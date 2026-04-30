@@ -41,7 +41,8 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
         meta={leadVideo.meta}
         className="h-full"
         mediaClassName="h-full"
-        contentClassName="p-5 sm:p-6"
+        titleBelow
+        bodyClassName="p-5 sm:p-6"
         titleClassName="type-h3"
         imageSizes="(max-width: 1279px) 100vw, 66vw"
       />
@@ -58,10 +59,10 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
                 coverAlt={video.cover?.alternativeText ?? video.title}
                 videoUrl={video.videoUrl}
                 meta={video.meta}
-                titleClassName="type-h5"
                 contentClassName="p-4"
                 imageSizes="(max-width: 1279px) 100vw, 320px"
                 compactPlayButton
+                hideTitle
               />
             ))}
           </div>

@@ -19,6 +19,9 @@ type HomepageSpecialVideoTileProps = {
   imageSizes?: string;
   contentClassName?: string;
   compactPlayButton?: boolean;
+  hideTitle?: boolean;
+  titleBelow?: boolean;
+  bodyClassName?: string;
 };
 
 function resolvePreviewEmbedUrl(videoUrl?: string | null) {
@@ -66,6 +69,9 @@ export function HomepageSpecialVideoTile({
   imageSizes,
   contentClassName,
   compactPlayButton,
+  hideTitle,
+  titleBelow,
+  bodyClassName,
 }: HomepageSpecialVideoTileProps) {
   const [isHovered, setIsHovered] = useState(false);
   const embedUrl = useMemo(() => resolvePreviewEmbedUrl(videoUrl), [videoUrl]);
@@ -74,7 +80,7 @@ export function HomepageSpecialVideoTile({
   return (
     <article
       className={[
-        "group relative aspect-video overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]",
+        "group relative overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]",
         className,
       ].filter(Boolean).join(" ")}
       onMouseEnter={() => setIsHovered(true)}
@@ -82,7 +88,7 @@ export function HomepageSpecialVideoTile({
       onFocus={() => setIsHovered(true)}
       onBlur={() => setIsHovered(false)}
     >
-      <div className={["relative h-full w-full overflow-hidden bg-black", mediaClassName].filter(Boolean).join(" ")}>
+      <div className={["relative aspect-video w-full overflow-hidden bg-black", mediaClassName].filter(Boolean).join(" ")}>
         <Link href={href} aria-label={title} className="block h-full w-full">
           {coverUrl ? (
             <Image
@@ -123,16 +129,30 @@ export function HomepageSpecialVideoTile({
           {meta?.length ? (
             <ArchiveOverlayMeta itemId={href} meta={meta} />
           ) : null}
+          {!hideTitle && !titleBelow ? (
+            <h3 className={[
+              "mt-3 text-[#fff]",
+              titleClassName ?? "type-h4",
+            ].join(" ")}>
+              <Link href={href} className="pointer-events-auto transition hover:text-emerald-200">
+                {title}
+              </Link>
+            </h3>
+          ) : null}
+        </div>
+      </div>
+      {!hideTitle && titleBelow ? (
+        <div className={["px-5 py-4 sm:px-6", bodyClassName].filter(Boolean).join(" ")}>
           <h3 className={[
-            "mt-3 text-[#fff]",
+            "text-[#0d3132] dark:text-white",
             titleClassName ?? "type-h4",
           ].join(" ")}>
-            <Link href={href} className="pointer-events-auto transition hover:text-emerald-200">
+            <Link href={href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
               {title}
             </Link>
           </h3>
         </div>
-      </div>
+      ) : null}
     </article>
   );
 }
