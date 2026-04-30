@@ -4,21 +4,19 @@ import { CMS_API_URL } from "@/lib/strapi";
 export async function POST(request: Request) {
   try {
     const token = await getAuthToken();
-    const contentType = request.headers.get("content-type") ?? "";
-    const contentLength = request.headers.get("content-length");
-    const requestBody = await request.arrayBuffer();
+    const incomingFormData = await request.formData();
+    const forwardedFormData = new FormData();
+
+    for (const [key, value] of incomingFormData.entries()) {
+      forwardedFormData.append(key, value);
+    }
 
     console.info("[editor-upload-proxy] forwarding upload request", {
-      contentType,
-      contentLength,
-      bodyBytes: requestBody.byteLength,
+      fieldCount: Array.from(incomingFormData.keys()).length,
+      fileFieldCount: Array.from(incomingFormData.values()).filter((value) => value instanceof File).length,
     });
 
     const headers = new Headers();
-
-    if (contentType) {
-      headers.set("Content-Type", contentType);
-    }
 
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
@@ -27,20 +25,25 @@ export async function POST(request: Request) {
     const response = await fetch(new URL("/api/editor/upload", CMS_API_URL), {
       method: "POST",
       headers,
-      body: requestBody,
+      body: forwardedFormData,
       cache: "no-store",
     });
-    const responseBody = await response.text();
+    const responseContentType = response.headers.get("Content-Type") ?? "application/octet-stream";
 
     console.info("[editor-upload-proxy] cms response", {
       status: response.status,
-      contentType: response.headers.get("Content-Type") ?? null,
+      contentType: responseContentType,
     });
 
-    return new Response(responseBody, {
+    if (responseContentType.toLowerCase().includes("application/json")) {
+      const responseJson = await response.json().catch(() => null);
+      return Response.json(responseJson, { status: response.status });
+    }
+
+    return new Response(response.body, {
       status: response.status,
       headers: {
-        "Content-Type": response.headers.get("Content-Type") ?? "application/json",
+        "Content-Type": responseContentType,
       },
     });
   } catch {
