@@ -995,6 +995,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const allowedTypes = useMemo(() => sortEditorTypes(session?.capabilities.canCreate ?? []), [session]);
   const canEditAll = session?.capabilities.canEditAll === true;
   const materialPublicPath = publicPath(selectedType, form.slug);
+  const materialPreviewPath = previewPath(selectedType, form.slug);
   const requestedType = useMemo(() => {
     const rawType = initialQuery?.type?.trim() ?? "";
     return isEditorContentType(rawType) ? rawType : null;
@@ -1260,6 +1261,21 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }
 
     return type === "article" ? `/articles/${slug}` : type === "news" ? `/news/${slug}` : type === "video" ? `/videos/${slug}` : null;
+  }
+
+  function previewPath(type: EditorContentType, slug: string) {
+    const publicUrl = publicPath(type, slug);
+
+    if (!publicUrl || type === "homepage") {
+      return null;
+    }
+
+    const query = new URLSearchParams({
+      type,
+      slug: slug.trim(),
+    });
+
+    return `/api/preview?${query.toString()}`;
   }
 
   function updateSeo<K extends keyof EditorSeo>(key: K, value: EditorSeo[K]) {
@@ -1747,11 +1763,18 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               ? "Здесь показывается единственная системная запись homepage с настройками инфографики. Новые записи не создаются, удаление недоступно."
               : "Полноценное редактирование контента с блоками и rich text в одном рабочем интерфейсе."}
           </p>
-          {materialPublicPath ? (
-            <Link href={materialPublicPath} target="_blank" className="inline-flex w-fit items-center justify-center gap-2 border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-300">
-              Перейти к материалу
-            </Link>
-          ) : null}
+          <div className="flex flex-wrap gap-3">
+            {form.status === "draft" && materialPreviewPath ? (
+              <Link href={materialPreviewPath} target="_blank" className="inline-flex w-fit items-center justify-center gap-2 border border-amber-600 px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-50 hover:text-amber-900 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-500/10 dark:hover:text-amber-300">
+                Предпросмотр
+              </Link>
+            ) : null}
+            {materialPublicPath && form.status === "published" ? (
+              <Link href={materialPublicPath} target="_blank" className="inline-flex w-fit items-center justify-center gap-2 border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-300">
+                Перейти к материалу
+              </Link>
+            ) : null}
+          </div>
         </header>
 
         {selectedType === "homepage" ? (
