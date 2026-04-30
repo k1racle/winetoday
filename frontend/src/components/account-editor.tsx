@@ -1561,7 +1561,11 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               publishedAtCustom: form.publishedAtCustom ? new Date(form.publishedAtCustom).toISOString() : new Date().toISOString(),
               readingTime: form.readingTime,
               coverSource: form.coverSource,
-              sources: form.sources.filter((item) => item.name.trim() || item.url.trim()),
+              ...(selectedType === "video"
+                ? {}
+                : {
+                    sources: form.sources.filter((item) => item.name.trim() || item.url.trim()),
+                  }),
               startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : "",
               endsAt: form.endsAt ? new Date(form.endsAt).toISOString() : "",
               locationName: form.locationName,
