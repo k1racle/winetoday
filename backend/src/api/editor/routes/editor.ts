@@ -40,6 +40,7 @@ export default {
       path: '/editor/upload',
       handler: 'editor.upload',
       config: {
+        auth: false,
         body: {
           multipart: true,
         },
