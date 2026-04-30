@@ -8,6 +8,19 @@ const MEDIA_URL = process.env.MEDIA_URL ?? new URL("/uploads/", SITE_URL).toStri
 export const CMS_API_URL = CMS_URL;
 const HAS_REVALIDATE_SECRET = Boolean(process.env.REVALIDATE_SECRET);
 
+function normalizeSiteOrigin(value?: string | null, fallback = SITE_URL) {
+  const candidate = value?.trim() || fallback;
+
+  try {
+    const parsed = new URL(candidate);
+    return parsed.origin;
+  } catch {
+    const normalizedCandidate = candidate.replace(/^\/+/, "");
+    const protocol = /^(localhost|127(?:\.\d{1,3}){3})(:\d+)?(?:$|\/)/i.test(normalizedCandidate) ? "http://" : "https://";
+    return new URL(`${protocol}${normalizedCandidate}`).origin;
+  }
+}
+
 function resolveMediaUrl(path: string) {
   const normalizedPath = path.replace(/^\/+/, "").replace(/^uploads\//, "");
   return new URL(normalizedPath, `${MEDIA_URL.replace(/\/+$/, "")}/`).toString();
@@ -1433,18 +1446,18 @@ export function buildSeoMetadata({
   path?: string;
   image?: string | null;
 }): Metadata {
-  const siteOrigin = siteSeo?.siteUrl?.trim() || SITE_URL;
+  const siteOrigin = normalizeSiteOrigin(siteSeo?.siteUrl, SITE_URL);
   const mergedSeo: Partial<SeoFields> = {
     ...(siteSeo?.defaultSeo ?? {}),
     ...(seo ?? {}),
   };
   const finalTitle = mergedSeo.metaTitle || title;
   const finalDescription = mergedSeo.metaDescription || description;
-  const canonical = mergedSeo.canonicalUrl || (path ? new URL(path, siteOrigin).toString() : undefined);
-  const absoluteImage = toAbsoluteSiteUrl(normalizeUrl(mergedSeo.metaImage?.url) ?? mergedSeo.metaImage?.url, siteOrigin)
-    ?? toAbsoluteSiteUrl(image, siteOrigin)
-    ?? toAbsoluteSiteUrl(siteSeo?.openGraphImage?.url, siteOrigin)
-    ?? toAbsoluteSiteUrl(siteSeo?.twitterImage?.url, siteOrigin);
+  const canonical = mergedSeo.canonicalUrl ? toAbsoluteSiteUrl(mergedSeo.canonicalUrl, siteOrigin) : path ? new URL(path, siteOrigin).toString() : undefined;
+  const absoluteImage = toAbsoluteMetadataUrl(mergedSeo.metaImage?.url, siteOrigin)
+    ?? toAbsoluteMetadataUrl(image, siteOrigin)
+    ?? toAbsoluteMetadataUrl(siteSeo?.openGraphImage?.url, siteOrigin)
+    ?? toAbsoluteMetadataUrl(siteSeo?.twitterImage?.url, siteOrigin);
 
   return {
     metadataBase: new URL(siteOrigin),
@@ -1503,7 +1516,7 @@ function normalizeUrl(url?: string | null) {
   return resolveMediaUrl(url);
 }
 
-function toAbsoluteSiteUrl(url?: string | null, baseUrl = SITE_URL) {
+export function toAbsoluteSiteUrl(url?: string | null, baseUrl = SITE_URL) {
   if (!url) {
     return undefined;
   }
@@ -1513,6 +1526,26 @@ function toAbsoluteSiteUrl(url?: string | null, baseUrl = SITE_URL) {
   }
 
   return new URL(url, baseUrl).toString();
+}
+
+function toAbsoluteMetadataUrl(url?: string | null, siteOrigin = SITE_URL) {
+  if (!url) {
+    return undefined;
+  }
+
+  const normalizedSiteOrigin = normalizeSiteOrigin(siteOrigin, SITE_URL);
+
+  try {
+    const parsed = new URL(url);
+
+    if (parsed.pathname.startsWith("/uploads/")) {
+      return new URL(`${parsed.pathname}${parsed.search}${parsed.hash}`, normalizedSiteOrigin).toString();
+    }
+
+    return parsed.toString();
+  } catch {
+    return toAbsoluteSiteUrl(url, normalizedSiteOrigin);
+  }
 }
 
 async function isPreviewEnabled() {
