@@ -1,5 +1,6 @@
 import { factories } from '@strapi/strapi';
 import { errors } from '@strapi/utils';
+import { resolveUsersPermissionsUser, resolveUsersPermissionsUserFromCookie } from '../../../utils/auth';
 
 const { ForbiddenError, NotFoundError, ValidationError } = errors;
 
@@ -806,7 +807,12 @@ export default factories.createCoreController('api::member-profile.member-profil
   },
 
   async upload(ctx: any) {
-    await resolveAccess(strapi, ctx.state.user ?? null);
+    const user =
+      ctx.state.user ??
+      (await resolveUsersPermissionsUser(strapi, ctx.request.header?.authorization ?? null)) ??
+      (await resolveUsersPermissionsUserFromCookie(strapi, ctx.cookies?.get('vino_auth_jwt') ?? null));
+
+    await resolveAccess(strapi, user);
 
     const files = normalizeRequestFiles(ctx.request.files);
 
