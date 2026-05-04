@@ -143,7 +143,7 @@ function renderRichTextNode(node: RichTextNode, key: string): ReactNode {
 }
 
 async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blocks.archive-feed" }>) {
-  const limit = Math.min(Math.max(block.limit ?? 4, 1), 12);
+  const pageSize = Math.max(block.limit ?? 12, 1);
   const selectedSlugs = new Set(
     (block.categories ?? [])
       .map((category) => category?.slug?.trim())
@@ -176,7 +176,7 @@ async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blo
               imageAlt: item.cover?.alternativeText ?? item.title,
               meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
             }))}
-            pageSize={limit}
+            pageSize={pageSize}
           />
         </section>
       );
@@ -203,7 +203,7 @@ async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blo
               imageAlt: item.cover?.alternativeText ?? item.title,
               meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
             }))}
-            pageSize={limit}
+            pageSize={pageSize}
           />
         </section>
       );
@@ -230,7 +230,7 @@ async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blo
               imageAlt: item.cover?.alternativeText ?? item.title,
               meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
             }))}
-            pageSize={limit}
+            pageSize={pageSize}
           />
         </section>
       );

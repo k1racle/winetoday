@@ -731,6 +731,28 @@ function getEffectivePublishedAt<T extends PublishedSortable>(item: T) {
   return item.publishedAtCustom ?? item.publishedAt ?? null;
 }
 
+function isPublishedAtVisible(value?: string | null, now = Date.now()) {
+  if (!value) {
+    return false;
+  }
+
+  const publishedAt = new Date(value).getTime();
+
+  if (Number.isNaN(publishedAt)) {
+    return false;
+  }
+
+  return publishedAt <= now;
+}
+
+function isPublishedItemVisible<T extends PublishedSortable>(item: T, now = Date.now()) {
+  return isPublishedAtVisible(getEffectivePublishedAt(item), now);
+}
+
+function filterVisiblePublishedItems<T extends PublishedSortable>(items: T[], now = Date.now()) {
+  return items.filter((item) => isPublishedItemVisible(item, now));
+}
+
 function getStablePublishedOrderKey<T extends PublishedSortable>(item: T) {
   return item.documentId ?? item.slug ?? item.title ?? "";
 }
@@ -1863,23 +1885,23 @@ export const getSitemapTags = cache(async function getSitemapTags() {
   }));
 });
 
-export async function getFeaturedArticles() {
+export async function getFeaturedArticles(): Promise<ArticleSummary[]> {
   const response = await fetchStrapi<ArticleSummary[]>(
     "/api/articles?filters[featured][$eq]=true&sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=6&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=readingTime&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug",
   );
 
   return sortPublishedItems(
-    response.data.filter(hasRequiredSummaryFields).map((item) => ({
+    filterVisiblePublishedItems(response.data.filter(hasRequiredSummaryFields).map((item) => ({
       ...item,
       author: normalizeAuthorSummary(item.author),
       categories: normalizeCategorySummaryList(item.categories),
       tags: normalizeTagSummaryList(item.tags),
       cover: normalizeContentCardMedia(item.cover),
-    })),
+    }))),
   );
 }
 
-export async function getArticles() {
+export async function getArticles(): Promise<ArticleSummary[]> {
   const response = await fetchStrapi<ArticleSummary[]>(
     `/api/articles?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=readingTime&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
   );
@@ -1895,9 +1917,7 @@ export async function getArticles() {
     })),
   );
 
-  return sortPublishedItems(
-    items,
-  );
+  return sortPublishedItems(filterVisiblePublishedItems(items));
 }
 
 export const getArticleBySlug = cache(async function getArticleBySlug(slug: string) {
@@ -1926,7 +1946,7 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
     return null;
   }
 
-  return resolveCategoriesForItem("article", {
+  const resolvedArticle = await resolveCategoriesForItem("article", {
     ...article,
     author: normalizeAuthorSummary(article.author),
     categories: normalizeCategorySummaryList(article.categories),
@@ -1936,25 +1956,31 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
     sources: normalizeSourceLinks(article.sources),
     coverSource: typeof article.coverSource === "string" && article.coverSource.trim() ? article.coverSource.trim() : null,
   });
+
+  if (!status && !isPublishedItemVisible(resolvedArticle)) {
+    return null;
+  }
+
+  return resolvedArticle;
 });
 
-export async function getLatestNews() {
+export async function getLatestNews(): Promise<NewsSummary[]> {
   const response = await fetchStrapi<NewsSummary[]>(
     "/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=10&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=homepageSpecialBlock&fields[7]=sourceName&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug",
   );
 
   return sortPublishedItems(
-    response.data.filter(hasRequiredSummaryFields).map((item) => ({
+    filterVisiblePublishedItems(response.data.filter(hasRequiredSummaryFields).map((item) => ({
       ...item,
       author: normalizeAuthorSummary(item.author),
       categories: normalizeCategorySummaryList(item.categories),
       tags: normalizeTagSummaryList(item.tags),
       cover: normalizeContentCardMedia(item.cover),
-    })),
+    }))),
   );
 }
 
-export async function getNews() {
+export async function getNews(): Promise<NewsSummary[]> {
   const response = await fetchStrapi<NewsSummary[]>(
     `/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=homepageSpecialBlock&fields[7]=sourceName&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
   );
@@ -1970,9 +1996,7 @@ export async function getNews() {
     })),
   );
 
-  return sortPublishedItems(
-    items,
-  );
+  return sortPublishedItems(filterVisiblePublishedItems(items));
 }
 
 export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
@@ -2001,7 +2025,7 @@ export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
     return null;
   }
 
-  return resolveCategoriesForItem("news", {
+  const resolvedNews = await resolveCategoriesForItem("news", {
     ...item,
     author: normalizeAuthorSummary(item.author),
     categories: normalizeCategorySummaryList(item.categories),
@@ -2011,9 +2035,15 @@ export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
     sources: normalizeSourceLinks(item.sources),
     coverSource: typeof item.coverSource === "string" && item.coverSource.trim() ? item.coverSource.trim() : null,
   });
+
+  if (!status && !isPublishedItemVisible(resolvedNews)) {
+    return null;
+  }
+
+  return resolvedNews;
 });
 
-export async function getVideos() {
+export async function getVideos(): Promise<VideoSummary[]> {
   const response = await fetchStrapi<VideoSummary[]>(
     `/api/videos?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=videoUrl&fields[4]=duration&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
   );
@@ -2029,9 +2059,7 @@ export async function getVideos() {
     })),
   );
 
-  return sortPublishedItems(
-    items,
-  );
+  return sortPublishedItems(filterVisiblePublishedItems(items));
 }
 
 export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) {
@@ -2059,7 +2087,7 @@ export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) 
     return null;
   }
 
-  return resolveCategoriesForItem("video", {
+  const resolvedVideo = await resolveCategoriesForItem("video", {
     ...video,
     author: normalizeAuthorSummary(video.author),
     categories: normalizeCategorySummaryList(video.categories),
@@ -2068,6 +2096,12 @@ export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) 
     cover: normalizeContentCardMedia(video.cover),
     coverSource: typeof video.coverSource === "string" && video.coverSource.trim() ? video.coverSource.trim() : null,
   });
+
+  if (!status && !isPublishedItemVisible(resolvedVideo)) {
+    return null;
+  }
+
+  return resolvedVideo;
 });
 
 export async function getHomepageSpecialItems() {

@@ -15,12 +15,10 @@ import {
   getNews,
   getSiteSeo,
   getSidebarForPath,
-  getTagCloud,
   type NewsSummary,
   withLoggedFallback,
 } from "@/lib/strapi";
 import { RichContent } from "@/components/rich-content";
-import { SidebarPanel } from "@/components/sidebar-panel";
 import Link from "next/link";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { ArchiveOverlayMeta } from "@/components/archive-overlay-meta";
@@ -225,11 +223,10 @@ function renderInfographicCard(
 }
 
 export default async function Home() {
-  const [settings, homepage, sidebar, tagCloud, latestNews, allNews, homepageSpecial] = await Promise.all([
+  const [settings, homepage, sidebar, latestNews, allNews, homepageSpecial] = await Promise.all([
     withLoggedFallback("home global settings", () => getGlobalSettings(), null),
     withLoggedFallback("home homepage", () => getHomepage(), null),
     withLoggedFallback("home sidebar", () => getSidebarForPath("/"), null),
-    withLoggedFallback("home tag cloud", () => getTagCloud(), []),
     withLoggedFallback("home latest news", () => getLatestNews(), []),
     withLoggedFallback("home all news", () => getNews(), []),
     withLoggedFallback("home homepage special items", () => getHomepageSpecialItems(), { featureCards: [], videos: [] }),
@@ -258,7 +255,6 @@ export default async function Home() {
         archiveBlocks: (sidebar.archiveBlocks ?? []).filter((block) => block?.__component !== "sidebar.homepage-news-block"),
       }
     : null;
-  const hasSidebar = Boolean(regularSidebar?.sections?.length || regularSidebar?.links?.length || regularSidebar?.archiveBlocks?.length);
   const popularNewsBase = allNews.slice(0, 20);
   const popularNews: HomepageNewsItem[] = (await Promise.all(
     popularNewsBase.map(async (item) => ({
@@ -440,7 +436,6 @@ export default async function Home() {
                                   <Image src={item.cover.url} alt={item.cover.alternativeText ?? item.title} width={640} height={360} className="h-full w-full object-cover" />
                                 ) : null}
                               </Link>
-                              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[52%] bg-gradient-to-t from-black/90 via-black/55 to-transparent" />
                               <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4">
                                 <ArchiveOverlayMeta itemId={item.documentId} meta={buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom)} />
                               </div>
@@ -478,22 +473,10 @@ export default async function Home() {
 
           </div>
 
-          {homepage?.blocks?.length || hasSidebar ? (
+          {homepage?.blocks?.length ? (
             <section className="border border-black/8 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,247,0.98))] p-5 shadow-[0_24px_80px_-40px_rgba(6,78,59,0.38)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,_rgba(52,211,153,0.16),_transparent_32%),linear-gradient(180deg,rgba(8,22,35,0.96),rgba(7,18,29,0.98))] sm:p-6 xl:p-8">
-              <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-                <div className="min-w-0">
-                  {homepage?.blocks?.length ? <RichContent blocks={homepage.blocks} /> : null}
-                  {hasSidebar ? (
-                    <div className="mt-10 lg:hidden">
-                      <SidebarPanel sidebar={regularSidebar} tagCloud={tagCloud} stacked mobile />
-                    </div>
-                  ) : null}
-                </div>
-                {hasSidebar ? (
-                  <div className="hidden lg:sticky lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
-                    <SidebarPanel sidebar={regularSidebar} tagCloud={tagCloud} />
-                  </div>
-                ) : null}
+              <div className="min-w-0">
+                <RichContent blocks={homepage.blocks} />
               </div>
             </section>
           ) : null}

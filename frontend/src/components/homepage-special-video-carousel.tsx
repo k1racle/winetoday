@@ -62,7 +62,6 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
                 imageSizes="(max-width: 1279px) 100vw, 320px"
                 compactPlayButton
                 titleBelow
-                bodyWrapperClassName="xl:hidden"
                 bodyClassName="px-4 py-3"
               />
             ))}

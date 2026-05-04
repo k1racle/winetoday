@@ -116,7 +116,6 @@ export function HomepageSpecialVideoTile({
           />
         ) : null}
 
-        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-t from-black/88 via-black/34 to-black/12 transition duration-300 group-hover:from-black/80 group-hover:via-black/28 group-hover:to-black/6" />
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <span className={[
             "flex items-center justify-center rounded-full bg-white/92 text-[#10351d] shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition duration-300 group-hover:scale-105 group-hover:bg-white",
