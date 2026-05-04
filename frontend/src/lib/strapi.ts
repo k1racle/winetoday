@@ -994,6 +994,7 @@ export type HomepageEntry = {
     accentText?: string | null;
     backgroundImage?: StrapiMedia | null;
     backgroundVideo?: StrapiMedia | null;
+    cornerIcon?: StrapiMedia | null;
     theme?: "light" | "dark" | null;
   }[] | null;
   blocks?: StrapiBlock[] | null;
@@ -1820,7 +1821,7 @@ export async function getSidebarForPath(pathname: string) {
 export const getHomepage = cache(async function getHomepage() {
   const [contentResponse, blocksResponse] = await Promise.all([
     fetchStrapi<HomepageEntry>(
-      "/api/homepage?populate[infographicCards][populate][backgroundImage]=true&populate[infographicCards][populate][backgroundVideo]=true&populate[seo][populate][metaImage]=true",
+      "/api/homepage?populate[infographicCards][populate][backgroundImage]=true&populate[infographicCards][populate][backgroundVideo]=true&populate[infographicCards][populate][cornerIcon]=true&populate[seo][populate][metaImage]=true",
       { revalidate: HOMEPAGE_REVALIDATE_SECONDS },
     ),
     fetchStrapi<HomepageEntry>(
@@ -1848,6 +1849,12 @@ export const getHomepage = cache(async function getHomepage() {
         ? {
             ...card.backgroundVideo,
             url: normalizeUrl(card.backgroundVideo.url) ?? card.backgroundVideo.url,
+          }
+        : null,
+      cornerIcon: card.cornerIcon
+        ? {
+            ...card.cornerIcon,
+            url: normalizeUrl(card.cornerIcon.url) ?? card.cornerIcon.url,
           }
         : null,
     })),

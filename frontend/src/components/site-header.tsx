@@ -320,6 +320,10 @@ function buildMobileMenuFromSections(sections?: NavigationSection[] | null): Mob
   });
 }
 
+function findFirstHeaderItem(groups: ResolvedHeaderGroup[], kind: HeaderLink["kind"]) {
+  return groups.flatMap((group) => group.items).find((item) => item.kind === kind) ?? null;
+}
+
 export function SiteHeader({
   navigationItems,
   lightLogo,
@@ -877,6 +881,11 @@ export function SiteHeader({
       ? derivedDesktopMobileMenu
       : fallbackMobileMenu;
   const activeMobileMenuSection = mobileMenuStack[mobileMenuStack.length - 1] ?? null;
+  const combinedHeaderGroups = [...resolvedTopGroups, ...resolvedMiddleGroups, ...resolvedBottomGroups];
+  const mobileLogoItem = findFirstHeaderItem(mobileGroups, "logo") ?? findFirstHeaderItem(combinedHeaderGroups, "logo");
+  const mobileThemeItem = findFirstHeaderItem(mobileGroups, "theme-toggle") ?? findFirstHeaderItem(combinedHeaderGroups, "theme-toggle");
+  const mobileSearchItem = findFirstHeaderItem(mobileGroups, "search") ?? findFirstHeaderItem(combinedHeaderGroups, "search");
+  const mobileAccountItem = findFirstHeaderItem(mobileGroups, "account") ?? findFirstHeaderItem(combinedHeaderGroups, "account");
 
   const renderRow = (
     slots: ReturnType<typeof splitGroupsByPosition>,
@@ -1078,9 +1087,9 @@ export function SiteHeader({
   };
 
   return (
-    <div className="z-50 md:contents">
+    <div className="z-50 xl:contents">
       {renderRow(topSlots, {
-        rowClassName: "hidden md:block",
+        rowClassName: "hidden xl:block",
         backgroundColor: theme.topBackgroundColor ?? theme.backgroundColor,
         pinned: desktopTopPinned,
         opacity: theme.topOpacity,
@@ -1092,7 +1101,7 @@ export function SiteHeader({
       })}
       {renderRow(middleSlots, {
         topBorder: true,
-        rowClassName: "hidden md:block",
+        rowClassName: "hidden xl:block",
         backgroundColor: theme.middleBackgroundColor ?? theme.backgroundColor,
         pinned: desktopMiddlePinned,
         opacity: theme.middleOpacity,
@@ -1103,7 +1112,7 @@ export function SiteHeader({
       })}
       {renderRow(bottomSlots, {
         topBorder: true,
-        rowClassName: "hidden md:block",
+        rowClassName: "hidden xl:block",
         backgroundColor: theme.bottomBackgroundColor ?? theme.backgroundColor,
         pinned: desktopBottomPinned,
         opacity: theme.bottomOpacity,
@@ -1118,12 +1127,12 @@ export function SiteHeader({
           <button
             type="button"
             aria-label="Закрыть поиск"
-            className="fixed inset-0 z-[70] bg-black/35 backdrop-blur-[2px]"
+            className="fixed inset-0 z-[110] bg-black/35 backdrop-blur-[2px]"
             style={{ top: "var(--site-header-offset, 0px)" }}
             onClick={() => setSearchOpenPath(null)}
           />
           <div
-            className="fixed inset-x-0 z-[80] border-t border-black/5 shadow-[0_24px_80px_rgba(8,18,12,0.22)] dark:border-white/10"
+            className="fixed inset-x-0 z-[120] border-t border-black/5 shadow-[0_24px_80px_rgba(8,18,12,0.22)] dark:border-white/10"
             style={{
               top: "var(--site-header-offset, 0px)",
               ...(buildHeaderStyle({
@@ -1160,15 +1169,15 @@ export function SiteHeader({
         </>
       ) : null}
 
-      <div aria-hidden="true" className="md:hidden" style={{ height: mobileRowHeight ? `${mobileRowHeight}px` : undefined }} />
+      <div aria-hidden="true" className="xl:hidden" style={{ height: mobileRowHeight ? `${mobileRowHeight}px` : undefined }} />
 
       <div
         ref={mobileRowRef}
-        className="fixed inset-x-0 top-0 z-[90] border-t border-black/5 md:hidden dark:border-white/10"
+        className="fixed inset-x-0 top-0 z-[90] border-t border-black/5 xl:hidden dark:border-white/10"
         style={mobileThemeStyle}
       >
         <div
-          className="grid gap-3 px-4"
+          className="px-4"
           style={mobileRowMetrics.rowHeight
             ? {
                 minHeight: `${mobileRowMetrics.rowHeight}px`,
@@ -1177,28 +1186,17 @@ export function SiteHeader({
               }
             : { paddingTop: "0.75rem", paddingBottom: "0.75rem" }}
         >
-          {mobileGroups.length ? (
-            <div className="flex flex-nowrap items-center justify-between gap-3 overflow-hidden">
-              <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-hidden">
-                {mobileSlots.left.map((group, index) => renderGroup(group, index, true, true))}
-              </div>
-              {mobileSlots.center.length ? (
-                <div className="flex min-w-0 shrink-0 flex-nowrap items-center justify-center gap-2">
-                  {mobileSlots.center.map((group, index) => renderGroup(group, index, true, true))}
-                </div>
-              ) : null}
-              {mobileSlots.right.length ? (
-                <div className="flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-2">
-                  {mobileSlots.right.map((group, index) => renderGroup(group, index, true, true))}
-                </div>
-              ) : null}
+          <div className="grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-3 py-3">
+            <div aria-hidden="true" className="h-11 w-11" />
+            <div className="flex min-w-0 justify-center">
+              {mobileLogoItem
+                ? renderHeaderItem(mobileLogoItem, "mobile-top-logo", true, true)
+                : <span className="font-menu truncate text-white">{siteName}</span>}
             </div>
-          ) : (
-            <div className="flex items-center justify-between gap-3">
-              <span className="font-menu text-white">Сейчас: {currentSection}</span>
+            <div className="flex justify-end">
               {renderHeaderItem({ kind: "menu-toggle", label: isMenuOpen ? "Закрыть" : "Меню" }, "mobile-fallback-menu-toggle", true, true)}
             </div>
-          )}
+          </div>
         </div>
 
         {isMenuOpen ? (
@@ -1206,7 +1204,7 @@ export function SiteHeader({
             <button
               type="button"
               aria-label="Закрыть меню"
-              className="fixed inset-0 z-[70] bg-black/35 backdrop-blur-[2px] md:hidden"
+              className="fixed inset-0 z-[70] bg-black/35 backdrop-blur-[2px] xl:hidden"
               style={{ top: "var(--site-header-offset, 0px)" }}
               onClick={() => {
                 closeMobileMenu();
@@ -1215,52 +1213,34 @@ export function SiteHeader({
 
             <div
               id="mobile-site-menu"
-              className="fixed inset-x-0 bottom-0 z-[80] overflow-hidden border-t border-black/5 shadow-[0_24px_80px_rgba(8,18,12,0.22)] md:hidden dark:border-white/10"
+              className="fixed inset-x-0 bottom-0 z-[80] overflow-hidden border-t border-black/5 shadow-[0_24px_80px_rgba(8,18,12,0.22)] xl:hidden dark:border-white/10"
               style={{
                 top: "var(--site-header-offset, 0px)",
                 ...(mobileThemeStyle ?? {}),
               }}
             >
               <div className="flex h-full flex-col">
-                <div
-                  className="flex items-center justify-between gap-3 border-b border-black/5 px-4 py-4 dark:border-white/10"
-                  style={buildHeaderStyle({ borderColor: theme.mobileBorderColor ?? theme.borderColor })}
-                >
-                  {activeMobileMenuSection ? (
-                    <button
-                      type="button"
-                      className="inline-flex min-w-0 items-center gap-2 text-left text-white transition-colors hover:text-white/80"
-                      onClick={() => setMobileMenuStack((stack) => stack.slice(0, -1))}
-                    >
-                      <ChevronIcon direction="left" />
-                      <span className="type-body">Назад</span>
-                    </button>
-                  ) : (
-                    <span className="type-body text-white">Меню</span>
-                  )}
-
-                  <button
-                    type="button"
-                    aria-label="Закрыть меню"
-                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center border border-white/15 text-white transition-colors hover:text-white/80"
-                    onClick={() => {
-                      closeMobileMenu();
-                    }}
-                  >
-                    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-                      <path d="M6 6 18 18" />
-                      <path d="M18 6 6 18" />
-                    </svg>
-                  </button>
-                </div>
-
                 <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
                   <div className="mx-auto flex h-full w-full max-w-2xl flex-col">
-                     {activeMobileMenuSection ? (
-                        <div className="mb-4">
+                    <div className="mb-5 flex items-center gap-2 border-b border-white/10 pb-4">
+                      {mobileThemeItem ? renderHeaderItem(mobileThemeItem, "mobile-menu-theme", true, true) : null}
+                      {mobileSearchItem ? renderHeaderItem(mobileSearchItem, "mobile-menu-search", true, true) : null}
+                      {mobileAccountItem ? renderHeaderItem(mobileAccountItem, "mobile-menu-account", true, true) : null}
+                    </div>
+
+                    {activeMobileMenuSection ? (
+                      <div className="mb-4 space-y-3">
+                        <button
+                          type="button"
+                          className="inline-flex min-w-0 items-center gap-2 text-left text-white transition-colors hover:text-white/80"
+                          onClick={() => setMobileMenuStack((stack) => stack.slice(0, -1))}
+                        >
+                          <ChevronIcon direction="left" />
+                          <span className="type-body">Назад</span>
+                        </button>
                         <h2 className="type-h4 text-white">{activeMobileMenuSection.label}</h2>
-                        </div>
-                     ) : null}
+                      </div>
+                    ) : null}
 
                     {renderMobileMenuContent()}
                   </div>

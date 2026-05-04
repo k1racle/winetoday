@@ -30,6 +30,11 @@
       "multiple": false,
       "allowedTypes": ["videos"]
     },
+    "cornerIcon": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
     "accentText": {
       "type": "string"
     },

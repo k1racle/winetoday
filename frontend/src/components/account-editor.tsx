@@ -987,7 +987,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const [itemsQuery, setItemsQuery] = useState("");
   const [itemsPage, setItemsPage] = useState(1);
   const [activeMediaPanel, setActiveMediaPanel] = useState<{
-    kind: "cover" | "block-highlight" | "infographic-image" | "infographic-video";
+    kind: "cover" | "block-highlight" | "infographic-image" | "infographic-video" | "infographic-corner-icon";
     blockIndex?: number;
     cardIndex?: number;
   } | null>(null);
@@ -1353,7 +1353,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }));
   }
 
-  function openInfographicMediaPanel(kind: "infographic-image" | "infographic-video", cardIndex: number) {
+  function openInfographicMediaPanel(kind: "infographic-image" | "infographic-video" | "infographic-corner-icon", cardIndex: number) {
     setActiveMediaPanel({ kind, cardIndex });
   }
 
@@ -1446,7 +1446,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }
   }
 
-  async function handleInfographicUpload(cardIndex: number, kind: "infographic-image" | "infographic-video", event: ChangeEvent<HTMLInputElement>) {
+  async function handleInfographicUpload(cardIndex: number, kind: "infographic-image" | "infographic-video" | "infographic-corner-icon", event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
 
     if (!file) {
@@ -1805,6 +1805,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                 {form.infographicCards.map((card, index) => {
                   const imageAsset = findAssetById(mediaAssets, card.backgroundImage ?? null, "image");
                   const videoAsset = findAssetById(mediaAssets, card.backgroundVideo ?? null, "video");
+                  const cornerIconAsset = findAssetById(mediaAssets, card.cornerIcon ?? null, "image");
 
                   return (
                     <div key={`infographic-card-${card.id ?? index}`} className="border border-black/10 p-4 dark:border-white/10">
@@ -1845,6 +1846,16 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                       </div>
 
                       <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                        <Field label="SVG-иконка в угол">
+                          <MediaSummaryCard
+                            asset={cornerIconAsset}
+                            accept="image"
+                            emptyLabel="SVG-иконка не выбрана"
+                            onOpen={() => openInfographicMediaPanel("infographic-corner-icon", index)}
+                            onClear={() => updateInfographicCard(index, { ...card, cornerIcon: null })}
+                            openLabel="Открыть библиотеку"
+                          />
+                        </Field>
                         <Field label="Фоновое изображение">
                           <MediaSummaryCard
                             asset={imageAsset}
@@ -2169,6 +2180,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                       ? "Выбор обложки"
                       : activeMediaPanel.kind === "infographic-video"
                         ? "Выбор видео для карточки"
+                        : activeMediaPanel.kind === "infographic-corner-icon"
+                          ? "Выбор SVG-иконки для карточки"
                         : activeMediaPanel.kind === "infographic-image"
                           ? "Выбор изображения для карточки"
                           : "Выбор изображения для блока"}
@@ -2192,6 +2205,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                       ? "Обложка не выбрана"
                       : activeMediaPanel.kind === "infographic-video"
                         ? "Видео не выбрано"
+                        : activeMediaPanel.kind === "infographic-corner-icon"
+                          ? "SVG-иконка не выбрана"
                         : "Изображение не выбрано"}
                     onOpen={() => undefined}
                     onClear={() => selectAssetFromPanel(null)}
@@ -2205,6 +2220,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   onSelect={selectAssetFromPanel}
                   onUpload={(event) => activeMediaPanel.kind === "cover"
                     ? void handleCoverUpload(event)
+                    : activeMediaPanel.kind === "infographic-corner-icon" && typeof activeMediaPanel.cardIndex === "number"
+                      ? void handleInfographicUpload(activeMediaPanel.cardIndex, "infographic-corner-icon", event)
                     : activeMediaPanel.kind === "infographic-image" && typeof activeMediaPanel.cardIndex === "number"
                       ? void handleInfographicUpload(activeMediaPanel.cardIndex, "infographic-image", event)
                       : activeMediaPanel.kind === "infographic-video" && typeof activeMediaPanel.cardIndex === "number"
@@ -2214,6 +2231,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                         : undefined}
                   uploadLabel={activeMediaPanel.kind === "cover"
                     ? "Загрузите новую обложку или выберите файл из библиотеки ниже."
+                    : activeMediaPanel.kind === "infographic-corner-icon"
+                      ? "Загрузите SVG-иконку для карточки инфографики или выберите уже загруженный файл из библиотеки ниже."
                     : activeMediaPanel.kind === "infographic-image"
                       ? "Загрузите изображение для карточки инфографики или выберите уже загруженный файл из библиотеки ниже."
                       : activeMediaPanel.kind === "infographic-video"

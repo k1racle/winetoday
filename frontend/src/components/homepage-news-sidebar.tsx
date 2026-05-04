@@ -86,7 +86,7 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
       <div>
         {items.length ? (
           <>
-            <div className="md:hidden">
+            <div className="xl:hidden">
               {mobileItems.map((item) => (
                 <Link
                   key={`${activeTab}-${item.documentId}`}
@@ -113,7 +113,7 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
               ) : null}
             </div>
 
-            <div className="hidden md:block">
+            <div className="hidden xl:block">
               {items.map((item) => (
                 <Link
                   key={`${activeTab}-${item.documentId}`}

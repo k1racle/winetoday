@@ -153,8 +153,111 @@ type InfographicCard = {
   accentText?: string | null;
   backgroundImage?: { url: string } | null;
   backgroundVideo?: { url: string } | null;
+  cornerIcon?: { url: string; alternativeText?: string | null } | null;
   theme?: "light" | "dark" | null;
 };
+
+function renderInfographicCornerIcon(card: InfographicCard, className: string) {
+  if (!card.cornerIcon?.url) {
+    return null;
+  }
+
+  return (
+    <Image
+      src={card.cornerIcon.url}
+      alt={card.cornerIcon.alternativeText ?? ""}
+      width={88}
+      height={88}
+      className={className}
+    />
+  );
+}
+
+function renderInfographicCardText(card: InfographicCard, options?: { titleClassName?: string; textClassName?: string }) {
+  const title = card.title?.trim();
+  const description = card.description?.trim();
+  const accentText = card.accentText?.trim();
+
+  if (!title && !description && !accentText) {
+    return null;
+  }
+
+  return (
+    <div className="min-w-0 space-y-2">
+      {title ? (
+        <div className={["type-h4 break-words [overflow-wrap:anywhere]", options?.titleClassName ?? ""].join(" ")}>
+          {title}
+        </div>
+      ) : null}
+      {description ? (
+        <p className={["text-sm leading-[1.4] opacity-85", options?.textClassName ?? ""].join(" ")}>
+          {description}
+        </p>
+      ) : null}
+      {accentText ? (
+        <p className={["text-sm leading-[1.4] opacity-85", options?.textClassName ?? ""].join(" ")}>
+          {accentText}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function renderAdaptiveInfographicCard(card: InfographicCard | undefined, key: string) {
+  if (!card) {
+    return null;
+  }
+
+  const href = card.href?.trim();
+  const isDark = card.theme === "dark";
+  const className = `block overflow-hidden border transition-transform hover:-translate-y-0.5 ${infographicThemeClass(card.theme)}`;
+  const content = (
+    <div className="grid min-w-0 grid-cols-[72px_minmax(0,1fr)] items-start gap-4 px-4 py-4 sm:px-5 sm:py-5">
+      <div className="flex min-h-[72px] items-center justify-center">
+        {renderInfographicCornerIcon(card, "h-[72px] w-[72px] object-contain")}
+      </div>
+      <div className={isDark ? "text-white" : "text-[#0d3132]"}>
+        {renderInfographicCardText(card, {
+          titleClassName: "text-[15px] leading-5",
+          textClassName: isDark ? "text-white/80" : "text-[#0d3132]/80",
+        })}
+      </div>
+    </div>
+  );
+
+  return href ? (
+    <Link key={key} href={href} className={className}>
+      {content}
+    </Link>
+  ) : (
+    <div key={key} className={className}>
+      {content}
+    </div>
+  );
+}
+
+function buildPhoneInfographicCards(cards: InfographicCard[]) {
+  if (!cards.length) {
+    return cards;
+  }
+
+  const videoCardIndex = cards.findIndex((card) => Boolean(card.backgroundVideo?.url));
+
+  if (videoCardIndex === -1) {
+    return cards;
+  }
+
+  const fallbackCard = [...cards].reverse().find((card, reverseIndex) => {
+    const originalIndex = cards.length - 1 - reverseIndex;
+    return originalIndex !== videoCardIndex && !card.backgroundVideo?.url;
+  });
+
+  if (!fallbackCard) {
+    return cards.filter((card) => !card.backgroundVideo?.url);
+  }
+
+  return cards.map((card, index) => (index === videoCardIndex ? fallbackCard : card));
+}
 
 function renderInfographicCard(
   card: InfographicCard | undefined,
@@ -193,6 +296,9 @@ function renderInfographicCard(
         imageUrl: card.backgroundImage?.url,
         videoUrl: card.backgroundVideo?.url,
       })}
+      <div className="pointer-events-none absolute right-4 top-4 z-10 flex justify-end">
+        {renderInfographicCornerIcon(card, "h-14 w-14 object-contain xl:h-16 xl:w-16")}
+      </div>
       <div
         className={`absolute inset-0 z-10 flex min-w-0 flex-col justify-end ${paddingClassName}`}
       >
@@ -247,6 +353,8 @@ export default async function Home() {
     ) ?? []
   );
   const infographicDisplayCards = infographicCards.filter((_, index) => index !== 4 && index !== 9);
+  const phoneInfographicCards = buildPhoneInfographicCards(infographicDisplayCards);
+  const tabletInfographicCards = infographicDisplayCards.slice(0, Math.max(infographicDisplayCards.length - 2, 0));
   const topRowCards = infographicDisplayCards.slice(0, 4);
   const bottomRowCards = infographicDisplayCards.slice(4, 8);
   const regularSidebar = sidebar
@@ -300,28 +408,16 @@ export default async function Home() {
           <MobileSidebarBridge sidebar={regularSidebar} />
           <div className="min-w-0 space-y-10">
             {hasHomepageNewsWidget ? (
-              <HomepageNewsSidebar latest={latestNewsSidebarItems} popular={popularNewsSidebarItems} className="md:hidden" />
+              <HomepageNewsSidebar latest={latestNewsSidebarItems} popular={popularNewsSidebarItems} className="xl:hidden" />
             ) : null}
             {infographicCards.length ? (
-              <section className="hidden space-y-4 md:block">
-                <div className="hidden gap-4 md:grid md:grid-cols-2 xl:hidden">
-                  {infographicDisplayCards.map((card, index) => {
-                    const slot = card.shape === "circle"
-                      ? "bottomCircle"
-                      : card.shape === "rectangle"
-                        ? "topRectangle"
-                        : "bottomSquare";
+              <section className="space-y-4">
+                <div className="grid gap-3 md:hidden">
+                  {phoneInfographicCards.map((card, index) => renderAdaptiveInfographicCard(card, `phone-infographic-${index}`))}
+                </div>
 
-                    return renderInfographicCard(card, slot, slot === "bottomCircle" ? "mx-auto w-full max-w-[320px] md:max-w-none" : "w-full", {
-                      compact: true,
-                      titleClassName: slot === "topRectangle" ? "max-w-[14rem]" : "max-w-[11rem]",
-                      slotClassName: slot === "bottomCircle"
-                        ? "aspect-square w-full rounded-full"
-                        : slot === "topRectangle"
-                          ? "min-h-[220px] w-full"
-                          : "aspect-square w-full",
-                    });
-                  })}
+                <div className="hidden gap-4 md:grid md:grid-cols-2 xl:hidden">
+                  {tabletInfographicCards.map((card, index) => renderAdaptiveInfographicCard(card, `tablet-infographic-${index}`))}
                 </div>
 
                 <div className="hidden gap-4 xl:grid xl:grid-cols-4 xl:auto-rows-[clamp(11rem,18vw,20rem)] xl:w-full">
@@ -422,7 +518,7 @@ export default async function Home() {
                           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
                             <ArchiveOverlayMeta itemId={specialLead.documentId} meta={buildCategoryDateOverlayMeta(specialLead.categories, specialLead.publishedAt, specialLead.publishedAtCustom)} />
                             <h2 className="type-h2 mt-4 text-white"><Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">{specialLead.title}</Link></h2>
-                            {specialLead.excerpt ? <p className="type-body mt-4 hidden max-w-[44ch] text-white/85 md:block">{specialLead.excerpt}</p> : null}
+                            {specialLead.excerpt ? <p className="type-body mt-4 hidden max-w-[44ch] leading-[1.4] text-white/85 md:block">{specialLead.excerpt}</p> : null}
                           </div>
                         </article>
                       ) : null}
@@ -441,7 +537,7 @@ export default async function Home() {
                               </div>
                             </div>
                             <div className="p-4">
-                              <h3 className="type-h4 text-[#0d3132] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
+                              <h3 className="type-h4 text-[15px] leading-5 text-[#0d3132] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
                             </div>
                           </article>
                         ))}

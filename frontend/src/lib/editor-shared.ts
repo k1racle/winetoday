@@ -57,6 +57,7 @@ export type EditorInfographicCard = {
   href?: string | null;
   backgroundImage?: number | null;
   backgroundVideo?: number | null;
+  cornerIcon?: number | null;
   accentText?: string | null;
   theme?: "light" | "dark" | null;
 };

@@ -86,7 +86,7 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
                 {leadItem.title}
               </Link>
             </h2>
-            {leadItem.excerpt ? <p className="type-body mt-4 text-zinc-600 dark:text-zinc-400">{leadItem.excerpt}</p> : null}
+            {leadItem.excerpt ? <p className="type-body mt-4 leading-[1.4] text-zinc-600 dark:text-zinc-400">{leadItem.excerpt}</p> : null}
           </div>
         </article>
       ) : null}
@@ -114,7 +114,7 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
                       {item.title}
                     </Link>
                   </h2>
-                  {item.excerpt ? <p className="type-body mt-4 text-zinc-600 dark:text-zinc-400">{item.excerpt}</p> : null}
+                  {item.excerpt ? <p className="type-body mt-4 leading-[1.4] text-zinc-600 dark:text-zinc-400">{item.excerpt}</p> : null}
               </div>
             </article>
           ))}
