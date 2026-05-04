@@ -39,7 +39,6 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
         coverAlt={leadVideo.cover?.alternativeText ?? leadVideo.title}
         videoUrl={leadVideo.videoUrl}
         meta={leadVideo.meta}
-        className="h-full"
         titleBelow
         bodyClassName="p-5 sm:p-6"
         titleClassName="type-h3"
