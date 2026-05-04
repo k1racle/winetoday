@@ -412,11 +412,11 @@ export default async function Home() {
             ) : null}
             {infographicCards.length ? (
               <section className="space-y-4">
-                <div className="grid gap-3 md:hidden">
+                <div className="grid gap-3 max-[764px]:grid min-[765px]:hidden">
                   {phoneInfographicCards.map((card, index) => renderAdaptiveInfographicCard(card, `phone-infographic-${index}`))}
                 </div>
 
-                <div className="hidden gap-4 md:grid md:grid-cols-2 xl:hidden">
+                <div className="hidden gap-4 min-[765px]:grid min-[765px]:grid-cols-2 xl:hidden">
                   {tabletInfographicCards.map((card, index) => renderAdaptiveInfographicCard(card, `tablet-infographic-${index}`))}
                 </div>
 

@@ -654,6 +654,7 @@ export function SiteHeader({
             }
             style={compact ? themedStyle : { ...(themedStyle ?? {}), minHeight: "var(--header-control-height, 2.75rem)" }}
             onClick={() => {
+              closeMobileMenu();
               setSearchOpenPath((value) => (value !== pathname ? pathname : null));
             }}
           >
