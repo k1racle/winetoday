@@ -256,7 +256,9 @@ function buildPhoneInfographicCards(cards: InfographicCard[]) {
     return cards.filter((card) => !card.backgroundVideo?.url);
   }
 
-  return cards.map((card, index) => (index === videoCardIndex ? fallbackCard : card));
+  return cards
+    .map((card, index) => (index === videoCardIndex ? fallbackCard : card))
+    .filter((card, index, array) => array.findIndex((candidate) => candidate === card) === index);
 }
 
 function renderInfographicCard(

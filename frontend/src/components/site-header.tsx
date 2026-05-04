@@ -1216,11 +1216,26 @@ export function SiteHeader({
               id="mobile-site-menu"
               className="fixed inset-x-0 bottom-0 z-[80] overflow-hidden border-t border-black/5 shadow-[0_24px_80px_rgba(8,18,12,0.22)] xl:hidden dark:border-white/10"
               style={{
-                top: "var(--site-header-offset, 0px)",
+                top: mobileRowHeight ? `${mobileRowHeight}px` : "var(--site-header-offset, 0px)",
                 ...(mobileThemeStyle ?? {}),
               }}
             >
               <div className="flex h-full flex-col">
+                <div className="flex items-center justify-end border-b border-white/10 px-4 py-3">
+                  <button
+                    type="button"
+                    aria-label="Закрыть меню"
+                    className="inline-flex h-10 w-10 shrink-0 items-center justify-center border border-white/15 text-white transition-colors hover:text-white/80"
+                    onClick={() => {
+                      closeMobileMenu();
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                      <path d="M6 6 18 18" />
+                      <path d="M18 6 6 18" />
+                    </svg>
+                  </button>
+                </div>
                 <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
                   <div className="mx-auto flex h-full w-full max-w-2xl flex-col">
                     <div className="mb-5 flex items-center gap-2 border-b border-white/10 pb-4">
