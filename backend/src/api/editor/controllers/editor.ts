@@ -1124,7 +1124,7 @@ export default factories.createCoreController('api::member-profile.member-profil
         throw new NotFoundError('Материал не найден или недоступен.');
       }
 
-      delete normalized.data.slug;
+      delete (normalized.data as Record<string, unknown>).slug;
 
       await strapi.documents(TYPE_CONFIG[rawType].uid as any).update({
         documentId,
