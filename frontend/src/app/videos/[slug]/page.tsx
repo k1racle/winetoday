@@ -103,7 +103,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
           </div>
         </article>
 
-        <div className="hidden w-full min-w-0 overflow-hidden lg:sticky lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+        <div className="hidden w-[320px] shrink-0 justify-self-end overflow-hidden lg:sticky lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
           <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} />
         </div>
       </div>
