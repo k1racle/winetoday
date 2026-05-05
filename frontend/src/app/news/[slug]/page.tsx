@@ -66,7 +66,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   return (
     <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="space-y-4">
@@ -103,7 +103,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
           </div>
         </article>
 
-        <div className="hidden min-w-0 shrink-0 justify-self-end overflow-hidden xl:sticky xl:col-start-2 xl:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+        <div className="hidden w-[320px] shrink-0 overflow-hidden xl:sticky xl:col-start-2 xl:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
           <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} />
         </div>
       </div>

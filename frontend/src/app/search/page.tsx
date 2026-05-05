@@ -174,7 +174,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const hasResults = Boolean(safeMatchedArticles.length || safeMatchedNews.length || safeMatchedVideos.length);
   return (
     <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <section className="min-w-0">
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="border-b border-black/10 pb-8 dark:border-white/10">
@@ -261,7 +261,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
         </section>
 
-        <div className="hidden min-w-0 shrink-0 justify-self-end overflow-hidden xl:sticky xl:col-start-2 xl:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+        <div className="hidden w-[320px] shrink-0 overflow-hidden xl:sticky xl:col-start-2 xl:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
           <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} />
         </div>
       </div>

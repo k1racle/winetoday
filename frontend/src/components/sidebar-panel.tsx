@@ -37,7 +37,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
   }
 
   return (
-    <aside className={`w-full ${asideClassName}`}>
+    <aside className={`w-full box-border ${asideClassName}`}>
       {sidebar.title ? (
         <p className="type-small font-menu px-5 pt-4 text-emerald-700 dark:text-emerald-300">{sidebar.title}</p>
       ) : null}
