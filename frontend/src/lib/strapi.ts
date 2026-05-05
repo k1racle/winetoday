@@ -87,6 +87,9 @@ const HOMEPAGE_BLOCKS_POPULATE_QUERY = [
 const SITE_HEADER_POPULATE_QUERY = [
   "populate[lightLogo]=true",
   "populate[darkLogo]=true",
+  "fields[stickyDesktop]=true",
+  "fields[stickyTablet]=true",
+  "fields[stickyMobile]=true",
   "populate[menuLinks]=true",
 ].join("&");
 
@@ -352,7 +355,9 @@ export type HeaderGroup = {
 export type SiteHeaderSettings = {
   lightLogo?: StrapiMedia | null;
   darkLogo?: StrapiMedia | null;
-  sticky?: boolean | null;
+  stickyDesktop?: boolean | null;
+  stickyTablet?: boolean | null;
+  stickyMobile?: boolean | null;
   menuLinks?: NavigationLink[] | null;
 };
 

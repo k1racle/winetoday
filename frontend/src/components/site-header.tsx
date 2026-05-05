@@ -20,7 +20,9 @@ type SiteHeaderProps = {
   siteName: string;
   lightLogo?: MediaAsset | null;
   darkLogo?: MediaAsset | null;
-  sticky?: boolean | null;
+  stickyDesktop?: boolean | null;
+  stickyTablet?: boolean | null;
+  stickyMobile?: boolean | null;
   menuLinks?: NavigationLink[] | null;
   /** fallback, пока Strapi меню пустое */
   navigationItems?: NavigationItem[];
@@ -87,12 +89,28 @@ function normalizeMenuLinks(menuLinks?: NavigationLink[] | null, fallback?: Navi
   return (fallback ?? []).filter((item) => item.href && item.label);
 }
 
-export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuLinks, navigationItems }: SiteHeaderProps) {
+function useMediaQuery(query: string) {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      const mediaQuery = window.matchMedia(query);
+      mediaQuery.addEventListener("change", onStoreChange);
+      return () => mediaQuery.removeEventListener("change", onStoreChange);
+    },
+    () => window.matchMedia(query).matches,
+    () => false,
+  );
+}
+
+export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true, stickyTablet = true, stickyMobile = true, menuLinks, navigationItems }: SiteHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const theme = useSyncExternalStore<ThemeMode>(subscribeToTheme, readThemeSnapshot, () => "light");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const isDesktop = useMediaQuery("(min-width: 1280px)");
+  const isTablet = useMediaQuery("(min-width: 768px) and (max-width: 1279px)");
+
+  const sticky = isDesktop ? stickyDesktop : isTablet ? stickyTablet : stickyMobile;
 
   const resolvedMenu = useMemo(() => normalizeMenuLinks(menuLinks, navigationItems), [menuLinks, navigationItems]);
   const logo = theme === "dark" ? (darkLogo?.url ? darkLogo : lightLogo) : (lightLogo?.url ? lightLogo : darkLogo);
@@ -121,6 +139,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
 
   useEffect(() => {
     // при переходах закрываем дровер
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDrawerOpen(false);
   }, [pathname]);
 
@@ -128,6 +147,12 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
     event?.preventDefault();
     const q = searchQuery.trim();
     router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
+    setDrawerOpen(false);
+  };
+
+  const openSearchOverlay = () => {
+    // минимально воссоздаем поведение "старого" поиска: оверлей с инпутом
+    window.dispatchEvent(new CustomEvent("vino-search-open"));
     setDrawerOpen(false);
   };
 
@@ -194,8 +219,17 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
           </nav>
 
           {/* Mobile/tablet row */}
-          <div className="flex h-16 items-center justify-between xl:hidden">
-            <Link href="/" className="min-w-0 pr-4">
+          <div className="grid h-16 grid-cols-[44px_1fr_44px] items-center xl:hidden">
+            <button
+              type="button"
+              aria-label="Поиск"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
+              onClick={openSearchOverlay}
+            >
+              <SearchIcon />
+            </button>
+
+            <Link href="/" className="min-w-0 justify-self-center px-2">
               {logo?.url ? (
                 <Image
                   src={logo.url}
@@ -225,6 +259,9 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
         </div>
       </div>
 
+      {/* Search overlay */}
+      <SearchOverlay onSubmit={submitSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+
       {/* Mobile drawer */}
       {drawerOpen ? (
         <>
@@ -235,18 +272,15 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
             onClick={() => setDrawerOpen(false)}
           />
           <div className="fixed inset-x-0 top-0 z-[70] h-[100dvh] xl:hidden">
-            <div className="h-full w-full bg-[color:var(--background)] shadow-[0_24px_80px_rgba(8,18,12,0.22)] dark:bg-[#08110b]">
-              <div className="mx-auto flex h-full max-w-2xl flex-col px-4 pb-8 pt-5">
-                <div className="flex items-center justify-between gap-3 border-b border-black/10 pb-4 dark:border-white/10">
+            <div className="h-full w-full bg-white shadow-[0_24px_80px_rgba(8,18,12,0.22)] dark:bg-[#081623]">
+              <div className="mx-auto flex h-full max-w-2xl flex-col px-4 pb-8">
+                <div className="flex h-16 items-center justify-between gap-3 border-b border-black/10 dark:border-white/10">
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       aria-label="Поиск"
                       className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
-                      onClick={() => {
-                        const input = document.getElementById("mobile-header-search") as HTMLInputElement | null;
-                        input?.focus();
-                      }}
+                      onClick={openSearchOverlay}
                     >
                       <SearchIcon />
                     </button>
@@ -267,29 +301,12 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
                   </button>
                 </div>
 
-                <form onSubmit={submitSearch} className="mt-4 flex items-center gap-3">
-                  <input
-                    id="mobile-header-search"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Поиск по сайту"
-                    className="font-menu h-12 min-w-0 flex-1 rounded-xl border border-black/10 bg-white px-4 text-zinc-900 outline-none transition-colors placeholder:text-zinc-500 focus:border-emerald-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100 dark:placeholder:text-zinc-500"
-                  />
-                  <button
-                    type="submit"
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
-                    aria-label="Искать"
-                  >
-                    <SearchIcon />
-                  </button>
-                </form>
-
-                <nav className="mt-6 grid gap-2 overflow-y-auto">
+                <nav className="mt-6 grid gap-3 overflow-y-auto">
                   {resolvedMenu.map((item) => (
                     <Link
                       key={`mobile-${item.href}-${item.label}`}
                       href={item.href}
-                      className="font-menu rounded-xl border border-black/10 bg-white px-4 py-3 text-zinc-900 transition-colors hover:border-emerald-700 hover:bg-emerald-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100 dark:hover:bg-emerald-950/35"
+                      className="font-menu px-0 py-1 text-[16px] text-zinc-900 transition-colors hover:text-zinc-950 dark:text-zinc-100 dark:hover:text-white"
                     >
                       {item.label}
                     </Link>
@@ -301,5 +318,106 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
         </>
       ) : null}
     </header>
+  );
+}
+
+function SearchOverlay({
+  onSubmit,
+  searchQuery,
+  setSearchQuery,
+}: {
+  onSubmit: (event?: FormEvent) => void;
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener("vino-search-open", onOpen as EventListener);
+    return () => window.removeEventListener("vino-search-open", onOpen as EventListener);
+  }, []);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const id = window.setTimeout(() => {
+      const input = document.getElementById("site-search-overlay-input") as HTMLInputElement | null;
+      input?.focus();
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [open]);
+
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div className="fixed inset-0 z-[80]">
+      <button
+        type="button"
+        aria-label="Закрыть поиск"
+        className="absolute inset-0 bg-black/35 backdrop-blur-[2px]"
+        onClick={() => setOpen(false)}
+      />
+      <div className="relative mx-auto mt-20 w-full max-w-2xl px-4">
+        <form
+          onSubmit={(e) => {
+            onSubmit(e);
+            setOpen(false);
+          }}
+          className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-4 shadow-[0_24px_80px_rgba(8,18,12,0.22)] dark:border-white/10 dark:bg-[#081623]"
+        >
+          <input
+            id="site-search-overlay-input"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Поиск"
+            className="font-menu h-12 min-w-0 flex-1 border-0 bg-transparent px-2 text-zinc-900 outline-none placeholder:text-zinc-500 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+          />
+          <button
+            type="submit"
+            className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
+            aria-label="Искать"
+          >
+            <SearchIcon />
+          </button>
+          <button
+            type="button"
+            className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
+            aria-label="Закрыть"
+            onClick={() => setOpen(false)}
+          >
+            <CloseIcon />
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }

@@ -339,6 +339,7 @@ export default async function RootLayout({
     mobileLetterSpacing: string;
     textTransform: "none" | "uppercase";
   }) => ({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [`--font-${prefix}-family`]: resolveFontFamily((slot?.fontFamily ?? fallback.family) as any),
     [`--font-${prefix}-size`]: slot?.fontSize ?? fallback.size,
     [`--font-${prefix}-size-mobile`]: slot?.mobileFontSize ?? slot?.fontSize ?? fallback.mobileSize,
@@ -390,7 +391,9 @@ export default async function RootLayout({
               lightLogo={headerSettings?.lightLogo ?? null}
               darkLogo={headerSettings?.darkLogo ?? null}
               siteName={settings?.siteName ?? "Виноделие сегодня"}
-              sticky={headerSettings?.sticky ?? true}
+              stickyDesktop={headerSettings?.stickyDesktop ?? true}
+              stickyTablet={headerSettings?.stickyTablet ?? true}
+              stickyMobile={headerSettings?.stickyMobile ?? true}
               menuLinks={headerSettings?.menuLinks ?? []}
               navigationItems={navigationItems}
             />

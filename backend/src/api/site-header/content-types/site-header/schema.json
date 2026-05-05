@@ -32,9 +32,21 @@
         "images"
       ]
     },
-    "sticky": {
-      "displayName": "Закрепить хедер",
-      "description": "Если включено, хедер фиксируется сверху при прокрутке.",
+    "stickyDesktop": {
+      "displayName": "Закрепить хедер (desktop)",
+      "description": "Desktop (xl+): если включено, хедер фиксируется сверху при прокрутке.",
+      "type": "boolean",
+      "default": true
+    },
+    "stickyTablet": {
+      "displayName": "Закрепить хедер (tablet)",
+      "description": "Tablet (md..lg): если включено, хедер фиксируется сверху при прокрутке.",
+      "type": "boolean",
+      "default": true
+    },
+    "stickyMobile": {
+      "displayName": "Закрепить хедер (mobile)",
+      "description": "Mobile (<md): если включено, хедер фиксируется сверху при прокрутке.",
       "type": "boolean",
       "default": true
     },
