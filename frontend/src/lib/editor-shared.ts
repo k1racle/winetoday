@@ -62,6 +62,10 @@ export type EditorInfographicCard = {
   theme?: "light" | "dark" | null;
 };
 
+export type EditorInfographicVersion = "desktop" | "tablet" | "mobile";
+
+export type EditorInfographicVersionCards = Record<EditorInfographicVersion, EditorInfographicCard[]>;
+
 export type EditorBlock =
   | EditorHtmlEditorBlock
   | EditorEmbedBlock
@@ -85,6 +89,9 @@ export type EditorEntryDetail = EditorEntrySummary & {
   coverSource?: string | null;
   blocks: EditorBlock[];
   infographicCards?: EditorInfographicCard[];
+  infographicCardsDesktop?: EditorInfographicCard[];
+  infographicCardsTablet?: EditorInfographicCard[];
+  infographicCardsMobile?: EditorInfographicCard[];
   fields?: Record<string, unknown>;
 };
 

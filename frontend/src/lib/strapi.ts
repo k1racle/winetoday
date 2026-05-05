@@ -985,6 +985,42 @@ export type HomepageEntry = {
   description?: string | null;
   infographicTitle?: string | null;
   infographicDescription?: string | null;
+  infographicCardsDesktop?: {
+    id?: number;
+    shape: "square" | "rectangle" | "circle";
+    title: string;
+    description?: string | null;
+    href?: string | null;
+    accentText?: string | null;
+    backgroundImage?: StrapiMedia | null;
+    backgroundVideo?: StrapiMedia | null;
+    cornerIcon?: StrapiMedia | null;
+    theme?: "light" | "dark" | null;
+  }[] | null;
+  infographicCardsTablet?: {
+    id?: number;
+    shape: "square" | "rectangle" | "circle";
+    title: string;
+    description?: string | null;
+    href?: string | null;
+    accentText?: string | null;
+    backgroundImage?: StrapiMedia | null;
+    backgroundVideo?: StrapiMedia | null;
+    cornerIcon?: StrapiMedia | null;
+    theme?: "light" | "dark" | null;
+  }[] | null;
+  infographicCardsMobile?: {
+    id?: number;
+    shape: "square" | "rectangle" | "circle";
+    title: string;
+    description?: string | null;
+    href?: string | null;
+    accentText?: string | null;
+    backgroundImage?: StrapiMedia | null;
+    backgroundVideo?: StrapiMedia | null;
+    cornerIcon?: StrapiMedia | null;
+    theme?: "light" | "dark" | null;
+  }[] | null;
   infographicCards?: {
     id?: number;
     shape: "square" | "rectangle" | "circle";
@@ -1168,6 +1204,42 @@ function normalizeMediaAsset(asset?: StrapiMedia | null) {
         }
       : null,
   };
+}
+
+function normalizeHomepageInfographicCards(cards?: HomepageEntry["infographicCards"] | null) {
+  return cards?.map((card) => ({
+    ...card,
+    backgroundImage: normalizeMediaAsset(card.backgroundImage),
+    backgroundVideo: normalizeMediaAsset(card.backgroundVideo),
+    cornerIcon: normalizeMediaAsset(card.cornerIcon),
+  })) ?? null;
+}
+
+function buildHomepageTabletCardsFromLegacy(cards: NonNullable<ReturnType<typeof normalizeHomepageInfographicCards>>) {
+  return cards.filter((_, index) => index !== 4 && index !== 9).slice(0, 6);
+}
+
+function buildHomepageMobileCardsFromLegacy(cards: NonNullable<ReturnType<typeof normalizeHomepageInfographicCards>>) {
+  const filteredCards = cards.filter((_, index) => index !== 4 && index !== 9);
+  const videoCardIndex = filteredCards.findIndex((card) => Boolean(card.backgroundVideo?.url));
+
+  if (videoCardIndex === -1) {
+    return filteredCards.slice(0, 7);
+  }
+
+  const fallbackCard = [...filteredCards].reverse().find((card, reverseIndex) => {
+    const originalIndex = filteredCards.length - 1 - reverseIndex;
+    return originalIndex !== videoCardIndex && !card.backgroundVideo?.url;
+  });
+
+  if (!fallbackCard) {
+    return filteredCards.filter((card) => !card.backgroundVideo?.url).slice(0, 7);
+  }
+
+  return filteredCards
+    .map((card, index) => (index === videoCardIndex ? fallbackCard : card))
+    .filter((card, index, array) => array.findIndex((candidate) => candidate === card) === index)
+    .slice(0, 7);
 }
 
 function normalizeHeaderGroupsWithMedia(groups?: HeaderGroup[] | null) {
@@ -1821,7 +1893,7 @@ export async function getSidebarForPath(pathname: string) {
 export const getHomepage = cache(async function getHomepage() {
   const [contentResponse, blocksResponse] = await Promise.all([
     fetchStrapi<HomepageEntry>(
-      "/api/homepage?populate[infographicCards][populate][backgroundImage]=true&populate[infographicCards][populate][backgroundVideo]=true&populate[infographicCards][populate][cornerIcon]=true&populate[seo][populate][metaImage]=true",
+      "/api/homepage?populate[infographicCards][populate][backgroundImage]=true&populate[infographicCards][populate][backgroundVideo]=true&populate[infographicCards][populate][cornerIcon]=true&populate[infographicCardsDesktop][populate][backgroundImage]=true&populate[infographicCardsDesktop][populate][backgroundVideo]=true&populate[infographicCardsDesktop][populate][cornerIcon]=true&populate[infographicCardsTablet][populate][backgroundImage]=true&populate[infographicCardsTablet][populate][backgroundVideo]=true&populate[infographicCardsTablet][populate][cornerIcon]=true&populate[infographicCardsMobile][populate][backgroundImage]=true&populate[infographicCardsMobile][populate][backgroundVideo]=true&populate[infographicCardsMobile][populate][cornerIcon]=true&populate[seo][populate][metaImage]=true",
       { revalidate: HOMEPAGE_REVALIDATE_SECONDS },
     ),
     fetchStrapi<HomepageEntry>(
@@ -1835,29 +1907,21 @@ export const getHomepage = cache(async function getHomepage() {
     blocks: blocksResponse.data.blocks ?? contentResponse.data.blocks,
   };
 
+  const legacyInfographicCards = normalizeHomepageInfographicCards(data.infographicCards);
+  const infographicCardsDesktop = normalizeHomepageInfographicCards(data.infographicCardsDesktop)
+    ?? legacyInfographicCards?.slice(0, 8)
+    ?? null;
+  const infographicCardsTablet = normalizeHomepageInfographicCards(data.infographicCardsTablet)
+    ?? (legacyInfographicCards ? buildHomepageTabletCardsFromLegacy(legacyInfographicCards) : null);
+  const infographicCardsMobile = normalizeHomepageInfographicCards(data.infographicCardsMobile)
+    ?? (legacyInfographicCards ? buildHomepageMobileCardsFromLegacy(legacyInfographicCards) : null);
+
   return {
     ...data,
-    infographicCards: data.infographicCards?.map((card) => ({
-      ...card,
-      backgroundImage: card.backgroundImage
-        ? {
-            ...card.backgroundImage,
-            url: normalizeUrl(card.backgroundImage.url) ?? card.backgroundImage.url,
-          }
-        : null,
-      backgroundVideo: card.backgroundVideo
-        ? {
-            ...card.backgroundVideo,
-            url: normalizeUrl(card.backgroundVideo.url) ?? card.backgroundVideo.url,
-          }
-        : null,
-      cornerIcon: card.cornerIcon
-        ? {
-            ...card.cornerIcon,
-            url: normalizeUrl(card.cornerIcon.url) ?? card.cornerIcon.url,
-          }
-        : null,
-    })),
+    infographicCardsDesktop,
+    infographicCardsTablet,
+    infographicCardsMobile,
+    infographicCards: legacyInfographicCards,
     blocks: normalizeBlocks(data.blocks),
   };
 });

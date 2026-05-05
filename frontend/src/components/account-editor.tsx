@@ -5,7 +5,7 @@ import Link from "next/link";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { generateHTML, generateJSON } from "@tiptap/html";
 import { getAuthModeLabel, resolveAuthMode } from "@/lib/auth-shared";
-import type { EditorAuthorOption, EditorBlock, EditorContentType, EditorEntrySummary, EditorInfographicCard, EditorSeo, EditorSession, EditorTaxonomyOption } from "@/lib/editor-shared";
+import type { EditorAuthorOption, EditorBlock, EditorContentType, EditorEntrySummary, EditorInfographicCard, EditorInfographicVersion, EditorSeo, EditorSession, EditorTaxonomyOption } from "@/lib/editor-shared";
 import { EDITOR_BLOCK_TYPES, isEditorContentType } from "@/lib/editor-shared";
 import { createEmptyTiptapDocument, parseTiptapDocument, serializeTiptapDocument, tiptapExtensions } from "@/lib/tiptap";
 
@@ -60,9 +60,25 @@ type FormState = {
   duration: string;
   infographicTitle: string;
   infographicDescription: string;
-  infographicCards: EditorInfographicCard[];
+  infographicCardsDesktop: EditorInfographicCard[];
+  infographicCardsTablet: EditorInfographicCard[];
+  infographicCardsMobile: EditorInfographicCard[];
   seo: EditorSeo;
   blocks: EditorBlock[];
+};
+
+const INFOGRAPHIC_VIEWPORTS: EditorInfographicVersion[] = ["desktop", "tablet", "mobile"];
+
+const INFOGRAPHIC_VIEWPORT_LABELS: Record<EditorInfographicVersion, string> = {
+  desktop: "Desktop",
+  tablet: "Tablet",
+  mobile: "Mobile",
+};
+
+const INFOGRAPHIC_VIEWPORT_CARD_COUNTS: Record<EditorInfographicVersion, number> = {
+  desktop: 8,
+  tablet: 6,
+  mobile: 7,
 };
 
 const EMPTY_SEO: EditorSeo = {
@@ -85,6 +101,43 @@ const EMPTY_EMBED_BLOCK: Extract<EditorBlock, { __component: "blocks.embed" }> =
   title: "",
   html: "",
 };
+
+function createEmptyInfographicCard(): EditorInfographicCard {
+  return {
+    shape: "square",
+    title: "",
+    description: "",
+    href: "",
+    backgroundImage: null,
+    backgroundVideo: null,
+    cornerIcon: null,
+    accentText: "",
+    theme: "light",
+  };
+}
+
+function normalizeEditorInfographicCards(cards: any, expectedCount: number): EditorInfographicCard[] {
+  const normalized: EditorInfographicCard[] = Array.isArray(cards)
+    ? cards.slice(0, expectedCount).map((card: any) => ({
+        id: typeof card?.id === "number" ? card.id : undefined,
+        shape: card?.shape === "rectangle" || card?.shape === "circle" ? card.shape : "square",
+        title: card?.title ?? "",
+        description: card?.description ?? "",
+        href: card?.href ?? "",
+        backgroundImage: card?.backgroundImage?.id ?? card?.backgroundImage ?? null,
+        backgroundVideo: card?.backgroundVideo?.id ?? card?.backgroundVideo ?? null,
+        cornerIcon: card?.cornerIcon?.id ?? card?.cornerIcon ?? null,
+        accentText: card?.accentText ?? "",
+        theme: card?.theme === "dark" ? "dark" : "light",
+      }))
+    : [];
+
+  while (normalized.length < expectedCount) {
+    normalized.push(createEmptyInfographicCard());
+  }
+
+  return normalized;
+}
 
 function createInitialState(type: EditorContentType): FormState {
   return {
@@ -113,7 +166,9 @@ function createInitialState(type: EditorContentType): FormState {
     duration: "1",
     infographicTitle: "",
     infographicDescription: "",
-    infographicCards: [],
+    infographicCardsDesktop: normalizeEditorInfographicCards([], INFOGRAPHIC_VIEWPORT_CARD_COUNTS.desktop),
+    infographicCardsTablet: normalizeEditorInfographicCards([], INFOGRAPHIC_VIEWPORT_CARD_COUNTS.tablet),
+    infographicCardsMobile: normalizeEditorInfographicCards([], INFOGRAPHIC_VIEWPORT_CARD_COUNTS.mobile),
     seo: { ...EMPTY_SEO },
     blocks: [{ ...EMPTY_RICH_BLOCK }],
   };
@@ -241,19 +296,9 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
     duration: entry.duration ? String(entry.duration) : state.duration,
     infographicTitle: entry.infographicTitle ?? "",
     infographicDescription: entry.infographicDescription ?? "",
-    infographicCards: Array.isArray(entry.infographicCards)
-      ? entry.infographicCards.map((card: any) => ({
-          id: typeof card?.id === "number" ? card.id : undefined,
-          shape: card?.shape === "rectangle" || card?.shape === "circle" ? card.shape : "square",
-          title: card?.title ?? "",
-          description: card?.description ?? "",
-          href: card?.href ?? "",
-          backgroundImage: card?.backgroundImage?.id ?? null,
-          backgroundVideo: card?.backgroundVideo?.id ?? null,
-          accentText: card?.accentText ?? "",
-          theme: card?.theme === "dark" ? "dark" : "light",
-        }))
-      : [],
+    infographicCardsDesktop: normalizeEditorInfographicCards(entry.infographicCardsDesktop ?? entry.infographicCards, INFOGRAPHIC_VIEWPORT_CARD_COUNTS.desktop),
+    infographicCardsTablet: normalizeEditorInfographicCards(entry.infographicCardsTablet ?? entry.infographicCards, INFOGRAPHIC_VIEWPORT_CARD_COUNTS.tablet),
+    infographicCardsMobile: normalizeEditorInfographicCards(entry.infographicCardsMobile ?? entry.infographicCards, INFOGRAPHIC_VIEWPORT_CARD_COUNTS.mobile),
     seo: {
       metaTitle: entry.seo?.metaTitle ?? "",
       metaDescription: entry.seo?.metaDescription ?? "",
@@ -986,6 +1031,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const [success, setSuccess] = useState<string | null>(null);
   const [itemsQuery, setItemsQuery] = useState("");
   const [itemsPage, setItemsPage] = useState(1);
+  const [activeInfographicVersion, setActiveInfographicVersion] = useState<EditorInfographicVersion>("desktop");
   const [activeMediaPanel, setActiveMediaPanel] = useState<{
     kind: "cover" | "block-highlight" | "infographic-image" | "infographic-video" | "infographic-corner-icon";
     blockIndex?: number;
@@ -1001,6 +1047,17 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     return isEditorContentType(rawType) ? rawType : null;
   }, [initialQuery?.type]);
   const requestedDocumentId = initialQuery?.documentId?.trim() || null;
+  const activeInfographicCards = useMemo(() => {
+    if (activeInfographicVersion === "desktop") {
+      return form.infographicCardsDesktop;
+    }
+
+    if (activeInfographicVersion === "tablet") {
+      return form.infographicCardsTablet;
+    }
+
+    return form.infographicCardsMobile;
+  }, [activeInfographicVersion, form.infographicCardsDesktop, form.infographicCardsMobile, form.infographicCardsTablet]);
   const sessionRoleLabel = getAuthModeLabel(resolveAuthMode({
     accountType: session?.user?.memberProfile?.accountType ?? null,
   }));
@@ -1037,7 +1094,11 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }
 
     if (typeof activeMediaPanel.cardIndex === "number") {
-      const card = form.infographicCards[activeMediaPanel.cardIndex];
+      const card = activeInfographicCards[activeMediaPanel.cardIndex];
+
+      if (activeMediaPanel.kind === "infographic-corner-icon") {
+        return findAssetById(mediaAssets, card?.cornerIcon ?? null, "image");
+      }
 
       if (activeMediaPanel.kind === "infographic-image") {
         return findAssetById(mediaAssets, card?.backgroundImage ?? null, "image");
@@ -1049,7 +1110,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }
 
     return null;
-  }, [activeMediaPanel, coverAsset, highlightBlock, mediaAssets, form.infographicCards]);
+  }, [activeInfographicCards, activeMediaPanel, coverAsset, highlightBlock, mediaAssets]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1349,7 +1410,11 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   function updateInfographicCard(index: number, nextCard: EditorInfographicCard) {
     setForm((current) => ({
       ...current,
-      infographicCards: current.infographicCards.map((card, currentIndex) => (currentIndex === index ? nextCard : card)),
+      ...(activeInfographicVersion === "desktop"
+        ? { infographicCardsDesktop: current.infographicCardsDesktop.map((card, currentIndex) => (currentIndex === index ? nextCard : card)) }
+        : activeInfographicVersion === "tablet"
+          ? { infographicCardsTablet: current.infographicCardsTablet.map((card, currentIndex) => (currentIndex === index ? nextCard : card)) }
+          : { infographicCardsMobile: current.infographicCardsMobile.map((card, currentIndex) => (currentIndex === index ? nextCard : card)) }),
     }));
   }
 
@@ -1378,9 +1443,14 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }
 
     if (typeof activeMediaPanel.cardIndex === "number") {
-      const card = form.infographicCards[activeMediaPanel.cardIndex];
+      const card = activeInfographicCards[activeMediaPanel.cardIndex];
 
       if (!card) {
+        return;
+      }
+
+      if (activeMediaPanel.kind === "infographic-corner-icon") {
+        updateInfographicCard(activeMediaPanel.cardIndex, { ...card, cornerIcon: id });
         return;
       }
 
@@ -1457,7 +1527,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
     try {
       const id = await uploadFile(file);
-      const card = form.infographicCards[cardIndex];
+      const card = activeInfographicCards[cardIndex];
 
       if (!card) {
         return;
@@ -1465,7 +1535,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
       updateInfographicCard(cardIndex, kind === "infographic-image"
         ? { ...card, backgroundImage: id }
-        : { ...card, backgroundVideo: id });
+        : kind === "infographic-corner-icon"
+          ? { ...card, cornerIcon: id }
+          : { ...card, backgroundVideo: id });
 
       const mediaPayload = await refreshMediaAssets();
       if (mediaPayload) {
@@ -1474,7 +1546,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
       openInfographicMediaPanel(kind, cardIndex);
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : kind === "infographic-image" ? "Не удалось загрузить изображение." : "Не удалось загрузить видео.");
+      setError(uploadError instanceof Error ? uploadError.message : kind === "infographic-video" ? "Не удалось загрузить видео." : "Не удалось загрузить изображение.");
     } finally {
       event.target.value = "";
     }
@@ -1536,7 +1608,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           ? {
               infographicTitle: form.infographicTitle,
               infographicDescription: form.infographicDescription,
-              infographicCards: form.infographicCards.map((card) => ({
+              infographicCardsDesktop: form.infographicCardsDesktop.map((card) => ({
                 id: card.id,
                 shape: card.shape,
                 title: card.title,
@@ -1544,6 +1616,31 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                 href: card.href,
                 backgroundImage: card.backgroundImage,
                 backgroundVideo: card.backgroundVideo,
+                cornerIcon: card.cornerIcon,
+                accentText: card.accentText,
+                theme: card.theme,
+              })),
+              infographicCardsTablet: form.infographicCardsTablet.map((card) => ({
+                id: card.id,
+                shape: card.shape,
+                title: card.title,
+                description: card.description,
+                href: card.href,
+                backgroundImage: card.backgroundImage,
+                backgroundVideo: card.backgroundVideo,
+                cornerIcon: card.cornerIcon,
+                accentText: card.accentText,
+                theme: card.theme,
+              })),
+              infographicCardsMobile: form.infographicCardsMobile.map((card) => ({
+                id: card.id,
+                shape: card.shape,
+                title: card.title,
+                description: card.description,
+                href: card.href,
+                backgroundImage: card.backgroundImage,
+                backgroundVideo: card.backgroundVideo,
+                cornerIcon: card.cornerIcon,
                 accentText: card.accentText,
                 theme: card.theme,
               })),
@@ -1798,11 +1895,34 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
             <section className="space-y-4 border-t border-black/10 pt-6 dark:border-white/10">
               <div>
                 <h2 className="text-xl font-semibold tracking-tight">Карточки инфографики</h2>
-                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Показываются текущие карточки из homepage. Их состав не расширяется: редактируются только существующие элементы.</p>
+                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">У каждой версии свой независимый набор карточек. Переключатель ниже меняет только редактируемую версию.</p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {INFOGRAPHIC_VIEWPORTS.map((version) => {
+                  const isActive = activeInfographicVersion === version;
+
+                  return (
+                    <button
+                      key={version}
+                      type="button"
+                      onClick={() => setActiveInfographicVersion(version)}
+                      className={isActive
+                        ? "inline-flex items-center justify-center border border-black bg-black px-4 py-2 text-sm font-medium text-white dark:border-white dark:bg-white dark:text-[#08110b]"
+                        : "inline-flex items-center justify-center border border-black/10 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-black/[0.03] dark:border-white/10 dark:text-zinc-200 dark:hover:bg-white/[0.04]"}
+                    >
+                      {INFOGRAPHIC_VIEWPORT_LABELS[version]} ({INFOGRAPHIC_VIEWPORT_CARD_COUNTS[version]})
+                    </button>
+                  );
+                })}
               </div>
 
               <div className="grid gap-4">
-                {form.infographicCards.map((card, index) => {
+                {(activeInfographicVersion === "desktop"
+                  ? form.infographicCardsDesktop
+                  : activeInfographicVersion === "tablet"
+                    ? form.infographicCardsTablet
+                    : form.infographicCardsMobile).map((card, index) => {
                   const imageAsset = findAssetById(mediaAssets, card.backgroundImage ?? null, "image");
                   const videoAsset = findAssetById(mediaAssets, card.backgroundVideo ?? null, "video");
                   const cornerIconAsset = findAssetById(mediaAssets, card.cornerIcon ?? null, "image");
@@ -1811,7 +1931,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                     <div key={`infographic-card-${card.id ?? index}`} className="border border-black/10 p-4 dark:border-white/10">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <h3 className="text-lg font-semibold tracking-tight">Карточка {index + 1}</h3>
-                        <div className="text-xs uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">Системная карточка</div>
+                        <div className="text-xs uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">Версия {INFOGRAPHIC_VIEWPORT_LABELS[activeInfographicVersion]}</div>
                       </div>
 
                       <div className="mt-4 grid gap-4 md:grid-cols-2">
@@ -1881,9 +2001,13 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   );
                 })}
 
-                {!form.infographicCards.length ? (
+                {!(activeInfographicVersion === "desktop"
+                  ? form.infographicCardsDesktop
+                  : activeInfographicVersion === "tablet"
+                    ? form.infographicCardsTablet
+                    : form.infographicCardsMobile).length ? (
                   <div className="border border-dashed border-black/10 px-4 py-6 text-sm text-zinc-500 dark:border-white/10 dark:text-zinc-400">
-                    В homepage сейчас нет карточек инфографики. Новые карточки здесь не создаются автоматически.
+                    Для этой версии сейчас нет карточек инфографики.
                   </div>
                 ) : null}
               </div>

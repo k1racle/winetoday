@@ -47,6 +47,28 @@ function buildEditorPopulate(type: EditorType) {
         populate: {
           backgroundImage: true,
           backgroundVideo: true,
+          cornerIcon: true,
+        },
+      },
+      infographicCardsDesktop: {
+        populate: {
+          backgroundImage: true,
+          backgroundVideo: true,
+          cornerIcon: true,
+        },
+      },
+      infographicCardsTablet: {
+        populate: {
+          backgroundImage: true,
+          backgroundVideo: true,
+          cornerIcon: true,
+        },
+      },
+      infographicCardsMobile: {
+        populate: {
+          backgroundImage: true,
+          backgroundVideo: true,
+          cornerIcon: true,
         },
       },
       blocks: { populate: '*' },
@@ -519,6 +541,7 @@ function normalizeInfographicCards(value: unknown) {
     const entry = item as Record<string, unknown>;
     const backgroundImage = entry.backgroundImage == null ? null : Number(entry.backgroundImage);
     const backgroundVideo = entry.backgroundVideo == null ? null : Number(entry.backgroundVideo);
+    const cornerIcon = entry.cornerIcon == null ? null : Number(entry.cornerIcon);
     const shape = entry.shape === 'rectangle' || entry.shape === 'circle' ? entry.shape : 'square';
     const theme = entry.theme === 'dark' ? 'dark' : 'light';
 
@@ -530,9 +553,93 @@ function normalizeInfographicCards(value: unknown) {
       accentText: typeof entry.accentText === 'string' ? entry.accentText.trim() : null,
       backgroundImage: Number.isInteger(backgroundImage) && backgroundImage && backgroundImage > 0 ? backgroundImage : null,
       backgroundVideo: Number.isInteger(backgroundVideo) && backgroundVideo && backgroundVideo > 0 ? backgroundVideo : null,
+      cornerIcon: Number.isInteger(cornerIcon) && cornerIcon && cornerIcon > 0 ? cornerIcon : null,
       theme,
     };
   });
+}
+
+const HOMEPAGE_INFOGRAPHIC_VERSION_LIMITS = {
+  desktop: 8,
+  tablet: 6,
+  mobile: 7,
+} as const;
+
+type HomepageInfographicVersion = keyof typeof HOMEPAGE_INFOGRAPHIC_VERSION_LIMITS;
+
+function padInfographicCards(cards: ReturnType<typeof normalizeInfographicCards>, limit: number) {
+  const normalized = cards.slice(0, limit);
+
+  while (normalized.length < limit) {
+    normalized.push({
+      shape: 'square',
+      title: null,
+      description: null,
+      href: null,
+      accentText: null,
+      backgroundImage: null,
+      backgroundVideo: null,
+      cornerIcon: null,
+      theme: 'light',
+    });
+  }
+
+  return normalized;
+}
+
+function sliceLegacyInfographicCards(cards: ReturnType<typeof normalizeInfographicCards>, version: HomepageInfographicVersion) {
+  if (version === 'desktop') {
+    return cards.slice(0, HOMEPAGE_INFOGRAPHIC_VERSION_LIMITS.desktop);
+  }
+
+  if (version === 'tablet') {
+    return cards
+      .filter((_, index) => index !== 4 && index !== 9)
+      .slice(0, HOMEPAGE_INFOGRAPHIC_VERSION_LIMITS.tablet);
+  }
+
+  const filteredCards = cards.filter((_, index) => index !== 4 && index !== 9);
+  const videoCardIndex = filteredCards.findIndex((card) => Boolean(card.backgroundVideo));
+
+  if (videoCardIndex === -1) {
+    return filteredCards.slice(0, HOMEPAGE_INFOGRAPHIC_VERSION_LIMITS.mobile);
+  }
+
+  const fallbackCard = [...filteredCards].reverse().find((card, reverseIndex) => {
+    const originalIndex = filteredCards.length - 1 - reverseIndex;
+    return originalIndex !== videoCardIndex && !card.backgroundVideo;
+  });
+
+  if (!fallbackCard) {
+    return filteredCards.filter((card) => !card.backgroundVideo).slice(0, HOMEPAGE_INFOGRAPHIC_VERSION_LIMITS.mobile);
+  }
+
+  return filteredCards
+    .map((card, index) => (index === videoCardIndex ? fallbackCard : card))
+    .filter((card, index, array) => array.findIndex((candidate) => candidate === card) === index)
+    .slice(0, HOMEPAGE_INFOGRAPHIC_VERSION_LIMITS.mobile);
+}
+
+function normalizeHomepageInfographicVersionCards(
+  value: unknown,
+  fallbackCards: ReturnType<typeof normalizeInfographicCards>,
+  version: HomepageInfographicVersion,
+) {
+  const directCards = normalizeInfographicCards(value);
+  const cards = directCards.length ? directCards : sliceLegacyInfographicCards(fallbackCards, version);
+  return padInfographicCards(cards, HOMEPAGE_INFOGRAPHIC_VERSION_LIMITS[version]);
+}
+
+function normalizeHomepageInfographicPayload(payload: Record<string, unknown>) {
+  const legacyCards = normalizeInfographicCards(payload.infographicCards);
+
+  return {
+    infographicTitle: typeof payload.infographicTitle === 'string' ? payload.infographicTitle.trim() : null,
+    infographicDescription: typeof payload.infographicDescription === 'string' ? payload.infographicDescription.trim() : null,
+    infographicCardsDesktop: normalizeHomepageInfographicVersionCards(payload.infographicCardsDesktop, legacyCards, 'desktop'),
+    infographicCardsTablet: normalizeHomepageInfographicVersionCards(payload.infographicCardsTablet, legacyCards, 'tablet'),
+    infographicCardsMobile: normalizeHomepageInfographicVersionCards(payload.infographicCardsMobile, legacyCards, 'mobile'),
+  };
 }
 
 async function findHomepageDocument(strapi: any, status?: 'published') {
@@ -558,11 +665,7 @@ function serializeHomepageSummary(item: Record<string, any>, publishedItem: Reco
 function normalizePayload(type: EditorType, payload: Record<string, unknown>, memberProfileId: number, resolvedAuthorId: number | null) {
   if (type === 'homepage') {
     return {
-      data: {
-        infographicTitle: typeof payload.infographicTitle === 'string' ? payload.infographicTitle.trim() : null,
-        infographicDescription: typeof payload.infographicDescription === 'string' ? payload.infographicDescription.trim() : null,
-        infographicCards: normalizeInfographicCards(payload.infographicCards),
-      },
+      data: normalizeHomepageInfographicPayload(payload),
       status: 'draft' as const,
     };
   }

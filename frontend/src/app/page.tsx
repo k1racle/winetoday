@@ -236,29 +236,12 @@ function renderAdaptiveInfographicCard(card: InfographicCard | undefined, key: s
   );
 }
 
-function buildPhoneInfographicCards(cards: InfographicCard[]) {
-  if (!cards.length) {
-    return cards;
+function hasInfographicContent(card: InfographicCard | undefined) {
+  if (!card) {
+    return false;
   }
 
-  const videoCardIndex = cards.findIndex((card) => Boolean(card.backgroundVideo?.url));
-
-  if (videoCardIndex === -1) {
-    return cards;
-  }
-
-  const fallbackCard = [...cards].reverse().find((card, reverseIndex) => {
-    const originalIndex = cards.length - 1 - reverseIndex;
-    return originalIndex !== videoCardIndex && !card.backgroundVideo?.url;
-  });
-
-  if (!fallbackCard) {
-    return cards.filter((card) => !card.backgroundVideo?.url);
-  }
-
-  return cards
-    .map((card, index) => (index === videoCardIndex ? fallbackCard : card))
-    .filter((card, index, array) => array.findIndex((candidate) => candidate === card) === index);
+  return Boolean(card.title?.trim() || card.description?.trim() || card.accentText?.trim() || card.backgroundImage?.url || card.backgroundVideo?.url);
 }
 
 function renderInfographicCard(
@@ -349,16 +332,11 @@ export default async function Home() {
     url: SITE_URL,
     logo: settings?.logo?.url,
   };
-  const infographicCards = (
-    homepage?.infographicCards?.filter((card) =>
-      Boolean(card?.title?.trim() || card?.description?.trim() || card?.accentText?.trim() || card?.backgroundImage?.url || card?.backgroundVideo?.url),
-    ) ?? []
-  );
-  const infographicDisplayCards = infographicCards.filter((_, index) => index !== 4 && index !== 9);
-  const phoneInfographicCards = buildPhoneInfographicCards(infographicDisplayCards);
-  const tabletInfographicCards = infographicDisplayCards.slice(0, Math.max(infographicDisplayCards.length - 2, 0));
-  const topRowCards = infographicDisplayCards.slice(0, 4);
-  const bottomRowCards = infographicDisplayCards.slice(4, 8);
+  const desktopInfographicCards = (homepage?.infographicCardsDesktop ?? []).filter((card) => hasInfographicContent(card));
+  const tabletInfographicCards = (homepage?.infographicCardsTablet ?? []).filter((card) => hasInfographicContent(card));
+  const phoneInfographicCards = (homepage?.infographicCardsMobile ?? []).filter((card) => hasInfographicContent(card));
+  const topRowCards = desktopInfographicCards.slice(0, 4);
+  const bottomRowCards = desktopInfographicCards.slice(4, 8);
   const regularSidebar = sidebar
     ? {
         ...sidebar,
@@ -412,8 +390,16 @@ export default async function Home() {
             {hasHomepageNewsWidget ? (
               <HomepageNewsSidebar latest={latestNewsSidebarItems} popular={popularNewsSidebarItems} className="xl:hidden" />
             ) : null}
-            {infographicCards.length ? (
+            {desktopInfographicCards.length || tabletInfographicCards.length || phoneInfographicCards.length ? (
               <section className="space-y-4">
+                <div className="grid gap-3 md:hidden">
+                  {phoneInfographicCards.map((card, index) => renderAdaptiveInfographicCard(card, `mobile-${index}`))}
+                </div>
+
+                <div className="hidden gap-4 md:grid xl:hidden md:grid-cols-2">
+                  {tabletInfographicCards.map((card, index) => renderAdaptiveInfographicCard(card, `tablet-${index}`))}
+                </div>
+
                 <div className="hidden gap-4 xl:grid xl:grid-cols-4 xl:auto-rows-[clamp(11rem,18vw,20rem)] xl:w-full">
                   {topRowCards[0] ? (
                     <div className="col-span-2 row-start-1 h-full">

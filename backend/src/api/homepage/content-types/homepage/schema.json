@@ -33,6 +33,27 @@
       "min": 10,
       "max": 10
     },
+    "infographicCardsDesktop": {
+      "type": "component",
+      "repeatable": true,
+      "component": "homepage.infographic-card",
+      "min": 8,
+      "max": 8
+    },
+    "infographicCardsTablet": {
+      "type": "component",
+      "repeatable": true,
+      "component": "homepage.infographic-card",
+      "min": 6,
+      "max": 6
+    },
+    "infographicCardsMobile": {
+      "type": "component",
+      "repeatable": true,
+      "component": "homepage.infographic-card",
+      "min": 7,
+      "max": 7
+    },
     "blocks": {
       "type": "dynamiczone",
       "components": [
