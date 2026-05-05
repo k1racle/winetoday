@@ -91,9 +91,9 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                 <Link
                   key={`${activeTab}-${item.documentId}`}
                   href={`/news/${item.slug}`}
-                  className="block border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
+                  className="block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
                 >
-                  <div className="type-h4 text-[15px] leading-5 text-foreground">
+                  <div className="type-h4 min-w-0 break-words text-[15px] leading-5 text-foreground">
                     <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
                       {item.publishedLabel}
                     </span>
@@ -118,9 +118,9 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                 <Link
                   key={`${activeTab}-${item.documentId}`}
                   href={`/news/${item.slug}`}
-                  className="block border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
+                  className="block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
                 >
-                  <div className="type-h4 text-[15px] leading-5 text-foreground">
+                  <div className="type-h4 min-w-0 break-words text-[15px] leading-5 text-foreground">
                     <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
                       {item.publishedLabel}
                     </span>
