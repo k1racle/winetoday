@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AuthWidget } from "@/components/auth-widget";
+import { TagCloud } from "@/components/tag-cloud";
 import type { SidebarEntry } from "@/lib/strapi";
 import type { SidebarArchiveBlock } from "@/lib/strapi";
 import type { TagCloudItem } from "@/lib/strapi";
@@ -9,8 +10,6 @@ import { SocialLinks } from "@/components/social-links";
 type SidebarPanelProps = {
   sidebar?: SidebarEntry | null;
   mobile?: boolean;
-  // Оставляем проп, чтобы не ломать существующие вызовы.
-  // Внутри сайдбара облако тегов отключено (см. обработку блоков ниже).
   tagCloud?: TagCloudItem[] | null;
   stacked?: boolean;
 };
@@ -21,9 +20,8 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
     : stacked
       ? "border border-black/10 bg-white p-5 text-foreground dark:border-white/10 dark:bg-[#12202d] dark:text-white"
       : "border border-black/10 bg-white p-5 text-foreground dark:border-white/10 dark:bg-[#12202d] dark:text-white";
-  const itemClassName = "block border-b border-black/10 px-0 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
+  const itemClassName = "block min-w-0 border-b border-black/10 px-0 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
 
-  // На фронте не должно быть "захардкоженного" облака тегов.
   // Если sidebar не задан, просто ничего не показываем.
   if (!sidebar) {
     return null;
@@ -71,7 +69,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                       href={item.href}
                       className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                     >
-                      <span className="type-h4 block text-[15px] leading-5 text-foreground">{item.label}</span>
+                      <span className="type-h4 block min-w-0 break-words text-[15px] leading-5 text-foreground">{item.label}</span>
                       {item.description ? (
                         <span className="type-small mt-2 block text-zinc-600 dark:text-zinc-400">{item.description}</span>
                       ) : null}
@@ -96,7 +94,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                 href={item.href}
                 className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
               >
-                <span className="type-h4 block text-[15px] leading-5 text-foreground">{item.label}</span>
+                <span className="type-h4 block min-w-0 break-words text-[15px] leading-5 text-foreground">{item.label}</span>
                 {item.description ? (
                   <span className="type-small mt-2 block text-zinc-600 dark:text-zinc-400">{item.description}</span>
                 ) : null}
@@ -108,9 +106,15 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
       {hasArchiveBlocks ? (
         <div className="grid gap-4">
           {sidebar.archiveBlocks?.map((block, index) => {
-            // Облако тегов в сайдбаре отключено (даже если блок присутствует в CMS).
             if (block.__component === "sidebar.tag-cloud-block") {
-              return null;
+              return tagCloud?.length ? (
+                <section
+                  key={`${sidebar.slug}-archive-tag-cloud-${index}`}
+                  className="space-y-3 border-t border-black/10 pt-4 first:border-t-0 first:pt-0 dark:border-white/10"
+                >
+                  <TagCloud tags={tagCloud} title={block.title ?? undefined} />
+                </section>
+              ) : null;
             }
 
             if (!isSidebarArchiveBlock(block)) {
@@ -134,7 +138,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                       href={item.href}
                       className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                     >
-                      <span className="type-h4 block text-[15px] leading-5 text-foreground">
+                      <span className="type-h4 block min-w-0 break-words text-[15px] leading-5 text-foreground">
                         {item.meta ? (
                           <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
                             {item.meta}
