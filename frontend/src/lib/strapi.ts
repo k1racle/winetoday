@@ -87,9 +87,11 @@ const HOMEPAGE_BLOCKS_POPULATE_QUERY = [
 const SITE_HEADER_POPULATE_QUERY = [
   "populate[lightLogo]=true",
   "populate[darkLogo]=true",
-  "fields[stickyDesktop]=true",
-  "fields[stickyTablet]=true",
-  "fields[stickyMobile]=true",
+  // Strapi expects fields to be passed as an array: fields[0]=..., fields[1]=...
+  // Using fields[stickyDesktop]=true makes Strapi treat `fields` as an object and it can drop other fields.
+  "fields[0]=stickyDesktop",
+  "fields[1]=stickyTablet",
+  "fields[2]=stickyMobile",
   "populate[menuLinks]=true",
 ].join("&");
 
