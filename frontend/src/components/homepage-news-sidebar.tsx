@@ -93,11 +93,11 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                   href={`/news/${item.slug}`}
                   className="block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
                 >
-                  <div className="type-h4 min-w-0 max-w-full overflow-hidden whitespace-normal break-all text-[15px] leading-5 text-foreground">
+                  <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
                     <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
                       {item.publishedLabel}
                     </span>
-                    <span className="block min-w-0 break-all">{item.title}</span>
+                    <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item.title}</span>
                   </div>
                 </Link>
               ))}
@@ -120,11 +120,11 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                   href={`/news/${item.slug}`}
                   className="block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
                 >
-                  <div className="type-h4 min-w-0 max-w-full overflow-hidden whitespace-normal break-all text-[15px] leading-5 text-foreground">
+                  <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
                     <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
                       {item.publishedLabel}
                     </span>
-                    <span className="block min-w-0 break-all">{item.title}</span>
+                    <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item.title}</span>
                   </div>
                 </Link>
               ))}
