@@ -23,6 +23,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
   // Десктопный сайдбар: outer 320px, эффективная внутренняя ширина контента 290px => 15px + 15px.
   // Поэтому задаём общий горизонтальный padding на уровне панели и не дублируем его на вложенных элементах.
   const panelPaddingX = "px-[15px]";
+  const panelInnerWidthClassName = "w-full max-w-[290px]";
   const itemClassName = "block min-w-0 border-b border-black/10 px-0 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
   const wordWrapClassName = "whitespace-normal break-words [overflow-wrap:break-word]";
 
@@ -49,9 +50,9 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
         <p className={`type-small ${panelPaddingX} text-zinc-600 dark:text-zinc-400 ${sidebar.title ? "mt-3" : "pt-4"}`}>{sidebar.description}</p>
       ) : null}
       {hasSections ? (
-        <div className={`grid gap-4 ${sidebar.title || sidebar.description ? `${panelPaddingX} pb-4 pt-4` : `${panelPaddingX} py-5`}`}>
+        <div className={`grid gap-4 ${panelPaddingX} ${sidebar.title || sidebar.description ? "pb-4 pt-4" : "py-5"}`}>
           {sidebar.sections?.map((section, sectionIndex) => (
-            <section key={`${sidebar.slug}-section-${sectionIndex}`} className="space-y-3">
+            <section key={`${sidebar.slug}-section-${sectionIndex}`} className={`space-y-3 ${panelInnerWidthClassName}`}>
               {section.title || section.description ? (
                 <div>
                   {section.title ? <h2 className="type-h4 text-[15px] leading-5 text-foreground">{section.title}</h2> : null}
@@ -100,7 +101,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                 href={item.href}
                 className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
               >
-                <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
+                <div className={`type-h4 min-w-0 text-[15px] leading-5 text-foreground ${panelInnerWidthClassName}`}>
                   <span className={`min-w-0 ${wordWrapClassName}`}>{item.label}</span>
                 </div>
                 {item.description ? (
@@ -118,7 +119,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
               return tagCloud?.length ? (
                 <section
                   key={`${sidebar.slug}-archive-tag-cloud-${index}`}
-                  className="space-y-3 border-t border-black/10 pt-4 first:border-t-0 first:pt-0 dark:border-white/10"
+                  className={`space-y-3 border-t border-black/10 pt-4 first:border-t-0 first:pt-0 dark:border-white/10 ${panelInnerWidthClassName}`}
                 >
                   <TagCloud tags={tagCloud} title={block.title ?? undefined} />
                 </section>
@@ -130,7 +131,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
             }
 
             return (
-              <section key={`${sidebar.slug}-archive-${block.__component ?? block.contentType}-${index}`} className="space-y-3 border-t border-black/10 pt-4 first:border-t-0 first:pt-0 dark:border-white/10">
+              <section key={`${sidebar.slug}-archive-${block.__component ?? block.contentType}-${index}`} className={`space-y-3 border-t border-black/10 pt-4 first:border-t-0 first:pt-0 dark:border-white/10 ${panelInnerWidthClassName}`}>
                 {block.title || block.description ? (
                   <div>
                     {block.title ? <h2 className="type-h4 text-[15px] leading-5 text-foreground">{block.title}</h2> : null}
