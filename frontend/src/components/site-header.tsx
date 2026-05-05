@@ -3,76 +3,32 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { type CSSProperties, type FormEvent, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { type FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 import { AuthWidget } from "@/components/auth-widget";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { SocialLinks } from "@/components/social-links";
-import type { HeaderGroup, HeaderLink, MediaAsset, NavigationLink, NavigationSection, SocialLinksBlock } from "@/lib/strapi";
+import type { MediaAsset, NavigationLink } from "@/lib/strapi";
 
 type NavigationItem = {
   href: string;
   label: string;
 };
 
-type MobileMenuEntry = {
-  kind: "link" | "account";
-  label: string;
-  href?: string | null;
-  description?: string | null;
-  children: NavigationLink[];
-};
-
-type MobileMenuSectionState = MobileMenuEntry;
+type ThemeMode = "light" | "dark";
 
 type SiteHeaderProps = {
-  navigationItems: NavigationItem[];
+  siteName: string;
   lightLogo?: MediaAsset | null;
   darkLogo?: MediaAsset | null;
-  siteName: string;
-  tickerText?: string | null;
-  socialLinks?: SocialLinksBlock | null;
-  backgroundColor?: string | null;
-  textColor?: string | null;
-  borderColor?: string | null;
-  topBackgroundColor?: string | null;
-  topPinned?: boolean;
-  topOpacity?: number | null;
-  topHeight?: number | null;
-  middleBackgroundColor?: string | null;
-  middlePinned?: boolean;
-  middleOpacity?: number | null;
-  middleHeight?: number | null;
-  bottomBackgroundColor?: string | null;
-  bottomPinned?: boolean;
-  bottomOpacity?: number | null;
-  bottomHeight?: number | null;
-  mobileBackgroundColor?: string | null;
-  mobileTextColor?: string | null;
-  mobileBorderColor?: string | null;
-  mobileOpacity?: number | null;
-  mobileHeight?: number | null;
-  top?: HeaderGroup[] | null;
-  middle?: HeaderGroup[] | null;
-  bottom?: HeaderGroup[] | null;
-  mobile?: HeaderGroup[] | null;
-  mobileMenuSections?: NavigationSection[] | null;
+  sticky?: boolean | null;
+  menuLinks?: NavigationLink[] | null;
+  /** fallback, пока Strapi меню пустое */
+  navigationItems?: NavigationItem[];
 };
-
-type ResolvedHeaderGroup = {
-  title?: string | null;
-  position: "left" | "center" | "right";
-  titleColor?: string | null;
-  backgroundColor?: string | null;
-  items: HeaderLink[];
-};
-
-type HeaderSlots = ReturnType<typeof splitGroupsByPosition>;
-type ThemeMode = "light" | "dark";
 
 const THEME_CHANGE_EVENT = "vino-theme-change";
 
-function readHeaderThemeSnapshot(): ThemeMode {
+function readThemeSnapshot(): ThemeMode {
   if (typeof document === "undefined") {
     return "light";
   }
@@ -80,9 +36,8 @@ function readHeaderThemeSnapshot(): ThemeMode {
   return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
 }
 
-function subscribeToHeaderTheme(onStoreChange: () => void) {
+function subscribeToTheme(onStoreChange: () => void) {
   const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
   mediaQuery.addEventListener("change", onStoreChange);
   window.addEventListener(THEME_CHANGE_EVENT, onStoreChange);
 
@@ -92,1165 +47,241 @@ function subscribeToHeaderTheme(onStoreChange: () => void) {
   };
 }
 
-function HeaderIcon({ kind }: { kind: "search" | "account" }) {
-  if (kind === "search") {
-    return (
-      <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-        <circle cx="11" cy="11" r="6" />
-        <path d="m20 20-4.2-4.2" />
-      </svg>
-    );
-  }
-
+function SearchIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M20 21a8 8 0 0 0-16 0" />
-      <circle cx="12" cy="8" r="4" />
+      <circle cx="11" cy="11" r="6" />
+      <path d="m20 20-4.2-4.2" />
     </svg>
   );
 }
 
-function ChevronIcon({ direction = "right" }: { direction?: "right" | "left" }) {
+function HamburgerIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      className={`h-4 w-4 fill-none stroke-current ${direction === "left" ? "rotate-180" : ""}`}
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="m9 6 6 6-6 6" />
+    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 6h16" />
+      <path d="M4 12h16" />
+      <path d="M4 18h16" />
     </svg>
   );
 }
 
-function hexToRgba(hex: string, opacityPercent: number) {
-  const normalized = hex.replace("#", "").trim();
-
-  if (![3, 6].includes(normalized.length)) {
-    return hex;
-  }
-
-  const expanded = normalized.length === 3
-    ? normalized
-        .split("")
-        .map((char) => `${char}${char}`)
-        .join("")
-    : normalized;
-
-  const red = Number.parseInt(expanded.slice(0, 2), 16);
-  const green = Number.parseInt(expanded.slice(2, 4), 16);
-  const blue = Number.parseInt(expanded.slice(4, 6), 16);
-
-  if ([red, green, blue].some((value) => Number.isNaN(value))) {
-    return hex;
-  }
-
-  const alpha = Math.min(Math.max(opacityPercent, 0), 100) / 100;
-  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+function CloseIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M18 6 6 18" />
+      <path d="M6 6l12 12" />
+    </svg>
+  );
 }
 
-function buildHeaderStyle(colors: {
-  backgroundColor?: string | null;
-  textColor?: string | null;
-  borderColor?: string | null;
-  opacity?: number | null;
-}): CSSProperties | undefined {
-  const style: CSSProperties = {};
+function normalizeMenuLinks(menuLinks?: NavigationLink[] | null, fallback?: NavigationItem[]) {
+  const normalized = (menuLinks ?? [])
+    .filter((item) => item && item.label?.trim() && item.href?.trim())
+    .map((item) => ({ href: item.href!.trim(), label: item.label.trim() }));
 
-  if (colors.backgroundColor) {
-    style.backgroundColor =
-      typeof colors.opacity === "number" && colors.opacity < 100
-        ? hexToRgba(colors.backgroundColor, colors.opacity)
-        : colors.backgroundColor;
+  if (normalized.length) {
+    return normalized;
   }
 
-  if (colors.textColor) {
-    style.color = colors.textColor;
-  }
-
-  if (colors.borderColor) {
-    style.borderColor = colors.borderColor;
-  }
-
-  return Object.keys(style).length ? style : undefined;
+  return (fallback ?? []).filter((item) => item.href && item.label);
 }
 
-function resolveRowMetrics(height?: number | null) {
-  const rowHeight = typeof height === "number" ? Math.min(Math.max(height, 40), 220) : null;
-
-  if (!rowHeight) {
-    return {
-      rowHeight: null,
-      controlHeight: null,
-      logoSize: null,
-      verticalPadding: null,
-    };
-  }
-
-  const controlHeight = Math.max(Math.min(rowHeight - 8, 48), 28);
-  const logoSize = Math.max(Math.min(rowHeight - 8, 48), 24);
-  const verticalPadding = Math.max((rowHeight - controlHeight) / 2, 0);
-
-  return {
-    rowHeight,
-    controlHeight,
-    logoSize,
-    verticalPadding,
-  };
-}
-
-function isActivePath(pathname: string, href: string) {
-  if (href === "/") {
-    return pathname === "/";
-  }
-
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function normalizeHeaderGroups(groups?: HeaderGroup[] | null): ResolvedHeaderGroup[] {
-  return (groups ?? [])
-    .filter((group) => group.enabled !== false)
-    .map((group) => ({
-      title: group.title,
-      position: group.position ?? "left",
-      titleColor: group.titleColor,
-      backgroundColor: group.backgroundColor,
-      items: (group.items ?? []).filter((item) => item.enabled !== false),
-    }))
-    .filter((group) => group.items.length > 0);
-}
-
-function splitGroupsByPosition(groups: ResolvedHeaderGroup[]) {
-  return {
-    left: groups.filter((group) => group.position === "left"),
-    center: groups.filter((group) => group.position === "center"),
-    right: groups.filter((group) => group.position === "right"),
-  };
-}
-
-function repeatTickerItems<T>(items: T[], minimumCopies = 4) {
-  if (!items.length) {
-    return [] as T[];
-  }
-
-  const repeated: T[] = [];
-  const copies = Math.max(minimumCopies, 2);
-
-  for (let index = 0; index < copies; index += 1) {
-    repeated.push(...items);
-  }
-
-  return repeated;
-}
-
-type MobileMenuLinkItem = NavigationLink;
-
-function normalizeNavigationChildren(children?: NavigationLink[] | null): NavigationLink[] {
-  return (children ?? []).filter((child): child is NavigationLink => Boolean(child?.label?.trim() && child?.href?.trim()));
-}
-
-function mapHeaderItemToMobileMenuEntry(item: HeaderLink): MobileMenuEntry | null {
-  if (item.kind === "account") {
-    if (!item.label?.trim()) {
-      return null;
-    }
-
-    return {
-      kind: "account",
-      label: item.label,
-      href: item.href,
-      description: null,
-      children: [],
-    };
-  }
-
-  if (item.kind !== "link" || !item.label?.trim()) {
-    return null;
-  }
-
-  const children = normalizeNavigationChildren(item.children);
-
-  if (!item.href?.trim() && !children.length) {
-    return null;
-  }
-
-  return {
-    kind: "link",
-    label: item.label,
-    href: item.href,
-    description: null,
-    children,
-  };
-}
-
-function buildMobileMenuFromHeaderGroups(groups: ResolvedHeaderGroup[]): MobileMenuEntry[] {
-  return groups.flatMap((group) => group.items.map((item) => mapHeaderItemToMobileMenuEntry(item)).filter((item): item is MobileMenuEntry => Boolean(item)));
-}
-
-function buildMobileMenuFromSections(sections?: NavigationSection[] | null): MobileMenuEntry[] {
-  const normalizedSections = sections?.filter((section) => section.title || section.href || section.links?.length) ?? [];
-
-  return normalizedSections.flatMap<MobileMenuEntry>((section) => {
-    const children = normalizeNavigationChildren(section.links);
-    const label = section.title?.trim();
-
-    if (label) {
-      if (!section.href?.trim() && !children.length) {
-        return [];
-      }
-
-      return [{
-        kind: "link",
-        label,
-        href: section.href,
-        description: section.description,
-        children,
-      }];
-    }
-
-    return children.map((child) => ({
-      kind: child.kind === "account" ? "account" : "link",
-      label: child.label,
-      href: child.href,
-      description: child.description,
-      children: [],
-    }));
-  });
-}
-
-function findFirstHeaderItem(groups: ResolvedHeaderGroup[], kind: HeaderLink["kind"]) {
-  return groups.flatMap((group) => group.items).find((item) => item.kind === kind) ?? null;
-}
-
-export function SiteHeader({
-  navigationItems,
-  lightLogo,
-  darkLogo,
-  siteName,
-  tickerText,
-  socialLinks,
-  top,
-  middle,
-  bottom,
-  mobile,
-  mobileMenuSections,
-  ...theme
-}: SiteHeaderProps) {
-  const currentTheme = useSyncExternalStore<ThemeMode>(subscribeToHeaderTheme, readHeaderThemeSnapshot, () => "light");
-  const pathname = usePathname();
+export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuLinks, navigationItems }: SiteHeaderProps) {
   const router = useRouter();
-  const topRowRef = useRef<HTMLDivElement | null>(null);
-  const middleRowRef = useRef<HTMLDivElement | null>(null);
-  const bottomRowRef = useRef<HTMLDivElement | null>(null);
-  const mobileRowRef = useRef<HTMLDivElement | null>(null);
-  const [topRowHeight, setTopRowHeight] = useState(0);
-  const [middleRowHeight, setMiddleRowHeight] = useState(0);
-  const [bottomRowHeight, setBottomRowHeight] = useState(0);
-  const [mobileRowHeight, setMobileRowHeight] = useState(0);
-  const [isMobileViewport, setIsMobileViewport] = useState(false);
-  const [menuOpenPath, setMenuOpenPath] = useState<string | null>(null);
-  const [searchOpenPath, setSearchOpenPath] = useState<string | null>(null);
+  const pathname = usePathname();
+  const theme = useSyncExternalStore<ThemeMode>(subscribeToTheme, readThemeSnapshot, () => "light");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [mobileMenuStack, setMobileMenuStack] = useState<MobileMenuSectionState[]>([]);
-  const isMenuOpen = menuOpenPath === pathname;
-  const isSearchOpen = searchOpenPath === pathname;
 
-  const closeMobileMenu = () => {
-    setMenuOpenPath(null);
-    setMobileMenuStack([]);
-  };
-
-  const toggleMobileMenu = () => {
-    if (menuOpenPath === pathname) {
-      closeMobileMenu();
-      return;
-    }
-
-    setSearchOpenPath(null);
-    setMobileMenuStack([]);
-    setMenuOpenPath(pathname);
-  };
+  const resolvedMenu = useMemo(() => normalizeMenuLinks(menuLinks, navigationItems), [menuLinks, navigationItems]);
+  const logo = theme === "dark" ? (darkLogo?.url ? darkLogo : lightLogo) : (lightLogo?.url ? lightLogo : darkLogo);
 
   useEffect(() => {
-    if (!isMenuOpen) {
-      return undefined;
-    }
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        closeMobileMenu();
-      }
-    };
-
-    window.addEventListener("keydown", handleEscape);
-
-    return () => window.removeEventListener("keydown", handleEscape);
-  }, [isMenuOpen, pathname]);
-
-  useEffect(() => {
-    if (!isSearchOpen) {
-      return undefined;
-    }
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setSearchOpenPath(null);
-      }
-    };
-
-    window.addEventListener("keydown", handleEscape);
-
-    return () => window.removeEventListener("keydown", handleEscape);
-  }, [isSearchOpen]);
-
-  const currentSection = useMemo(() => {
-    return navigationItems.find((item) => isActivePath(pathname, item.href))?.label ?? "Главная";
-  }, [navigationItems, pathname]);
-
-  const resolvedTopGroups = normalizeHeaderGroups(top);
-  const resolvedMiddleGroups = normalizeHeaderGroups(middle);
-  const resolvedBottomGroups = normalizeHeaderGroups(bottom);
-  const resolvedMobileGroups = normalizeHeaderGroups(mobile);
-
-  const topSlots = splitGroupsByPosition(resolvedTopGroups);
-  const middleSlots = splitGroupsByPosition(resolvedMiddleGroups);
-  const bottomSlots = splitGroupsByPosition(resolvedBottomGroups);
-  const mobileSlots = splitGroupsByPosition(resolvedMobileGroups.length ? resolvedMobileGroups : [...resolvedTopGroups, ...resolvedMiddleGroups, ...resolvedBottomGroups]);
-
-  const mobileGroups = mobileSlots.left.length || mobileSlots.center.length || mobileSlots.right.length
-    ? [...mobileSlots.left, ...mobileSlots.center, ...mobileSlots.right]
-    : [];
-  const hasHeaderContent = resolvedTopGroups.length > 0 || resolvedMiddleGroups.length > 0 || resolvedBottomGroups.length > 0 || mobileGroups.length > 0;
-
-  useEffect(() => {
-    const topNode = topRowRef.current;
-    const middleNode = middleRowRef.current;
-    const bottomNode = bottomRowRef.current;
-    const mobileNode = mobileRowRef.current;
-
-    const updateHeights = () => {
-      setTopRowHeight(topNode?.offsetHeight ?? 0);
-      setMiddleRowHeight(middleNode?.offsetHeight ?? 0);
-      setBottomRowHeight(bottomNode?.offsetHeight ?? 0);
-      setMobileRowHeight(mobileNode?.offsetHeight ?? 0);
-    };
-
-    updateHeights();
-
-    if (typeof ResizeObserver === "undefined") {
-      window.addEventListener("resize", updateHeights);
-
-      return () => window.removeEventListener("resize", updateHeights);
-    }
-
-    const observer = new ResizeObserver(() => updateHeights());
-
-    if (topNode) {
-      observer.observe(topNode);
-    }
-
-    if (middleNode) {
-      observer.observe(middleNode);
-    }
-
-    if (bottomNode) {
-      observer.observe(bottomNode);
-    }
-
-    if (mobileNode) {
-      observer.observe(mobileNode);
-    }
-
-    window.addEventListener("resize", updateHeights);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updateHeights);
-    };
-  }, [resolvedTopGroups.length, resolvedMiddleGroups.length, resolvedBottomGroups.length, mobileGroups.length]);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 767px)");
-    const updateViewport = () => setIsMobileViewport(mediaQuery.matches);
-
-    updateViewport();
-    mediaQuery.addEventListener("change", updateViewport);
-
-    return () => mediaQuery.removeEventListener("change", updateViewport);
-  }, []);
-
-  useEffect(() => {
-    if (!isMenuOpen && !isSearchOpen) {
-      return undefined;
-    }
-
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isMenuOpen, isSearchOpen]);
-
-  useEffect(() => {
-    if (!isMobileViewport || typeof window === "undefined") {
-      return;
-    }
-
-    if (!isMenuOpen) {
-      return;
-    }
-
-    console.info("[site-header] mobile menu opened", {
-      scrollY: window.scrollY,
-      mobileRowHeight,
-      pathname,
-      mobileRowMode: "sticky",
-    });
-  }, [isMenuOpen, isMobileViewport, mobileRowHeight, pathname]);
-
-  useEffect(() => {
+    // чтобы у страниц с sticky сайдбаром оставался корректный отступ
     const root = document.documentElement;
-    const desktopTopPinned = theme.topPinned ?? true;
-    const desktopMiddlePinned = theme.middlePinned ?? true;
-    const desktopBottomPinned = theme.bottomPinned ?? false;
-    const desktopStickyOffset =
-      (desktopTopPinned ? topRowHeight : 0) +
-      (desktopMiddlePinned ? middleRowHeight : 0) +
-      (desktopBottomPinned ? bottomRowHeight : 0);
-    const stickyOffset = isMobileViewport
-      ? mobileRowHeight + (isMenuOpen ? 1 : 0)
-      : desktopStickyOffset;
-
-    root.style.setProperty("--site-header-offset", `${stickyOffset}px`);
-    root.style.setProperty("--site-header-offset-with-gap", `calc(${stickyOffset}px + 1.5rem)`);
-
+    root.style.setProperty("--site-header-offset", sticky ? "128px" : "0px");
+    root.style.setProperty("--site-header-offset-with-gap", sticky ? "calc(128px + 1.5rem)" : "7rem");
     return () => {
       root.style.removeProperty("--site-header-offset");
       root.style.removeProperty("--site-header-offset-with-gap");
     };
-  }, [bottomRowHeight, isMenuOpen, isMobileViewport, middleRowHeight, mobileRowHeight, theme.bottomPinned, theme.middlePinned, theme.topPinned, topRowHeight]);
+  }, [sticky]);
 
-  if (!hasHeaderContent) {
-    return null;
-  }
-
-  const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const query = searchQuery.trim();
-
-    if (!query) {
-      router.push("/search");
-      setSearchOpenPath(null);
+  useEffect(() => {
+    if (!drawerOpen) {
       return;
     }
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [drawerOpen]);
 
-    router.push(`/search?q=${encodeURIComponent(query)}`);
-    setSearchOpenPath(null);
+  useEffect(() => {
+    // при переходах закрываем дровер
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  const submitSearch = (event?: FormEvent) => {
+    event?.preventDefault();
+    const q = searchQuery.trim();
+    router.push(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
+    setDrawerOpen(false);
   };
 
-  const renderHeaderItem = (item: HeaderLink, key: string, compact = false, inheritRowTheme = false) => {
-    const isDarkTheme = currentTheme === "dark";
-    const themedStyle = buildHeaderStyle({
-      backgroundColor: isDarkTheme
-        ? item.activeBackgroundColor ?? item.backgroundColor
-        : item.backgroundColor,
-      textColor: isDarkTheme
-        ? item.activeTextColor ?? item.textColor
-        : item.textColor,
-      borderColor: item.borderColor,
-    });
-
-    switch (item.kind) {
-      case "logo": {
-        const hasLogoImage = Boolean(lightLogo?.url || darkLogo?.url);
-        const fallbackLabel = item.label?.trim();
-
-        if (!hasLogoImage && !fallbackLabel) {
-          return null;
-        }
-
-        return (
-          <Link key={key} href={item.href || "/"} className={`inline-flex items-center gap-4 ${compact ? "min-w-0" : ""}`} style={themedStyle}>
-            {hasLogoImage ? (
-              <span
-                className="relative flex shrink-0 items-center"
-                style={{
-                  height: "var(--header-logo-size, 3rem)",
-                  width: "fit-content",
-                }}
-              >
-                {lightLogo?.url ? (
-                  <Image
-                    src={lightLogo.url}
-                    alt={lightLogo.alternativeText ?? siteName}
-                    width={400}
-                    height={120}
-                    sizes="100vw"
-                    className="block h-[var(--header-logo-size,3rem)] w-auto object-contain"
-                  />
-                ) : null}
-                {!lightLogo?.url && darkLogo?.url ? (
-                  <Image
-                    src={darkLogo.url}
-                    alt={darkLogo.alternativeText ?? siteName}
-                    width={400}
-                    height={120}
-                    sizes="100vw"
-                    className="block h-[var(--header-logo-size,3rem)] w-auto object-contain"
-                  />
-                ) : null}
-              </span>
-            ) : (
-              <span className={`type-h4 block ${compact ? "min-w-0 truncate" : ""}`}>{fallbackLabel}</span>
-            )}
-          </Link>
-        );
-      }
-      case "menu-toggle":
-        return (
-          <button
-            key={key}
-            type="button"
-            aria-controls="mobile-site-menu"
-            aria-expanded={isMenuOpen}
-            aria-label={item.label || (isMenuOpen ? "Закрыть меню" : "Открыть меню")}
-            className={compact
-              ? "inline-flex h-11 w-11 items-center justify-center bg-transparent text-white transition-opacity hover:opacity-80"
-              : inheritRowTheme
-                ? "font-menu inline-flex min-h-11 items-center justify-center gap-2 border border-current/15 bg-transparent px-4 text-inherit transition-colors hover:bg-white/10 hover:text-inherit"
-                : "font-menu inline-flex min-h-11 items-center justify-center gap-2 border border-black/8 bg-white px-4 text-zinc-800 transition-colors hover:border-emerald-900/12 hover:bg-emerald-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100 dark:hover:bg-emerald-950/35"
-            }
-            style={compact
-              ? themedStyle
-              : {
-                  ...(themedStyle ?? {}),
-                  minHeight: "var(--header-control-height, 2.75rem)",
-                }}
-            onClick={toggleMobileMenu}
-          >
-            <span className="flex h-4 w-4 flex-col justify-between" aria-hidden="true">
-              <span className="block h-[1.5px] w-full bg-current" />
-              <span className="block h-[1.5px] w-full bg-current" />
-              <span className="block h-[1.5px] w-full bg-current" />
-            </span>
-            {!compact ? <span>{item.label || (isMenuOpen ? "Закрыть" : "Меню")}</span> : null}
-          </button>
-        );
-      case "search":
-        return (
-          <button
-            key={key}
-            type="button"
-            aria-label={item.label || "Поиск"}
-            className={compact
-              ? "inline-flex h-11 w-11 items-center justify-center bg-transparent text-white transition-opacity hover:opacity-80"
-              : inheritRowTheme
-                ? "hidden h-11 w-11 items-center justify-center bg-transparent text-white transition-opacity hover:opacity-80 sm:inline-flex"
-                : "hidden h-11 w-11 items-center justify-center bg-transparent text-white transition-opacity hover:opacity-80 sm:inline-flex"
-            }
-            style={compact ? themedStyle : { ...(themedStyle ?? {}), minHeight: "var(--header-control-height, 2.75rem)" }}
-            onClick={() => {
-              closeMobileMenu();
-              setSearchOpenPath((value) => (value !== pathname ? pathname : null));
-            }}
-          >
-            <HeaderIcon kind="search" />
-          </button>
-        );
-      case "theme-toggle":
-        return <ThemeToggle key={key} colors={item} compact={compact} inheritRowTheme={inheritRowTheme} />;
-      case "socials":
-        return (
-            <SocialLinks
-              key={key}
-              widget={item.socialLinks}
-              fallbackWidget={socialLinks}
-              className="min-w-0"
-              listClassName={compact ? "mt-0 gap-2" : "mt-0 gap-2"}
-              itemClassName={compact ? "opacity-90 hover:opacity-100" : inheritRowTheme ? "opacity-90 hover:opacity-100" : "opacity-90 hover:opacity-100"}
-            iconClassName={compact ? "h-9 w-9" : "h-10 w-10"}
-          />
-        );
-      case "ticker":
-        if (!item.text && !tickerText && !item.label) {
-          return null;
-        }
-
-        const tickerLabel = item.text || tickerText || item.label || "";
-        const tickerSegments = repeatTickerItems([
-          <span className="header-ticker__segment" key={`${key}-segment-base`}>
-            {item.image?.url ? (
-              <Image
-                src={item.image.url}
-                alt={item.image.alternativeText ?? tickerLabel}
-                width={28}
-                height={28}
-                className="header-ticker__image"
-              />
-            ) : null}
-            <span>{tickerLabel}</span>
-          </span>,
-        ]);
-
-        return (
-          <div
-            key={key}
-            className={inheritRowTheme
-                ? "font-menu header-ticker min-w-0 overflow-hidden border border-current/15 bg-transparent px-0 py-2 text-inherit"
-                : "font-menu header-ticker min-w-0 overflow-hidden border border-black/5 bg-black/[0.02] px-0 py-2 text-zinc-700"}
-            style={inheritRowTheme
-              ? buildHeaderStyle({
-                  textColor: isDarkTheme
-                    ? item.activeTextColor ?? item.textColor
-                    : item.textColor,
-                })
-              : themedStyle}
-          >
-            <div className="header-ticker__track" aria-label={tickerLabel}>
-              {tickerSegments.map((segment, segmentIndex) => (
-                <span key={`${key}-segment-${segmentIndex}`}>{segment}</span>
-              ))}
-            </div>
-          </div>
-        );
-      case "account":
-      case "link": {
-        if (item.kind === "account") {
-          return (
-            <AuthWidget
-              key={key}
-              label={item.label || "Аккаунт"}
-              compact
-              className="shrink-0"
-              buttonStyle={compact
-                ? themedStyle
-                : {
-                    ...(themedStyle ?? {}),
-                    minHeight: "var(--header-control-height, 2.75rem)",
-                  }}
-              buttonClassName={compact
-                ? "inline-flex h-11 w-11 items-center justify-center transition-colors hover:bg-emerald-50 hover:text-emerald-950 dark:hover:bg-emerald-950/35 dark:hover:text-emerald-100"
-                : inheritRowTheme
-                  ? "inline-flex h-11 w-11 items-center justify-center border border-current/15 bg-transparent text-inherit transition-colors hover:bg-white/10 hover:text-inherit"
-                  : "inline-flex h-11 w-11 items-center justify-center border border-black/6 bg-white transition-colors hover:border-emerald-900/10 hover:bg-emerald-50 hover:text-emerald-950 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-emerald-300/15 dark:hover:bg-emerald-950/35 dark:hover:text-emerald-100"}
-            />
-          );
-        }
-
-        if (!item.label || !item.href) {
-          if (!item.label || compact) {
-            return null;
-          }
-        }
-
-        const href = item.href || "/";
-        const children = normalizeNavigationChildren(item.children);
-        const hasChildren = children.length > 0;
-        const isActive = Boolean(item.href && isActivePath(pathname, href));
-        const isChildActive = children.some((child) => child.href && isActivePath(pathname, child.href));
-        const isCurrent = isActive || isChildActive;
-        const baseClassName = compact
-          ? isCurrent
-            ? "font-menu bg-[#10351d] px-4 py-3 text-white dark:bg-emerald-500 dark:text-[#05210d]"
-            : "font-menu px-4 py-3 text-zinc-700 transition-colors hover:bg-emerald-50 hover:text-emerald-950 dark:text-zinc-200 dark:hover:bg-emerald-950/35 dark:hover:text-emerald-100"
-          : inheritRowTheme
-            ? isCurrent
-              ? "font-menu border border-current/20 bg-white/12 px-4 text-inherit shadow-[0_14px_35px_rgba(16,53,29,0.18)]"
-              : "font-menu border border-current/15 bg-transparent px-4 text-inherit transition-colors hover:bg-white/10 hover:text-inherit"
-            : isCurrent
-              ? "font-menu border border-emerald-900/15 bg-[#10351d] px-4 text-white shadow-[0_14px_35px_rgba(16,53,29,0.18)] dark:border-emerald-300/20 dark:bg-emerald-500 dark:text-[#05210d]"
-              : "font-menu border border-black/6 bg-white px-4 text-zinc-700 transition-colors hover:border-emerald-900/10 hover:bg-emerald-50 hover:text-emerald-950 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-200 dark:hover:border-emerald-300/15 dark:hover:bg-emerald-950/35 dark:hover:text-emerald-100";
-        const baseStyle = compact
-          ? themedStyle
-          : {
-              ...(themedStyle ?? {}),
-              minHeight: "var(--header-control-height, 2.75rem)",
-            };
-        const desktopMenuItemClassName = compact ? baseClassName : `${baseClassName} inline-flex items-center justify-center`;
-
-        if (compact || !hasChildren) {
-          if (!item.href) {
-            return null;
-          }
-
-          return (
-            <Link key={key} href={href} aria-current={isActive ? "page" : undefined} className={desktopMenuItemClassName} style={baseStyle}>
-              {item.label}
-            </Link>
-          );
-        }
-
-        const triggerContent = <span>{item.label}</span>;
-
-        return (
-          <div key={key} className="group/menu-item relative">
-            {item.href ? (
-              <Link href={href} aria-current={isActive ? "page" : undefined} className={`${desktopMenuItemClassName} gap-2`} style={baseStyle}>
-                {triggerContent}
-              </Link>
-            ) : (
-              <span className={`${desktopMenuItemClassName} gap-2`} style={baseStyle}>
-                {triggerContent}
-              </span>
-            )}
-
-            <div className="invisible absolute left-0 top-full z-[90] min-w-[16rem] pt-2 opacity-0 transition-all duration-150 group-hover/menu-item:visible group-hover/menu-item:opacity-100 group-focus-within/menu-item:visible group-focus-within/menu-item:opacity-100">
-              <div className="border border-black/8 bg-white p-2 text-zinc-900 shadow-[0_24px_80px_rgba(8,18,12,0.18)] dark:border-white/10 dark:bg-[#08110b] dark:text-zinc-100">
-                <div className="grid gap-1">
-                  {children.map((child, childIndex) => {
-                    const childHref = child.href ?? "/";
-                    const childActive = child.href ? isActivePath(pathname, childHref) : false;
-
-                    return (
-                      <Link
-                        key={`${key}-child-${childIndex}`}
-                        href={childHref}
-                        aria-current={childActive ? "page" : undefined}
-                        className={childActive
-                          ? "font-menu border border-emerald-900/15 bg-[#10351d] px-4 py-3 text-white dark:border-emerald-300/20 dark:bg-emerald-500 dark:text-[#05210d]"
-                          : "font-menu border border-transparent px-4 py-3 text-zinc-900 transition-colors hover:border-emerald-900/10 hover:bg-emerald-50 hover:text-emerald-950 dark:text-zinc-200 dark:hover:border-emerald-300/15 dark:hover:bg-emerald-950/35 dark:hover:text-emerald-100"}
-                      >
-                        <span className="block">{child.label}</span>
-                        {child.description ? <span className="type-caption mt-1 block text-zinc-500 dark:text-zinc-400">{child.description}</span> : null}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      }
-      default:
-        return null;
-    }
-  };
-
-  const renderGroup = (group: ResolvedHeaderGroup, index: number, compact = false, inheritRowTheme = false) => (
-    <div
-      key={`${group.title ?? "group"}-${index}`}
-      className={compact ? "flex min-w-0 flex-nowrap items-center gap-3" : "flex flex-wrap items-center gap-3"}
-      style={buildHeaderStyle({ backgroundColor: group.backgroundColor })}
-    >
-      {group.title && !compact ? (
-        <span className={inheritRowTheme ? "type-caption text-inherit/70" : "type-caption text-zinc-500"} style={group.titleColor ? { color: group.titleColor } : undefined}>
-          {group.title}
-        </span>
-      ) : null}
-      <div className={compact ? "flex min-w-0 flex-nowrap items-center gap-2" : "flex flex-wrap items-center gap-2"}>
-        {group.items.map((item, itemIndex) => renderHeaderItem(item, `${group.title ?? "group"}-${index}-${itemIndex}`, compact, inheritRowTheme))}
-      </div>
-    </div>
-  );
-
-  const collectTickerItems = (slots: HeaderSlots) => {
-    return [...slots.left, ...slots.center, ...slots.right].flatMap((group) =>
-      group.items.map((item, itemIndex) => ({
-        item,
-        key: `${group.title ?? "group"}-${group.position}-${itemIndex}`,
-      })),
-    );
-  };
-
-  const isDarkTheme = currentTheme === "dark";
-  const mobileThemeStyle = buildHeaderStyle({
-    backgroundColor: isDarkTheme
-      ? theme.mobileBackgroundColor ?? theme.middleBackgroundColor ?? theme.backgroundColor
-      : theme.middleBackgroundColor ?? theme.backgroundColor ?? theme.mobileBackgroundColor,
-    textColor: isDarkTheme
-      ? theme.mobileTextColor ?? theme.textColor
-      : theme.textColor ?? theme.mobileTextColor,
-    borderColor: theme.mobileBorderColor ?? theme.borderColor,
-    opacity: theme.mobileOpacity,
-  });
-  const mobileRowMetrics = resolveRowMetrics(theme.mobileHeight);
-  const desktopTopPinned = false;
-  const desktopMiddlePinned = theme.middlePinned ?? true;
-  const desktopBottomPinned = theme.bottomPinned ?? false;
-  const derivedDesktopMobileMenu = buildMobileMenuFromHeaderGroups([
-    ...resolvedTopGroups,
-    ...resolvedMiddleGroups,
-    ...resolvedBottomGroups,
-  ]);
-  const fallbackMobileMenu = buildMobileMenuFromSections(mobileMenuSections);
-  const resolvedMobileMenu =
-    derivedDesktopMobileMenu.length
-      ? derivedDesktopMobileMenu
-      : fallbackMobileMenu;
-  const activeMobileMenuSection = mobileMenuStack[mobileMenuStack.length - 1] ?? null;
-  const combinedHeaderGroups = [...resolvedTopGroups, ...resolvedMiddleGroups, ...resolvedBottomGroups];
-  const mobileLogoItem = findFirstHeaderItem(mobileGroups, "logo") ?? findFirstHeaderItem(combinedHeaderGroups, "logo");
-  const mobileThemeItem = findFirstHeaderItem(mobileGroups, "theme-toggle") ?? findFirstHeaderItem(combinedHeaderGroups, "theme-toggle");
-  const mobileSearchItem = findFirstHeaderItem(mobileGroups, "search") ?? findFirstHeaderItem(combinedHeaderGroups, "search");
-  const mobileAccountItem = findFirstHeaderItem(mobileGroups, "account") ?? findFirstHeaderItem(combinedHeaderGroups, "account");
-
-  const renderRow = (
-    slots: ReturnType<typeof splitGroupsByPosition>,
-    options?: {
-      topBorder?: boolean;
-      rowClassName?: string;
-      backgroundColor?: string | null;
-      pinned?: boolean;
-      opacity?: number | null;
-      height?: number | null;
-      topOffset?: number;
-      zIndexClassName?: string;
-      rowRef?: React.RefObject<HTMLDivElement | null>;
-      inheritRowTheme?: boolean;
-    },
-  ) => {
-    const hasContent = slots.left.length || slots.center.length || slots.right.length;
-    const rowMetrics = resolveRowMetrics(options?.height);
-    const tickerItems = collectTickerItems(slots).filter(({ item }) => item.kind === "ticker");
-    const nonTickerItemsCount = collectTickerItems(slots).length - tickerItems.length;
-    const isFullWidthTickerRow = tickerItems.length > 0 && nonTickerItemsCount === 0;
-
-    if (!hasContent) {
-      return null;
-    }
-
-    return (
-      <div
-        ref={options?.rowRef}
-        className={`${options?.topBorder ? "border-t border-black/5 dark:border-white/10" : ""} ${
-          options?.pinned ? `sticky ${options?.zIndexClassName ?? "z-40"}` : ""
-        } ${options?.rowClassName ?? ""}`}
-        style={{
-          ...(buildHeaderStyle({
-            backgroundColor: options?.backgroundColor ?? theme.backgroundColor,
-            borderColor: theme.borderColor,
-            textColor: theme.textColor,
-            opacity: options?.opacity,
-          }) ?? {}),
-          ...(rowMetrics.rowHeight
-            ? {
-                ["--header-row-height" as string]: `${rowMetrics.rowHeight}px`,
-                ["--header-control-height" as string]: `${rowMetrics.controlHeight}px`,
-                ["--header-logo-size" as string]: `${rowMetrics.logoSize}px`,
-                ["--header-row-padding-y" as string]: `${rowMetrics.verticalPadding}px`,
-              }
-            : {}),
-          ...(options?.pinned ? { top: `${options.topOffset ?? 0}px` } : {}),
-        }}
-      >
-        {isFullWidthTickerRow ? (
-          <div
-            className="w-full"
-            style={rowMetrics.rowHeight
-              ? {
-                  minHeight: `${rowMetrics.rowHeight}px`,
-                  paddingTop: `${rowMetrics.verticalPadding}px`,
-                  paddingBottom: `${rowMetrics.verticalPadding}px`,
-                }
-              : { paddingTop: "1rem", paddingBottom: "1rem" }}
-          >
-            {tickerItems.map(({ item, key }) => renderHeaderItem(item, key, false, options?.inheritRowTheme ?? false))}
-          </div>
-        ) : (
-          <div
-            className="mx-auto grid max-w-[1440px] gap-4 px-4 sm:px-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:px-8"
-            style={rowMetrics.rowHeight
-              ? {
-                  minHeight: `${rowMetrics.rowHeight}px`,
-                  paddingTop: `${rowMetrics.verticalPadding}px`,
-                  paddingBottom: `${rowMetrics.verticalPadding}px`,
-                }
-              : { paddingTop: "1rem", paddingBottom: "1rem" }}
-          >
-            <div className="flex flex-wrap items-center gap-3">{slots.left.map((group, index) => renderGroup(group, index, false, options?.inheritRowTheme ?? false))}</div>
-            <div className="flex flex-wrap items-center justify-center gap-3">{slots.center.map((group, index) => renderGroup(group, index, false, options?.inheritRowTheme ?? false))}</div>
-            <div className="flex flex-wrap items-center justify-start gap-3 lg:justify-end">{slots.right.map((group, index) => renderGroup(group, index, false, options?.inheritRowTheme ?? false))}</div>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderMobileMenuLink = (item: MobileMenuLinkItem, key: string) => {
-    if (!item?.label) {
-      return null;
-    }
-
-    if (item.kind === "account") {
-      return (
-        <AuthWidget
-          key={key}
-          label={item.label}
-          className="w-full"
-          buttonClassName="type-button inline-flex w-full items-center justify-start border-t border-white/15 px-0 py-4 !text-white transition-colors hover:!text-white/80"
-          panelClassName="relative right-auto top-auto mt-4 w-full border border-white/15 bg-transparent !text-white shadow-none"
-        />
-      );
-    }
-
-    if (!item.href) {
-      return (
-        <div
-          key={key}
-          className="type-body border-t border-white/15 py-4 !text-white"
-        >
-          {item.label}
-        </div>
-      );
-    }
-
-    return (
-      <Link
-        key={key}
-        href={item.href}
-        className="type-body flex items-start justify-between gap-3 border-t border-white/15 py-4 !text-white transition-colors hover:!text-white/80"
-        onClick={() => {
-          closeMobileMenu();
-        }}
-      >
-        <span className="min-w-0 flex-1">
-          <span className="block">{item.label}</span>
-          {item.description ? <span className="type-caption mt-1 block !text-white">{item.description}</span> : null}
-        </span>
-      </Link>
-    );
-  };
-
-  const renderMobileMenuEntry = (item: MobileMenuEntry, key: string) => {
-    if (!item.label) {
-      return null;
-    }
-
-    if (item.children.length) {
-      return (
-        <button
-          key={key}
-          type="button"
-          className="flex items-start justify-between gap-3 border-t border-white/15 py-4 text-left !text-white transition-colors hover:!text-white/80"
-          onClick={() => {
-            setMobileMenuStack((stack) => [...stack, item]);
-          }}
-        >
-          <span className="min-w-0 flex-1">
-            <span className="type-body block">{item.label}</span>
-            {item.description ? <span className="type-caption mt-1 block !text-white">{item.description}</span> : null}
-          </span>
-          <span className="mt-1 shrink-0">
-            <ChevronIcon />
-          </span>
-        </button>
-      );
-    }
-
-    return renderMobileMenuLink(
-      {
-        kind: item.kind,
-        label: item.label,
-        href: item.href,
-        description: item.description,
-      },
-      key,
-    );
-  };
-
-  const renderMobileMenuContent = () => {
-    if (activeMobileMenuSection) {
-      return (
-        <div className="grid gap-0">
-          {activeMobileMenuSection.description ? (
-            <p className="type-small pb-4 !text-white">{activeMobileMenuSection.description}</p>
-          ) : null}
-
-          {activeMobileMenuSection.href ? renderMobileMenuLink({
-            kind: activeMobileMenuSection.kind,
-            label: "Открыть раздел",
-            href: activeMobileMenuSection.href,
-            description: activeMobileMenuSection.label,
-          }, `mobile-menu-open-section-${activeMobileMenuSection.label}`) : null}
-
-          {activeMobileMenuSection.children.map((item, itemIndex) =>
-            renderMobileMenuLink(item, `mobile-menu-leaf-${activeMobileMenuSection.label}-${itemIndex}`),
-          )}
-        </div>
-      );
-    }
-
-    return (
-      <div className="grid gap-0">
-        {resolvedMobileMenu.map((item, itemIndex) => renderMobileMenuEntry(item, `mobile-root-entry-${itemIndex}`))}
-
-        {!resolvedMobileMenu.length ? (
-          <div className="type-body border-t border-white/15 py-4 !text-white">
-            Пункты мобильного меню не настроены.
-          </div>
-        ) : null}
-      </div>
-    );
-  };
+  const containerClass = sticky ? "sticky top-0 z-50" : "relative z-50";
 
   return (
-    <div className="z-50 xl:contents">
-      {renderRow(topSlots, {
-        rowClassName: "hidden xl:block",
-        backgroundColor: theme.topBackgroundColor ?? theme.backgroundColor,
-        pinned: desktopTopPinned,
-        opacity: theme.topOpacity,
-        height: theme.topHeight,
-        topOffset: 0,
-        zIndexClassName: "z-50",
-        rowRef: topRowRef,
-        inheritRowTheme: true,
-      })}
-      {renderRow(middleSlots, {
-        topBorder: true,
-        rowClassName: "hidden xl:block",
-        backgroundColor: theme.middleBackgroundColor ?? theme.backgroundColor,
-        pinned: desktopMiddlePinned,
-        opacity: theme.middleOpacity,
-        height: theme.middleHeight,
-        topOffset: desktopTopPinned ? topRowHeight : 0,
-        zIndexClassName: "z-40",
-        rowRef: middleRowRef,
-      })}
-      {renderRow(bottomSlots, {
-        topBorder: true,
-        rowClassName: "hidden xl:block",
-        backgroundColor: theme.bottomBackgroundColor ?? theme.backgroundColor,
-        pinned: desktopBottomPinned,
-        opacity: theme.bottomOpacity,
-        height: theme.bottomHeight,
-        topOffset: (desktopTopPinned ? topRowHeight : 0) + (desktopMiddlePinned ? middleRowHeight : 0),
-        zIndexClassName: "z-30",
-        rowRef: bottomRowRef,
-      })}
+    <header className={containerClass}>
+      <div className="border-b border-black/10 bg-[color:var(--background)] dark:border-white/10">
+        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+          {/* Desktop top row */}
+          <div className="hidden h-16 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:grid">
+            <form onSubmit={submitSearch} className="flex items-center gap-3">
+              <button type="submit" aria-label="Поиск" className="text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white">
+                <SearchIcon />
+              </button>
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Поиск"
+                className="font-menu h-10 w-full max-w-[320px] border-b border-transparent bg-transparent text-zinc-700 outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-300 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-white/20"
+              />
+            </form>
 
-      {isSearchOpen ? (
+            <div className="flex justify-center">
+              <Link href="/" className="inline-flex items-center justify-center">
+                {logo?.url ? (
+                  <Image
+                    src={logo.url}
+                    alt={logo.alternativeText ?? siteName}
+                    width={520}
+                    height={160}
+                    sizes="(min-width: 1280px) 420px, 60vw"
+                    className="h-12 w-auto object-contain"
+                    priority
+                  />
+                ) : (
+                  <span className="type-h2 text-[40px] leading-[1] tracking-[-0.02em] text-[#0b3b27] dark:text-emerald-200">
+                    ВИНОДЕЛИЕ СЕГОДНЯ
+                  </span>
+                )}
+              </Link>
+            </div>
+
+            <div className="flex items-center justify-end gap-3">
+              <AuthWidget label="Войти" />
+              <ThemeToggle compact />
+            </div>
+          </div>
+
+          {/* Desktop bottom row */}
+          <nav className="hidden h-12 items-center justify-center gap-10 xl:flex">
+            {resolvedMenu.map((item) => (
+              <Link
+                key={`${item.href}-${item.label}`}
+                href={item.href}
+                className="font-menu text-[13px] font-medium tracking-[0.12em] text-zinc-700 transition-colors hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white"
+              >
+                {item.label.toUpperCase()}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Mobile/tablet row */}
+          <div className="flex h-16 items-center justify-between xl:hidden">
+            <Link href="/" className="min-w-0 pr-4">
+              <span className="line-clamp-1 text-[16px] font-semibold tracking-[0.06em] text-[#0b3b27] dark:text-emerald-200">
+                {siteName || "ВИНОДЕЛИЕ СЕГОДНЯ"}
+              </span>
+            </Link>
+
+            <button
+              type="button"
+              aria-label={drawerOpen ? "Закрыть меню" : "Открыть меню"}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100"
+              onClick={() => setDrawerOpen((v) => !v)}
+            >
+              {drawerOpen ? <CloseIcon /> : <HamburgerIcon />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile drawer */}
+      {drawerOpen ? (
         <>
           <button
             type="button"
-            aria-label="Закрыть поиск"
-            className="fixed inset-0 z-[110] bg-black/35 backdrop-blur-[2px]"
-            style={{ top: "var(--site-header-offset, 0px)" }}
-            onClick={() => setSearchOpenPath(null)}
+            aria-label="Закрыть меню"
+            className="fixed inset-0 z-[60] bg-black/35 backdrop-blur-[2px] xl:hidden"
+            onClick={() => setDrawerOpen(false)}
           />
-          <div
-            className="fixed inset-x-0 z-[120] border-t border-black/5 shadow-[0_24px_80px_rgba(8,18,12,0.22)] dark:border-white/10"
-            style={{
-              top: "var(--site-header-offset, 0px)",
-              ...(buildHeaderStyle({
-                borderColor: theme.borderColor,
-                backgroundColor: theme.middleBackgroundColor ?? theme.backgroundColor,
-                textColor: theme.textColor,
-              }) ?? {}),
-            }}
-          >
-            <div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-6 lg:px-8">
-              <div className="mx-auto max-w-4xl">
-                <form className="flex items-center gap-3" onSubmit={(event) => handleSearchSubmit(event)}>
+          <div className="fixed inset-x-0 top-0 z-[70] h-[100dvh] xl:hidden">
+            <div className="h-full w-full bg-[color:var(--background)] shadow-[0_24px_80px_rgba(8,18,12,0.22)] dark:bg-[#08110b]">
+              <div className="mx-auto flex h-full max-w-2xl flex-col px-4 pb-8 pt-5">
+                <div className="flex items-center justify-between gap-3 border-b border-black/10 pb-4 dark:border-white/10">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      aria-label="Поиск"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100"
+                      onClick={() => {
+                        const input = document.getElementById("mobile-header-search") as HTMLInputElement | null;
+                        input?.focus();
+                      }}
+                    >
+                      <SearchIcon />
+                    </button>
+                    <AuthWidget label="Войти" compact />
+                    <ThemeToggle compact />
+                  </div>
+                  <button
+                    type="button"
+                    aria-label="Закрыть"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100"
+                    onClick={() => setDrawerOpen(false)}
+                  >
+                    <CloseIcon />
+                  </button>
+                </div>
+
+                <form onSubmit={submitSearch} className="mt-4 flex items-center gap-3">
                   <input
-                    autoFocus
+                    id="mobile-header-search"
                     value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Поиск по сайту"
-                    className="font-menu h-14 min-w-0 flex-1 border border-white bg-transparent px-5 text-white outline-none transition-opacity placeholder:text-white/70 focus:border-white"
+                    className="font-menu h-12 min-w-0 flex-1 rounded-xl border border-black/10 bg-white px-4 text-zinc-900 outline-none transition-colors placeholder:text-zinc-500 focus:border-emerald-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100 dark:placeholder:text-zinc-500"
                   />
                   <button
                     type="submit"
-                    aria-label="Запустить поиск"
-                    className="inline-flex h-14 w-14 shrink-0 items-center justify-center bg-transparent text-white transition-opacity hover:opacity-80"
+                    className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-black/10 bg-white text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100"
+                    aria-label="Искать"
                   >
-                    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <circle cx="11" cy="11" r="6" />
-                      <path d="m20 20-4.2-4.2" />
-                    </svg>
+                    <SearchIcon />
                   </button>
                 </form>
+
+                <nav className="mt-6 grid gap-2 overflow-y-auto">
+                  {resolvedMenu.map((item) => (
+                    <Link
+                      key={`mobile-${item.href}-${item.label}`}
+                      href={item.href}
+                      className="font-menu rounded-xl border border-black/10 bg-white px-4 py-3 text-zinc-900 transition-colors hover:border-emerald-700 hover:bg-emerald-50 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100 dark:hover:bg-emerald-950/35"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </nav>
               </div>
             </div>
           </div>
         </>
       ) : null}
-
-      <div aria-hidden="true" className="xl:hidden" style={{ height: mobileRowHeight ? `${mobileRowHeight}px` : undefined }} />
-
-      <div
-        ref={mobileRowRef}
-        className="fixed inset-x-0 top-0 z-[90] border-t border-black/5 xl:hidden dark:border-white/10"
-        style={mobileThemeStyle}
-      >
-        <div
-          className="px-4"
-          style={mobileRowMetrics.rowHeight
-            ? {
-                minHeight: `${mobileRowMetrics.rowHeight}px`,
-                paddingTop: `${mobileRowMetrics.verticalPadding}px`,
-                paddingBottom: `${mobileRowMetrics.verticalPadding}px`,
-              }
-            : { paddingTop: "0.75rem", paddingBottom: "0.75rem" }}
-        >
-          <div className="grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-3 py-3">
-            <div aria-hidden="true" className="h-11 w-11" />
-            <div className="flex min-w-0 justify-center">
-              {mobileLogoItem
-                ? renderHeaderItem(mobileLogoItem, "mobile-top-logo", true, true)
-                : <span className="font-menu truncate text-white">{siteName}</span>}
-            </div>
-            <div className="flex justify-end">
-              {renderHeaderItem({ kind: "menu-toggle", label: isMenuOpen ? "Закрыть" : "Меню" }, "mobile-fallback-menu-toggle", true, true)}
-            </div>
-          </div>
-        </div>
-
-        {isMenuOpen ? (
-          <>
-            <button
-              type="button"
-              aria-label="Закрыть меню"
-              className="fixed inset-0 z-[70] bg-black/35 backdrop-blur-[2px] xl:hidden"
-              style={{ top: "var(--site-header-offset, 0px)" }}
-              onClick={() => {
-                closeMobileMenu();
-              }}
-            />
-
-            <div
-              id="mobile-site-menu"
-              className="fixed inset-x-0 bottom-0 z-[80] overflow-hidden border-t border-black/5 shadow-[0_24px_80px_rgba(8,18,12,0.22)] xl:hidden dark:border-white/10"
-              style={{
-                top: mobileRowHeight ? `${Math.max(mobileRowHeight - 1, 0)}px` : "var(--site-header-offset, 0px)",
-                ...(mobileThemeStyle ?? {}),
-              }}
-            >
-              <div className="flex h-full flex-col">
-                <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
-                  <div className="mx-auto flex h-full w-full max-w-2xl flex-col">
-                    <div className="mb-5 flex items-center gap-2 border-b border-white/10 pb-4">
-                      {mobileThemeItem ? renderHeaderItem(mobileThemeItem, "mobile-menu-theme", true, true) : null}
-                      {mobileSearchItem ? renderHeaderItem(mobileSearchItem, "mobile-menu-search", true, true) : null}
-                      {mobileAccountItem ? renderHeaderItem(mobileAccountItem, "mobile-menu-account", true, true) : null}
-                    </div>
-
-                    {activeMobileMenuSection ? (
-                      <div className="mb-4 space-y-3">
-                        <button
-                          type="button"
-                          className="inline-flex min-w-0 items-center gap-2 text-left text-white transition-colors hover:text-white/80"
-                          onClick={() => setMobileMenuStack((stack) => stack.slice(0, -1))}
-                        >
-                          <ChevronIcon direction="left" />
-                          <span className="type-body">Назад</span>
-                        </button>
-                        <h2 className="type-h4 text-white">{activeMobileMenuSection.label}</h2>
-                      </div>
-                    ) : null}
-
-                    {renderMobileMenuContent()}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : null}
-      </div>
-    </div>
+    </header>
   );
 }
+

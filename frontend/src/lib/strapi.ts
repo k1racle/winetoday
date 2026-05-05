@@ -87,19 +87,7 @@ const HOMEPAGE_BLOCKS_POPULATE_QUERY = [
 const SITE_HEADER_POPULATE_QUERY = [
   "populate[lightLogo]=true",
   "populate[darkLogo]=true",
-  "populate[top][populate][items][populate][children]=true",
-  "populate[top][populate][items][populate][image]=true",
-  "populate[top][populate][items][populate][socialLinks][populate][links][populate][icon]=true",
-  "populate[middle][populate][items][populate][children]=true",
-  "populate[middle][populate][items][populate][image]=true",
-  "populate[middle][populate][items][populate][socialLinks][populate][links][populate][icon]=true",
-  "populate[bottom][populate][items][populate][children]=true",
-  "populate[bottom][populate][items][populate][image]=true",
-  "populate[bottom][populate][items][populate][socialLinks][populate][links][populate][icon]=true",
-  "populate[mobile][populate][items][populate][children]=true",
-  "populate[mobile][populate][items][populate][image]=true",
-  "populate[mobile][populate][items][populate][socialLinks][populate][links][populate][icon]=true",
-  "populate[mobileMenuSections][populate][links]=true",
+  "populate[menuLinks]=true",
 ].join("&");
 
 type StrapiMediaFormat = {
@@ -362,33 +350,10 @@ export type HeaderGroup = {
 };
 
 export type SiteHeaderSettings = {
-  backgroundColor?: string | null;
-  textColor?: string | null;
-  borderColor?: string | null;
-  topBackgroundColor?: string | null;
-  topPinned?: boolean | null;
-  topOpacity?: number | null;
-  topHeight?: number | null;
-  middleBackgroundColor?: string | null;
-  middlePinned?: boolean | null;
-  middleOpacity?: number | null;
-  middleHeight?: number | null;
-  bottomBackgroundColor?: string | null;
-  bottomPinned?: boolean | null;
-  bottomOpacity?: number | null;
-  bottomHeight?: number | null;
-  mobileBackgroundColor?: string | null;
-  mobileTextColor?: string | null;
-  mobileBorderColor?: string | null;
-  mobileOpacity?: number | null;
-  mobileHeight?: number | null;
   lightLogo?: StrapiMedia | null;
   darkLogo?: StrapiMedia | null;
-  top?: HeaderGroup[] | null;
-  middle?: HeaderGroup[] | null;
-  bottom?: HeaderGroup[] | null;
-  mobile?: HeaderGroup[] | null;
-  mobileMenuSections?: NavigationSection[] | null;
+  sticky?: boolean | null;
+  menuLinks?: NavigationLink[] | null;
 };
 
 export type SiteFooterSettings = {
@@ -1861,11 +1826,7 @@ export const getSiteHeader = cache(async function getSiteHeader() {
     ...response.data,
     lightLogo: normalizeMediaAsset(response.data.lightLogo),
     darkLogo: normalizeMediaAsset(response.data.darkLogo),
-    top: normalizeHeaderGroupsWithMedia(response.data.top),
-    middle: normalizeHeaderGroupsWithMedia(response.data.middle),
-    bottom: normalizeHeaderGroupsWithMedia(response.data.bottom),
-    mobile: normalizeHeaderGroupsWithMedia(response.data.mobile),
-    mobileMenuSections: normalizeNavigationSections(response.data.mobileMenuSections),
+    menuLinks: (response.data.menuLinks ?? []).filter((item): item is NavigationLink => Boolean(item?.label?.trim() && item?.href?.trim())) ?? null,
   };
 });
 

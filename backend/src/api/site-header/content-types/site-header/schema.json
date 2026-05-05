@@ -5,115 +5,13 @@
     "singularName": "site-header",
     "pluralName": "site-headers",
     "displayName": "Хедер",
-    "description": "Редактор хедера: верхний, средний и нижний ряды"
+    "description": "Упрощенные настройки хедера"
   },
   "options": {
     "draftAndPublish": false
   },
   "pluginOptions": {},
   "attributes": {
-    "backgroundColor": {
-      "displayName": "Цвет фона хедера",
-      "description": "Общий цвет фона хедера для светлой и темной темы.",
-      "type": "customField",
-      "customField": "global::color"
-    },
-    "textColor": {
-      "displayName": "Основной цвет текста",
-      "description": "Общий цвет для текста и подписей в хедере.",
-      "type": "customField",
-      "customField": "global::color"
-    },
-    "borderColor": {
-      "displayName": "Цвет границ",
-      "description": "Общий цвет границ и разделителей хедера.",
-      "type": "customField",
-      "customField": "global::color"
-    },
-    "topBackgroundColor": {
-      "displayName": "Фон верхнего ряда",
-      "description": "Отдельный фон для верхнего ряда хедера.",
-      "type": "customField",
-      "customField": "global::color"
-    },
-    "topPinned": {
-      "displayName": "Закрепить верхний ряд",
-      "description": "Оставлять верхний ряд хедера закрепленным при прокрутке.",
-      "type": "boolean",
-      "default": false
-    },
-    "topOpacity": {
-      "displayName": "Прозрачность верхнего ряда",
-      "description": "Прозрачность фона верхнего ряда в процентах.",
-      "type": "integer",
-      "default": 100,
-      "min": 0,
-      "max": 100
-    },
-    "topHeight": {
-      "displayName": "Высота верхнего ряда",
-      "description": "Минимальная высота верхнего ряда хедера в пикселях.",
-      "type": "integer",
-      "default": 64,
-      "min": 40,
-      "max": 220
-    },
-    "middleBackgroundColor": {
-      "displayName": "Фон среднего ряда",
-      "description": "Отдельный фон для среднего ряда хедера.",
-      "type": "customField",
-      "customField": "global::color"
-    },
-    "middlePinned": {
-      "displayName": "Закрепить средний ряд",
-      "description": "Оставлять средний ряд хедера закрепленным при прокрутке.",
-      "type": "boolean",
-      "default": true
-    },
-    "middleOpacity": {
-      "displayName": "Прозрачность среднего ряда",
-      "description": "Прозрачность фона среднего ряда в процентах.",
-      "type": "integer",
-      "default": 100,
-      "min": 0,
-      "max": 100
-    },
-    "middleHeight": {
-      "displayName": "Высота среднего ряда",
-      "description": "Минимальная высота среднего ряда хедера в пикселях.",
-      "type": "integer",
-      "default": 76,
-      "min": 40,
-      "max": 220
-    },
-    "bottomBackgroundColor": {
-      "displayName": "Фон нижнего ряда",
-      "description": "Отдельный фон для нижнего ряда хедера.",
-      "type": "customField",
-      "customField": "global::color"
-    },
-    "bottomPinned": {
-      "displayName": "Закрепить нижний ряд",
-      "description": "Оставлять нижний ряд хедера закрепленным при прокрутке.",
-      "type": "boolean",
-      "default": false
-    },
-    "bottomOpacity": {
-      "displayName": "Прозрачность нижнего ряда",
-      "description": "Прозрачность фона нижнего ряда в процентах.",
-      "type": "integer",
-      "default": 100,
-      "min": 0,
-      "max": 100
-    },
-    "bottomHeight": {
-      "displayName": "Высота нижнего ряда",
-      "description": "Минимальная высота нижнего ряда хедера в пикселях.",
-      "type": "integer",
-      "default": 64,
-      "min": 40,
-      "max": 220
-    },
     "lightLogo": {
       "displayName": "Логотип для светлой темы",
       "description": "Логотип, который показывается в хедере для светлой темы.",
@@ -134,74 +32,18 @@
         "images"
       ]
     },
-    "top": {
-      "displayName": "Верхний ряд",
-      "description": "Верхний ряд хедера со служебными ссылками, которые можно включать и группировать.",
+    "sticky": {
+      "displayName": "Закрепить хедер",
+      "description": "Если включено, хедер фиксируется сверху при прокрутке.",
+      "type": "boolean",
+      "default": true
+    },
+    "menuLinks": {
+      "displayName": "Меню (ссылки)",
+      "description": "Плоский список ссылок для нижнего ряда хедера.",
       "type": "component",
       "repeatable": true,
-      "component": "header.link-group"
-    },
-    "middle": {
-      "displayName": "Средняя навигация",
-      "description": "Основной ряд навигации, который можно включать и группировать.",
-      "type": "component",
-      "repeatable": true,
-      "component": "header.link-group"
-    },
-    "bottom": {
-      "displayName": "Нижний ряд с группами",
-      "description": "Нижний ряд хедера с группами ссылок для разделов и дополнительной навигации.",
-      "type": "component",
-      "repeatable": true,
-      "component": "header.link-group"
-    },
-    "mobileBackgroundColor": {
-      "displayName": "Фон мобильного хедера",
-      "description": "Фон оболочки мобильного хедера и панели меню.",
-      "type": "customField",
-      "customField": "global::color"
-    },
-    "mobileTextColor": {
-      "displayName": "Цвет текста мобильного хедера",
-      "description": "Основной цвет текста мобильного хедера.",
-      "type": "customField",
-      "customField": "global::color"
-    },
-    "mobileBorderColor": {
-      "displayName": "Цвет границ мобильного хедера",
-      "description": "Цвет границ мобильного хедера и панели меню.",
-      "type": "customField",
-      "customField": "global::color"
-    },
-    "mobileOpacity": {
-      "displayName": "Прозрачность мобильного хедера",
-      "description": "Прозрачность фона мобильного хедера в процентах.",
-      "type": "integer",
-      "default": 100,
-      "min": 0,
-      "max": 100
-    },
-    "mobileHeight": {
-      "displayName": "Высота мобильного хедера",
-      "description": "Минимальная высота мобильного хедера в пикселях.",
-      "type": "integer",
-      "default": 64,
-      "min": 40,
-      "max": 220
-    },
-    "mobile": {
-      "displayName": "Мобильный хедер (верхняя панель)",
-      "description": "Элементы верхней мобильной панели: логотип, кнопка menu toggle, поиск и другие системные кнопки. Основная структура раскрывающегося мобильного меню теперь берется из обычных групп и ссылок хедера, а поле ниже нужно только как запасной вариант, если desktop-навигация не подходит.",
-      "type": "component",
-      "repeatable": true,
-      "component": "header.link-group"
-    },
-    "mobileMenuSections": {
-      "displayName": "Разделы мобильного меню",
-      "description": "Запасной источник данных для раскрывающегося мобильного меню. Используйте его только если мобильное меню нельзя естественно собрать из обычных групп и ссылок хедера с подпунктами.",
-      "type": "component",
-      "repeatable": true,
-      "component": "shared.navigation-section"
+      "component": "shared.navigation-link"
     }
   }
 }

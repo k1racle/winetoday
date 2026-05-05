@@ -14,7 +14,7 @@ import { PreviewBanner } from "@/components/preview-banner";
 import { SocialLinks } from "@/components/social-links";
 import { SiteHeader } from "@/components/site-header";
 import { TagCloud } from "@/components/tag-cloud";
-import { buildSeoMetadata, getGlobalSettings, getSiteFooter, getSiteHeader, getSiteSeo, getTagCloud, type FooterItem, type HeaderGroup, withLoggedFallback } from "@/lib/strapi";
+import { buildSeoMetadata, getGlobalSettings, getSiteFooter, getSiteHeader, getSiteSeo, getTagCloud, type FooterItem, withLoggedFallback } from "@/lib/strapi";
 
 import "./globals.css";
 
@@ -78,16 +78,6 @@ const fallbackNavigationItems = [
   { href: "/news", label: "Новости" },
   { href: "/videos", label: "Видео" },
 ];
-
-function flattenHeaderGroups(groups?: HeaderGroup[] | null) {
-  return (groups ?? [])
-    .filter((group) => group.enabled !== false)
-    .flatMap((group) =>
-      (group.items ?? [])
-        .filter((item) => item.enabled !== false && (item.kind === "link" || item.kind === "account") && item.href && item.label)
-        .map((item) => ({ href: item.href as string, label: item.label as string })),
-    );
-}
 
 function FooterContactIcon({ kind }: { kind: "phone" | "email" | "address" }) {
   if (kind === "phone") {
@@ -194,19 +184,16 @@ export default async function RootLayout({
     withLoggedFallback("layout tag cloud", () => getTagCloud(), []),
   ]);
 
-  const bottomNavigationItems = flattenHeaderGroups(headerSettings?.bottom);
-  const middleNavigationItems = flattenHeaderGroups(headerSettings?.middle);
-  const navigationItems = bottomNavigationItems.length
-    ? bottomNavigationItems
-    : middleNavigationItems.length
-      ? middleNavigationItems
-      : fallbackNavigationItems;
+  const navigationItems = headerSettings?.menuLinks?.length
+    ? headerSettings.menuLinks
+        .filter((item) => Boolean(item?.label?.trim() && item?.href?.trim()))
+        .map((item) => ({ href: item.href as string, label: item.label as string }))
+    : fallbackNavigationItems;
   const hasHeaderContent = Boolean(
     headerSettings?.lightLogo ||
       headerSettings?.darkLogo ||
-      (headerSettings?.top?.length ?? 0) ||
-      (headerSettings?.middle?.length ?? 0) ||
-      (headerSettings?.bottom?.length ?? 0),
+      (headerSettings?.menuLinks?.length ?? 0) ||
+      (navigationItems.length ?? 0),
   );
 
   const footerColumns = [
@@ -400,37 +387,12 @@ export default async function RootLayout({
           <div className="flex min-h-full flex-col bg-white dark:bg-[#081623]">
             {isPreview ? <PreviewBanner exitHref="/" /> : null}
             <SiteHeader
-              navigationItems={navigationItems}
-              backgroundColor={headerSettings?.backgroundColor ?? null}
-              textColor={headerSettings?.textColor ?? null}
-              borderColor={headerSettings?.borderColor ?? null}
-              topBackgroundColor={headerSettings?.topBackgroundColor ?? null}
-              topPinned={headerSettings?.topPinned ?? false}
-              topOpacity={headerSettings?.topOpacity ?? 100}
-              topHeight={headerSettings?.topHeight ?? 64}
-              middleBackgroundColor={headerSettings?.middleBackgroundColor ?? null}
-              middlePinned={headerSettings?.middlePinned ?? true}
-              middleOpacity={headerSettings?.middleOpacity ?? 100}
-              middleHeight={headerSettings?.middleHeight ?? 76}
-              bottomBackgroundColor={headerSettings?.bottomBackgroundColor ?? null}
-              bottomPinned={headerSettings?.bottomPinned ?? false}
-              bottomOpacity={headerSettings?.bottomOpacity ?? 100}
-              bottomHeight={headerSettings?.bottomHeight ?? 64}
-              mobileBackgroundColor={headerSettings?.mobileBackgroundColor ?? headerSettings?.middleBackgroundColor ?? headerSettings?.backgroundColor ?? null}
-              mobileTextColor={headerSettings?.mobileTextColor ?? headerSettings?.textColor ?? null}
-              mobileBorderColor={headerSettings?.mobileBorderColor ?? headerSettings?.borderColor ?? null}
-              mobileOpacity={headerSettings?.mobileOpacity ?? 100}
-              mobileHeight={headerSettings?.mobileHeight ?? 64}
               lightLogo={headerSettings?.lightLogo ?? null}
               darkLogo={headerSettings?.darkLogo ?? null}
               siteName={settings?.siteName ?? "Виноделие сегодня"}
-              tickerText={settings?.tickerText ?? null}
-              socialLinks={settings?.socialLinks ?? null}
-              top={headerSettings?.top ?? []}
-              middle={headerSettings?.middle ?? []}
-              bottom={headerSettings?.bottom ?? []}
-              mobile={headerSettings?.mobile ?? []}
-              mobileMenuSections={headerSettings?.mobileMenuSections ?? []}
+              sticky={headerSettings?.sticky ?? true}
+              menuLinks={headerSettings?.menuLinks ?? []}
+              navigationItems={navigationItems}
             />
 
           <main className="flex-1 pb-3 md:pb-0">{children}</main>
