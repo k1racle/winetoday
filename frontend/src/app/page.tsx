@@ -210,19 +210,33 @@ function renderAdaptiveInfographicCard(card: InfographicCard | undefined, key: s
 
   const href = card.href?.trim();
   const isDark = card.theme === "dark";
-  const className = `block overflow-hidden border transition-transform hover:-translate-y-0.5 ${infographicThemeClass(card.theme)}`;
+  const hasBackgroundMedia = Boolean(card.backgroundImage?.url || card.backgroundVideo?.url);
+  const className = `relative block overflow-hidden border transition-transform hover:-translate-y-0.5 ${
+    hasBackgroundMedia
+      ? isDark
+        ? "bg-transparent text-white"
+        : "bg-transparent text-[#0d3132]"
+      : infographicThemeClass(card.theme)
+  }`;
   const content = (
-    <div className="grid min-w-0 grid-cols-[72px_minmax(0,1fr)] items-start gap-4 px-4 py-4 sm:px-5 sm:py-5">
-      <div className="flex min-h-[72px] items-center justify-center">
-        {renderInfographicCornerIcon(card, "h-[72px] w-[72px] object-contain")}
+    <>
+      {renderBackgroundMedia({
+        imageUrl: card.backgroundImage?.url,
+        videoUrl: card.backgroundVideo?.url,
+        overlayClassName: hasBackgroundMedia ? "absolute inset-0 bg-black/12" : undefined,
+      })}
+      <div className="relative z-10 grid min-w-0 grid-cols-[72px_minmax(0,1fr)] items-start gap-4 px-4 py-4 sm:px-5 sm:py-5">
+        <div className="flex min-h-[72px] items-center justify-center">
+          {renderInfographicCornerIcon(card, "h-[72px] w-[72px] object-contain")}
+        </div>
+        <div className={isDark ? "text-white" : "text-[#0d3132]"}>
+          {renderInfographicCardText(card, {
+            titleClassName: "text-[15px] leading-5",
+            textClassName: isDark ? "text-white/80" : "text-[#0d3132]/80",
+          })}
+        </div>
       </div>
-      <div className={isDark ? "text-white" : "text-[#0d3132]"}>
-        {renderInfographicCardText(card, {
-          titleClassName: "text-[15px] leading-5",
-          textClassName: isDark ? "text-white/80" : "text-[#0d3132]/80",
-        })}
-      </div>
-    </div>
+    </>
   );
 
   return href ? (
@@ -281,7 +295,7 @@ function renderInfographicCard(
         imageUrl: card.backgroundImage?.url,
         videoUrl: card.backgroundVideo?.url,
       })}
-      <div className="pointer-events-none absolute right-4 top-4 z-10 flex justify-end">
+      <div className="pointer-events-none absolute left-4 top-4 z-10 flex justify-start">
         {renderInfographicCornerIcon(card, "h-14 w-14 object-contain xl:h-16 xl:w-16")}
       </div>
       <div
