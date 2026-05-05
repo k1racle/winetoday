@@ -102,7 +102,7 @@ export function ThemeToggle({ colors, compact = false, inheritRowTheme = false }
     ? colors?.activeBackgroundColor ?? colors?.backgroundColor
     : colors?.backgroundColor;
   const className = compact
-    ? "inline-flex h-11 w-11 shrink-0 items-center justify-center border border-black/8 bg-white shadow-sm transition-colors hover:border-emerald-900/12 hover:bg-emerald-50 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-emerald-950/35"
+    ? "inline-flex h-11 w-11 shrink-0 items-center justify-center border-0 bg-transparent shadow-none transition-colors hover:bg-black/5 dark:hover:bg-white/10"
     : inheritRowTheme
       ? "inline-flex h-11 w-11 items-center justify-center border border-current/15 bg-transparent text-inherit shadow-sm transition-colors hover:bg-white/10 hover:text-inherit"
       : "inline-flex h-11 w-11 items-center justify-center border border-black/8 bg-white shadow-sm transition-colors hover:border-emerald-900/12 hover:bg-emerald-50 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-emerald-950/35";

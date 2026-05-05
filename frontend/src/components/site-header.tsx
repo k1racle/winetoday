@@ -100,8 +100,8 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
   useEffect(() => {
     // чтобы у страниц с sticky сайдбаром оставался корректный отступ
     const root = document.documentElement;
-    root.style.setProperty("--site-header-offset", sticky ? "128px" : "0px");
-    root.style.setProperty("--site-header-offset-with-gap", sticky ? "calc(128px + 1.5rem)" : "7rem");
+    root.style.setProperty("--site-header-offset", sticky ? "136px" : "0px");
+    root.style.setProperty("--site-header-offset-with-gap", sticky ? "calc(136px + 1.5rem)" : "7rem");
     return () => {
       root.style.removeProperty("--site-header-offset");
       root.style.removeProperty("--site-header-offset-with-gap");
@@ -135,10 +135,10 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
 
   return (
     <header className={containerClass}>
-      <div className="border-b border-black/10 bg-[color:var(--background)] dark:border-white/10">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+      <div className="border-b border-black/10 bg-white dark:border-white/10 dark:bg-[#081623]">
+        <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           {/* Desktop top row */}
-          <div className="hidden h-16 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:grid">
+          <div className="hidden h-20 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:grid">
             <form onSubmit={submitSearch} className="flex items-center gap-3">
               <button type="submit" aria-label="Поиск" className="text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white">
                 <SearchIcon />
@@ -172,13 +172,16 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
             </div>
 
             <div className="flex items-center justify-end gap-3">
-              <AuthWidget label="Войти" />
+              <AuthWidget
+                label="Войти"
+                buttonClassName="type-button inline-flex items-center justify-center rounded-full bg-transparent px-4 py-2 text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-white/10 dark:hover:text-white"
+              />
               <ThemeToggle compact />
             </div>
           </div>
 
           {/* Desktop bottom row */}
-          <nav className="hidden h-12 items-center justify-center gap-10 xl:flex">
+          <nav className="hidden h-14 items-center justify-center gap-10 xl:flex">
             {resolvedMenu.map((item) => (
               <Link
                 key={`${item.href}-${item.label}`}
@@ -201,7 +204,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
             <button
               type="button"
               aria-label={drawerOpen ? "Закрыть меню" : "Открыть меню"}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
               onClick={() => setDrawerOpen((v) => !v)}
             >
               {drawerOpen ? <CloseIcon /> : <HamburgerIcon />}
@@ -227,7 +230,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
                     <button
                       type="button"
                       aria-label="Поиск"
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
                       onClick={() => {
                         const input = document.getElementById("mobile-header-search") as HTMLInputElement | null;
                         input?.focus();
@@ -235,13 +238,17 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
                     >
                       <SearchIcon />
                     </button>
-                    <AuthWidget label="Войти" compact />
+                    <AuthWidget
+                      label="Войти"
+                      compact
+                      buttonClassName="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
+                    />
                     <ThemeToggle compact />
                   </div>
                   <button
                     type="button"
                     aria-label="Закрыть"
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
                     onClick={() => setDrawerOpen(false)}
                   >
                     <CloseIcon />
@@ -258,7 +265,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
                   />
                   <button
                     type="submit"
-                    className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-black/10 bg-white text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100"
+                    className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
                     aria-label="Искать"
                   >
                     <SearchIcon />
@@ -284,4 +291,3 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
     </header>
   );
 }
-
