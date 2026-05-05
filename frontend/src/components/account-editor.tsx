@@ -1455,12 +1455,12 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       }
 
       if (activeMediaPanel.kind === "infographic-image") {
-        updateInfographicCard(activeMediaPanel.cardIndex, { ...card, backgroundImage: id });
+        updateInfographicCard(activeMediaPanel.cardIndex, { ...card, backgroundImage: id, backgroundVideo: null });
         return;
       }
 
       if (activeMediaPanel.kind === "infographic-video") {
-        updateInfographicCard(activeMediaPanel.cardIndex, { ...card, backgroundVideo: id });
+        updateInfographicCard(activeMediaPanel.cardIndex, { ...card, backgroundImage: null, backgroundVideo: id });
       }
     }
   }
@@ -1534,10 +1534,10 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       }
 
       updateInfographicCard(cardIndex, kind === "infographic-image"
-        ? { ...card, backgroundImage: id }
+        ? { ...card, backgroundImage: id, backgroundVideo: null }
         : kind === "infographic-corner-icon"
           ? { ...card, cornerIcon: id }
-          : { ...card, backgroundVideo: id });
+          : { ...card, backgroundImage: null, backgroundVideo: id });
 
       const mediaPayload = await refreshMediaAssets();
       if (mediaPayload) {
