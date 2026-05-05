@@ -196,9 +196,21 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, sticky = true, menuL
           {/* Mobile/tablet row */}
           <div className="flex h-16 items-center justify-between xl:hidden">
             <Link href="/" className="min-w-0 pr-4">
-              <span className="line-clamp-1 text-[16px] font-semibold tracking-[0.06em] text-[#0b3b27] dark:text-emerald-200">
-                {siteName || "ВИНОДЕЛИЕ СЕГОДНЯ"}
-              </span>
+              {logo?.url ? (
+                <Image
+                  src={logo.url}
+                  alt={logo.alternativeText ?? siteName}
+                  width={360}
+                  height={120}
+                  sizes="(max-width: 1279px) 220px, 220px"
+                  className="h-8 w-auto max-w-[220px] object-contain"
+                  priority
+                />
+              ) : (
+                <span className="line-clamp-1 text-[16px] font-semibold tracking-[0.06em] text-[#0b3b27] dark:text-emerald-200">
+                  {siteName || "ВИНОДЕЛИЕ СЕГОДНЯ"}
+                </span>
+              )}
             </Link>
 
             <button
