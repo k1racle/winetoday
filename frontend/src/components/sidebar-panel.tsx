@@ -24,6 +24,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
   // Поэтому задаём общий горизонтальный padding на уровне панели и не дублируем его на вложенных элементах.
   const panelPaddingX = "px-[15px]";
   const itemClassName = "block min-w-0 border-b border-black/10 px-0 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
+  const wordWrapClassName = "whitespace-normal break-words [overflow-wrap:break-word]";
 
   // Если sidebar не задан, просто ничего не показываем.
   if (!sidebar) {
@@ -73,7 +74,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                       className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                     >
                       <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
-                        <span className="min-w-0 break-words">{item.label}</span>
+                        <span className={`min-w-0 ${wordWrapClassName}`}>{item.label}</span>
                       </div>
                       {item.description ? (
                         <span className="type-small mt-2 block text-zinc-600 dark:text-zinc-400">{item.description}</span>
@@ -100,7 +101,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                 className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
               >
                 <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
-                  <span className="min-w-0 break-words">{item.label}</span>
+                  <span className={`min-w-0 ${wordWrapClassName}`}>{item.label}</span>
                 </div>
                 {item.description ? (
                   <span className="type-small mt-2 block text-zinc-600 dark:text-zinc-400">{item.description}</span>
@@ -151,7 +152,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                             {item.meta}
                           </span>
                         ) : null}
-                        <span className="min-w-0 break-words">{item.label}</span>
+                        <span className={`min-w-0 ${wordWrapClassName}`}>{item.label}</span>
                       </div>
                     </Link>
                   ))}

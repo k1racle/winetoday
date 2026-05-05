@@ -43,11 +43,11 @@ export function TagCloud({ tags, title, className, compact = false }: TagCloudPr
             <Link
               key={tag.slug}
               href={`/tags/${tag.slug}`}
-              className={`inline-flex items-center border border-black/10 px-3 py-1.5 text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-800 dark:border-white/10 dark:text-zinc-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300 ${weightClass(weight)}`}
+              className={`inline-flex max-w-full items-center border border-black/10 px-3 py-1.5 text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-800 dark:border-white/10 dark:text-zinc-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300 ${weightClass(weight)}`}
               title={`${tag.name} (${tag.count})`}
             >
-              <span>{tag.name}</span>
-              <span className="type-caption ml-2 opacity-60">{tag.count}</span>
+              <span className="min-w-0 break-words [overflow-wrap:break-word]">{tag.name}</span>
+              <span className="type-caption ml-2 shrink-0 opacity-60">{tag.count}</span>
             </Link>
           );
         })}
