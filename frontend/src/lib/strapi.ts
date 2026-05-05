@@ -104,11 +104,17 @@ const SITE_HEADER_POPULATE_QUERY = [
 
 type StrapiMediaFormat = {
   url: string;
+  width?: number | null;
+  height?: number | null;
+  mime?: string | null;
 };
 
 type StrapiMedia = {
   url: string;
   alternativeText?: string | null;
+  width?: number | null;
+  height?: number | null;
+  mime?: string | null;
   formats?: {
     large?: StrapiMediaFormat;
     medium?: StrapiMediaFormat;
@@ -1194,32 +1200,44 @@ function normalizeMediaAsset(asset?: StrapiMedia | null) {
     formats: asset.formats
       ? {
           large: asset.formats.large
-            ? { url: normalizeUrl(asset.formats.large.url) ?? asset.formats.large.url }
+            ? {
+                ...asset.formats.large,
+                url: normalizeUrl(asset.formats.large.url) ?? asset.formats.large.url,
+              }
             : undefined,
           medium: asset.formats.medium
-            ? { url: normalizeUrl(asset.formats.medium.url) ?? asset.formats.medium.url }
+            ? {
+                ...asset.formats.medium,
+                url: normalizeUrl(asset.formats.medium.url) ?? asset.formats.medium.url,
+              }
             : undefined,
           small: asset.formats.small
-            ? { url: normalizeUrl(asset.formats.small.url) ?? asset.formats.small.url }
+            ? {
+                ...asset.formats.small,
+                url: normalizeUrl(asset.formats.small.url) ?? asset.formats.small.url,
+              }
             : undefined,
           thumbnail: asset.formats.thumbnail
-            ? { url: normalizeUrl(asset.formats.thumbnail.url) ?? asset.formats.thumbnail.url }
+            ? {
+                ...asset.formats.thumbnail,
+                url: normalizeUrl(asset.formats.thumbnail.url) ?? asset.formats.thumbnail.url,
+              }
             : undefined,
         }
       : null,
   };
 }
 
-function getPreferredSeoImageUrl(asset?: StrapiMedia | null) {
+function getPreferredSeoImage(asset?: StrapiMedia | null) {
   if (!asset) {
     return undefined;
   }
 
-  return asset.formats?.large?.url
-    ?? asset.formats?.medium?.url
-    ?? asset.formats?.small?.url
-    ?? asset.formats?.thumbnail?.url
-    ?? asset.url;
+  return asset.formats?.medium
+    ?? asset.formats?.large
+    ?? asset.formats?.small
+    ?? asset.formats?.thumbnail
+    ?? asset;
 }
 
 function normalizeHomepageInfographicCards(cards?: HomepageEntry["infographicCards"] | null) {
@@ -1562,10 +1580,11 @@ export function buildSeoMetadata({
   const finalTitle = mergedSeo.metaTitle || title;
   const finalDescription = mergedSeo.metaDescription || description;
   const canonical = mergedSeo.canonicalUrl ? toAbsoluteSiteUrl(mergedSeo.canonicalUrl, siteOrigin) : path ? new URL(path, siteOrigin).toString() : undefined;
-  const absoluteImage = toAbsoluteMetadataUrl(getPreferredSeoImageUrl(mergedSeo.metaImage), siteOrigin)
-    ?? toAbsoluteMetadataUrl(typeof image === "string" ? image : getPreferredSeoImageUrl(image), siteOrigin)
-    ?? toAbsoluteMetadataUrl(getPreferredSeoImageUrl(siteSeo?.openGraphImage), siteOrigin)
-    ?? toAbsoluteMetadataUrl(getPreferredSeoImageUrl(siteSeo?.twitterImage), siteOrigin);
+  const selectedImage = getPreferredSeoImage(mergedSeo.metaImage)
+    ?? (typeof image === "string" ? { url: image } : getPreferredSeoImage(image))
+    ?? getPreferredSeoImage(siteSeo?.openGraphImage)
+    ?? getPreferredSeoImage(siteSeo?.twitterImage);
+  const absoluteImage = toAbsoluteMetadataUrl(selectedImage?.url, siteOrigin);
 
   return {
     metadataBase: new URL(siteOrigin),
@@ -1591,7 +1610,16 @@ export function buildSeoMetadata({
       siteName: "Виноделие сегодня",
       locale: "ru_RU",
       type: "article",
-      images: absoluteImage ? [{ url: absoluteImage }] : undefined,
+      images: absoluteImage
+        ? [
+            {
+              url: absoluteImage,
+              width: selectedImage?.width ?? undefined,
+              height: selectedImage?.height ?? undefined,
+              type: selectedImage?.mime ?? undefined,
+            },
+          ]
+        : undefined,
     },
     twitter: {
       card: absoluteImage ? "summary_large_image" : "summary",
