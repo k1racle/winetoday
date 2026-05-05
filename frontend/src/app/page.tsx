@@ -491,7 +491,7 @@ export default async function Home() {
               <section className="space-y-6 border border-black/8 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,247,0.98))] p-5 shadow-[0_24px_80px_-40px_rgba(6,78,59,0.38)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,_rgba(52,211,153,0.16),_transparent_32%),linear-gradient(180deg,rgba(8,22,35,0.96),rgba(7,18,29,0.98))] sm:p-6 xl:p-8">
                 <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
                   <div className="space-y-6">
-                    <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] lg:items-stretch">
+                    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] xl:items-stretch">
                       {specialLead ? (
                         <article className="group relative aspect-square overflow-hidden border border-emerald-950/10 bg-black shadow-[0_20px_60px_-36px_rgba(6,78,59,0.45)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 lg:h-full lg:aspect-auto">
                           <div className="absolute inset-0 overflow-hidden">
@@ -522,7 +522,7 @@ export default async function Home() {
                         </article>
                       ) : null}
 
-                      <div className="grid gap-4 lg:h-full lg:grid-rows-2">
+                      <div className="grid gap-4 xl:h-full xl:grid-rows-2">
                         {specialSecondary.map((item) => (
                           <article key={item.documentId} className="flex h-full flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]">
                             <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
@@ -571,11 +571,11 @@ export default async function Home() {
 
         {homepage?.blocks?.length ? (
           <section className="border border-black/8 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,247,0.98))] p-5 shadow-[0_24px_80px_-40px_rgba(6,78,59,0.38)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,_rgba(52,211,153,0.16),_transparent_32%),linear-gradient(180deg,rgba(8,22,35,0.96),rgba(7,18,29,0.98))] sm:p-6 xl:p-8">
-            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+            <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
               <div className="min-w-0">
                 <RichContent blocks={homepage.blocks} />
               </div>
-              <div className="hidden min-w-0 shrink-0 justify-self-end overflow-hidden lg:sticky lg:col-start-2 lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+              <div className="hidden min-w-0 shrink-0 justify-self-end overflow-hidden xl:sticky xl:col-start-2 xl:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
                 <SidebarPanel sidebar={regularSidebar} />
               </div>
             </div>

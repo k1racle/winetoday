@@ -65,7 +65,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
 
   return (
     <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />
           <MaterialEditButton type="video" documentId={video.documentId} authorSlug={video.author?.slug} />
@@ -98,12 +98,12 @@ export default async function VideoDetailPage({ params }: PageProps) {
               sharePath={`/videos/${video.slug}`}
             />
           </footer>
-          <div className="lg:hidden">
+          <div className="xl:hidden">
             <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} stacked mobile />
           </div>
         </article>
 
-        <div className="hidden min-w-0 shrink-0 justify-self-end overflow-hidden lg:sticky lg:col-start-2 lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+        <div className="hidden min-w-0 shrink-0 justify-self-end overflow-hidden xl:sticky xl:col-start-2 xl:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
           <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} />
         </div>
       </div>

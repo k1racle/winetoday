@@ -87,7 +87,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
       <Script id="article-jsonld" type="application/ld+json">
         {JSON.stringify(articleJsonLd)}
       </Script>
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="space-y-4">
@@ -120,12 +120,12 @@ export default async function ArticleDetailPage({ params }: PageProps) {
               sharePath={`/articles/${article.slug}`}
             />
           </footer>
-          <div className="lg:hidden">
+          <div className="xl:hidden">
             <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} stacked mobile />
           </div>
         </article>
 
-        <div className="hidden min-w-0 shrink-0 justify-self-end overflow-hidden lg:sticky lg:col-start-2 lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+        <div className="hidden min-w-0 shrink-0 justify-self-end overflow-hidden xl:sticky xl:col-start-2 xl:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
           <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} />
         </div>
       </div>
