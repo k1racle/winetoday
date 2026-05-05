@@ -5,11 +5,12 @@ import type { SidebarEntry } from "@/lib/strapi";
 import type { SidebarArchiveBlock } from "@/lib/strapi";
 import type { TagCloudItem } from "@/lib/strapi";
 import { SocialLinks } from "@/components/social-links";
-import { TagCloud } from "@/components/tag-cloud";
 
 type SidebarPanelProps = {
   sidebar?: SidebarEntry | null;
   mobile?: boolean;
+  // Оставляем проп, чтобы не ломать существующие вызовы.
+  // Внутри сайдбара облако тегов отключено (см. обработку блоков ниже).
   tagCloud?: TagCloudItem[] | null;
   stacked?: boolean;
 };
@@ -22,12 +23,10 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
       : "border border-black/10 bg-white p-5 text-foreground dark:border-white/10 dark:bg-[#12202d] dark:text-white";
   const itemClassName = "block border-b border-black/10 px-0 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
 
+  // На фронте не должно быть "захардкоженного" облака тегов.
+  // Если sidebar не задан, просто ничего не показываем.
   if (!sidebar) {
-    return tagCloud?.length ? (
-      <aside className={asideClassName}>
-        <TagCloud tags={tagCloud} compact={mobile} />
-      </aside>
-    ) : null;
+    return null;
   }
 
   const hasSections = Boolean(sidebar.sections?.length);
@@ -109,16 +108,9 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
       {hasArchiveBlocks ? (
         <div className="grid gap-4">
           {sidebar.archiveBlocks?.map((block, index) => {
+            // Облако тегов в сайдбаре отключено (даже если блок присутствует в CMS).
             if (block.__component === "sidebar.tag-cloud-block") {
-              return tagCloud?.length ? (
-                <TagCloud
-                  key={`${sidebar.slug}-tag-cloud-${index}`}
-                  tags={tagCloud}
-                  title={block.title || undefined}
-                  compact={mobile}
-                  className="border-t border-black/10 pt-4 first:border-t-0 first:pt-0 dark:border-white/10"
-                />
-              ) : null;
+              return null;
             }
 
             if (!isSidebarArchiveBlock(block)) {

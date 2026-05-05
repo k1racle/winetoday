@@ -177,6 +177,7 @@ async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blo
               meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
             }))}
             pageSize={pageSize}
+            showExcerpt={false}
           />
         </section>
       );
@@ -204,6 +205,7 @@ async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blo
               meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
             }))}
             pageSize={pageSize}
+            showExcerpt={false}
           />
         </section>
       );
@@ -231,6 +233,7 @@ async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blo
               meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
             }))}
             pageSize={pageSize}
+            showExcerpt={false}
           />
         </section>
       );

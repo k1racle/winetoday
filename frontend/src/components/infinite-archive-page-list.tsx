@@ -21,11 +21,12 @@ type InfiniteArchivePageListProps = {
   items: ArchivePageCard[];
   emptyLabel: string;
   pageSize?: number;
+  showExcerpt?: boolean;
 };
 
 const DEFAULT_PAGE_SIZE = 10;
 
-export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize = DEFAULT_PAGE_SIZE }: InfiniteArchivePageListProps) {
+export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize = DEFAULT_PAGE_SIZE, showExcerpt = true }: InfiniteArchivePageListProps) {
   const [visibleCount, setVisibleCount] = useState(pageSize);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const hasMore = visibleCount < items.length;
@@ -86,13 +87,13 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
                 {leadItem.title}
               </Link>
             </h2>
-            {leadItem.excerpt ? <p className="type-body mt-4 leading-[1.4] text-zinc-600 dark:text-zinc-400">{leadItem.excerpt}</p> : null}
+            {showExcerpt && leadItem.excerpt ? <p className="type-body mt-4 leading-[1.4] text-zinc-600 dark:text-zinc-400">{leadItem.excerpt}</p> : null}
           </div>
         </article>
       ) : null}
 
       {visibleItems.length ? (
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visibleItems.map((item) => (
             <article key={item.id} className="group block overflow-hidden border border-black/10 bg-white text-foreground shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-[#12202d] dark:text-white">
               <div className="relative h-52 overflow-hidden">
@@ -114,7 +115,7 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
                       {item.title}
                     </Link>
                   </h2>
-                  {item.excerpt ? <p className="type-body mt-4 leading-[1.4] text-zinc-600 dark:text-zinc-400">{item.excerpt}</p> : null}
+                  {showExcerpt && item.excerpt ? <p className="type-body mt-4 leading-[1.4] text-zinc-600 dark:text-zinc-400">{item.excerpt}</p> : null}
               </div>
             </article>
           ))}

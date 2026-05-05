@@ -24,6 +24,7 @@ import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { ArchiveOverlayMeta } from "@/components/archive-overlay-meta";
 import { HomepageSpecialVideoCarousel } from "@/components/homepage-special-video-carousel";
 import { HomepageNewsSidebar, type HomepageNewsSidebarItem } from "@/components/homepage-news-sidebar";
+import { SidebarPanel } from "@/components/sidebar-panel";
 
 export const revalidate = 120;
 
@@ -512,7 +513,8 @@ export default async function Home() {
                           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
                             <ArchiveOverlayMeta itemId={specialLead.documentId} meta={buildCategoryDateOverlayMeta(specialLead.categories, specialLead.publishedAt, specialLead.publishedAtCustom)} />
                             <h2 className="type-h2 mt-4 text-white"><Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">{specialLead.title}</Link></h2>
-                            {specialLead.excerpt ? <p className="type-body mt-4 hidden max-w-[44ch] leading-[1.4] text-white/85 md:block">{specialLead.excerpt}</p> : null}
+                            {/* На главной в архивных секциях не показываем краткое описание. */}
+                            {null}
                           </div>
                         </article>
                       ) : null}
@@ -562,15 +564,20 @@ export default async function Home() {
             ) : null}
 
           </div>
+        </div>
 
-          {homepage?.blocks?.length ? (
-            <section className="border border-black/8 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,247,0.98))] p-5 shadow-[0_24px_80px_-40px_rgba(6,78,59,0.38)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,_rgba(52,211,153,0.16),_transparent_32%),linear-gradient(180deg,rgba(8,22,35,0.96),rgba(7,18,29,0.98))] sm:p-6 xl:p-8">
+        {homepage?.blocks?.length ? (
+          <section className="border border-black/8 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,247,0.98))] p-5 shadow-[0_24px_80px_-40px_rgba(6,78,59,0.38)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,_rgba(52,211,153,0.16),_transparent_32%),linear-gradient(180deg,rgba(8,22,35,0.96),rgba(7,18,29,0.98))] sm:p-6 xl:p-8">
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
               <div className="min-w-0">
                 <RichContent blocks={homepage.blocks} />
               </div>
-            </section>
-          ) : null}
-        </div>
+              <div className="hidden lg:sticky lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+                <SidebarPanel sidebar={regularSidebar} />
+              </div>
+            </div>
+          </section>
+        ) : null}
 
       </div>
     </main>
