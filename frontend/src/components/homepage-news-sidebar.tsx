@@ -97,7 +97,7 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                     <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
                       {item.publishedLabel}
                     </span>
-                    <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item.title}</span>
+                    <span className="min-w-0 break-words">{item.title}</span>
                   </div>
                 </Link>
               ))}
@@ -124,7 +124,7 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                     <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
                       {item.publishedLabel}
                     </span>
-                    <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item.title}</span>
+                    <span className="min-w-0 break-words">{item.title}</span>
                   </div>
                 </Link>
               ))}

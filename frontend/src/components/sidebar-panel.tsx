@@ -16,11 +16,11 @@ type SidebarPanelProps = {
 
 export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = false }: SidebarPanelProps) {
   const asideClassName = mobile
-    ? "w-full min-w-0 box-border border border-black/10 bg-white p-5 text-foreground overflow-hidden break-words [overflow-wrap:anywhere] dark:border-white/10 dark:bg-[#12202d] dark:text-white"
+    ? "w-full min-w-0 box-border overflow-hidden border border-black/10 bg-white text-foreground dark:border-white/10 dark:bg-[#12202d] dark:text-white"
     : stacked
-      ? "w-full min-w-0 box-border border border-black/10 bg-white p-5 text-foreground overflow-hidden break-words [overflow-wrap:anywhere] dark:border-white/10 dark:bg-[#12202d] dark:text-white"
-      : "w-full min-w-0 box-border border border-black/10 bg-white p-5 text-foreground overflow-hidden break-words [overflow-wrap:anywhere] dark:border-white/10 dark:bg-[#12202d] dark:text-white";
-  const itemClassName = "block w-full min-w-0 border-b border-black/10 px-0 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
+      ? "w-full min-w-0 box-border overflow-hidden border border-black/10 bg-white text-foreground dark:border-white/10 dark:bg-[#12202d] dark:text-white"
+      : "w-full min-w-0 box-border overflow-hidden border border-black/10 bg-white text-foreground dark:border-white/10 dark:bg-[#12202d] dark:text-white";
+  const itemClassName = "block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
 
   // Если sidebar не задан, просто ничего не показываем.
   if (!sidebar) {
@@ -39,13 +39,13 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
   return (
     <aside className={`w-full ${asideClassName}`}>
       {sidebar.title ? (
-        <p className="type-small font-menu text-emerald-700 dark:text-emerald-300">{sidebar.title}</p>
+        <p className="type-small font-menu px-5 pt-4 text-emerald-700 dark:text-emerald-300">{sidebar.title}</p>
       ) : null}
       {sidebar.description ? (
-        <p className={`type-small text-zinc-600 dark:text-zinc-400 ${sidebar.title ? "mt-3" : ""}`}>{sidebar.description}</p>
+        <p className={`type-small px-5 text-zinc-600 dark:text-zinc-400 ${sidebar.title ? "mt-3" : "pt-4"}`}>{sidebar.description}</p>
       ) : null}
       {hasSections ? (
-        <div className="grid gap-4">
+        <div className={`grid gap-4 ${sidebar.title || sidebar.description ? "px-5 pb-4 pt-4" : "p-5"}`}>
           {sidebar.sections?.map((section, sectionIndex) => (
             <section key={`${sidebar.slug}-section-${sectionIndex}`} className="space-y-3">
               {section.title || section.description ? (
@@ -56,7 +56,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                   ) : null}
                 </div>
               ) : null}
-                <div>
+              <div>
                 {(section.links ?? []).map((item) => (
                   item.kind === "account" ? (
                     <div key={`${sidebar.slug}-section-${sectionIndex}-account-${item.label}`} className="border-b border-black/10 py-4 dark:border-white/10">
@@ -70,7 +70,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                       className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                     >
                       <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
-                        <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item.label}</span>
+                        <span className="min-w-0 break-words">{item.label}</span>
                       </div>
                       {item.description ? (
                         <span className="type-small mt-2 block text-zinc-600 dark:text-zinc-400">{item.description}</span>
@@ -78,12 +78,12 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                     </Link>
                   ) : null
                 ))}
-                </div>
+              </div>
             </section>
           ))}
         </div>
       ) : hasLinks ? (
-        <div>
+        <div className={sidebar.title || sidebar.description ? "pt-4" : "pt-0"}>
           {sidebar.links?.map((item) => (
             item.kind === "account" ? (
               <div key={`account-${item.label}`} className="border-b border-black/10 py-4 dark:border-white/10">
@@ -97,7 +97,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                 className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
               >
                 <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
-                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item.label}</span>
+                  <span className="min-w-0 break-words">{item.label}</span>
                 </div>
                 {item.description ? (
                   <span className="type-small mt-2 block text-zinc-600 dark:text-zinc-400">{item.description}</span>
@@ -148,7 +148,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                             {item.meta}
                           </span>
                         ) : null}
-                        <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item.label}</span>
+                        <span className="min-w-0 break-words">{item.label}</span>
                       </div>
                     </Link>
                   ))}
