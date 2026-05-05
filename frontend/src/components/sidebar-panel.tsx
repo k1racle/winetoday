@@ -20,7 +20,10 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
     : stacked
       ? "w-full min-w-0 box-border overflow-hidden border border-black/10 bg-white text-foreground dark:border-white/10 dark:bg-[#12202d] dark:text-white"
       : "w-full min-w-0 box-border overflow-hidden border border-black/10 bg-white text-foreground dark:border-white/10 dark:bg-[#12202d] dark:text-white";
-  const itemClassName = "block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
+  // Десктопный сайдбар: outer 320px, эффективная внутренняя ширина контента 290px => 15px + 15px.
+  // Поэтому задаём общий горизонтальный padding на уровне панели и не дублируем его на вложенных элементах.
+  const panelPaddingX = "px-[15px]";
+  const itemClassName = "block min-w-0 border-b border-black/10 px-0 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
 
   // Если sidebar не задан, просто ничего не показываем.
   if (!sidebar) {
@@ -39,13 +42,13 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
   return (
     <aside className={`w-full box-border ${asideClassName}`}>
       {sidebar.title ? (
-        <p className="type-small font-menu px-5 pt-4 text-emerald-700 dark:text-emerald-300">{sidebar.title}</p>
+        <p className={`type-small font-menu ${panelPaddingX} pt-4 text-emerald-700 dark:text-emerald-300`}>{sidebar.title}</p>
       ) : null}
       {sidebar.description ? (
-        <p className={`type-small px-5 text-zinc-600 dark:text-zinc-400 ${sidebar.title ? "mt-3" : "pt-4"}`}>{sidebar.description}</p>
+        <p className={`type-small ${panelPaddingX} text-zinc-600 dark:text-zinc-400 ${sidebar.title ? "mt-3" : "pt-4"}`}>{sidebar.description}</p>
       ) : null}
       {hasSections ? (
-        <div className={`grid gap-4 ${sidebar.title || sidebar.description ? "px-5 pb-4 pt-4" : "p-5"}`}>
+        <div className={`grid gap-4 ${sidebar.title || sidebar.description ? `${panelPaddingX} pb-4 pt-4` : `${panelPaddingX} py-5`}`}>
           {sidebar.sections?.map((section, sectionIndex) => (
             <section key={`${sidebar.slug}-section-${sectionIndex}`} className="space-y-3">
               {section.title || section.description ? (
@@ -83,7 +86,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
           ))}
         </div>
       ) : hasLinks ? (
-        <div className={sidebar.title || sidebar.description ? "pt-4" : "pt-0"}>
+        <div className={`${panelPaddingX} ${sidebar.title || sidebar.description ? "pt-4" : "pt-0"}`}>
           {sidebar.links?.map((item) => (
             item.kind === "account" ? (
               <div key={`account-${item.label}`} className="border-b border-black/10 py-4 dark:border-white/10">
@@ -108,7 +111,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
         </div>
       ) : null}
       {hasArchiveBlocks ? (
-        <div className="grid gap-4">
+        <div className={`grid gap-4 min-w-0 max-w-full ${panelPaddingX} py-5`}>
           {sidebar.archiveBlocks?.map((block, index) => {
             if (block.__component === "sidebar.tag-cloud-block") {
               return tagCloud?.length ? (
@@ -170,7 +173,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
       {hasSocialLinks ? (
         <SocialLinks
           widget={sidebar.socialLinks}
-          className="mt-5 border-t border-black/10 pt-4 dark:border-white/10"
+          className={`mt-5 border-t border-black/10 pt-4 dark:border-white/10 ${panelPaddingX}`}
           showLabels
           itemClassName="hover:text-emerald-600 dark:hover:text-emerald-300"
           iconClassName="h-10 w-10"

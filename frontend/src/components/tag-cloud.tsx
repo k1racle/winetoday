@@ -29,13 +29,13 @@ export function TagCloud({ tags, title, className, compact = false }: TagCloudPr
   const maxCount = Math.max(...tags.map((tag) => tag.count), 1);
 
   return (
-    <section className={className}>
+    <section className={`min-w-0 max-w-full ${className ?? ""}`.trim()}>
       {title ? (
         <h2 className="type-caption text-emerald-700 dark:text-emerald-400">
           {title}
         </h2>
       ) : null}
-      <div className={`${title ? "mt-4 " : ""}flex flex-wrap gap-2 ${compact ? "gap-y-2" : "gap-y-3"}`}>
+      <div className={`${title ? "mt-4 " : ""}flex min-w-0 max-w-full flex-wrap gap-2 ${compact ? "gap-y-2" : "gap-y-3"}`}>
         {tags.map((tag) => {
           const weight = tag.count / maxCount;
 
