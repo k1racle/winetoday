@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     seo: page.seo,
     siteSeo,
     path: `/${page.slug}`,
-    image: page.seo?.metaImage?.url ?? null,
+    image: page.seo?.metaImage ?? null,
   });
 }
 
@@ -52,7 +52,7 @@ export default async function GenericPage({ params }: PageProps) {
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="space-y-4">
-            <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: page.title }]} />
+            <Breadcrumbs items={[{ label: "Главная", href: "/" }]} />
             <p className="type-caption text-emerald-700 dark:text-emerald-400">
               Страница
             </p>

@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     seo: video.seo,
     siteSeo,
     path: `/videos/${video.slug}`,
-    image: video.cover?.url,
+    image: video.cover,
   });
 }
 
@@ -77,12 +77,11 @@ export default async function VideoDetailPage({ params }: PageProps) {
           ) : null}
 
           <header className="space-y-4">
-            <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Видео", href: "/videos" }, { label: video.title }]} />
+            <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Видео", href: "/videos" }]} />
             <h1 className="type-h1">{video.title}</h1>
-            <ContentTags tags={video.tags} categories={video.categories} className="flex flex-wrap gap-x-3 gap-y-1" />
             <div className="type-caption flex flex-wrap items-center gap-3 text-zinc-500 dark:text-zinc-400">
-              {primaryCategory ? <span>{primaryCategory.name}</span> : null}
               <span>{headerDate}</span>
+              {primaryCategory ? <span>{primaryCategory.name}</span> : null}
               {video.duration ? <span>{video.duration} мин</span> : null}
               {video.author?.name ? <span>{video.author.name}</span> : null}
             </div>

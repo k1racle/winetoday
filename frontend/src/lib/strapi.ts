@@ -110,6 +110,7 @@ type StrapiMedia = {
   url: string;
   alternativeText?: string | null;
   formats?: {
+    large?: StrapiMediaFormat;
     medium?: StrapiMediaFormat;
     small?: StrapiMediaFormat;
     thumbnail?: StrapiMediaFormat;
@@ -1192,6 +1193,9 @@ function normalizeMediaAsset(asset?: StrapiMedia | null) {
     url: normalizeUrl(asset.url) ?? asset.url,
     formats: asset.formats
       ? {
+          large: asset.formats.large
+            ? { url: normalizeUrl(asset.formats.large.url) ?? asset.formats.large.url }
+            : undefined,
           medium: asset.formats.medium
             ? { url: normalizeUrl(asset.formats.medium.url) ?? asset.formats.medium.url }
             : undefined,
@@ -1204,6 +1208,18 @@ function normalizeMediaAsset(asset?: StrapiMedia | null) {
         }
       : null,
   };
+}
+
+function getPreferredSeoImageUrl(asset?: StrapiMedia | null) {
+  if (!asset) {
+    return undefined;
+  }
+
+  return asset.formats?.large?.url
+    ?? asset.formats?.medium?.url
+    ?? asset.formats?.small?.url
+    ?? asset.formats?.thumbnail?.url
+    ?? asset.url;
 }
 
 function normalizeHomepageInfographicCards(cards?: HomepageEntry["infographicCards"] | null) {
@@ -1482,10 +1498,7 @@ function normalizeContentCardMedia(cover?: StrapiMedia | null) {
     return null;
   }
 
-  return {
-    ...cover,
-    url: normalizeUrl(cover.url) ?? cover.url,
-  } satisfies StrapiMedia;
+  return normalizeMediaAsset(cover);
 }
 
 function normalizeSourceLinks(sources?: SourceLink[] | null) {
@@ -1539,7 +1552,7 @@ export function buildSeoMetadata({
   seo?: SeoFields | null;
   siteSeo?: SiteSeoSettings | null;
   path?: string;
-  image?: string | null;
+  image?: MediaAsset | string | null;
 }): Metadata {
   const siteOrigin = normalizeSiteOrigin(siteSeo?.siteUrl, SITE_URL);
   const mergedSeo: Partial<SeoFields> = {
@@ -1549,10 +1562,10 @@ export function buildSeoMetadata({
   const finalTitle = mergedSeo.metaTitle || title;
   const finalDescription = mergedSeo.metaDescription || description;
   const canonical = mergedSeo.canonicalUrl ? toAbsoluteSiteUrl(mergedSeo.canonicalUrl, siteOrigin) : path ? new URL(path, siteOrigin).toString() : undefined;
-  const absoluteImage = toAbsoluteMetadataUrl(mergedSeo.metaImage?.url, siteOrigin)
-    ?? toAbsoluteMetadataUrl(image, siteOrigin)
-    ?? toAbsoluteMetadataUrl(siteSeo?.openGraphImage?.url, siteOrigin)
-    ?? toAbsoluteMetadataUrl(siteSeo?.twitterImage?.url, siteOrigin);
+  const absoluteImage = toAbsoluteMetadataUrl(getPreferredSeoImageUrl(mergedSeo.metaImage), siteOrigin)
+    ?? toAbsoluteMetadataUrl(typeof image === "string" ? image : getPreferredSeoImageUrl(image), siteOrigin)
+    ?? toAbsoluteMetadataUrl(getPreferredSeoImageUrl(siteSeo?.openGraphImage), siteOrigin)
+    ?? toAbsoluteMetadataUrl(getPreferredSeoImageUrl(siteSeo?.twitterImage), siteOrigin);
 
   return {
     metadataBase: new URL(siteOrigin),

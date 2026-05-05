@@ -51,12 +51,9 @@ export default async function CategoryPage({ params }: PageProps) {
         <section className="min-w-0">
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="border-b border-black/10 pb-8 dark:border-white/10">
-            <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Рубрики" }, { label: categoryPage.name }]} />
+            <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Рубрики" }]} />
             <p className="type-caption text-emerald-700 dark:text-emerald-400">Рубрика</p>
             <h1 className="type-h1 mt-3">{categoryPage.name}</h1>
-            <p className="type-body mt-4 text-zinc-600 dark:text-zinc-400">
-              Все материалы редакции, связанные с рубрикой: {categoryPage.name}
-            </p>
           </header>
 
           <InfiniteArchivePageList

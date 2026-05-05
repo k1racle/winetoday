@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     seo: article.seo,
     siteSeo,
     path: `/articles/${article.slug}`,
-    image: article.cover?.url,
+    image: article.cover,
   });
 }
 
@@ -91,15 +91,14 @@ export default async function ArticleDetailPage({ params }: PageProps) {
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="space-y-4">
-            <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Статьи", href: "/articles" }, { label: article.title }]} />
+            <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Статьи", href: "/articles" }]} />
             <div className="type-caption flex flex-wrap items-center gap-3 text-zinc-500 dark:text-zinc-400">
-              {primaryCategory ? <span>{primaryCategory.name}</span> : null}
               <span>{headerDate}</span>
+              {primaryCategory ? <span>{primaryCategory.name}</span> : null}
               {article.readingTime ? <span>{article.readingTime} мин чтения</span> : null}
               {article.author?.name ? <span>{article.author.name}</span> : null}
             </div>
             <h1 className="type-h1">{article.title}</h1>
-            <ContentTags tags={article.tags} categories={article.categories} className="flex flex-wrap gap-x-3 gap-y-1" />
             <MaterialEditButton type="article" documentId={article.documentId} authorSlug={article.author?.slug} />
             {article.cover?.url ? (
               <>

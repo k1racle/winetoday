@@ -51,14 +51,11 @@ export default async function TagPage({ params }: PageProps) {
         <section className="min-w-0">
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="border-b border-black/10 pb-8 dark:border-white/10">
-            <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Теги" }, { label: tagPage.name }]} />
+            <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Теги" }]} />
             <p className="type-caption text-emerald-700 dark:text-emerald-400">
               Тег
             </p>
             <h1 className="type-h1 mt-3">{tagPage.name}</h1>
-            <p className="type-body mt-4 text-zinc-600 dark:text-zinc-400">
-              Все материалы редакции, связанные с темой: {tagPage.name}
-            </p>
           </header>
 
           <InfiniteArchivePageList
