@@ -513,8 +513,11 @@ export default async function Home() {
                           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
                             <ArchiveOverlayMeta itemId={specialLead.documentId} meta={buildCategoryDateOverlayMeta(specialLead.categories, specialLead.publishedAt, specialLead.publishedAtCustom)} />
                             <h2 className="type-h2 mt-4 text-white"><Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">{specialLead.title}</Link></h2>
-                            {/* На главной в архивных секциях не показываем краткое описание. */}
-                            {null}
+                            {specialLead.excerpt ? (
+                              <p className="type-body mt-4 max-w-[60ch] leading-[1.4] text-white/85">
+                                {specialLead.excerpt}
+                              </p>
+                            ) : null}
                           </div>
                         </article>
                       ) : null}

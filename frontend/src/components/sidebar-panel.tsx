@@ -20,7 +20,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
     : stacked
       ? "border border-black/10 bg-white p-5 text-foreground dark:border-white/10 dark:bg-[#12202d] dark:text-white"
       : "border border-black/10 bg-white p-5 text-foreground dark:border-white/10 dark:bg-[#12202d] dark:text-white";
-  const itemClassName = "block min-w-0 overflow-hidden border-b border-black/10 px-0 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
+  const itemClassName = "block min-w-0 max-w-full overflow-hidden border-b border-black/10 px-0 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
 
   // Если sidebar не задан, просто ничего не показываем.
   if (!sidebar) {
@@ -69,7 +69,9 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                       href={item.href}
                       className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                     >
-                      <span className="type-h4 block min-w-0 overflow-hidden break-words text-[15px] leading-5 text-foreground">{item.label}</span>
+                      <span className="type-h4 block min-w-0 max-w-full overflow-hidden whitespace-normal break-all text-[15px] leading-5 text-foreground">
+                        {item.label}
+                      </span>
                       {item.description ? (
                         <span className="type-small mt-2 block text-zinc-600 dark:text-zinc-400">{item.description}</span>
                       ) : null}
@@ -94,7 +96,9 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                 href={item.href}
                 className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
               >
-                <span className="type-h4 block min-w-0 overflow-hidden break-words text-[15px] leading-5 text-foreground">{item.label}</span>
+                <span className="type-h4 block min-w-0 max-w-full overflow-hidden whitespace-normal break-all text-[15px] leading-5 text-foreground">
+                  {item.label}
+                </span>
                 {item.description ? (
                   <span className="type-small mt-2 block text-zinc-600 dark:text-zinc-400">{item.description}</span>
                 ) : null}
@@ -138,13 +142,13 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                       href={item.href}
                       className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                     >
-                      <span className="type-h4 block min-w-0 overflow-hidden break-words text-[15px] leading-5 text-foreground">
+                      <span className="type-h4 block min-w-0 max-w-full overflow-hidden whitespace-normal break-all text-[15px] leading-5 text-foreground">
                         {item.meta ? (
-                          <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
+                          <span className="type-caption mr-2 shrink-0 text-emerald-700 dark:text-emerald-300">
                             {item.meta}
                           </span>
                         ) : null}
-                        <span>{item.label}</span>
+                        <span className="block min-w-0 break-all">{item.label}</span>
                       </span>
                     </Link>
                   ))}
