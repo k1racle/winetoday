@@ -69,9 +69,9 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                       href={item.href}
                       className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                     >
-                      <span className="type-h4 block min-w-0 text-[15px] leading-5 text-foreground">
-                        {item.label}
-                      </span>
+                      <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
+                        <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item.label}</span>
+                      </div>
                       {item.description ? (
                         <span className="type-small mt-2 block text-zinc-600 dark:text-zinc-400">{item.description}</span>
                       ) : null}
@@ -96,7 +96,9 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                 href={item.href}
                 className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
               >
-                <span className="type-h4 block min-w-0 text-[15px] leading-5 text-foreground">{item.label}</span>
+                <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item.label}</span>
+                </div>
                 {item.description ? (
                   <span className="type-small mt-2 block text-zinc-600 dark:text-zinc-400">{item.description}</span>
                 ) : null}
@@ -140,14 +142,14 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                       href={item.href}
                       className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                     >
-                      <span className="type-h4 block min-w-0 text-[15px] leading-5 text-foreground">
+                      <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
                         {item.meta ? (
-                          <span className="type-caption mr-2 shrink-0 text-emerald-700 dark:text-emerald-300">
+                          <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
                             {item.meta}
                           </span>
                         ) : null}
                         <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item.label}</span>
-                      </span>
+                      </div>
                     </Link>
                   ))}
                 </div>
