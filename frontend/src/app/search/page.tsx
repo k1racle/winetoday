@@ -261,7 +261,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </div>
         </section>
 
-        <div className="hidden lg:sticky lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+        <div className="hidden w-full min-w-0 overflow-hidden lg:sticky lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
           <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} />
         </div>
       </div>

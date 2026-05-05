@@ -16,11 +16,11 @@ type SidebarPanelProps = {
 
 export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = false }: SidebarPanelProps) {
   const asideClassName = mobile
-    ? "border border-black/10 bg-white p-5 text-foreground overflow-hidden break-words [overflow-wrap:anywhere] dark:border-white/10 dark:bg-[#12202d] dark:text-white"
+    ? "w-full min-w-0 border border-black/10 bg-white p-5 text-foreground overflow-hidden break-words [overflow-wrap:anywhere] dark:border-white/10 dark:bg-[#12202d] dark:text-white"
     : stacked
-      ? "border border-black/10 bg-white p-5 text-foreground overflow-hidden break-words [overflow-wrap:anywhere] dark:border-white/10 dark:bg-[#12202d] dark:text-white"
-      : "border border-black/10 bg-white p-5 text-foreground overflow-hidden break-words [overflow-wrap:anywhere] dark:border-white/10 dark:bg-[#12202d] dark:text-white";
-  const itemClassName = "block min-w-0 border-b border-black/10 px-0 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
+      ? "w-full min-w-0 border border-black/10 bg-white p-5 text-foreground overflow-hidden break-words [overflow-wrap:anywhere] dark:border-white/10 dark:bg-[#12202d] dark:text-white"
+      : "w-full min-w-0 border border-black/10 bg-white p-5 text-foreground overflow-hidden break-words [overflow-wrap:anywhere] dark:border-white/10 dark:bg-[#12202d] dark:text-white";
+  const itemClassName = "block w-full min-w-0 border-b border-black/10 px-0 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]";
 
   // Если sidebar не задан, просто ничего не показываем.
   if (!sidebar) {

@@ -575,7 +575,7 @@ export default async function Home() {
               <div className="min-w-0">
                 <RichContent blocks={homepage.blocks} />
               </div>
-              <div className="hidden lg:sticky lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+              <div className="hidden w-full min-w-0 overflow-hidden lg:sticky lg:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
                 <SidebarPanel sidebar={regularSidebar} />
               </div>
             </div>
