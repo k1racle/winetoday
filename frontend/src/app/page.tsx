@@ -533,11 +533,19 @@ export default async function Home() {
                             </div>
                             <div className="p-4">
                               {(() => {
-                                const categoryName = getPrimaryCategory(item.categories)?.name;
+                                const category = getPrimaryCategory(item.categories);
+                                const categoryName = category?.name;
+                                const categorySlug = category?.slug;
 
                                 return categoryName ? (
                                   <div className="type-caption mb-3 !text-[12px] text-emerald-700 dark:text-emerald-300">
-                                    {categoryName}
+                                    {categorySlug ? (
+                                      <Link href={`/categories/${categorySlug}`} className="transition hover:text-emerald-800 dark:hover:text-emerald-200">
+                                        {categoryName}
+                                      </Link>
+                                    ) : (
+                                      categoryName
+                                    )}
                                   </div>
                                 ) : null;
                               })()}

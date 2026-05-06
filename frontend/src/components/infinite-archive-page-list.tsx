@@ -16,6 +16,16 @@ function getPrimaryMetaLabel(meta?: OverlayMetaItem[] | null) {
   return typeof primaryMeta === "string" ? primaryMeta : primaryMeta.label;
 }
 
+function getPrimaryMetaHref(meta?: OverlayMetaItem[] | null) {
+  const primaryMeta = meta?.[0];
+
+  if (!primaryMeta || typeof primaryMeta === "string") {
+    return null;
+  }
+
+  return primaryMeta.href?.trim() ? primaryMeta.href.trim() : null;
+}
+
 type ArchivePageCard = {
   id: string;
   href: string;
@@ -88,10 +98,17 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
           <div className="flex flex-col justify-center p-5">
             {(() => {
               const primaryMetaLabel = getPrimaryMetaLabel(leadItem.meta);
+              const primaryMetaHref = getPrimaryMetaHref(leadItem.meta);
 
               return primaryMetaLabel ? (
                 <div className="type-caption mb-3 !text-[12px] text-emerald-700 dark:text-emerald-300">
-                  {primaryMetaLabel}
+                  {primaryMetaHref ? (
+                    <Link href={primaryMetaHref} className="transition hover:text-emerald-800 dark:hover:text-emerald-200">
+                      {primaryMetaLabel}
+                    </Link>
+                  ) : (
+                    primaryMetaLabel
+                  )}
                 </div>
               ) : null;
             })()}
@@ -119,10 +136,17 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
               <div className="p-5">
                 {(() => {
                   const primaryMetaLabel = getPrimaryMetaLabel(item.meta);
+                  const primaryMetaHref = getPrimaryMetaHref(item.meta);
 
                   return primaryMetaLabel ? (
                     <div className="type-caption mb-2 !text-[12px] text-emerald-700 dark:text-emerald-300">
-                      {primaryMetaLabel}
+                      {primaryMetaHref ? (
+                        <Link href={primaryMetaHref} className="transition hover:text-emerald-800 dark:hover:text-emerald-200">
+                          {primaryMetaLabel}
+                        </Link>
+                      ) : (
+                        primaryMetaLabel
+                      )}
                     </div>
                   ) : null;
                 })()}

@@ -173,7 +173,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
                     width={520}
                     height={160}
                     sizes="(min-width: 1280px) 420px, 60vw"
-                    className="h-12 w-auto object-contain"
+                    className="h-12 w-[280px] object-contain"
                     priority
                   />
                 ) : (
