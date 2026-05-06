@@ -164,19 +164,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
         <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
           {/* Desktop top row */}
           <div className="hidden h-20 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:grid">
-            <form onSubmit={submitSearch} className="flex items-center gap-3">
-              <button type="submit" aria-label="Поиск" className="text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white">
-                <SearchIcon />
-              </button>
-              <input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Поиск"
-                className="font-menu h-10 w-full max-w-[320px] border-b border-transparent bg-transparent text-zinc-700 outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-300 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-white/20"
-              />
-            </form>
-
-            <div className="flex justify-center">
+            <div className="flex justify-start">
               <Link href="/" className="inline-flex items-center justify-center">
                 {logo?.url ? (
                   <Image
@@ -196,7 +184,20 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
               </Link>
             </div>
 
+            <div />
+
             <div className="flex items-center justify-end gap-3">
+              <form onSubmit={submitSearch} className="flex items-center gap-3">
+                <button type="submit" aria-label="Поиск" className="text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white">
+                  <SearchIcon />
+                </button>
+                <input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Поиск"
+                  className="font-menu h-10 w-full max-w-[320px] border-b border-transparent bg-transparent text-zinc-700 outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-300 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-white/20"
+                />
+              </form>
               <AuthWidget
                 label="Войти"
                 buttonClassName="type-button inline-flex items-center justify-center rounded-full bg-transparent px-4 py-2 text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-white/10 dark:hover:text-white"

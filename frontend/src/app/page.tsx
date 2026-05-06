@@ -8,6 +8,7 @@ import {
   buildSeoMetadata,
   comparePublishedDesc,
   formatRussianDateTime,
+  getPrimaryCategory,
   getGlobalSettings,
   getHomepage,
   getHomepageSpecialItems,
@@ -21,7 +22,6 @@ import {
 import { RichContent } from "@/components/rich-content";
 import Link from "next/link";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
-import { ArchiveOverlayMeta } from "@/components/archive-overlay-meta";
 import { HomepageSpecialVideoCarousel } from "@/components/homepage-special-video-carousel";
 import { HomepageNewsSidebar, type HomepageNewsSidebarItem } from "@/components/homepage-news-sidebar";
 import { SidebarPanel } from "@/components/sidebar-panel";
@@ -509,9 +509,8 @@ export default async function Home() {
                               )}
                             </Link>
                               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
-                            </div>
+                          </div>
                           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
-                            <ArchiveOverlayMeta itemId={specialLead.documentId} meta={buildCategoryDateOverlayMeta(specialLead.categories, specialLead.publishedAt, specialLead.publishedAtCustom)} />
                             <h2 className="type-h2 mt-4 text-white"><Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">{specialLead.title}</Link></h2>
                             {specialLead.excerpt ? (
                               <p className="type-body mt-4 max-w-[60ch] leading-[1.4] text-white/85">
@@ -531,11 +530,17 @@ export default async function Home() {
                                   <Image src={item.cover.url} alt={item.cover.alternativeText ?? item.title} width={640} height={360} className="h-full w-full object-cover" />
                                 ) : null}
                               </Link>
-                              <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4">
-                                <ArchiveOverlayMeta itemId={item.documentId} meta={buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom)} />
-                              </div>
                             </div>
                             <div className="p-4">
+                              {(() => {
+                                const categoryName = getPrimaryCategory(item.categories)?.name;
+
+                                return categoryName ? (
+                                  <div className="type-caption mb-3 !text-[12px] text-emerald-700 dark:text-emerald-300">
+                                    {categoryName}
+                                  </div>
+                                ) : null;
+                              })()}
                               <h3 className="type-h4 text-[15px] leading-5 text-[#0d3132] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
                             </div>
                           </article>

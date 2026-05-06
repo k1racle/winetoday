@@ -4,7 +4,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-import { ArchiveOverlayMeta, type OverlayMetaItem } from "@/components/archive-overlay-meta";
+import type { OverlayMetaItem } from "@/components/archive-overlay-meta";
+
+function getPrimaryMetaLabel(meta?: OverlayMetaItem[] | null) {
+  const primaryMeta = meta?.[0];
+
+  if (!primaryMeta) {
+    return null;
+  }
+
+  return typeof primaryMeta === "string" ? primaryMeta : primaryMeta.label;
+}
 
 type ArchivePageCard = {
   id: string;
@@ -13,7 +23,7 @@ type ArchivePageCard = {
   excerpt?: string | null;
   imageUrl?: string | null;
   imageAlt?: string | null;
-  meta?: OverlayMetaItem[];
+  meta?: OverlayMetaItem[] | null;
 };
 
 type InfiniteArchivePageListProps = {
@@ -74,14 +84,17 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
                 <Image src={leadItem.imageUrl} alt={leadItem.imageAlt ?? leadItem.title} width={680} height={512} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]" />
               ) : null}
             </Link>
-            {leadItem.meta?.length ? (
-              <>
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-black/90 via-black/55 to-transparent" />
-                <ArchiveOverlayMeta itemId={leadItem.id} meta={leadItem.meta} className="absolute inset-x-0 bottom-0 px-5 py-4" />
-              </>
-            ) : null}
           </div>
           <div className="flex flex-col justify-center p-5">
+            {(() => {
+              const primaryMetaLabel = getPrimaryMetaLabel(leadItem.meta);
+
+              return primaryMetaLabel ? (
+                <div className="type-caption mb-3 !text-[12px] text-emerald-700 dark:text-emerald-300">
+                  {primaryMetaLabel}
+                </div>
+              ) : null;
+            })()}
             <h2 className="type-h4 text-foreground dark:text-white">
               <Link href={leadItem.href} className="transition hover:text-emerald-800 dark:hover:text-emerald-300">
                 {leadItem.title}
@@ -102,20 +115,23 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
                     <Image src={item.imageUrl} alt={item.imageAlt ?? item.title} width={720} height={448} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]" />
                   ) : null}
                 </Link>
-                {item.meta?.length ? (
-                  <>
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[42%] bg-gradient-to-t from-black/90 via-black/55 to-transparent" />
-                    <ArchiveOverlayMeta itemId={item.id} meta={item.meta} className="absolute inset-x-0 bottom-0 px-5 py-4" />
-                  </>
-                ) : null}
               </div>
               <div className="p-5">
-                  <h2 className="type-h4 text-foreground dark:text-white">
-                    <Link href={item.href} className="transition hover:text-emerald-800 dark:hover:text-emerald-300">
-                      {item.title}
-                    </Link>
-                  </h2>
-                  {showExcerpt && item.excerpt ? <p className="type-body mt-4 leading-[1.4] text-zinc-600 dark:text-zinc-400">{item.excerpt}</p> : null}
+                {(() => {
+                  const primaryMetaLabel = getPrimaryMetaLabel(item.meta);
+
+                  return primaryMetaLabel ? (
+                    <div className="type-caption mb-2 !text-[12px] text-emerald-700 dark:text-emerald-300">
+                      {primaryMetaLabel}
+                    </div>
+                  ) : null;
+                })()}
+                <h2 className="type-h4 text-foreground dark:text-white">
+                  <Link href={item.href} className="transition hover:text-emerald-800 dark:hover:text-emerald-300">
+                    {item.title}
+                  </Link>
+                </h2>
+                {showExcerpt && item.excerpt ? <p className="type-body mt-4 leading-[1.4] text-zinc-600 dark:text-zinc-400">{item.excerpt}</p> : null}
               </div>
             </article>
           ))}
