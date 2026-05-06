@@ -300,7 +300,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
                     href="/"
                     className="font-menu px-0 py-1 text-[16px] text-zinc-900 transition-colors hover:text-zinc-950 dark:text-zinc-100 dark:hover:text-white"
                   >
-                    Главное
+                    Главная
                   </Link>
                   {resolvedMenu.map((item) => (
                     <Link
