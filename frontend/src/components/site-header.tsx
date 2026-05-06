@@ -187,17 +187,14 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
             <div />
 
             <div className="flex items-center justify-end gap-3">
-              <form onSubmit={submitSearch} className="flex items-center gap-3">
-                <button type="submit" aria-label="Поиск" className="text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-200 dark:hover:text-white">
-                  <SearchIcon />
-                </button>
-                <input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Поиск"
-                  className="font-menu h-10 w-full max-w-[320px] border-b border-transparent bg-transparent text-zinc-700 outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-300 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-white/20"
-                />
-              </form>
+              <button
+                type="button"
+                aria-label="Поиск"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
+                onClick={openSearchOverlay}
+              >
+                <SearchIcon />
+              </button>
               <ThemeToggle compact />
               <AuthWidget
                 label="Войти"
@@ -254,7 +251,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
       </div>
 
       {/* Search overlay */}
-      <SearchOverlay onSubmit={submitSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <SearchOverlay onSubmit={submitSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} onClose={() => setDrawerOpen(false)} />
 
       {/* Mobile drawer */}
       {drawerOpen ? (
@@ -325,10 +322,12 @@ function SearchOverlay({
   onSubmit,
   searchQuery,
   setSearchQuery,
+  onClose,
 }: {
   onSubmit: (event?: FormEvent) => void;
   searchQuery: string;
   setSearchQuery: (value: string) => void;
+  onClose: () => void;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -384,13 +383,17 @@ function SearchOverlay({
         type="button"
         aria-label="Закрыть поиск"
         className="absolute inset-0 bg-black/35 backdrop-blur-[2px]"
-        onClick={() => setOpen(false)}
+        onClick={() => {
+          setOpen(false);
+          onClose();
+        }}
       />
       <div className="relative mx-auto mt-20 w-full max-w-2xl px-4">
         <form
           onSubmit={(e) => {
             onSubmit(e);
             setOpen(false);
+            onClose();
           }}
           className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-4 shadow-[0_24px_80px_rgba(8,18,12,0.22)] dark:border-white/10 dark:bg-[#081623]"
         >
@@ -412,7 +415,10 @@ function SearchOverlay({
             type="button"
             className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
             aria-label="Закрыть"
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              setOpen(false);
+              onClose();
+            }}
           >
             <CloseIcon />
           </button>
