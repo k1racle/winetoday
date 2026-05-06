@@ -198,16 +198,16 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
                   className="font-menu h-10 w-full max-w-[320px] border-b border-transparent bg-transparent text-zinc-700 outline-none transition-colors placeholder:text-zinc-400 focus:border-zinc-300 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-white/20"
                 />
               </form>
+              <ThemeToggle compact />
               <AuthWidget
                 label="Войти"
                 buttonClassName="type-button inline-flex items-center justify-center rounded-full bg-transparent px-4 py-2 text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-white/10 dark:hover:text-white"
               />
-              <ThemeToggle compact />
             </div>
           </div>
 
           {/* Desktop bottom row */}
-          <nav className="hidden h-14 items-center justify-center gap-10 xl:flex">
+          <nav className="hidden h-14 items-center justify-center xl:flex xl:gap-6 2xl:gap-10">
             {resolvedMenu.map((item) => (
               <Link
                 key={`${item.href}-${item.label}`}
@@ -220,17 +220,8 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
           </nav>
 
           {/* Mobile/tablet row */}
-          <div className="grid h-16 grid-cols-[44px_1fr_44px] items-center xl:hidden">
-            <button
-              type="button"
-              aria-label="Поиск"
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
-              onClick={openSearchOverlay}
-            >
-              <SearchIcon />
-            </button>
-
-            <Link href="/" className="min-w-0 justify-self-center px-2">
+          <div className="grid h-16 grid-cols-[auto_1fr_44px] items-center gap-3 xl:hidden">
+            <Link href="/" className="min-w-0 justify-self-start px-2">
               {logo?.url ? (
                 <Image
                   src={logo.url}
@@ -247,6 +238,8 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
                 </span>
               )}
             </Link>
+
+            <div />
 
             <button
               type="button"
@@ -285,12 +278,12 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
                     >
                       <SearchIcon />
                     </button>
+                    <ThemeToggle compact />
                     <AuthWidget
                       label="Войти"
                       compact
                       buttonClassName="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
                     />
-                    <ThemeToggle compact />
                   </div>
                   <button
                     type="button"
@@ -303,6 +296,12 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
                 </div>
 
                 <nav className="mt-6 grid gap-3 overflow-y-auto">
+                  <Link
+                    href="/"
+                    className="font-menu px-0 py-1 text-[16px] text-zinc-900 transition-colors hover:text-zinc-950 dark:text-zinc-100 dark:hover:text-white"
+                  >
+                    Главное
+                  </Link>
                   {resolvedMenu.map((item) => (
                     <Link
                       key={`mobile-${item.href}-${item.label}`}

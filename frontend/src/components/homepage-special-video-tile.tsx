@@ -118,11 +118,11 @@ export function HomepageSpecialVideoTile({
 
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <span className={[
-            "flex items-center justify-center rounded-full bg-white/92 text-[#10351d] shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition duration-300 group-hover:scale-105 group-hover:bg-white",
-            compactPlayButton ? "h-16 w-16 xl:h-12 xl:w-12" : "h-16 w-16",
+            "flex items-center justify-center rounded-full bg-emerald-950/55 text-white shadow-[0_20px_50px_rgba(0,0,0,0.35)] transition duration-300 group-hover:scale-105 group-hover:bg-emerald-950/65",
+            compactPlayButton ? "h-[72px] w-[72px] xl:h-14 xl:w-14" : "h-[80px] w-[80px]",
           ].join(" ")}>
-            <svg viewBox="0 0 24 24" className={["ml-1 fill-current", compactPlayButton ? "h-7 w-7 xl:h-5 xl:w-5" : "h-7 w-7"].join(" ")} aria-hidden="true">
-              <path d="M8 6.5v11l9-5.5-9-5.5Z" />
+            <svg viewBox="0 0 24 24" className={["ml-1", compactPlayButton ? "h-8 w-8 xl:h-6 xl:w-6" : "h-10 w-10"].join(" ")} aria-hidden="true">
+              <path d="M8 6.5v11l9-5.5-9-5.5Z" fill="currentColor" />
             </svg>
           </span>
         </div>
