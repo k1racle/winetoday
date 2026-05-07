@@ -90,6 +90,14 @@
   font-weight: 400;
 }
 
+@font-face {
+  font-family: "Lato";
+  src: url("/fonts/Lato-Bold.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 700;
+}
+
 :root {
   --background: #f6f8f3;
   --foreground: #0d1710;

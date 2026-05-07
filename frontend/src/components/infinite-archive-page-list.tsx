@@ -101,7 +101,7 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
               const primaryMetaHref = getPrimaryMetaHref(leadItem.meta);
 
               return primaryMetaLabel ? (
-                <div className="mb-3 font-menu text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
+                <div className="mb-3 font-menu text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
                   {primaryMetaHref ? (
                     <Link href={primaryMetaHref} className="transition hover:text-emerald-800 dark:hover:text-emerald-200">
                       {primaryMetaLabel}
@@ -139,7 +139,7 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
                   const primaryMetaHref = getPrimaryMetaHref(item.meta);
 
                   return primaryMetaLabel ? (
-                    <div className="mb-2 font-menu text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
+                    <div className="mb-2 font-menu text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
                       {primaryMetaHref ? (
                         <Link href={primaryMetaHref} className="transition hover:text-emerald-800 dark:hover:text-emerald-200">
                           {primaryMetaLabel}
