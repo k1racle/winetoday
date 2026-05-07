@@ -36,7 +36,7 @@ function formatHomepageNewsTime(value?: string | null) {
     return "--.--";
   }
 
-  return dateLabel.replace(/\s+\d{4}(?:\s*г\.?)?$/u, "").trim();
+  return dateLabel.replace(/(?:\.\d{4}|\s+\d{4}(?:\s*г\.?)?)$/u, "").trim();
 }
 
 export async function generateMetadata(): Promise<Metadata> {
