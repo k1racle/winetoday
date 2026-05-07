@@ -30,7 +30,7 @@ import { SidebarPanel } from "@/components/sidebar-panel";
 export const revalidate = 120;
 
 function formatHomepageNewsTime(value?: string | null) {
-  return formatRussianDateTime(value) ?? "--:--";
+  return formatRussianDateTime(value)?.split(",")[0]?.trim() ?? "--.--";
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -407,7 +407,7 @@ export default async function Home() {
               <HomepageNewsSidebar latest={latestNewsSidebarItems} popular={popularNewsSidebarItems} className="xl:hidden" />
             ) : null}
             {desktopInfographicCards.length || tabletInfographicCards.length || phoneInfographicCards.length ? (
-              <section className="space-y-4">
+              <section className="hidden space-y-4">
                 <div className="grid gap-3 md:hidden">
                   {phoneInfographicCards.map((card, index) => renderAdaptiveInfographicCard(card, `mobile-${index}`))}
                 </div>
@@ -512,9 +512,9 @@ export default async function Home() {
                               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
                           </div>
                           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
-                            <h2 className="type-h2 mt-4 text-white"><Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">{specialLead.title}</Link></h2>
+                            <h2 className="mt-4 font-[\"Lato\"] text-[30px] font-semibold leading-[1.08] tracking-[-0.02em] text-white sm:text-[34px]"><Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">{specialLead.title}</Link></h2>
                             {specialLead.excerpt ? (
-                              <p className="type-body mt-4 max-w-[60ch] leading-[1.4] text-white/85">
+                              <p className="mt-4 max-w-[60ch] font-[\"Lato\"] text-[16px] leading-[1.5] text-white/85">
                                 {specialLead.excerpt}
                               </p>
                             ) : null}
@@ -539,7 +539,7 @@ export default async function Home() {
                                 const categorySlug = category?.slug;
 
                                 return categoryName ? (
-                                  <div className="type-caption mb-3 !text-[12px] text-emerald-700 dark:text-emerald-300">
+                                  <div className="mb-3 font-menu text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
                                     {categorySlug ? (
                                       <Link href={`/categories/${categorySlug}`} className="transition hover:text-emerald-800 dark:hover:text-emerald-200">
                                         {categoryName}
@@ -550,7 +550,7 @@ export default async function Home() {
                                   </div>
                                 ) : null;
                               })()}
-                              <h3 className="type-h4 text-[15px] leading-5 text-[#0d3132] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
+                              <h3 className="font-[\"Lato\"] text-[18px] leading-[1.35] text-[#10211a] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
                             </div>
                           </article>
                         ))}

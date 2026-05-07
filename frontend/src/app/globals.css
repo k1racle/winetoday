@@ -82,12 +82,20 @@
   font-weight: 900;
 }
 
+@font-face {
+  font-family: "Lato";
+  src: url("/fonts/Lato-Regular.ttf") format("truetype");
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
 :root {
   --background: #f6f8f3;
   --foreground: #0d1710;
-  --font-body-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body-family: "Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-body-size: 16px;
-  --font-menu-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-menu-family: "Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-menu-size: 14px;
   --font-menu-size-mobile: 14px;
   --font-h1-family: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
@@ -96,25 +104,25 @@
   --font-hero-family: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
   --font-hero-size: 56px;
   --font-hero-size-mobile: 56px;
-  --font-hero-eyebrow-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-hero-eyebrow-family: "Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-hero-eyebrow-size: 14px;
   --font-hero-eyebrow-size-mobile: 14px;
-  --font-h2-family: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
+  --font-h2-family: "Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-h2-size: 32px;
   --font-h2-size-mobile: 32px;
-  --font-h3-family: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
+  --font-h3-family: "Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-h3-size: 24px;
   --font-h3-size-mobile: 24px;
-  --font-h4-family: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
+  --font-h4-family: "Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-h4-size: 20px;
   --font-h4-size-mobile: 20px;
-  --font-small-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-small-family: "Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-small-size: 14px;
   --font-small-size-mobile: 14px;
-  --font-caption-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-caption-family: "Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-caption-size: 12px;
   --font-caption-size-mobile: 12px;
-  --font-button-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-button-family: "Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-button-size: 14px;
   --font-button-size-mobile: 14px;
   --font-body-size-mobile: 16px;
@@ -128,7 +136,7 @@ html.dark {
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-heading: var(--font-oswald), "Arial Narrow", "Arial", sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }

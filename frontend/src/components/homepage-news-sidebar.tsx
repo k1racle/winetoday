@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export type HomepageNewsSidebarItem = {
   documentId: string;
@@ -34,7 +34,6 @@ export function HomepageNewsSidebar({ latest, popular, className }: HomepageNews
   return (
     <section className={className}>
       <NewsStrip
-        key={activeTab}
         items={activeConfig.items}
         emptyLabel={activeConfig.emptyLabel}
         activeTab={activeTab}
@@ -54,18 +53,22 @@ type NewsStripProps = {
 function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps) {
   const [isExpandedMobile, setIsExpandedMobile] = useState(false);
 
+  useEffect(() => {
+    setIsExpandedMobile(false);
+  }, [activeTab]);
+
   const mobileItems = isExpandedMobile ? items.slice(0, 10) : items.slice(0, 4);
 
   return (
     <aside className="overflow-hidden border border-black/10 bg-white text-foreground shadow-[0_24px_60px_-42px_rgba(15,23,42,0.25)] dark:border-white/10 dark:bg-[#12202d] dark:text-white">
       <div className="border-b border-black/10 px-5 py-4 dark:border-white/10">
-        <div className="flex flex-wrap items-end gap-3 sm:gap-4">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-5">
           <button
             type="button"
             onClick={() => onTabChange("latest")}
             className={activeTab === "latest"
-              ? "type-caption border-b border-emerald-700 pb-1 text-foreground dark:border-emerald-400"
-              : "type-caption pb-1 text-zinc-500 transition-colors hover:text-foreground dark:text-zinc-400"
+              ? "font-menu text-[13px] font-semibold tracking-[0.02em] text-foreground transition-colors dark:text-white"
+              : "font-menu text-[13px] font-medium tracking-[0.02em] text-zinc-500 transition-colors hover:text-foreground dark:text-zinc-400 dark:hover:text-white"
             }
           >
             Свежие
@@ -74,8 +77,8 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
             type="button"
             onClick={() => onTabChange("popular")}
             className={activeTab === "popular"
-              ? "type-caption border-b border-emerald-700 pb-1 text-foreground dark:border-emerald-400"
-              : "type-caption pb-1 text-zinc-500 transition-colors hover:text-foreground dark:text-zinc-400"
+              ? "font-menu text-[13px] font-semibold tracking-[0.02em] text-foreground transition-colors dark:text-white"
+              : "font-menu text-[13px] font-medium tracking-[0.02em] text-zinc-500 transition-colors hover:text-foreground dark:text-zinc-400 dark:hover:text-white"
             }
           >
             Популярные
@@ -93,11 +96,13 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                   href={`/news/${item.slug}`}
                   className="block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
                 >
-                  <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
-                    <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
+                  <div className="space-y-2">
+                    <span className="font-menu block text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
                       {item.publishedLabel}
                     </span>
-                    <span className="min-w-0 break-words">{item.title}</span>
+                    <p className="min-w-0 break-words font-[\"Lato\"] text-[15px] leading-[1.45] text-[#10211a] dark:text-white">
+                      {item.title}
+                    </p>
                   </div>
                 </Link>
               ))}
@@ -120,11 +125,13 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                   href={`/news/${item.slug}`}
                   className="block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
                 >
-                  <div className="type-h4 min-w-0 text-[15px] leading-5 text-foreground">
-                    <span className="type-caption mr-2 text-emerald-700 dark:text-emerald-300">
+                  <div className="grid min-w-0 grid-cols-[40px_minmax(0,1fr)] items-start gap-3">
+                    <span className="font-menu pt-0.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
                       {item.publishedLabel}
                     </span>
-                    <span className="min-w-0 break-words">{item.title}</span>
+                    <p className="min-w-0 break-words font-[\"Lato\"] text-[15px] leading-[1.42] text-[#10211a] dark:text-white">
+                      {item.title}
+                    </p>
                   </div>
                 </Link>
               ))}

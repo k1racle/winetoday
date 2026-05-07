@@ -123,6 +123,7 @@ const themeScript = `(() => {
 function resolveFontFamily(
   fontFamily?:
     | "inter"
+    | "lato"
     | "oswald"
     | "tt-norms-regular"
     | "tt-norms-normal"
@@ -139,6 +140,8 @@ function resolveFontFamily(
     | null,
 ) {
   switch (fontFamily) {
+    case "lato":
+      return '"Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
     case "oswald":
       return 'var(--font-oswald), "Arial Narrow", "Arial", sans-serif';
     case "tt-norms-regular":
@@ -351,17 +354,17 @@ export default async function RootLayout({
     [`--font-${prefix}-transform`]: slot?.textTransform ?? fallback.textTransform,
   });
   const typographyVars = {
-    ...typographyStyleVars(typography?.menu, "menu", { family: "inter", size: "14px", mobileSize: "14px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "0.02em", mobileLetterSpacing: "0.02em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.body, "body", { family: "inter", size: "16px", mobileSize: "16px", weight: "400", lineHeight: "1.7", mobileLineHeight: "1.7", letterSpacing: "normal", mobileLetterSpacing: "normal", textTransform: "none" }),
+    ...typographyStyleVars(typography?.menu, "menu", { family: "lato", size: "14px", mobileSize: "14px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "0.02em", mobileLetterSpacing: "0.02em", textTransform: "none" }),
+    ...typographyStyleVars(typography?.body, "body", { family: "lato", size: "16px", mobileSize: "16px", weight: "400", lineHeight: "1.7", mobileLineHeight: "1.7", letterSpacing: "normal", mobileLetterSpacing: "normal", textTransform: "none" }),
     ...typographyStyleVars(typography?.hero ?? typography?.h1, "hero", { family: "oswald", size: "56px", mobileSize: "56px", weight: "700", lineHeight: "1", mobileLineHeight: "1", letterSpacing: "-0.03em", mobileLetterSpacing: "-0.03em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.heroEyebrow ?? typography?.menu, "hero-eyebrow", { family: "inter", size: "14px", mobileSize: "14px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "0.24em", mobileLetterSpacing: "0.24em", textTransform: "uppercase" }),
+    ...typographyStyleVars(typography?.heroEyebrow ?? typography?.menu, "hero-eyebrow", { family: "lato", size: "14px", mobileSize: "14px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "0.24em", mobileLetterSpacing: "0.24em", textTransform: "uppercase" }),
     ...typographyStyleVars(typography?.h1, "h1", { family: "oswald", size: "56px", mobileSize: "56px", weight: "700", lineHeight: "1", mobileLineHeight: "1", letterSpacing: "-0.03em", mobileLetterSpacing: "-0.03em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.h2, "h2", { family: "oswald", size: "32px", mobileSize: "32px", weight: "700", lineHeight: "1.1", mobileLineHeight: "1.1", letterSpacing: "-0.02em", mobileLetterSpacing: "-0.02em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.h3, "h3", { family: "oswald", size: "24px", mobileSize: "24px", weight: "700", lineHeight: "1.15", mobileLineHeight: "1.15", letterSpacing: "-0.02em", mobileLetterSpacing: "-0.02em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.h4, "h4", { family: "oswald", size: "20px", mobileSize: "20px", weight: "700", lineHeight: "1.2", mobileLineHeight: "1.2", letterSpacing: "-0.01em", mobileLetterSpacing: "-0.01em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.small, "small", { family: "inter", size: "14px", mobileSize: "14px", weight: "400", lineHeight: "1.6", mobileLineHeight: "1.6", letterSpacing: "normal", mobileLetterSpacing: "normal", textTransform: "none" }),
-    ...typographyStyleVars(typography?.caption, "caption", { family: "inter", size: "12px", mobileSize: "12px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "0.24em", mobileLetterSpacing: "0.24em", textTransform: "uppercase" }),
-    ...typographyStyleVars(typography?.button, "button", { family: "inter", size: "14px", mobileSize: "14px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "normal", mobileLetterSpacing: "normal", textTransform: "none" }),
+    ...typographyStyleVars(typography?.h2, "h2", { family: "lato", size: "32px", mobileSize: "32px", weight: "700", lineHeight: "1.1", mobileLineHeight: "1.1", letterSpacing: "-0.02em", mobileLetterSpacing: "-0.02em", textTransform: "none" }),
+    ...typographyStyleVars(typography?.h3, "h3", { family: "lato", size: "24px", mobileSize: "24px", weight: "700", lineHeight: "1.15", mobileLineHeight: "1.15", letterSpacing: "-0.02em", mobileLetterSpacing: "-0.02em", textTransform: "none" }),
+    ...typographyStyleVars(typography?.h4, "h4", { family: "lato", size: "20px", mobileSize: "20px", weight: "700", lineHeight: "1.2", mobileLineHeight: "1.2", letterSpacing: "-0.01em", mobileLetterSpacing: "-0.01em", textTransform: "none" }),
+    ...typographyStyleVars(typography?.small, "small", { family: "lato", size: "14px", mobileSize: "14px", weight: "400", lineHeight: "1.6", mobileLineHeight: "1.6", letterSpacing: "normal", mobileLetterSpacing: "normal", textTransform: "none" }),
+    ...typographyStyleVars(typography?.caption, "caption", { family: "lato", size: "12px", mobileSize: "12px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "0.24em", mobileLetterSpacing: "0.24em", textTransform: "uppercase" }),
+    ...typographyStyleVars(typography?.button, "button", { family: "lato", size: "14px", mobileSize: "14px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "normal", mobileLetterSpacing: "normal", textTransform: "none" }),
   } as React.CSSProperties;
 
   return (
