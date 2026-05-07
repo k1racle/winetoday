@@ -132,6 +132,10 @@ export function AuthWidget({ label, compact = false, className, buttonClassName,
   }, [open, providersLoaded, session.authenticated]);
 
   useEffect(() => {
+    if (!listenOnly) {
+      return;
+    }
+
     function handleOpenAuthWidget(event: Event) {
       const customEvent = event as CustomEvent<{ view?: "login" | "register" }>;
       setAuthView(customEvent.detail?.view === "register" ? "register" : "login");
@@ -144,7 +148,7 @@ export function AuthWidget({ label, compact = false, className, buttonClassName,
     return () => {
       window.removeEventListener("open-auth-widget", handleOpenAuthWidget);
     };
-  }, []);
+  }, [listenOnly]);
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
