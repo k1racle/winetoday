@@ -100,7 +100,7 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                     <span className="font-menu block text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
                       {item.publishedLabel}
                     </span>
-                    <p className="min-w-0 break-words font-[\"Lato\"] text-[15px] leading-[1.45] text-[#10211a] dark:text-white">
+                    <p className="min-w-0 break-words font-[Lato] text-[15px] leading-[1.45] text-[#10211a] dark:text-white">
                       {item.title}
                     </p>
                   </div>
@@ -129,7 +129,7 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                     <span className="font-menu pt-0.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
                       {item.publishedLabel}
                     </span>
-                    <p className="min-w-0 break-words font-[\"Lato\"] text-[15px] leading-[1.42] text-[#10211a] dark:text-white">
+                    <p className="min-w-0 break-words font-[Lato] text-[15px] leading-[1.42] text-[#10211a] dark:text-white">
                       {item.title}
                     </p>
                   </div>

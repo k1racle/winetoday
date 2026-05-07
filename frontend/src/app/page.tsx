@@ -512,9 +512,9 @@ export default async function Home() {
                               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
                           </div>
                           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
-                            <h2 className="mt-4 font-[\"Lato\"] text-[30px] font-semibold leading-[1.08] tracking-[-0.02em] text-white sm:text-[34px]"><Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">{specialLead.title}</Link></h2>
+                            <h2 className="mt-4 font-[Lato] text-[30px] font-semibold leading-[1.08] tracking-[-0.02em] text-white sm:text-[34px]"><Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">{specialLead.title}</Link></h2>
                             {specialLead.excerpt ? (
-                              <p className="mt-4 max-w-[60ch] font-[\"Lato\"] text-[16px] leading-[1.5] text-white/85">
+                              <p className="mt-4 max-w-[60ch] font-[Lato] text-[16px] leading-[1.5] text-white/85">
                                 {specialLead.excerpt}
                               </p>
                             ) : null}
@@ -550,7 +550,7 @@ export default async function Home() {
                                   </div>
                                 ) : null;
                               })()}
-                              <h3 className="font-[\"Lato\"] text-[18px] leading-[1.35] text-[#10211a] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
+                              <h3 className="font-[Lato] text-[18px] leading-[1.35] text-[#10211a] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
                             </div>
                           </article>
                         ))}
