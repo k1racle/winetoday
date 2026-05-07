@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type CSSProperties, type FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { AuthMode } from "@/lib/auth-shared";
@@ -128,6 +129,21 @@ export function AuthWidget({ label, compact = false, className, buttonClassName,
       cancelled = true;
     };
   }, [open, providersLoaded, session.authenticated]);
+
+  useEffect(() => {
+    function handleOpenAuthWidget(event: Event) {
+      const customEvent = event as CustomEvent<{ view?: "login" | "register" }>;
+      setAuthView(customEvent.detail?.view === "register" ? "register" : "login");
+      setError(null);
+      setOpen(true);
+    }
+
+    window.addEventListener("open-auth-widget", handleOpenAuthWidget);
+
+    return () => {
+      window.removeEventListener("open-auth-widget", handleOpenAuthWidget);
+    };
+  }, []);
 
   async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -298,12 +314,12 @@ export function AuthWidget({ label, compact = false, className, buttonClassName,
                 <p className="type-small mt-1 text-zinc-500 dark:text-zinc-400">Роль: {getAuthModeLabel(session.mode ?? null)}</p>
               </div>
               <div className="flex flex-wrap gap-3">
-                <a
+                <Link
                   href="/account"
                   className="type-button inline-flex items-center justify-center border border-black/10 px-4 py-2 text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:text-zinc-100 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
                 >
                   Кабинет
-                </a>
+                </Link>
                 <button
                   type="button"
                   onClick={() => void handleLogout()}

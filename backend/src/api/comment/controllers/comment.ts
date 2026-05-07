@@ -165,13 +165,22 @@ export default factories.createCoreController('api::comment.comment' as any, ({ 
         guestName: user ? null : guestName,
         guestEmail: user ? null : guestEmail,
         body,
-        status: communitySettings?.commentModerationEnabled === false ? 'approved' : 'pending',
+        status: 'approved',
         containsStopWord: false,
         ipHash: null,
         userAgent: ctx.request.header['user-agent'] ?? null,
       },
     });
 
-    ctx.body = comment;
+    const createdComment = await strapi.db.query('api::comment.comment').findOne({
+      where: { id: comment.id },
+      populate: {
+        authorUser: {
+          select: ['id', 'username'],
+        },
+      },
+    });
+
+    ctx.body = createdComment ?? comment;
   },
 }));

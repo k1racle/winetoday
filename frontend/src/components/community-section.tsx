@@ -116,6 +116,14 @@ async function extractErrorMessage(response: Response, fallbackMessage: string) 
   }
 }
 
+function openAuthWidget(view: "login" | "register" = "login") {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new CustomEvent("open-auth-widget", { detail: { view } }));
+}
+
 export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug, title, sharePath }: CommunitySectionProps) {
   const [settings, setSettings] = useState<CommunitySettings | null>(null);
   const [session, setSession] = useState<SessionResponse>({ authenticated: false, user: null });
@@ -123,8 +131,6 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
   const [reactions, setReactions] = useState<ReactionSummary>({ count: 0, liked: false });
   const [loadingComments, setLoadingComments] = useState(true);
   const [loadingReactions, setLoadingReactions] = useState(true);
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
   const [body, setBody] = useState("");
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [message, setMessage] = useState<string | null>(null);
@@ -255,9 +261,6 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
     (session.user?.memberProfile?.accountType === "subscriber" ||
       session.user?.memberProfile?.accountType === "author" ||
       session.user?.memberProfile?.accountType === "editor");
-  const commentAccessMessage = session.authenticated
-    ? "Комментирование доступно только пользователям с ролью subscriber и выше."
-    : "Войдите в аккаунт с ролью subscriber или выше, чтобы оставить комментарий.";
   const canSubmit = canComment && bodyLength > 0 && bodyLength <= maxLength && submitState !== "submitting";
 
   const helperText = useMemo(() => {
@@ -273,7 +276,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
 
     if (!canSubmit) {
       if (!canComment) {
-        setMessage(commentAccessMessage);
+        openAuthWidget("login");
       }
       return;
     }
@@ -292,8 +295,6 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
             contentTypeUid,
             targetDocumentId,
             targetSlug,
-            guestName: guestName.trim() || undefined,
-            guestEmail: guestEmail.trim() || undefined,
             body: body.trim(),
           },
         }),
@@ -306,19 +307,9 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
       const createdComment = (await response.json()) as CommunityComment;
 
       setBody("");
-      setGuestName("");
-      setGuestEmail("");
       setSubmitState("success");
-      setMessage(settings?.commentModerationEnabled === false ? "Комментарий опубликован." : "Комментарий отправлен на модерацию.");
-
-      if (settings?.commentModerationEnabled === false) {
-        const query = new URLSearchParams({ contentTypeUid, targetDocumentId });
-        const commentsResponse = await fetch(`/api/community/comments?${query.toString()}`, { cache: "no-store" });
-        const nextComments = (await commentsResponse.json()) as CommunityComment[];
-        setComments(Array.isArray(nextComments) ? nextComments : []);
-      } else {
-        setComments((currentComments) => [createdComment, ...currentComments]);
-      }
+      setMessage("Комментарий опубликован.");
+      setComments((currentComments) => [createdComment, ...currentComments]);
     } catch (error) {
       console.error("[community] submit comment", error);
       setSubmitState("error");
@@ -373,34 +364,36 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
   return (
     <section className="mt-10 space-y-8 border-t border-black/10 pt-8 dark:border-white/10">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-black/10 pb-5 dark:border-white/10">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col gap-3">
           {shareLinks.length ? <p className="type-caption text-zinc-500 dark:text-zinc-400">Поделиться</p> : null}
-          {shareLinks.map((network) => (
-            <a
-              key={network.label}
-              href={network.href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={network.label}
-              title={network.label}
-              className="inline-flex h-11 w-11 items-center justify-center border border-black/10 bg-white/80 text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-800 dark:border-white/10 dark:bg-[#0b1710] dark:text-zinc-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
-            >
-              {network.icon?.url ? (
-                <span className="relative block h-5 w-5 overflow-hidden">
-                  <Image
-                    src={network.icon.url}
-                    alt={network.icon.alternativeText ?? network.label}
-                    fill
-                    sizes="20px"
-                    className="object-contain"
-                  />
-                </span>
-              ) : (
-                <span className="type-caption">{network.label.slice(0, 2)}</span>
-              )}
-              <span className="sr-only">{network.label}</span>
-            </a>
-          ))}
+          <div className="flex flex-wrap items-center gap-3">
+            {shareLinks.map((network) => (
+              <a
+                key={network.label}
+                href={network.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={network.label}
+                title={network.label}
+                className="inline-flex h-11 w-11 items-center justify-center border border-black/10 bg-white/80 text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-800 dark:border-white/10 dark:bg-[#0b1710] dark:text-zinc-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
+              >
+                {network.icon?.url ? (
+                  <span className="relative block h-5 w-5 overflow-hidden">
+                    <Image
+                      src={network.icon.url}
+                      alt={network.icon.alternativeText ?? network.label}
+                      fill
+                      sizes="20px"
+                      className="object-contain"
+                    />
+                  </span>
+                ) : (
+                  <span className="type-caption">{network.label.slice(0, 2)}</span>
+                )}
+                <span className="sr-only">{network.label}</span>
+              </a>
+            ))}
+          </div>
         </div>
 
         <button
@@ -423,41 +416,14 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="space-y-2">
-              <span className="type-button text-zinc-700 dark:text-zinc-200">Имя</span>
-              <input
-                type="text"
-                value={guestName}
-                onChange={(event) => setGuestName(event.target.value)}
-                className="w-full border border-black/10 bg-white px-4 py-3 outline-none transition-colors focus:border-emerald-700 dark:border-white/10 dark:bg-[#08110b] dark:focus:border-emerald-400"
-                placeholder="Как вас представить"
-                disabled
-              />
-            </label>
-
-            <label className="space-y-2">
-              <span className="type-button text-zinc-700 dark:text-zinc-200">Email</span>
-              <input
-                type="email"
-                value={guestEmail}
-                onChange={(event) => setGuestEmail(event.target.value)}
-                className="w-full border border-black/10 bg-white px-4 py-3 outline-none transition-colors focus:border-emerald-700 dark:border-white/10 dark:bg-[#08110b] dark:focus:border-emerald-400"
-                placeholder="name@example.com"
-                disabled
-              />
-            </label>
-          </div>
-
           <label className="block space-y-2">
-            <span className="type-button text-zinc-700 dark:text-zinc-200">Комментарий</span>
             <textarea
               value={body}
               onChange={(event) => setBody(event.target.value)}
               rows={5}
               className="w-full border border-black/10 bg-white px-4 py-3 outline-none transition-colors focus:border-emerald-700 dark:border-white/10 dark:bg-[#08110b] dark:focus:border-emerald-400"
               placeholder="Поделитесь мнением о материале"
-              disabled={!canComment || submitState === "submitting"}
+              disabled={submitState === "submitting"}
             />
           </label>
 
@@ -465,7 +431,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
             <p className={`type-caption ${bodyLength > maxLength ? "text-red-600 dark:text-red-400" : "text-zinc-500 dark:text-zinc-400"}`}>{helperText}</p>
             <button
               type="submit"
-              disabled={!canSubmit}
+              disabled={bodyLength === 0 || bodyLength > maxLength || submitState === "submitting"}
               className="type-button inline-flex items-center justify-center border border-emerald-800 bg-emerald-800 px-5 py-2.5 text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-600 dark:bg-emerald-600 dark:text-[#08110b] dark:hover:bg-emerald-500"
             >
               {submitState === "submitting" ? "Отправка..." : "Отправить комментарий"}
@@ -473,8 +439,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
           </div>
         </form>
 
-        {!canComment ? <p className="type-small text-zinc-600 dark:text-zinc-300">{commentAccessMessage}</p> : null}
-        {message ? <p className="type-small text-zinc-600 dark:text-zinc-300">{message}</p> : null}
+        {canComment && message ? <p className="type-small text-zinc-600 dark:text-zinc-300">{message}</p> : null}
       </div>
 
       <div className="space-y-4">
@@ -497,9 +462,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
               </article>
             ))}
           </div>
-        ) : (
-          <p className="type-small text-zinc-500 dark:text-zinc-400">Пока комментариев нет. Вы можете стать первым.</p>
-        )}
+        ) : null}
       </div>
     </section>
   );
