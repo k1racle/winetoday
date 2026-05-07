@@ -30,7 +30,13 @@ import { SidebarPanel } from "@/components/sidebar-panel";
 export const revalidate = 120;
 
 function formatHomepageNewsTime(value?: string | null) {
-  return formatRussianDateTime(value)?.split(",")[0]?.trim() ?? "--.--";
+  const dateLabel = formatRussianDateTime(value)?.split(",")[0]?.trim();
+
+  if (!dateLabel) {
+    return "--.--";
+  }
+
+  return dateLabel.replace(/\s+\d{4}(?:\s*г\.?)?$/u, "").trim();
 }
 
 export async function generateMetadata(): Promise<Metadata> {

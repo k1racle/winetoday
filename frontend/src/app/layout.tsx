@@ -365,6 +365,15 @@ export default async function RootLayout({
     ...typographyStyleVars(typography?.small, "small", { family: "lato", size: "14px", mobileSize: "14px", weight: "400", lineHeight: "1.6", mobileLineHeight: "1.6", letterSpacing: "normal", mobileLetterSpacing: "normal", textTransform: "none" }),
     ...typographyStyleVars(typography?.caption, "caption", { family: "lato", size: "12px", mobileSize: "12px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "0.24em", mobileLetterSpacing: "0.24em", textTransform: "uppercase" }),
     ...typographyStyleVars(typography?.button, "button", { family: "lato", size: "14px", mobileSize: "14px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "normal", mobileLetterSpacing: "normal", textTransform: "none" }),
+    "--font-body-family": resolveFontFamily("lato"),
+    "--font-menu-family": resolveFontFamily("lato"),
+    "--font-hero-eyebrow-family": resolveFontFamily("lato"),
+    "--font-h2-family": resolveFontFamily("lato"),
+    "--font-h3-family": resolveFontFamily("lato"),
+    "--font-h4-family": resolveFontFamily("lato"),
+    "--font-small-family": resolveFontFamily("lato"),
+    "--font-caption-family": resolveFontFamily("lato"),
+    "--font-button-family": resolveFontFamily("lato"),
   } as React.CSSProperties;
 
   return (
@@ -374,7 +383,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className={`${inter.variable} ${oswald.variable} min-h-full bg-background text-foreground`}
+        className={`${inter.variable} ${oswald.variable} min-h-full bg-background font-sans text-foreground`}
         style={typographyVars}
       >
         <MobileWidgetsProvider>
