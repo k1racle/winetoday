@@ -156,6 +156,11 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
     setDrawerOpen(false);
   };
 
+  const openAuthOverlay = () => {
+    window.dispatchEvent(new CustomEvent("open-auth-widget", { detail: { view: "login" } }));
+    setDrawerOpen(false);
+  };
+
   const containerClass = sticky ? "sticky top-0 z-50" : "relative z-50";
 
   return (
@@ -276,11 +281,17 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
                       <SearchIcon />
                     </button>
                     <ThemeToggle compact />
-                    <AuthWidget
-                      label="Войти"
-                      compact
-                      buttonClassName="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
-                    />
+                    <button
+                      type="button"
+                      aria-label="Войти"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
+                      onClick={openAuthOverlay}
+                    >
+                      <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M20 21a8 8 0 0 0-16 0" />
+                        <circle cx="12" cy="8" r="4" />
+                      </svg>
+                    </button>
                   </div>
                   <button
                     type="button"
