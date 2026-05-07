@@ -443,10 +443,11 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
       </div>
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between gap-4">
-          <h3 className="type-h4">Комментарии</h3>
-          <span className="type-caption text-zinc-500 dark:text-zinc-400">{comments.length}</span>
-        </div>
+        {comments.length ? (
+          <div className="flex items-center justify-end gap-4">
+            <span className="type-caption text-zinc-500 dark:text-zinc-400">{comments.length}</span>
+          </div>
+        ) : null}
 
         {loadingComments ? (
           <p className="type-small text-zinc-500 dark:text-zinc-400">Загружаем комментарии...</p>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { DesktopSidebarSlot } from "@/components/desktop-sidebar-slot";
 import { InfiniteArchivePageList } from "@/components/infinite-archive-page-list";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
@@ -80,9 +81,9 @@ export default async function NewsPage() {
           </div>
         </section>
 
-        <div className="hidden w-[320px] min-w-0 shrink-0 overflow-hidden xl:sticky xl:col-start-2 xl:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+        <DesktopSidebarSlot>
           <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} />
-        </div>
+        </DesktopSidebarSlot>
       </div>
     </main>
   );

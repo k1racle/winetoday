@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CommunitySection } from "@/components/community-section";
 import { ContentTags } from "@/components/content-tags";
+import { DesktopSidebarSlot } from "@/components/desktop-sidebar-slot";
 import { MaterialEditButton } from "@/components/material-edit-button";
 import { RichContent } from "@/components/rich-content";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
@@ -103,9 +104,9 @@ export default async function VideoDetailPage({ params }: PageProps) {
           </div>
         </article>
 
-        <div className="hidden w-[320px] shrink-0 overflow-hidden xl:sticky xl:col-start-2 xl:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+        <DesktopSidebarSlot>
           <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} />
-        </div>
+        </DesktopSidebarSlot>
       </div>
     </main>
   );

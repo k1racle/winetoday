@@ -398,6 +398,10 @@ export default async function RootLayout({
               navigationItems={navigationItems}
             />
 
+            <div className="pointer-events-none fixed -left-[9999px] top-0 h-0 w-0 overflow-hidden" aria-hidden="true">
+              <AuthWidget label="Открыть вход" listenOnly />
+            </div>
+
           <main className="flex-1 pb-3 md:pb-0">{children}</main>
 
           <footer

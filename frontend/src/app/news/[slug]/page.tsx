@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CommunitySection } from "@/components/community-section";
 import { ContentTags } from "@/components/content-tags";
+import { DesktopSidebarSlot } from "@/components/desktop-sidebar-slot";
 import { RichContent } from "@/components/rich-content";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { MaterialEditButton } from "@/components/material-edit-button";
@@ -99,13 +100,13 @@ export default async function NewsDetailPage({ params }: PageProps) {
             />
           </footer>
           <div className="xl:hidden">
-            <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} stacked mobile />
+            <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} stacked mobile archiveBlockInnerWidthClassName="w-full" />
           </div>
         </article>
 
-        <div className="hidden w-[320px] shrink-0 overflow-hidden xl:sticky xl:col-start-2 xl:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+        <DesktopSidebarSlot>
           <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} />
-        </div>
+        </DesktopSidebarSlot>
       </div>
     </main>
   );

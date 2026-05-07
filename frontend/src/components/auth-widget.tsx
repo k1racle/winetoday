@@ -14,6 +14,7 @@ type AuthWidgetProps = {
   buttonClassName?: string;
   buttonStyle?: CSSProperties;
   panelClassName?: string;
+  listenOnly?: boolean;
 };
 
 type SessionResponse = {
@@ -52,7 +53,7 @@ async function readJsonSafely<T>(response: Response): Promise<T | null> {
   }
 }
 
-export function AuthWidget({ label, compact = false, className, buttonClassName, buttonStyle, panelClassName }: AuthWidgetProps) {
+export function AuthWidget({ label, compact = false, className, buttonClassName, buttonStyle, panelClassName, listenOnly = false }: AuthWidgetProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -257,25 +258,27 @@ export function AuthWidget({ label, compact = false, className, buttonClassName,
 
   return (
     <div className={className ? `relative ${className}` : "relative"}>
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        className={buttonClassName ?? (compact
-          ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
-          : "type-button inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2 text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100 dark:hover:border-emerald-400 dark:hover:text-emerald-300")}
-        style={buttonStyle}
-        aria-expanded={open}
-        aria-label={triggerLabel}
-      >
-        {compact ? (
-          <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M20 21a8 8 0 0 0-16 0" />
-            <circle cx="12" cy="8" r="4" />
-          </svg>
-        ) : (
-          <span>{loading ? "..." : triggerLabel}</span>
-        )}
-      </button>
+      {listenOnly ? null : (
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          className={buttonClassName ?? (compact
+            ? "inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
+            : "type-button inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2 text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-900 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-100 dark:hover:border-emerald-400 dark:hover:text-emerald-300")}
+          style={buttonStyle}
+          aria-expanded={open}
+          aria-label={triggerLabel}
+        >
+          {compact ? (
+            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M20 21a8 8 0 0 0-16 0" />
+              <circle cx="12" cy="8" r="4" />
+            </svg>
+          ) : (
+            <span>{loading ? "..." : triggerLabel}</span>
+          )}
+        </button>
+      )}
 
       {open ? (
         <>

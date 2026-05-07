@@ -20,6 +20,7 @@ import {
   withLoggedFallback,
 } from "@/lib/strapi";
 import { RichContent } from "@/components/rich-content";
+import { DesktopSidebarSlot } from "@/components/desktop-sidebar-slot";
 import Link from "next/link";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { HomepageSpecialVideoCarousel } from "@/components/homepage-special-video-carousel";
@@ -588,9 +589,9 @@ export default async function Home() {
               <div className="min-w-0">
                 <RichContent blocks={homepage.blocks} />
               </div>
-              <div className="hidden w-[320px] shrink-0 overflow-hidden xl:sticky xl:col-start-2 xl:block" style={{ top: "var(--site-header-offset-with-gap, 7rem)" }}>
+              <DesktopSidebarSlot>
                 <SidebarPanel sidebar={regularSidebar} />
-              </div>
+              </DesktopSidebarSlot>
             </div>
           </section>
         ) : null}
