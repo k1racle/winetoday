@@ -290,7 +290,7 @@ export function AuthWidget({ label, compact = false, className, buttonClassName,
               onClick={() => setOpen(false)}
             />
           ) : null}
-          <div className={panelClassName ?? "fixed right-0 top-0 z-[9999] flex h-dvh w-full max-w-[30rem] flex-col border-l border-black/10 bg-white p-6 text-zinc-900 shadow-[-24px_0_80px_rgba(8,17,11,0.18)] dark:border-white/10 dark:bg-[#08110b] dark:text-zinc-100"}>
+          <div className={panelClassName ?? "fixed inset-0 z-[9999] flex h-dvh w-full max-w-none flex-col border-0 bg-white p-6 text-zinc-900 shadow-none dark:bg-[#08110b] dark:text-zinc-100 sm:left-auto sm:right-0 sm:top-0 sm:max-w-[30rem] sm:border-l sm:border-black/10 sm:shadow-[-24px_0_80px_rgba(8,17,11,0.18)] dark:sm:border-white/10"}>
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <p className="type-caption text-zinc-500 dark:text-zinc-400">Аккаунт</p>
