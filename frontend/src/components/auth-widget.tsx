@@ -286,11 +286,11 @@ export function AuthWidget({ label, compact = false, className, buttonClassName,
             <button
               type="button"
               aria-label="Закрыть панель входа"
-              className="fixed inset-0 z-[139] bg-black/35 backdrop-blur-[1px]"
+              className="fixed inset-0 z-[9998] bg-black/35 backdrop-blur-[1px]"
               onClick={() => setOpen(false)}
             />
           ) : null}
-          <div className={panelClassName ?? "fixed right-0 top-0 z-[140] flex h-dvh w-full max-w-[30rem] flex-col border-l border-black/10 bg-white p-6 text-zinc-900 shadow-[-24px_0_80px_rgba(8,17,11,0.18)] dark:border-white/10 dark:bg-[#08110b] dark:text-zinc-100"}>
+          <div className={panelClassName ?? "fixed right-0 top-0 z-[9999] flex h-dvh w-full max-w-[30rem] flex-col border-l border-black/10 bg-white p-6 text-zinc-900 shadow-[-24px_0_80px_rgba(8,17,11,0.18)] dark:border-white/10 dark:bg-[#08110b] dark:text-zinc-100"}>
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
               <p className="type-caption text-zinc-500 dark:text-zinc-400">Аккаунт</p>
