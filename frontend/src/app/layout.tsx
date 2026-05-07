@@ -398,7 +398,7 @@ export default async function RootLayout({
               navigationItems={navigationItems}
             />
 
-            <AuthWidget label="Открыть вход" listenOnly className="hidden" />
+            <AuthWidget label="Открыть вход" listenOnly />
 
           <main className="flex-1 pb-3 md:pb-0">{children}</main>
 
