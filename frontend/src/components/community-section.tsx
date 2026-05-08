@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import type { AuthMode } from "@/lib/auth-shared";
 
 type CommunitySettings = {
@@ -77,6 +77,7 @@ type CommunitySectionProps = {
   targetSlug?: string | null;
   title: string;
   sharePath: string;
+  afterShareContent?: ReactNode;
 };
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
@@ -124,7 +125,7 @@ function openAuthWidget(view: "login" | "register" = "login") {
   window.dispatchEvent(new CustomEvent("open-auth-widget", { detail: { view } }));
 }
 
-export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug, title, sharePath }: CommunitySectionProps) {
+export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug, title, sharePath, afterShareContent }: CommunitySectionProps) {
   const [settings, setSettings] = useState<CommunitySettings | null>(null);
   const [session, setSession] = useState<SessionResponse>({ authenticated: false, user: null });
   const [comments, setComments] = useState<CommunityComment[]>([]);
@@ -409,6 +410,8 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
           <span>{loadingReactions ? "..." : reactions.count}</span>
         </button>
       </div>
+
+      {afterShareContent ? <div>{afterShareContent}</div> : null}
 
       <div className="space-y-4">
         <div className="space-y-1">
