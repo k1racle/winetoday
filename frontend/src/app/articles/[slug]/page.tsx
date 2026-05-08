@@ -109,7 +109,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
             ) : null}
           </header>
 
-          <RichContent blocks={article.content} />
+          <RichContent blocks={article.content} paragraphLineHeightClassName="leading-6" />
           <SourceLinks sources={article.sources} className="pt-2" />
           <footer>
             <RelatedTags tags={relatedTags} title="Теги материала" />

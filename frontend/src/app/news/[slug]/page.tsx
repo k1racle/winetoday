@@ -130,7 +130,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
             ) : null}
           </header>
 
-          <RichContent blocks={item.content} />
+          <RichContent blocks={item.content} paragraphLineHeightClassName="leading-6" />
           <SourceLinks sources={item.sources} className="pt-2" />
           <footer>
             <RelatedTags tags={relatedTags} title="Теги материала" />

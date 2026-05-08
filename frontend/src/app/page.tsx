@@ -7,7 +7,9 @@ import {
   buildCategoryDateOverlayMeta,
   buildSeoMetadata,
   comparePublishedDesc,
+  formatRussianDate,
   formatRussianDateTime,
+  formatRussianTime,
   getPrimaryCategory,
   getGlobalSettings,
   getHomepage,
@@ -399,6 +401,11 @@ export default async function Home() {
   const specialVideos = homepageSpecial.videos;
   const hasHomepageSpecialBlock = Boolean(specialLead || specialSecondary.length || specialVideos.length);
   const hasHomepageNewsWidget = Boolean(latestNewsSidebarItems.length || popularNewsSidebarItems.length);
+  const specialLeadPublishedValue = specialLead ? (specialLead.publishedAtCustom ?? specialLead.publishedAt) : null;
+  const specialLeadDate = formatRussianDate(specialLeadPublishedValue);
+  const specialLeadTime = formatRussianTime(specialLeadPublishedValue);
+  const specialLeadCategory = specialLead ? getPrimaryCategory(specialLead.categories) : null;
+  const hasSpecialLeadMeta = Boolean(specialLeadDate || specialLeadTime || specialLeadCategory?.name);
 
   return (
     <main className="px-4 py-10 text-foreground max-md:pt-0 sm:px-8 lg:px-12">
@@ -518,11 +525,46 @@ export default async function Home() {
                               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
                           </div>
                           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
-                            <h2 className="mt-4 font-[Lato] text-[30px] font-bold leading-[1.08] tracking-[-0.02em] text-white sm:text-[34px]"><Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">{specialLead.title}</Link></h2>
+                            <h2
+                              className="mt-4 text-white"
+                              style={{
+                                fontFamily: "Lato, var(--font-inter), system-ui, sans-serif",
+                                fontSize: "26px",
+                                lineHeight: "32px",
+                                fontWeight: 700,
+                              }}
+                            >
+                              <Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">
+                                {specialLead.title}
+                              </Link>
+                            </h2>
                             {specialLead.excerpt ? (
                               <p className="mt-4 max-w-[60ch] font-[Lato] text-[16px] leading-[1.5] text-white/85">
                                 {specialLead.excerpt}
                               </p>
+                            ) : null}
+                            {hasSpecialLeadMeta ? (
+                              <div
+                                className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-white/78"
+                                style={{
+                                  fontFamily: "Lato, var(--font-inter), system-ui, sans-serif",
+                                  fontSize: "13px",
+                                  lineHeight: "18px",
+                                  fontWeight: 400,
+                                }}
+                              >
+                                {specialLeadDate ? <span>{specialLeadDate}</span> : null}
+                                {specialLeadTime ? <span>{specialLeadTime}</span> : null}
+                                {specialLeadCategory?.name ? (
+                                  specialLeadCategory.slug ? (
+                                    <Link href={`/categories/${specialLeadCategory.slug}`} className="pointer-events-auto transition hover:text-emerald-200">
+                                      {specialLeadCategory.name}
+                                    </Link>
+                                  ) : (
+                                    <span>{specialLeadCategory.name}</span>
+                                  )
+                                ) : null}
+                              </div>
                             ) : null}
                           </div>
                         </article>

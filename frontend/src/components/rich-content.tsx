@@ -14,11 +14,13 @@ import type { CategorySummaryList } from "@/lib/strapi";
 
 type RichContentProps = {
   blocks?: StrapiBlock[] | null;
+  paragraphLineHeightClassName?: string;
 };
 
 type TiptapContentProps = {
   content?: Record<string, unknown> | string | null;
   className?: string;
+  paragraphLineHeightClassName?: string;
 };
 
 function renderTiptapContent(content?: Record<string, unknown> | string | null): ReactNode {
@@ -36,15 +38,19 @@ function renderTiptapContent(content?: Record<string, unknown> | string | null):
   }
 }
 
-export function TiptapContent({ content, className }: TiptapContentProps) {
+export function TiptapContent({ content, className, paragraphLineHeightClassName }: TiptapContentProps) {
   const rendered = renderTiptapContent(content);
 
   if (!rendered) {
     return null;
   }
 
+  const defaultClassName = paragraphLineHeightClassName === "leading-6"
+    ? "max-w-none space-y-4 overflow-x-hidden text-base leading-8 text-zinc-700 dark:text-zinc-300 [&_a]:text-emerald-700 [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-emerald-900 dark:[&_a]:text-emerald-300 dark:hover:[&_a]:text-emerald-200 [&_blockquote]:border-l-2 [&_blockquote]:border-emerald-500 [&_blockquote]:pl-5 [&_blockquote]:italic [&_blockquote]:text-zinc-900 dark:[&_blockquote]:border-emerald-400 dark:[&_blockquote]:text-zinc-100 [&_ol]:ml-6 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ul]:ml-6 [&_ul]:list-disc [&_ul]:space-y-2 [&_li]:pl-1 [&_h1]:font-heading [&_h1]:text-4xl [&_h1]:font-semibold [&_h1]:tracking-tight [&_h1]:text-zinc-950 dark:[&_h1]:text-zinc-50 [&_h2]:font-heading [&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:text-zinc-950 dark:[&_h2]:text-zinc-50 [&_h3]:font-heading [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:tracking-tight [&_h3]:text-zinc-950 dark:[&_h3]:text-zinc-50 [&_h4]:font-heading [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:tracking-tight [&_h4]:text-zinc-950 dark:[&_h4]:text-zinc-50 [&_p]:leading-6 [&_hr]:my-8 [&_hr]:border-black/10 dark:[&_hr]:border-white/10 [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_table]:whitespace-nowrap [&_table]:[-webkit-overflow-scrolling:touch] md:[&_table]:table md:[&_table]:overflow-visible md:[&_table]:whitespace-normal [&_table]:w-full [&_th]:border [&_th]:border-black/10 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left dark:[&_th]:border-white/10 [&_td]:border [&_td]:border-black/10 [&_td]:px-3 [&_td]:py-2 dark:[&_td]:border-white/10"
+    : "max-w-none space-y-4 overflow-x-hidden text-base leading-8 text-zinc-700 dark:text-zinc-300 [&_a]:text-emerald-700 [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-emerald-900 dark:[&_a]:text-emerald-300 dark:hover:[&_a]:text-emerald-200 [&_blockquote]:border-l-2 [&_blockquote]:border-emerald-500 [&_blockquote]:pl-5 [&_blockquote]:italic [&_blockquote]:text-zinc-900 dark:[&_blockquote]:border-emerald-400 dark:[&_blockquote]:text-zinc-100 [&_ol]:ml-6 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ul]:ml-6 [&_ul]:list-disc [&_ul]:space-y-2 [&_li]:pl-1 [&_h1]:font-heading [&_h1]:text-4xl [&_h1]:font-semibold [&_h1]:tracking-tight [&_h1]:text-zinc-950 dark:[&_h1]:text-zinc-50 [&_h2]:font-heading [&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:text-zinc-950 dark:[&_h2]:text-zinc-50 [&_h3]:font-heading [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:tracking-tight [&_h3]:text-zinc-950 dark:[&_h3]:text-zinc-50 [&_h4]:font-heading [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:tracking-tight [&_h4]:text-zinc-950 dark:[&_h4]:text-zinc-50 [&_p]:leading-8 [&_hr]:my-8 [&_hr]:border-black/10 dark:[&_hr]:border-white/10 [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_table]:whitespace-nowrap [&_table]:[-webkit-overflow-scrolling:touch] md:[&_table]:table md:[&_table]:overflow-visible md:[&_table]:whitespace-normal [&_table]:w-full [&_th]:border [&_th]:border-black/10 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left dark:[&_th]:border-white/10 [&_td]:border [&_td]:border-black/10 [&_td]:px-3 [&_td]:py-2 dark:[&_td]:border-white/10";
+
   return (
-    <div className={className ?? "max-w-none space-y-4 overflow-x-hidden text-base leading-8 text-zinc-700 dark:text-zinc-300 [&_a]:text-emerald-700 [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-emerald-900 dark:[&_a]:text-emerald-300 dark:hover:[&_a]:text-emerald-200 [&_blockquote]:border-l-2 [&_blockquote]:border-emerald-500 [&_blockquote]:pl-5 [&_blockquote]:italic [&_blockquote]:text-zinc-900 dark:[&_blockquote]:border-emerald-400 dark:[&_blockquote]:text-zinc-100 [&_ol]:ml-6 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ul]:ml-6 [&_ul]:list-disc [&_ul]:space-y-2 [&_li]:pl-1 [&_h1]:font-heading [&_h1]:text-4xl [&_h1]:font-semibold [&_h1]:tracking-tight [&_h1]:text-zinc-950 dark:[&_h1]:text-zinc-50 [&_h2]:font-heading [&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h2]:text-zinc-950 dark:[&_h2]:text-zinc-50 [&_h3]:font-heading [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:tracking-tight [&_h3]:text-zinc-950 dark:[&_h3]:text-zinc-50 [&_h4]:font-heading [&_h4]:text-xl [&_h4]:font-semibold [&_h4]:tracking-tight [&_h4]:text-zinc-950 dark:[&_h4]:text-zinc-50 [&_p]:leading-8 [&_hr]:my-8 [&_hr]:border-black/10 dark:[&_hr]:border-white/10 [&_table]:block [&_table]:max-w-full [&_table]:overflow-x-auto [&_table]:border-collapse [&_table]:whitespace-nowrap [&_table]:[-webkit-overflow-scrolling:touch] md:[&_table]:table md:[&_table]:overflow-visible md:[&_table]:whitespace-normal [&_table]:w-full [&_th]:border [&_th]:border-black/10 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left dark:[&_th]:border-white/10 [&_td]:border [&_td]:border-black/10 [&_td]:px-3 [&_td]:py-2 dark:[&_td]:border-white/10"}>
+    <div className={className ?? defaultClassName}>
       {rendered}
     </div>
   );
@@ -243,7 +249,7 @@ async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blo
   }
 }
 
-export async function RichContent({ blocks }: RichContentProps) {
+export async function RichContent({ blocks, paragraphLineHeightClassName }: RichContentProps) {
   if (!blocks?.length) {
     return null;
   }
@@ -364,7 +370,7 @@ export async function RichContent({ blocks }: RichContentProps) {
           return (
             <section key={`${block.__component}-${block.id}`} className="space-y-5">
               {block.title ? <h2 className="type-h3 font-semibold tracking-tight">{block.title}</h2> : null}
-              <TiptapContent content={block.content} />
+              <TiptapContent content={block.content} paragraphLineHeightClassName={paragraphLineHeightClassName} />
             </section>
           );
         }
@@ -488,10 +494,14 @@ export async function RichContent({ blocks }: RichContentProps) {
         }
 
         if (block.__component === "blocks.rich-text") {
+          const paragraphLineHeightProseClassName = paragraphLineHeightClassName === "leading-6"
+            ? "prose-p:leading-6"
+            : "prose-p:leading-8";
+
           return (
             <section key={`${block.__component}-${block.id}`} className="space-y-4">
               {block.title ? <h2 className="type-h3 font-semibold tracking-tight">{block.title}</h2> : null}
-              <div className="prose prose-zinc max-w-none text-[16px] leading-8 text-zinc-700 prose-headings:font-semibold prose-headings:tracking-tight prose-p:my-4 prose-ul:my-4 prose-ol:my-4 prose-li:my-1 prose-blockquote:border-l-2 prose-blockquote:border-emerald-700 prose-blockquote:pl-4 prose-blockquote:italic prose-a:text-emerald-700 prose-strong:text-zinc-900 dark:prose-invert dark:text-zinc-300 dark:prose-a:text-emerald-400">
+              <div className={`prose prose-zinc max-w-none text-[16px] leading-8 text-zinc-700 prose-headings:font-semibold prose-headings:tracking-tight prose-p:my-4 ${paragraphLineHeightProseClassName} prose-ul:my-4 prose-ol:my-4 prose-li:my-1 prose-blockquote:border-l-2 prose-blockquote:border-emerald-700 prose-blockquote:pl-4 prose-blockquote:italic prose-a:text-emerald-700 prose-strong:text-zinc-900 dark:prose-invert dark:text-zinc-300 dark:prose-a:text-emerald-400`}>
                 {typeof block.content === "string"
                   ? renderLegacyRichTextContent(block.content)
                   : renderRichTextNodes(block.content, `${block.__component}-${block.id}`)}
