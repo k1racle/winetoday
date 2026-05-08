@@ -149,13 +149,13 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                       href={item.href}
                       className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                     >
-                      <div className="min-w-0 font-[Lato] text-[16px] leading-[1.4] text-foreground dark:text-white">
+                      <div className="flex min-w-0 items-start gap-x-1.5 font-[Lato] text-[13px] font-normal leading-[18px] text-foreground dark:text-white/88">
                         {item.meta ? (
-                          <span className="mr-2 font-menu text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
+                          <span className="w-[44px] shrink-0 font-menu text-[12px] uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
                             {item.meta}
                           </span>
                         ) : null}
-                        <span className={`min-w-0 ${wordWrapClassName}`}>{item.label}</span>
+                        <span className={`min-w-0 flex-1 ${wordWrapClassName}`}>{item.label}</span>
                       </div>
                     </Link>
                   ))}

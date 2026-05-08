@@ -783,7 +783,19 @@ function filterItemsBySelectedCategories<
 export { getEffectivePublishedAt, sortArchiveItems, sortPublishedItems };
 
 function formatSidebarDate(value?: string | null) {
-  return formatRussianDateTime(value);
+  const formattedValue = formatRussianDate(value);
+
+  if (!formattedValue) {
+    return null;
+  }
+
+  const [day, month, year] = formattedValue.split(".");
+
+  if (day && month && year) {
+    return `${day}.${month}`;
+  }
+
+  return formattedValue;
 }
 
 function formatDateKeyInTimeZone(value: Date, timeZone: string) {
