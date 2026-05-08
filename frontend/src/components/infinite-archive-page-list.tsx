@@ -101,9 +101,9 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
               const primaryMetaHref = getPrimaryMetaHref(leadItem.meta);
 
               return primaryMetaLabel ? (
-                <div className="mb-3 font-menu text-[11px] font-bold uppercase tracking-[0.16em] text-[#4b5d63] dark:text-white/70">
+                <div className="mb-3 font-[Lato] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
                   {primaryMetaHref ? (
-                    <Link href={primaryMetaHref} className="transition hover:text-emerald-800 dark:hover:text-emerald-200">
+                    <Link href={primaryMetaHref} className="pointer-events-auto transition hover:text-emerald-900 dark:hover:text-emerald-200">
                       {primaryMetaLabel}
                     </Link>
                   ) : (
@@ -139,9 +139,9 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
                   const primaryMetaHref = getPrimaryMetaHref(item.meta);
 
                   return primaryMetaLabel ? (
-                    <div className="mb-2 font-menu text-[11px] font-bold uppercase tracking-[0.16em] text-[#4b5d63] dark:text-white/70">
+                    <div className="mb-2 font-[Lato] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
                       {primaryMetaHref ? (
-                        <Link href={primaryMetaHref} className="transition hover:text-emerald-800 dark:hover:text-emerald-200">
+                        <Link href={primaryMetaHref} className="pointer-events-auto transition hover:text-emerald-900 dark:hover:text-emerald-200">
                           {primaryMetaLabel}
                         </Link>
                       ) : (
