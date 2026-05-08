@@ -166,91 +166,93 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
   return (
     <header className={containerClass}>
       <div className="border-b border-black/10 bg-white dark:border-white/10 dark:bg-[#081623]">
-        <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
-          {/* Desktop top row */}
-          <div className="hidden h-20 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:grid">
-            <div className="flex justify-start">
-              <Link href="/" className="inline-flex items-center justify-center">
+        <div className="px-4 sm:px-8 lg:px-12">
+          <div className="mx-auto max-w-[1440px]">
+            {/* Desktop top row */}
+            <div className="hidden h-20 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:grid">
+              <div className="flex justify-start">
+                <Link href="/" className="inline-flex items-center justify-center">
+                  {logo?.url ? (
+                    <Image
+                      src={logo.url}
+                      alt={logo.alternativeText ?? siteName}
+                      width={520}
+                      height={160}
+                      sizes="(min-width: 1280px) 420px, 60vw"
+                      className="h-12 w-[280px] object-contain"
+                      priority
+                    />
+                  ) : (
+                    <span className="type-h2 text-[40px] leading-[1] tracking-[-0.02em] text-[#0b3b27] dark:text-emerald-200">
+                      ВИНОДЕЛИЕ СЕГОДНЯ
+                    </span>
+                  )}
+                </Link>
+              </div>
+
+              <div />
+
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  aria-label="Поиск"
+                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
+                  onClick={openSearchOverlay}
+                >
+                  <SearchIcon />
+                </button>
+                <ThemeToggle compact />
+                <AuthWidget
+                  label="Войти"
+                  buttonClassName="type-button inline-flex items-center justify-center rounded-full bg-transparent px-4 py-2 text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-white/10 dark:hover:text-white"
+                />
+              </div>
+            </div>
+
+            {/* Desktop bottom row */}
+            <nav className="hidden h-14 items-center justify-between xl:flex">
+              {resolvedMenu.map((item) => (
+                <Link
+                  key={`${item.href}-${item.label}`}
+                  href={item.href}
+                  className="font-menu text-[13px] font-medium tracking-[0.12em] text-zinc-700 transition-colors hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white"
+                >
+                  {item.label.toUpperCase()}
+                </Link>
+              ))}
+            </nav>
+
+            {/* Mobile/tablet row */}
+            <div className="grid h-16 grid-cols-[auto_1fr_44px] items-center gap-3 xl:hidden">
+              <Link href="/" className="min-w-0 justify-self-start px-2">
                 {logo?.url ? (
                   <Image
                     src={logo.url}
                     alt={logo.alternativeText ?? siteName}
-                    width={520}
-                    height={160}
-                    sizes="(min-width: 1280px) 420px, 60vw"
-                    className="h-12 w-[280px] object-contain"
+                    width={360}
+                    height={120}
+                    sizes="(max-width: 1279px) 220px, 220px"
+                    className="h-8 w-auto max-w-[220px] object-contain"
                     priority
                   />
                 ) : (
-                  <span className="type-h2 text-[40px] leading-[1] tracking-[-0.02em] text-[#0b3b27] dark:text-emerald-200">
-                    ВИНОДЕЛИЕ СЕГОДНЯ
+                  <span className="line-clamp-1 text-[16px] font-semibold tracking-[0.06em] text-[#0b3b27] dark:text-emerald-200">
+                    {siteName || "ВИНОДЕЛИЕ СЕГОДНЯ"}
                   </span>
                 )}
               </Link>
-            </div>
 
-            <div />
+              <div />
 
-            <div className="flex items-center justify-end gap-3">
               <button
                 type="button"
-                aria-label="Поиск"
+                aria-label={drawerOpen ? "Закрыть меню" : "Открыть меню"}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
-                onClick={openSearchOverlay}
+                onClick={() => setDrawerOpen((v) => !v)}
               >
-                <SearchIcon />
+                {drawerOpen ? <CloseIcon /> : <HamburgerIcon />}
               </button>
-              <ThemeToggle compact />
-              <AuthWidget
-                label="Войти"
-                buttonClassName="type-button inline-flex items-center justify-center rounded-full bg-transparent px-4 py-2 text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-white/10 dark:hover:text-white"
-              />
             </div>
-          </div>
-
-          {/* Desktop bottom row */}
-          <nav className="hidden h-14 items-center justify-between xl:flex">
-            {resolvedMenu.map((item) => (
-              <Link
-                key={`${item.href}-${item.label}`}
-                href={item.href}
-                className="font-menu text-[13px] font-medium tracking-[0.12em] text-zinc-700 transition-colors hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white"
-              >
-                {item.label.toUpperCase()}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Mobile/tablet row */}
-          <div className="grid h-16 grid-cols-[auto_1fr_44px] items-center gap-3 xl:hidden">
-            <Link href="/" className="min-w-0 justify-self-start px-2">
-              {logo?.url ? (
-                <Image
-                  src={logo.url}
-                  alt={logo.alternativeText ?? siteName}
-                  width={360}
-                  height={120}
-                  sizes="(max-width: 1279px) 220px, 220px"
-                  className="h-8 w-auto max-w-[220px] object-contain"
-                  priority
-                />
-              ) : (
-                <span className="line-clamp-1 text-[16px] font-semibold tracking-[0.06em] text-[#0b3b27] dark:text-emerald-200">
-                  {siteName || "ВИНОДЕЛИЕ СЕГОДНЯ"}
-                </span>
-              )}
-            </Link>
-
-            <div />
-
-            <button
-              type="button"
-              aria-label={drawerOpen ? "Закрыть меню" : "Открыть меню"}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-100 dark:hover:bg-white/10 dark:hover:text-white"
-              onClick={() => setDrawerOpen((v) => !v)}
-            >
-              {drawerOpen ? <CloseIcon /> : <HamburgerIcon />}
-            </button>
           </div>
         </div>
       </div>
