@@ -7,7 +7,6 @@ import {
   buildCategoryDateOverlayMeta,
   buildSeoMetadata,
   comparePublishedDesc,
-  formatRussianDate,
   formatRussianDateTime,
   formatRussianTime,
   getPrimaryCategory,
@@ -30,6 +29,23 @@ import { HomepageNewsSidebar, type HomepageNewsSidebarItem } from "@/components/
 import { SidebarPanel } from "@/components/sidebar-panel";
 
 export const revalidate = 120;
+
+function formatHomepageNewsDateWithMonthLabel(value?: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+  }).format(date);
+}
 
 function formatHomepageNewsTime(value?: string | null) {
   const dateLabel = formatRussianDateTime(value)?.split(",")[0]?.trim();
@@ -402,7 +418,7 @@ export default async function Home() {
   const hasHomepageSpecialBlock = Boolean(specialLead || specialSecondary.length || specialVideos.length);
   const hasHomepageNewsWidget = Boolean(latestNewsSidebarItems.length || popularNewsSidebarItems.length);
   const specialLeadPublishedValue = specialLead ? (specialLead.publishedAtCustom ?? specialLead.publishedAt) : null;
-  const specialLeadDate = formatRussianDate(specialLeadPublishedValue);
+  const specialLeadDate = formatHomepageNewsDateWithMonthLabel(specialLeadPublishedValue);
   const specialLeadTime = formatRussianTime(specialLeadPublishedValue);
   const specialLeadCategory = specialLead ? getPrimaryCategory(specialLead.categories) : null;
   const hasSpecialLeadMeta = Boolean(specialLeadDate || specialLeadTime || specialLeadCategory?.name);
@@ -585,15 +601,18 @@ export default async function Home() {
                                 const category = getPrimaryCategory(item.categories);
                                 const categoryName = category?.name;
                                 const categorySlug = category?.slug;
-                                const publishedLabel = formatHomepageNewsTime(item.publishedAtCustom ?? item.publishedAt);
+                                const publishedValue = item.publishedAtCustom ?? item.publishedAt;
+                                const publishedDateLabel = formatHomepageNewsDateWithMonthLabel(publishedValue);
+                                const publishedTimeLabel = formatRussianTime(publishedValue);
 
-                                if (!categoryName && !publishedLabel) {
+                                if (!categoryName && !publishedDateLabel && !publishedTimeLabel) {
                                   return null;
                                 }
 
                                 return (
                                   <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
-                                    {publishedLabel ? <span>{publishedLabel}</span> : null}
+                                    {publishedDateLabel ? <span>{publishedDateLabel}</span> : null}
+                                    {publishedTimeLabel ? <span>{publishedTimeLabel}</span> : null}
                                     {categoryName ? (
                                       categorySlug ? (
                                         <Link href={`/categories/${categorySlug}`} className="transition hover:text-emerald-900 dark:hover:text-emerald-200">
