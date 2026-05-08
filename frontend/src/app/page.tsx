@@ -543,18 +543,26 @@ export default async function Home() {
                                 const category = getPrimaryCategory(item.categories);
                                 const categoryName = category?.name;
                                 const categorySlug = category?.slug;
+                                const publishedLabel = formatHomepageNewsTime(item.publishedAtCustom ?? item.publishedAt);
 
-                                return categoryName ? (
-                                  <div className="mb-3 font-menu text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
-                                    {categorySlug ? (
-                                      <Link href={`/categories/${categorySlug}`} className="transition hover:text-emerald-800 dark:hover:text-emerald-200">
-                                        {categoryName}
-                                      </Link>
-                                    ) : (
-                                      categoryName
-                                    )}
+                                if (!categoryName && !publishedLabel) {
+                                  return null;
+                                }
+
+                                return (
+                                  <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
+                                    {publishedLabel ? <span>{publishedLabel}</span> : null}
+                                    {categoryName ? (
+                                      categorySlug ? (
+                                        <Link href={`/categories/${categorySlug}`} className="transition hover:text-emerald-900 dark:hover:text-emerald-200">
+                                          {categoryName}
+                                        </Link>
+                                      ) : (
+                                        <span>{categoryName}</span>
+                                      )
+                                    ) : null}
                                   </div>
-                                ) : null;
+                                );
                               })()}
                               <h3 className="font-[Lato] text-[18px] leading-[1.35] text-[#10211a] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
                             </div>

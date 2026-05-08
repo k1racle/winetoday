@@ -103,7 +103,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
             <MaterialEditButton type="article" documentId={article.documentId} authorSlug={article.author?.slug} />
             {article.cover?.url ? (
               <>
-                <Image src={article.cover.url} alt={article.cover.alternativeText ?? article.title} width={1280} height={720} sizes="100vw" className="h-auto max-h-[450px] w-full object-cover" />
+                <Image src={article.cover.url} alt={article.cover.alternativeText ?? article.title} width={1280} height={720} sizes="100vw" className="h-auto w-full object-cover" />
                 {article.coverSource ? <p className="type-caption text-zinc-500 dark:text-zinc-400">Источник: {article.coverSource}</p> : null}
               </>
             ) : null}

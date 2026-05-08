@@ -81,7 +81,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
             <MaterialEditButton type="news" documentId={item.documentId} authorSlug={item.author?.slug} />
             {item.cover?.url ? (
               <>
-                <Image src={item.cover.url} alt={item.cover.alternativeText ?? item.title} width={1280} height={720} sizes="100vw" className="h-auto max-h-[450px] w-full object-cover" />
+                <Image src={item.cover.url} alt={item.cover.alternativeText ?? item.title} width={1280} height={720} sizes="100vw" className="h-auto w-full object-cover" />
                 {item.coverSource ? <p className="type-caption text-zinc-500 dark:text-zinc-400">Источник: {item.coverSource}</p> : null}
               </>
             ) : null}

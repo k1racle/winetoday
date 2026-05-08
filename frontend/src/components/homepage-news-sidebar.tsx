@@ -67,21 +67,23 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
             type="button"
             onClick={() => onTabChange("latest")}
             className={activeTab === "latest"
-              ? "font-menu text-[13px] font-bold tracking-[0.02em] text-foreground transition-colors dark:text-white"
+              ? "relative font-menu text-[13px] font-bold tracking-[0.02em] text-foreground transition-colors dark:text-white"
               : "font-menu text-[13px] font-normal tracking-[0.02em] text-zinc-500 transition-colors hover:text-foreground dark:text-zinc-400 dark:hover:text-white"
             }
           >
             Свежие
+            {activeTab === "latest" ? <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-[3px] bg-emerald-700 dark:bg-emerald-300" /> : null}
           </button>
           <button
             type="button"
             onClick={() => onTabChange("popular")}
             className={activeTab === "popular"
-              ? "font-menu text-[13px] font-bold tracking-[0.02em] text-foreground transition-colors dark:text-white"
+              ? "relative font-menu text-[13px] font-bold tracking-[0.02em] text-foreground transition-colors dark:text-white"
               : "font-menu text-[13px] font-normal tracking-[0.02em] text-zinc-500 transition-colors hover:text-foreground dark:text-zinc-400 dark:hover:text-white"
             }
           >
             Популярные
+            {activeTab === "popular" ? <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-[3px] bg-emerald-700 dark:bg-emerald-300" /> : null}
           </button>
         </div>
       </div>
