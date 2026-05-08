@@ -209,7 +209,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
           </div>
 
           {/* Desktop bottom row */}
-          <nav className="hidden h-14 items-center justify-center xl:flex xl:gap-6 2xl:gap-10">
+          <nav className="hidden h-14 items-center justify-between xl:flex">
             {resolvedMenu.map((item) => (
               <Link
                 key={`${item.href}-${item.label}`}
