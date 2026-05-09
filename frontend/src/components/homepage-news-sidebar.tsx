@@ -98,8 +98,8 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                   href={`/news/${item.slug}`}
                   className="block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
                 >
-                  <div className="space-y-2">
-                     <span className="font-menu block text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
+                  <div className="grid min-w-0 grid-cols-[56px_minmax(0,1fr)] items-start gap-3">
+                    <span className="font-menu pt-0.5 text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700 whitespace-nowrap dark:text-emerald-300">
                       {item.publishedLabel}
                     </span>
                     <p className="min-w-0 break-words font-[Lato] text-[15px] leading-[1.45] text-[#10211a] dark:text-white">
