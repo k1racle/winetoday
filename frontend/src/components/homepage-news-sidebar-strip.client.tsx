@@ -90,7 +90,7 @@ export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSideba
                       title={item.title}
                       materialLabel={item.materialLabel}
                       className="min-w-0 break-words font-[Lato] text-[15px] leading-[1.45] text-[#10211a] dark:text-white"
-                      badgeClassName="inline-flex items-center rounded-full bg-emerald-700/10 px-2 py-0.5 font-menu text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-900 dark:bg-emerald-300/15 dark:text-emerald-200 whitespace-nowrap"
+                      badgeClassName="inline-flex w-fit items-center rounded-[2px] bg-[#1d5b43] px-1 py-0 font-menu text-[12px] font-normal leading-[16px] tracking-[0.10em] text-white uppercase"
                       gapPx={8}
                     />
                   </div>
@@ -127,7 +127,7 @@ export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSideba
                       title={item.title}
                       materialLabel={item.materialLabel}
                       className="min-w-0 break-words font-[Lato] text-[15px] leading-[1.42] text-[#10211a] dark:text-white"
-                      badgeClassName="inline-flex items-center rounded-full bg-emerald-700/10 px-2 py-0.5 font-menu text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-900 dark:bg-emerald-300/15 dark:text-emerald-200 whitespace-nowrap"
+                      badgeClassName="inline-flex w-fit items-center rounded-[2px] bg-[#1d5b43] px-1 py-0 font-menu text-[12px] font-normal leading-[16px] tracking-[0.10em] text-white uppercase"
                       gapPx={8}
                     />
                   </div>
