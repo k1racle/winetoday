@@ -544,6 +544,7 @@ export type ArticleSummary = {
   title: string;
   slug: string;
   excerpt: string;
+  materialLabel?: string | null;
   readingTime?: number | null;
   featured?: boolean | null;
   pinned?: boolean | null;
@@ -596,6 +597,7 @@ export type VideoSummary = {
   title: string;
   slug: string;
   excerpt: string;
+  materialLabel?: string | null;
   cover?: StrapiMedia | null;
   videoUrl: string;
   duration?: number | null;
@@ -1995,7 +1997,7 @@ export const getSitemapTags = cache(async function getSitemapTags() {
 
 export async function getFeaturedArticles(): Promise<ArticleSummary[]> {
   const response = await fetchStrapi<ArticleSummary[]>(
-    "/api/articles?filters[featured][$eq]=true&sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=6&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=readingTime&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug",
+    "/api/articles?filters[featured][$eq]=true&sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=6&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=readingTime&fields[5]=featured&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug",
   );
 
   return sortPublishedItems(
@@ -2011,7 +2013,7 @@ export async function getFeaturedArticles(): Promise<ArticleSummary[]> {
 
 export async function getArticles(): Promise<ArticleSummary[]> {
   const response = await fetchStrapi<ArticleSummary[]>(
-    `/api/articles?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=readingTime&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
+    `/api/articles?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=readingTime&fields[5]=featured&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
   );
 
   const items = await resolveCategoriesForItems(
@@ -2033,7 +2035,7 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
   const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<ArticleDetail[]>(
-      `/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      `/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=materialLabel&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
       { status },
     ),
     fetchStrapi<ArticleDetail[]>(
@@ -2142,7 +2144,7 @@ export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
   const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<NewsDetail[]>(
-      `/api/news-entries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=sourceName&fields[7]=sourceUrl&fields[8]=publishedAt&fields[9]=publishedAtCustom&fields[10]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      `/api/news-entries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=sourceName&fields[8]=sourceUrl&fields[9]=publishedAt&fields[10]=publishedAtCustom&fields[11]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
       { status },
     ),
     fetchStrapi<NewsDetail[]>(
@@ -2183,7 +2185,7 @@ export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
 
 export async function getVideos(): Promise<VideoSummary[]> {
   const response = await fetchStrapi<VideoSummary[]>(
-    `/api/videos?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=videoUrl&fields[4]=duration&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
+    `/api/videos?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=videoUrl&fields[5]=duration&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
   );
 
   const items = await resolveCategoriesForItems(
@@ -2205,7 +2207,7 @@ export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) 
   const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<VideoSummary[]>(
-      `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=videoUrl&fields[4]=duration&fields[5]=pinned&fields[6]=homepageLead&fields[7]=publishedAt&fields[8]=publishedAtCustom&fields[9]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=videoUrl&fields[5]=duration&fields[6]=pinned&fields[7]=homepageLead&fields[8]=publishedAt&fields[9]=publishedAtCustom&fields[10]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
       { status },
     ),
     fetchStrapi<VideoSummary[]>(
