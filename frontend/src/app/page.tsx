@@ -403,6 +403,7 @@ export default async function Home() {
     slug: item.slug,
     title: item.title,
     publishedLabel: formatHomepageNewsTime(item.publishedAtCustom ?? item.publishedAt),
+    materialLabel: item.materialLabel,
     popularityCount: item.popularityCount,
   }));
   const popularNewsSidebarItems: HomepageNewsSidebarItem[] = popularNews.map((item) => ({
@@ -410,6 +411,7 @@ export default async function Home() {
     slug: item.slug,
     title: item.title,
     publishedLabel: formatHomepageNewsTime(item.publishedAtCustom ?? item.publishedAt),
+    materialLabel: item.materialLabel,
     popularityCount: item.popularityCount,
   }));
   const specialLead = homepageSpecial.featureCards[0] ?? null;

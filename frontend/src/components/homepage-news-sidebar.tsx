@@ -8,6 +8,7 @@ export type HomepageNewsSidebarItem = {
   slug: string;
   title: string;
   publishedLabel: string;
+  materialLabel?: string | null;
   popularityCount: number;
 };
 
@@ -52,6 +53,20 @@ type NewsStripProps = {
 
 function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps) {
   const [isExpandedMobile, setIsExpandedMobile] = useState(false);
+
+  const materialBadge = (materialLabel?: string | null) => {
+    const normalized = materialLabel?.trim().toLowerCase();
+
+    if (normalized === "exclusive") {
+      return "Эксклюзив";
+    }
+
+    if (normalized === "video") {
+      return "Видео";
+    }
+
+    return null;
+  };
 
   useEffect(() => {
     setIsExpandedMobile(false);
@@ -99,9 +114,20 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                   className="block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
                 >
                   <div className="grid min-w-0 grid-cols-[56px_minmax(0,1fr)] items-start gap-3">
-                    <span className="font-menu pt-0.5 text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700 whitespace-nowrap dark:text-emerald-300">
-                      {item.publishedLabel}
-                    </span>
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                      {(() => {
+                        const badge = materialBadge(item.materialLabel);
+
+                        return badge ? (
+                          <span className="inline-flex items-center rounded-full bg-emerald-700/10 px-2 py-0.5 font-menu text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-900 dark:bg-emerald-300/15 dark:text-emerald-200">
+                            {badge}
+                          </span>
+                        ) : null;
+                      })()}
+                      <span className="font-menu pt-0.5 text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700 whitespace-nowrap dark:text-emerald-300">
+                        {item.publishedLabel}
+                      </span>
+                    </div>
                     <p className="min-w-0 break-words font-[Lato] text-[15px] leading-[1.45] text-[#10211a] dark:text-white">
                       {item.title}
                     </p>
@@ -128,9 +154,20 @@ function NewsStrip({ items, emptyLabel, activeTab, onTabChange }: NewsStripProps
                   className="block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
                 >
                   <div className="grid min-w-0 grid-cols-[40px_minmax(0,1fr)] items-start gap-3">
-                     <span className="font-menu pt-0.5 text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
-                      {item.publishedLabel}
-                    </span>
+                    <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                      {(() => {
+                        const badge = materialBadge(item.materialLabel);
+
+                        return badge ? (
+                          <span className="inline-flex items-center rounded-full bg-emerald-700/10 px-2 py-0.5 font-menu text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-900 dark:bg-emerald-300/15 dark:text-emerald-200">
+                            {badge}
+                          </span>
+                        ) : null;
+                      })()}
+                      <span className="font-menu pt-0.5 text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700 whitespace-nowrap dark:text-emerald-300">
+                        {item.publishedLabel}
+                      </span>
+                    </div>
                     <p className="min-w-0 break-words font-[Lato] text-[15px] leading-[1.42] text-[#10211a] dark:text-white">
                       {item.title}
                     </p>

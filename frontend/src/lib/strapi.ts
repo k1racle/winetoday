@@ -569,6 +569,7 @@ export type NewsSummary = {
   title: string;
   slug: string;
   excerpt: string;
+  materialLabel?: string | null;
   featured?: boolean | null;
   pinned?: boolean | null;
   homepageLead?: boolean | null;
@@ -2058,7 +2059,7 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
 
 export async function getLatestNews(): Promise<NewsSummary[]> {
   const response = await fetchStrapi<NewsSummary[]>(
-    "/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=10&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=homepageSpecialBlock&fields[7]=sourceName&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug",
+    "/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=10&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=sourceName&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug",
   );
 
   return sortPublishedItems(
@@ -2074,7 +2075,7 @@ export async function getLatestNews(): Promise<NewsSummary[]> {
 
 export async function getNews(): Promise<NewsSummary[]> {
   const response = await fetchStrapi<NewsSummary[]>(
-    `/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=homepageSpecialBlock&fields[7]=sourceName&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
+    `/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=sourceName&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
   );
 
   const items = await resolveCategoriesForItems(
