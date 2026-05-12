@@ -7,6 +7,8 @@ type SidebarItemTitleProps = {
   materialLabel?: string | null;
   className?: string;
   badgeClassName?: string;
+  /** Optional badge background class, applied after badgeClassName. */
+  badgeBackgroundClassName?: string;
   /** Gap (in px) between title text and badge, used in width math for 3rd line. */
   gapPx?: number;
 };
@@ -170,6 +172,7 @@ export function SidebarItemTitle({
   materialLabel,
   className,
   badgeClassName,
+  badgeBackgroundClassName,
   gapPx = 8,
 }: SidebarItemTitleProps) {
   const normalizedMaterialLabel = useMemo(() => normalizeMaterialLabel(materialLabel), [materialLabel]);
@@ -272,7 +275,11 @@ export function SidebarItemTitle({
         <>
           <span
             ref={badgeRef}
-            className={badgeClassName ? `${badgeClassName} whitespace-nowrap` : "whitespace-nowrap"}
+            className={
+              badgeClassName || badgeBackgroundClassName
+                ? `${badgeClassName ?? ""} ${badgeBackgroundClassName ?? ""} whitespace-nowrap`.trim()
+                : "whitespace-nowrap"
+            }
             style={{ marginLeft: gapPx - 1 }}
           >
             {badgeText}

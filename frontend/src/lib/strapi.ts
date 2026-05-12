@@ -543,7 +543,7 @@ export type ArticleSummary = {
   documentId: string;
   title: string;
   slug: string;
-  excerpt: string;
+  excerpt?: string | null;
   materialLabel?: string | null;
   readingTime?: number | null;
   featured?: boolean | null;
@@ -569,7 +569,7 @@ export type NewsSummary = {
   documentId: string;
   title: string;
   slug: string;
-  excerpt: string;
+  excerpt?: string | null;
   materialLabel?: string | null;
   featured?: boolean | null;
   pinned?: boolean | null;
@@ -596,7 +596,7 @@ export type VideoSummary = {
   documentId: string;
   title: string;
   slug: string;
-  excerpt: string;
+  excerpt?: string | null;
   materialLabel?: string | null;
   cover?: StrapiMedia | null;
   videoUrl: string;

@@ -687,8 +687,12 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
   const sources = normalizeSources(payload.sources);
   const coverSource = typeof payload.coverSource === 'string' ? payload.coverSource.trim() : '';
 
-  if (!title || !excerpt) {
-    throw new ValidationError('Укажите заголовок и краткое описание.');
+  if (!title) {
+    throw new ValidationError('Укажите заголовок.');
+  }
+
+  if (type === 'video' && !excerpt) {
+    throw new ValidationError('Для видео обязательно краткое описание.');
   }
 
   const data: Record<string, unknown> = {

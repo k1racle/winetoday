@@ -2036,7 +2036,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           <Field label="Ссылка"><input value={form.slug} onChange={(event) => updateForm("slug", event.target.value)} className={inputClassName} placeholder="Можно оставить пустым" /></Field>
         </div>
 
-        <Field label="Краткое описание">
+        <Field label="Краткое описание (необязательно для новостей/статей)">
           <textarea value={form.excerpt} onChange={(event) => updateForm("excerpt", event.target.value)} rows={4} className={inputClassName} />
         </Field>
 

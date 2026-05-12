@@ -23,7 +23,7 @@
     },
     "excerpt": {
       "type": "text",
-      "required": true
+      "required": false
     },
     "cover": {
       "type": "media",
