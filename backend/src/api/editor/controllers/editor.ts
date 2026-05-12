@@ -673,6 +673,10 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
   const title = typeof payload.title === 'string' ? payload.title.trim() : '';
   const excerpt = typeof payload.excerpt === 'string' ? payload.excerpt.trim() : '';
   const slug = typeof payload.slug === 'string' ? payload.slug.trim() : '';
+  const materialLabelRaw = typeof payload.materialLabel === 'string' ? payload.materialLabel.trim() : '';
+  const materialLabel = materialLabelRaw === 'exclusive' || materialLabelRaw === 'video' || materialLabelRaw === 'none'
+    ? materialLabelRaw
+    : 'none';
   const cover = payload.cover ? Number(payload.cover) : null;
   const blocks = normalizeBlocks(payload.blocks);
   const status = payload.status === 'published' ? 'published' : 'draft';
@@ -691,6 +695,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     title,
     excerpt,
     slug: slug || undefined,
+    materialLabel,
     cover: Number.isInteger(cover) && cover && cover > 0 ? cover : null,
     content: blocks,
     memberProfile: memberProfileId,

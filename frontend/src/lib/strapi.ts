@@ -1996,9 +1996,25 @@ export const getSitemapTags = cache(async function getSitemapTags() {
 });
 
 export async function getFeaturedArticles(): Promise<ArticleSummary[]> {
-  const response = await fetchStrapi<ArticleSummary[]>(
-    "/api/articles?filters[featured][$eq]=true&sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=6&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=readingTime&fields[5]=featured&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug",
-  );
+  const pathWithMaterialLabel =
+    "/api/articles?filters[featured][$eq]=true&sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=6&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=readingTime&fields[5]=featured&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
+
+  const pathWithoutMaterialLabel =
+    "/api/articles?filters[featured][$eq]=true&sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=6&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=readingTime&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
+
+  let response: StrapiResponse<ArticleSummary[]>;
+  try {
+    response = await fetchStrapi<ArticleSummary[]>(pathWithMaterialLabel);
+  } catch (error) {
+    if (error instanceof StrapiRequestError && error.status === 400) {
+      console.warn(
+        "[strapi] getFeaturedArticles: retry without materialLabel due to 400 Bad Request (field may be missing in Strapi schema)",
+      );
+      response = await fetchStrapi<ArticleSummary[]>(pathWithoutMaterialLabel);
+    } else {
+      throw error;
+    }
+  }
 
   return sortPublishedItems(
     filterVisiblePublishedItems(response.data.filter(hasRequiredSummaryFields).map((item) => ({
@@ -2012,9 +2028,25 @@ export async function getFeaturedArticles(): Promise<ArticleSummary[]> {
 }
 
 export async function getArticles(): Promise<ArticleSummary[]> {
-  const response = await fetchStrapi<ArticleSummary[]>(
-    `/api/articles?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=readingTime&fields[5]=featured&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
-  );
+  const pathWithMaterialLabel =
+    `/api/articles?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=readingTime&fields[5]=featured&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
+
+  const pathWithoutMaterialLabel =
+    `/api/articles?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=readingTime&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
+
+  let response: StrapiResponse<ArticleSummary[]>;
+  try {
+    response = await fetchStrapi<ArticleSummary[]>(pathWithMaterialLabel);
+  } catch (error) {
+    if (error instanceof StrapiRequestError && error.status === 400) {
+      console.warn(
+        "[strapi] getArticles: retry without materialLabel due to 400 Bad Request (field may be missing in Strapi schema)",
+      );
+      response = await fetchStrapi<ArticleSummary[]>(pathWithoutMaterialLabel);
+    } else {
+      throw error;
+    }
+  }
 
   const items = await resolveCategoriesForItems(
     "article",
@@ -2033,16 +2065,74 @@ export async function getArticles(): Promise<ArticleSummary[]> {
 export const getArticleBySlug = cache(async function getArticleBySlug(slug: string) {
   const pathname = `/articles/${slug}`;
   const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
-  const [baseResponse, contentResponse] = await Promise.all([
-    fetchStrapi<ArticleDetail[]>(
-      `/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=materialLabel&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
-      { status },
-    ),
-    fetchStrapi<ArticleDetail[]>(
-      `/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}&${CONTENT_POPULATE_QUERY}`,
-      { status },
-    ),
-  ]);
+  const basePathWithMaterialLabel =
+    `/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}`
+    + "&fields[0]=title"
+    + "&fields[1]=slug"
+    + "&fields[2]=excerpt"
+    + "&fields[3]=materialLabel"
+    + "&fields[4]=readingTime"
+    + "&fields[5]=featured"
+    + "&fields[6]=pinned"
+    + "&fields[7]=homepageLead"
+    + "&fields[8]=homepageSpecialBlock"
+    + "&fields[9]=publishedAt"
+    + "&fields[10]=publishedAtCustom"
+    + "&fields[11]=coverSource"
+    + "&populate[cover]=true"
+    + "&populate[author][fields][0]=name"
+    + "&populate[author][fields][1]=slug"
+    + "&populate[author][fields][2]=position"
+    + `&${CATEGORY_FIELDS_QUERY}`
+    + "&populate[tags][fields][0]=name"
+    + "&populate[tags][fields][1]=slug"
+    + "&populate[seo][populate][metaImage]=true";
+
+  const basePathWithoutMaterialLabel =
+    `/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}`
+    + "&fields[0]=title"
+    + "&fields[1]=slug"
+    + "&fields[2]=excerpt"
+    + "&fields[3]=readingTime"
+    + "&fields[4]=featured"
+    + "&fields[5]=pinned"
+    + "&fields[6]=homepageLead"
+    + "&fields[7]=homepageSpecialBlock"
+    + "&fields[8]=publishedAt"
+    + "&fields[9]=publishedAtCustom"
+    + "&fields[10]=coverSource"
+    + "&populate[cover]=true"
+    + "&populate[author][fields][0]=name"
+    + "&populate[author][fields][1]=slug"
+    + "&populate[author][fields][2]=position"
+    + `&${CATEGORY_FIELDS_QUERY}`
+    + "&populate[tags][fields][0]=name"
+    + "&populate[tags][fields][1]=slug"
+    + "&populate[seo][populate][metaImage]=true";
+
+  const contentPath = `/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}&${CONTENT_POPULATE_QUERY}`;
+
+  let baseResponse: StrapiResponse<ArticleDetail[]>;
+  let contentResponse: StrapiResponse<ArticleDetail[]>;
+
+  try {
+    [baseResponse, contentResponse] = await Promise.all([
+      fetchStrapi<ArticleDetail[]>(basePathWithMaterialLabel, { status }),
+      fetchStrapi<ArticleDetail[]>(contentPath, { status }),
+    ]);
+  } catch (error) {
+    if (error instanceof StrapiRequestError && error.status === 400) {
+      console.warn(
+        "[strapi] getArticleBySlug: retry without materialLabel due to 400 Bad Request (field may be missing in Strapi schema)",
+      );
+      [baseResponse, contentResponse] = await Promise.all([
+        fetchStrapi<ArticleDetail[]>(basePathWithoutMaterialLabel, { status }),
+        fetchStrapi<ArticleDetail[]>(contentPath, { status }),
+      ]);
+    } else {
+      throw error;
+    }
+  }
 
   const article = baseResponse.data[0]
     ? {

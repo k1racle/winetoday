@@ -34,12 +34,23 @@ type SourceItem = {
   url: string;
 };
 
+type MaterialLabel = "none" | "exclusive" | "video";
+
+function normalizeMaterialLabel(value: unknown): MaterialLabel {
+  if (value === "exclusive" || value === "video") {
+    return value;
+  }
+
+  return "none";
+}
+
 type FormState = {
   documentId: string | null;
   type: EditorContentType;
   title: string;
   slug: string;
   excerpt: string;
+  materialLabel: MaterialLabel;
   cover: number | null;
   coverSource: string;
   author: number | null;
@@ -146,6 +157,7 @@ function createInitialState(type: EditorContentType): FormState {
     title: "",
     slug: "",
     excerpt: "",
+    materialLabel: "none",
     cover: null,
     coverSource: "",
     author: null,
@@ -272,6 +284,7 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
     title: entry.title ?? "",
     slug: entry.slug ?? "",
     excerpt: entry.excerpt ?? "",
+    materialLabel: normalizeMaterialLabel(entry.materialLabel),
     cover: entry.cover?.id ?? null,
     coverSource: entry.coverSource ?? "",
     author: entry.author?.id ?? null,
@@ -1649,6 +1662,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               title: form.title,
               slug: form.slug,
               excerpt: form.excerpt,
+              materialLabel: form.materialLabel,
               cover: form.cover,
               author: form.author,
               categories: form.categories,
@@ -2032,6 +2046,13 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                 <select value={form.status} onChange={(event) => updateForm("status", event.target.value as FormState["status"])} className={inputClassName}>
                   <option value="draft">Черновик</option>
                 <option value="published">Опубликовать</option>
+              </select>
+            </Field>
+            <Field label="Метка материала">
+              <select value={form.materialLabel} onChange={(event) => updateForm("materialLabel", event.target.value as MaterialLabel)} className={inputClassName}>
+                <option value="none">Ничего</option>
+                <option value="exclusive">Эксклюзив</option>
+                <option value="video">Видео</option>
               </select>
             </Field>
             <Field label="Дата публикации">
