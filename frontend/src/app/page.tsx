@@ -555,7 +555,7 @@ export default async function Home() {
                               </Link>
                             </h2>
                             {specialLead.excerpt ? (
-                              <p className="mt-4 max-w-[60ch] font-[Lato] text-[16px] leading-[1.5] text-white/85">
+                              <p className="mt-4 hidden max-w-[60ch] font-[Lato] text-[16px] leading-[1.5] text-white/85 sm:block">
                                 {specialLead.excerpt}
                               </p>
                             ) : null}
