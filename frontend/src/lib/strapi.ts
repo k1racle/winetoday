@@ -1694,11 +1694,26 @@ function withStatus(path: string, status?: "draft" | "published") {
   return `${path}${separator}status=${status}`;
 }
 
+class StrapiRequestError extends Error {
+  status: number;
+  statusText: string;
+  url: string;
+
+  constructor(params: { status: number; statusText: string; url: string }) {
+    super(`Strapi request failed: ${params.status} ${params.statusText}`);
+    this.name = "StrapiRequestError";
+    this.status = params.status;
+    this.statusText = params.statusText;
+    this.url = params.url;
+  }
+}
+
 async function fetchStrapi<T>(path: string, options?: { revalidate?: number | false; status?: "draft" | "published" }) {
   const revalidate = options?.revalidate;
   const shouldUseNoStore = options?.status === "draft" || revalidate === false || !HAS_REVALIDATE_SECRET;
   const authToken = options?.status === "draft" ? (await cookies()).get("vino_auth_jwt")?.value ?? null : null;
-  const response = await fetch(`${CMS_URL}${withStatus(path, options?.status)}`, {
+  const url = `${CMS_URL}${withStatus(path, options?.status)}`;
+  const response = await fetch(url, {
     cache: shouldUseNoStore ? "no-store" : undefined,
     next: shouldUseNoStore ? undefined : { revalidate: revalidate ?? DEFAULT_REVALIDATE_SECONDS },
     headers: {
@@ -1708,7 +1723,7 @@ async function fetchStrapi<T>(path: string, options?: { revalidate?: number | fa
   });
 
   if (!response.ok) {
-    throw new Error(`Strapi request failed: ${response.status} ${response.statusText}`);
+    throw new StrapiRequestError({ status: response.status, statusText: response.statusText, url });
   }
 
   return (await response.json()) as StrapiResponse<T>;
@@ -2058,9 +2073,25 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
 });
 
 export async function getLatestNews(): Promise<NewsSummary[]> {
-  const response = await fetchStrapi<NewsSummary[]>(
-    "/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=10&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=sourceName&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug",
-  );
+  const pathWithMaterialLabel =
+    "/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=10&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=sourceName&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
+
+  const pathWithoutMaterialLabel =
+    "/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=10&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=homepageSpecialBlock&fields[7]=sourceName&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
+
+  let response: StrapiResponse<NewsSummary[]>;
+  try {
+    response = await fetchStrapi<NewsSummary[]>(pathWithMaterialLabel);
+  } catch (error) {
+    if (error instanceof StrapiRequestError && error.status === 400) {
+      console.warn(
+        "[strapi] getLatestNews: retry without materialLabel due to 400 Bad Request (field may be missing in Strapi schema)",
+      );
+      response = await fetchStrapi<NewsSummary[]>(pathWithoutMaterialLabel);
+    } else {
+      throw error;
+    }
+  }
 
   return sortPublishedItems(
     filterVisiblePublishedItems(response.data.filter(hasRequiredSummaryFields).map((item) => ({
@@ -2074,9 +2105,23 @@ export async function getLatestNews(): Promise<NewsSummary[]> {
 }
 
 export async function getNews(): Promise<NewsSummary[]> {
-  const response = await fetchStrapi<NewsSummary[]>(
-    `/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=sourceName&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
-  );
+  const pathWithMaterialLabel = `/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=sourceName&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
+
+  const pathWithoutMaterialLabel = `/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=homepageSpecialBlock&fields[7]=sourceName&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
+
+  let response: StrapiResponse<NewsSummary[]>;
+  try {
+    response = await fetchStrapi<NewsSummary[]>(pathWithMaterialLabel);
+  } catch (error) {
+    if (error instanceof StrapiRequestError && error.status === 400) {
+      console.warn(
+        "[strapi] getNews: retry without materialLabel due to 400 Bad Request (field may be missing in Strapi schema)",
+      );
+      response = await fetchStrapi<NewsSummary[]>(pathWithoutMaterialLabel);
+    } else {
+      throw error;
+    }
+  }
 
   const items = await resolveCategoriesForItems(
     "news",
