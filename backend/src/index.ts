@@ -969,6 +969,7 @@ function registerAutoSlugHooks(strapi: Core.Strapi) {
       'api::article.article',
       'api::news.news',
       'api::video.video',
+      'api::gallery.gallery',
       'api::page.page',
       'api::category.category',
       'api::tag.tag',
