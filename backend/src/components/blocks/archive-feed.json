@@ -2,7 +2,7 @@
   "collectionName": "components_blocks_archive_feeds",
   "info": {
     "displayName": "Лента архива",
-      "description": "Автозагружаемая лента статей, новостей или видео"
+      "description": "Автозагружаемая лента статей, новостей, галерей или видео"
   },
   "options": {},
   "attributes": {
@@ -14,7 +14,7 @@
     },
     "contentType": {
       "type": "enumeration",
-      "enum": ["articles", "news", "videos"],
+      "enum": ["articles", "news", "galleries", "videos"],
       "required": true,
       "default": "articles"
     },

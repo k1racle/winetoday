@@ -1,4 +1,4 @@
-export const EDITOR_CONTENT_TYPES = ["article", "news", "video", "homepage"] as const;
+export const EDITOR_CONTENT_TYPES = ["article", "news", "video", "gallery", "homepage"] as const;
 
 export const EDITOR_BLOCK_TYPES = [
   "blocks.html-editor",

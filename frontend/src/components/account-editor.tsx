@@ -113,6 +113,13 @@ const EMPTY_EMBED_BLOCK: Extract<EditorBlock, { __component: "blocks.embed" }> =
   html: "",
 };
 
+const EMPTY_GALLERY_BLOCK: Extract<EditorBlock, { __component: "blocks.image-gallery" }> = {
+  __component: "blocks.image-gallery",
+  title: "",
+  description: "",
+  images: [],
+};
+
 function createEmptyInfographicCard(): EditorInfographicCard {
   return {
     shape: "square",
@@ -182,7 +189,7 @@ function createInitialState(type: EditorContentType): FormState {
     infographicCardsTablet: normalizeEditorInfographicCards([], INFOGRAPHIC_VIEWPORT_CARD_COUNTS.tablet),
     infographicCardsMobile: normalizeEditorInfographicCards([], INFOGRAPHIC_VIEWPORT_CARD_COUNTS.mobile),
     seo: { ...EMPTY_SEO },
-    blocks: [{ ...EMPTY_RICH_BLOCK }],
+    blocks: type === "gallery" ? [{ ...EMPTY_GALLERY_BLOCK }] : [{ ...EMPTY_RICH_BLOCK }],
   };
 }
 
@@ -1002,13 +1009,15 @@ const EDITOR_TYPE_ORDER: Record<EditorContentType, number> = {
   news: 0,
   article: 1,
   video: 2,
-  homepage: 3,
+  gallery: 3,
+  homepage: 4,
 };
 
 const EDITOR_TYPE_LABELS: Record<EditorContentType, string> = {
   news: "Новости",
   article: "Статьи",
   video: "Видео",
+  gallery: "Галереи",
   homepage: "Инфографика",
 };
 
@@ -1034,6 +1043,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     article: [],
     news: [],
     video: [],
+    gallery: [],
     homepage: [],
   });
   const [selectedType, setSelectedType] = useState<EditorContentType>("article");
@@ -1157,6 +1167,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
             article: [],
             news: [],
             video: [],
+            gallery: [],
             homepage: [],
           });
           setError("У вашей учетной записи пока нет доступа к созданию или редактированию материалов.");
@@ -1334,7 +1345,15 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       return type === "homepage" ? "/" : null;
     }
 
-    return type === "article" ? `/articles/${slug}` : type === "news" ? `/news/${slug}` : type === "video" ? `/videos/${slug}` : null;
+    return type === "article"
+      ? `/articles/${slug}`
+      : type === "news"
+        ? `/news/${slug}`
+        : type === "video"
+          ? `/videos/${slug}`
+          : type === "gallery"
+            ? `/gallery/${slug}`
+            : null;
   }
 
   function previewPath(type: EditorContentType, slug: string) {

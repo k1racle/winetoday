@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
 
-import { SITE_URL, getArticles, getNews, getPages, getSiteSeo, getSitemapCategories, getSitemapTags, getVideos, withLoggedFallback } from "@/lib/strapi";
+import { SITE_URL, getArticles, getGalleries, getNews, getPages, getSiteSeo, getSitemapCategories, getSitemapTags, getVideos, withLoggedFallback } from "@/lib/strapi";
 
 const DEFAULT_SITE_URL = SITE_URL;
-const RESERVED_PAGE_SLUGS = new Set(["account", "api", "articles", "categories", "news", "robots.txt", "search", "sitemap.xml", "tags", "videos"]);
+const RESERVED_PAGE_SLUGS = new Set(["account", "api", "articles", "categories", "gallery", "news", "robots.txt", "search", "sitemap.xml", "tags", "videos"]);
 
 function normalizeSiteUrl(value?: string | null) {
   return (value?.trim() || DEFAULT_SITE_URL).replace(/\/+$/, "");
@@ -33,8 +33,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter(Boolean),
   );
 
-  const [articles, news, videos, pages, categories, tags] = await Promise.all([
+  const [articles, galleries, news, videos, pages, categories, tags] = await Promise.all([
     siteSeo?.sitemapIncludeArticles === false ? Promise.resolve([]) : withLoggedFallback("sitemap articles", () => getArticles(), []),
+    withLoggedFallback("sitemap galleries", () => getGalleries(), []),
     siteSeo?.sitemapIncludeNews === false ? Promise.resolve([]) : withLoggedFallback("sitemap news", () => getNews(), []),
     siteSeo?.sitemapIncludeVideos === false ? Promise.resolve([]) : withLoggedFallback("sitemap videos", () => getVideos(), []),
     siteSeo?.sitemapIncludePages === false ? Promise.resolve([]) : withLoggedFallback("sitemap pages", () => getPages(), []),
@@ -47,12 +48,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: `${siteUrl}/`, changeFrequency: "daily" as const, priority: 1 },
     ...(siteSeo?.sitemapIncludeArticles === false ? [] : [{ url: `${siteUrl}/articles`, changeFrequency: "daily" as const, priority: 0.9 }]),
+    { url: `${siteUrl}/gallery`, changeFrequency: "weekly" as const, priority: 0.7 },
     ...(siteSeo?.sitemapIncludeNews === false ? [] : [{ url: `${siteUrl}/news`, changeFrequency: "daily" as const, priority: 0.9 }]),
     ...(siteSeo?.sitemapIncludeVideos === false ? [] : [{ url: `${siteUrl}/videos`, changeFrequency: "weekly" as const, priority: 0.8 }]),
     ...articles.map((item) => ({
       url: `${siteUrl}/articles/${item.slug}`,
       changeFrequency: "weekly" as const,
       priority: 0.8,
+      lastModified: normalizeDate(item.publishedAtCustom ?? item.publishedAt),
+    })),
+    ...galleries.map((item) => ({
+      url: `${siteUrl}/gallery/${item.slug}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
       lastModified: normalizeDate(item.publishedAtCustom ?? item.publishedAt),
     })),
     ...news.map((item) => ({

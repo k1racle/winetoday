@@ -20,6 +20,10 @@ const TYPE_CONFIG = {
     uid: 'api::video.video',
     summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt'],
   },
+  gallery: {
+    uid: 'api::gallery.gallery',
+    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt'],
+  },
   homepage: {
     uid: 'api::homepage.homepage',
     summaryFields: ['title', 'documentId', 'updatedAt', 'publishedAt'],
@@ -72,6 +76,17 @@ function buildEditorPopulate(type: EditorType) {
         },
       },
       blocks: { populate: '*' },
+      seo: true,
+    };
+  }
+
+  if (type === 'gallery') {
+    return {
+      cover: true,
+      content: { populate: '*' },
+      author: true,
+      memberProfile: true,
+      categories: true,
       seo: true,
     };
   }
@@ -416,8 +431,8 @@ async function resolveAccess(strapi: any, user: any) {
     profile,
     isEditor,
     allowedTypes: isEditor
-      ? (['article', 'news', 'video', 'homepage'] as EditorType[])
-      : (['article', 'news', 'video'] as EditorType[]),
+      ? (['article', 'news', 'video', 'gallery', 'homepage'] as EditorType[])
+      : (['article', 'news', 'video', 'gallery'] as EditorType[]),
   };
 }
 
@@ -691,8 +706,44 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     throw new ValidationError('Укажите заголовок.');
   }
 
+  if (type === 'gallery' && !excerpt) {
+    throw new ValidationError('Для галереи обязательно описание.');
+  }
+
   if (type === 'video' && !excerpt) {
     throw new ValidationError('Для видео обязательно краткое описание.');
+  }
+
+  if (type === 'gallery' && !blocks.some((block) => block.__component === 'blocks.image-gallery' && Array.isArray(block.images) && block.images.length > 0)) {
+    throw new ValidationError('Для галереи добавьте блок "Галерея изображений" с фотографиями.');
+  }
+
+  if (type === 'gallery') {
+    return {
+      data: {
+        title,
+        excerpt,
+        slug: slug || undefined,
+        cover: Number.isInteger(cover) && cover && cover > 0 ? cover : null,
+        content: blocks,
+        memberProfile: memberProfileId,
+        author: Number.isInteger(resolvedAuthorId) && resolvedAuthorId && resolvedAuthorId > 0 ? resolvedAuthorId : null,
+        publishedAtCustom: publishedAtCustom || new Date().toISOString(),
+        categories,
+        coverSource: coverSource || null,
+        seo: seoPayload
+          ? {
+              metaTitle: typeof seoPayload.metaTitle === 'string' ? seoPayload.metaTitle.trim() : null,
+              metaDescription: typeof seoPayload.metaDescription === 'string' ? seoPayload.metaDescription.trim() : null,
+              keywords: typeof seoPayload.keywords === 'string' ? seoPayload.keywords.trim() : null,
+              canonicalUrl: typeof seoPayload.canonicalUrl === 'string' ? seoPayload.canonicalUrl.trim() : null,
+              noIndex: seoPayload.noIndex === true,
+              noFollow: seoPayload.noFollow === true,
+            }
+          : null,
+      },
+      status,
+    };
   }
 
   const data: Record<string, unknown> = {

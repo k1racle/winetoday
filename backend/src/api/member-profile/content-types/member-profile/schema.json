@@ -64,6 +64,12 @@
       "relation": "oneToMany",
       "target": "api::video.video",
       "mappedBy": "memberProfile"
+    },
+    "galleries": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::gallery.gallery",
+      "mappedBy": "memberProfile"
     }
   }
 }

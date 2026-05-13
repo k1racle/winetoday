@@ -10,6 +10,7 @@ import {
   buildCategoryDateOverlayMeta,
   buildSeoMetadata,
   getArticles,
+  getGalleries,
   getNews,
   getSidebarForPath,
   getSiteSeo,
@@ -133,8 +134,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const rawQuery = resolveSearchQueryParam(params.q).trim();
   const query = normalizeSearchValue(rawQuery);
 
-  const [articles, news, videos, sidebar, tagCloud] = await Promise.all([
+  const [articles, galleries, news, videos, sidebar, tagCloud] = await Promise.all([
     withLoggedFallback("search articles", () => getArticles(), []),
+    withLoggedFallback("search galleries", () => getGalleries(), []),
     withLoggedFallback("search news", () => getNews(), []),
     withLoggedFallback("search videos", () => getVideos(), []),
     withLoggedFallback("search sidebar", () => getSidebarForPath("/search"), null),
@@ -163,16 +165,24 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     ...(item.categories ?? []).filter(nonNullable).map((category) => category.name),
     ...(item.tags ?? []).map((tag) => tag.name),
   ];
+  const galleryFields = (item: (typeof galleries)[number]) => [
+    item.title,
+    item.excerpt,
+    item.author?.name,
+    ...(item.categories ?? []).filter(nonNullable).map((category) => category.name),
+  ];
 
   const matchedArticles = query ? sortByScore(articles, articleFields)(query) : [];
+  const matchedGalleries = query ? sortByScore(galleries, galleryFields)(query) : [];
   const matchedNews = query ? sortByScore(news, newsFields)(query) : [];
   const matchedVideos = query ? sortByScore(videos, videoFields)(query) : [];
 
   const safeMatchedArticles = matchedArticles.filter(hasSearchCardIdentity);
+  const safeMatchedGalleries = matchedGalleries.filter(hasSearchCardIdentity);
   const safeMatchedNews = matchedNews.filter(hasSearchCardIdentity);
   const safeMatchedVideos = matchedVideos.filter(hasSearchCardIdentity);
 
-  const hasResults = Boolean(safeMatchedArticles.length || safeMatchedNews.length || safeMatchedVideos.length);
+  const hasResults = Boolean(safeMatchedArticles.length || safeMatchedGalleries.length || safeMatchedNews.length || safeMatchedVideos.length);
   return (
     <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
@@ -190,7 +200,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               </p>
             ) : (
               <p className="type-body mt-4 text-zinc-600 dark:text-zinc-400">
-                Ищем одновременно по статьям, новостям и видео
+                Ищем одновременно по статьям, галереям, новостям и видео
               </p>
             )}
           </header>
@@ -218,6 +228,23 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     imageUrl: article.cover?.url,
                     imageAlt: article.cover?.alternativeText ?? article.title,
                     meta: buildCategoryDateOverlayMeta(article.categories, article.publishedAt, article.publishedAtCustom),
+                  }))}
+                />
+              </SearchSection>
+            ) : null}
+
+            {safeMatchedGalleries.length ? (
+              <SearchSection title="Галереи" emptyLabel="Найденные галереи по вашему запросу">
+                <InfiniteArchivePageList
+                  emptyLabel="Найденные галереи по вашему запросу"
+                  items={safeMatchedGalleries.map((gallery) => ({
+                    id: gallery.documentId,
+                    href: `/gallery/${gallery.slug}`,
+                    title: gallery.title,
+                    excerpt: gallery.excerpt,
+                    imageUrl: gallery.cover?.url,
+                    imageAlt: gallery.cover?.alternativeText ?? gallery.title,
+                    meta: buildCategoryDateOverlayMeta(gallery.categories, gallery.publishedAt, gallery.publishedAtCustom),
                   }))}
                 />
               </SearchSection>

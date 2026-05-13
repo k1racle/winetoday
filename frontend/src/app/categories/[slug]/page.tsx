@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return buildSeoMetadata({
     title: `Рубрика: ${categoryPage.name}`,
-    description: `Подборка материалов по рубрике ${categoryPage.name}: новости, статьи и видео.`,
+    description: `Подборка материалов по рубрике ${categoryPage.name}: новости, статьи, видео и галереи.`,
     seo: categoryPage.seo,
     siteSeo,
     path: `/categories/${categoryPage.slug}`,

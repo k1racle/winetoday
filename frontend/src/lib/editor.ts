@@ -16,6 +16,7 @@ const TYPE_TO_ENDPOINT: Record<EditorContentType, string> = {
   article: "/api/articles",
   news: "/api/news-entries",
   video: "/api/videos",
+  gallery: "/api/galleries",
   homepage: "/api/homepage",
 };
 

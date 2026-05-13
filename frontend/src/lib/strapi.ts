@@ -52,6 +52,22 @@ const CONTENT_POPULATE_QUERY = [
   "populate[sources]=true",
 ].join("&");
 
+const GALLERY_CONTENT_POPULATE_QUERY = [
+  "populate[content][populate]=*",
+  "populate[content][on][blocks.archive-feed]=true",
+  "populate[content][on][blocks.cta][populate][link]=true",
+  "populate[content][on][blocks.embed]=true",
+  "populate[content][on][blocks.html-editor]=true",
+  "populate[content][on][blocks.image-gallery][populate][images]=true",
+  "populate[content][on][blocks.image-slider][populate][images]=true",
+  "populate[content][on][blocks.link-grid][populate][links]=true",
+  "populate[content][on][blocks.rich-text]=true",
+  "populate[content][on][blocks.quote]=true",
+  "populate[content][on][blocks.image-highlight][populate][image]=true",
+  "populate[content][on][blocks.hero][populate][backgroundImage]=true",
+  "populate[content][on][blocks.hero][populate][backgroundVideo]=true",
+].join("&");
+
 const VIDEO_CONTENT_POPULATE_QUERY = [
   "populate[content][populate]=*",
   "populate[content][on][blocks.archive-feed]=true",
@@ -409,7 +425,7 @@ export type TagCloudItem = {
   videos?: Array<{ slug: string }> | null;
 };
 
-export type SidebarArchiveContentType = "articles" | "news" | "videos";
+export type SidebarArchiveContentType = "articles" | "news" | "galleries" | "videos";
 
 export type SidebarArchiveItem = {
   label: string;
@@ -614,6 +630,24 @@ export type VideoSummary = {
   seo?: SeoFields | null;
 };
 
+export type GallerySummary = {
+  documentId: string;
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  cover?: StrapiMedia | null;
+  publishedAt?: string | null;
+  publishedAtCustom?: string | null;
+  author?: AuthorSummary | null;
+  categories?: CategorySummaryList | null;
+};
+
+export type GalleryDetail = GallerySummary & {
+  content?: StrapiBlock[] | null;
+  coverSource?: string | null;
+  seo?: SeoFields | null;
+};
+
 export type CommunitySettings = {
   allowGuestComments?: boolean | null;
   commentModerationEnabled?: boolean | null;
@@ -675,6 +709,7 @@ type StrapiCategoryAssignmentEntry = {
   articles?: Array<{ slug?: string | null }> | null;
   news_items?: Array<{ slug?: string | null }> | null;
   videos?: Array<{ slug?: string | null }> | null;
+  galleries?: Array<{ slug?: string | null }> | null;
 };
 
 export type TagPageData = {
@@ -889,6 +924,26 @@ async function resolveSidebarArchiveBlock(block: SidebarArchiveBlock): Promise<S
         items,
         archiveHref: "/news",
         archiveLabel: "Все новости",
+      };
+    }
+    case "galleries": {
+      const items = filterItemsBySelectedCategories(await getGalleries(), block.categories)
+        .sort((left, right) => comparePublishedDesc(getEffectivePublishedAt(left), getEffectivePublishedAt(right)) || getStablePublishedOrderKey(left).localeCompare(getStablePublishedOrderKey(right), "ru"))
+        .slice(0, limit)
+        .map((item) => ({
+        label: item.title,
+        href: `/gallery/${item.slug}`,
+        meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
+        description: item.excerpt,
+        imageUrl: item.cover?.url ?? null,
+        imageAlt: item.cover?.alternativeText ?? item.title,
+      }));
+
+      return {
+        ...block,
+        items,
+        archiveHref: "/gallery",
+        archiveLabel: "Все галереи",
       };
     }
     case "videos": {
@@ -1341,6 +1396,16 @@ type StrapiCategoryPageEntry = {
     cover?: StrapiMedia | null;
     categories?: CategorySummaryList | null;
   }> | null;
+  galleries?: Array<{
+    documentId: string;
+    title: string;
+    slug: string;
+    excerpt?: string | null;
+    publishedAt?: string | null;
+    publishedAtCustom?: string | null;
+    cover?: StrapiMedia | null;
+    categories?: CategorySummaryList | null;
+  }> | null;
   videos?: Array<{
     documentId: string;
     title: string;
@@ -1359,7 +1424,7 @@ export type CategoryPageData = {
   slug: string;
   seo?: SeoFields | null;
   items: Array<{
-    kind: "article" | "news" | "video";
+    kind: "article" | "news" | "video" | "gallery";
     documentId: string;
     title: string;
     slug: string;
@@ -1377,17 +1442,45 @@ function normalizeCategorySummaryList(categories?: CategorySummaryList | null) {
   return categories?.map((category) => normalizeCategorySummary(category)).filter((category): category is NonNullable<ReturnType<typeof normalizeCategorySummary>> => category !== null) ?? null;
 }
 
-type CategoryAssignmentKind = "article" | "news" | "video";
+function normalizeGallerySummary(item?: GallerySummary | null) {
+  if (!item?.documentId || !item.slug || !item.title) {
+    return null;
+  }
+
+  return {
+    ...item,
+    author: normalizeAuthorSummary(item.author),
+    categories: normalizeCategorySummaryList(item.categories),
+    cover: normalizeContentCardMedia(item.cover),
+  } satisfies GallerySummary;
+}
+
+function normalizeGalleryDetail(item?: GalleryDetail | null) {
+  const normalized = normalizeGallerySummary(item);
+
+  if (!normalized) {
+    return null;
+  }
+
+  return {
+    ...normalized,
+    content: normalizeBlocks(item?.content),
+    coverSource: typeof item?.coverSource === "string" && item.coverSource.trim() ? item.coverSource.trim() : null,
+  } satisfies GalleryDetail;
+}
+
+type CategoryAssignmentKind = "article" | "news" | "video" | "gallery";
 
 const getCategoryAssignments = cache(async function getCategoryAssignments() {
   const response = await fetchStrapi<StrapiCategoryAssignmentEntry[]>(
-    "/api/categories?pagination[limit]=100&fields[0]=name&fields[1]=slug&populate[articles][fields][0]=slug&populate[news_items][fields][0]=slug&populate[videos][fields][0]=slug",
+    "/api/categories?pagination[limit]=100&fields[0]=name&fields[1]=slug&populate[articles][fields][0]=slug&populate[news_items][fields][0]=slug&populate[videos][fields][0]=slug&populate[galleries][fields][0]=slug",
   );
 
   const assignments = {
     article: new Map<string, CategorySummary[]>(),
     news: new Map<string, CategorySummary[]>(),
     video: new Map<string, CategorySummary[]>(),
+    gallery: new Map<string, CategorySummary[]>(),
   } satisfies Record<CategoryAssignmentKind, Map<string, CategorySummary[]>>;
 
   for (const categoryEntry of response.data) {
@@ -1432,6 +1525,18 @@ const getCategoryAssignments = cache(async function getCategoryAssignments() {
       existing.push(category);
       assignments.video.set(slug, existing);
     }
+
+    for (const gallery of categoryEntry.galleries ?? []) {
+      const slug = gallery?.slug?.trim();
+
+      if (!slug) {
+        continue;
+      }
+
+      const existing = assignments.gallery.get(slug) ?? [];
+      existing.push(category);
+      assignments.gallery.set(slug, existing);
+    }
   }
 
   return assignments;
@@ -1439,7 +1544,7 @@ const getCategoryAssignments = cache(async function getCategoryAssignments() {
 
 export const getSitemapCategories = cache(async function getSitemapCategories() {
   const response = await fetchStrapi<StrapiCategoryAssignmentEntry[]>(
-    "/api/categories?pagination[limit]=100&sort[0]=name:asc&fields[0]=name&fields[1]=slug&populate[articles][fields][0]=slug&populate[news_items][fields][0]=slug&populate[videos][fields][0]=slug",
+    "/api/categories?pagination[limit]=100&sort[0]=name:asc&fields[0]=name&fields[1]=slug&populate[articles][fields][0]=slug&populate[news_items][fields][0]=slug&populate[videos][fields][0]=slug&populate[galleries][fields][0]=slug",
     { revalidate: SETTINGS_REVALIDATE_SECONDS },
   );
 
@@ -1449,7 +1554,8 @@ export const getSitemapCategories = cache(async function getSitemapCategories() 
       count:
         (category.articles?.length ?? 0)
         + (category.news_items?.length ?? 0)
-        + (category.videos?.length ?? 0),
+        + (category.videos?.length ?? 0)
+        + (category.galleries?.length ?? 0),
     }))
     .filter((category) => category.slug && category.count > 0)
     .map((category) => ({ slug: category.slug }));
@@ -2334,6 +2440,64 @@ export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) 
   return resolvedVideo;
 });
 
+export async function getGalleries(): Promise<GallerySummary[]> {
+  const response = await fetchStrapi<GallerySummary[]>(
+    `/api/galleries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=publishedAt&fields[4]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}`,
+  );
+
+  const items = await resolveCategoriesForItems(
+    "gallery",
+    response.data.filter(hasRequiredSummaryFields).map((item) => ({
+      ...item,
+      author: normalizeAuthorSummary(item.author),
+      categories: normalizeCategorySummaryList(item.categories),
+      cover: normalizeContentCardMedia(item.cover),
+    })),
+  );
+
+  return sortPublishedItems(filterVisiblePublishedItems(items));
+}
+
+export const getGalleryBySlug = cache(async function getGalleryBySlug(slug: string) {
+  const pathname = `/gallery/${slug}`;
+  const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
+  const [baseResponse, contentResponse] = await Promise.all([
+    fetchStrapi<GalleryDetail[]>(
+      `/api/galleries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=publishedAt&fields[4]=publishedAtCustom&fields[5]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[seo][populate][metaImage]=true`,
+      { status },
+    ),
+    fetchStrapi<GalleryDetail[]>(
+      `/api/galleries?filters[slug][$eq]=${encodeURIComponent(slug)}&${GALLERY_CONTENT_POPULATE_QUERY}`,
+      { status },
+    ),
+  ]);
+
+  const gallery = baseResponse.data[0]
+    ? {
+        ...baseResponse.data[0],
+        content: contentResponse.data[0]?.content ?? baseResponse.data[0].content,
+      }
+    : null;
+
+  if (!gallery) {
+    return null;
+  }
+
+  const normalizedGallery = normalizeGalleryDetail(gallery);
+
+  if (!normalizedGallery) {
+    return null;
+  }
+
+  const resolvedGallery = await resolveCategoriesForItem("gallery", normalizedGallery);
+
+  if (!status && !isPublishedItemVisible(resolvedGallery)) {
+    return null;
+  }
+
+  return resolvedGallery;
+});
+
 export async function getHomepageSpecialItems() {
   const [articles, news, videos] = await Promise.all([getArticles(), getNews(), getVideos()]);
   const homepageSpecialVideoLimit = 10;
@@ -2464,7 +2628,7 @@ export const getTagPageBySlug = cache(async function getTagPageBySlug(slug: stri
 
 export const getCategoryPageBySlug = cache(async function getCategoryPageBySlug(slug: string): Promise<CategoryPageData | null> {
   const response = await fetchStrapi<StrapiCategoryPageEntry[]>(
-    `/api/categories?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=name&fields[1]=slug&populate[seo][populate][metaImage]=true&populate[articles][fields][0]=title&populate[articles][fields][1]=slug&populate[articles][fields][2]=excerpt&populate[articles][fields][3]=publishedAt&populate[articles][fields][4]=publishedAtCustom&populate[articles][populate][cover]=true&populate[articles][populate][categories][fields][0]=name&populate[articles][populate][categories][fields][1]=slug&populate[news_items][fields][0]=title&populate[news_items][fields][1]=slug&populate[news_items][fields][2]=excerpt&populate[news_items][fields][3]=publishedAt&populate[news_items][fields][4]=publishedAtCustom&populate[news_items][populate][cover]=true&populate[news_items][populate][categories][fields][0]=name&populate[news_items][populate][categories][fields][1]=slug&populate[videos][fields][0]=title&populate[videos][fields][1]=slug&populate[videos][fields][2]=excerpt&populate[videos][fields][3]=publishedAt&populate[videos][fields][4]=publishedAtCustom&populate[videos][fields][5]=duration&populate[videos][populate][cover]=true&populate[videos][populate][categories][fields][0]=name&populate[videos][populate][categories][fields][1]=slug`,
+    `/api/categories?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=name&fields[1]=slug&populate[seo][populate][metaImage]=true&populate[articles][fields][0]=title&populate[articles][fields][1]=slug&populate[articles][fields][2]=excerpt&populate[articles][fields][3]=publishedAt&populate[articles][fields][4]=publishedAtCustom&populate[articles][populate][cover]=true&populate[articles][populate][categories][fields][0]=name&populate[articles][populate][categories][fields][1]=slug&populate[news_items][fields][0]=title&populate[news_items][fields][1]=slug&populate[news_items][fields][2]=excerpt&populate[news_items][fields][3]=publishedAt&populate[news_items][fields][4]=publishedAtCustom&populate[news_items][populate][cover]=true&populate[news_items][populate][categories][fields][0]=name&populate[news_items][populate][categories][fields][1]=slug&populate[galleries][fields][0]=title&populate[galleries][fields][1]=slug&populate[galleries][fields][2]=excerpt&populate[galleries][fields][3]=publishedAt&populate[galleries][fields][4]=publishedAtCustom&populate[galleries][populate][cover]=true&populate[galleries][populate][categories][fields][0]=name&populate[galleries][populate][categories][fields][1]=slug&populate[videos][fields][0]=title&populate[videos][fields][1]=slug&populate[videos][fields][2]=excerpt&populate[videos][fields][3]=publishedAt&populate[videos][fields][4]=publishedAtCustom&populate[videos][fields][5]=duration&populate[videos][populate][cover]=true&populate[videos][populate][categories][fields][0]=name&populate[videos][populate][categories][fields][1]=slug`,
     { revalidate: DEFAULT_REVALIDATE_SECONDS },
   );
 
@@ -2497,6 +2661,21 @@ export const getCategoryPageBySlug = cache(async function getCategoryPageBySlug(
       slug: item.slug,
       excerpt: item.excerpt,
       href: `/news/${item.slug}`,
+      meta: getPrimaryCategoryName(normalizeCategorySummaryList(item.categories))
+        ? `${getPrimaryCategoryName(normalizeCategorySummaryList(item.categories))} - ${formatRussianDateTime(item.publishedAtCustom ?? item.publishedAt) ?? "Без даты"}`
+        : formatRussianDateTime(item.publishedAtCustom ?? item.publishedAt),
+      cover: item.cover ? { ...item.cover, url: normalizeUrl(item.cover.url) ?? item.cover.url } : null,
+      publishedAt: item.publishedAt,
+      publishedAtCustom: item.publishedAtCustom,
+      categories: normalizeCategorySummaryList(item.categories),
+    })),
+    ...(category.galleries ?? []).map((item) => ({
+      kind: "gallery" as const,
+      documentId: item.documentId,
+      title: item.title,
+      slug: item.slug,
+      excerpt: item.excerpt,
+      href: `/gallery/${item.slug}`,
       meta: getPrimaryCategoryName(normalizeCategorySummaryList(item.categories))
         ? `${getPrimaryCategoryName(normalizeCategorySummaryList(item.categories))} - ${formatRussianDateTime(item.publishedAtCustom ?? item.publishedAt) ?? "Без даты"}`
         : formatRussianDateTime(item.publishedAtCustom ?? item.publishedAt),

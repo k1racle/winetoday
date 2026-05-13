@@ -9,7 +9,7 @@ import { ImageGalleryBlock, ImageSliderBlock } from "@/components/image-collecti
 import { parseTiptapDocument, tiptapExtensions } from "@/lib/tiptap";
 import type { StrapiBlock } from "@/lib/strapi";
 import type { RichTextContent, RichTextNode } from "@/lib/strapi";
-import { buildCategoryDateOverlayMeta, getArticles, getNews, getVideos } from "@/lib/strapi";
+import { buildCategoryDateOverlayMeta, getArticles, getGalleries, getNews, getVideos } from "@/lib/strapi";
 import type { CategorySummaryList } from "@/lib/strapi";
 
 type RichContentProps = {
@@ -204,6 +204,34 @@ async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blo
             items={items.map((item) => ({
               id: item.documentId,
               href: `/news/${item.slug}`,
+              title: item.title,
+              excerpt: item.excerpt,
+              imageUrl: item.cover?.url,
+              imageAlt: item.cover?.alternativeText ?? item.title,
+              meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
+            }))}
+            pageSize={pageSize}
+            showExcerpt={false}
+          />
+        </section>
+      );
+    }
+    case "galleries": {
+      const items = filterByCategories(await getGalleries());
+
+      return (
+        <section key={`${block.__component}-${block.id}`} className="space-y-5">
+          {(block.title || block.description) && (
+            <header className="space-y-3">
+              {block.title ? <h2 className="type-h3">{block.title}</h2> : null}
+              {block.description ? <p className="type-body text-zinc-600 dark:text-zinc-400">{block.description}</p> : null}
+            </header>
+          )}
+          <InfiniteArchivePageList
+            emptyLabel="Галереи пока не опубликованы"
+            items={items.map((item) => ({
+              id: item.documentId,
+              href: `/gallery/${item.slug}`,
               title: item.title,
               excerpt: item.excerpt,
               imageUrl: item.cover?.url,

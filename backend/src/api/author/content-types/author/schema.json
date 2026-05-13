@@ -68,6 +68,12 @@
       "relation": "oneToMany",
       "target": "api::video.video",
       "mappedBy": "author"
+    },
+    "galleries": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::gallery.gallery",
+      "mappedBy": "author"
     }
   }
 }

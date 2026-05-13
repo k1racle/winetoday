@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type MaterialEditButtonProps = {
-  type: "article" | "news" | "video";
+  type: "article" | "news" | "video" | "gallery";
   documentId: string;
   authorSlug?: string | null;
 };

@@ -6,10 +6,10 @@ import { getAuthToken } from "@/lib/auth";
 const PREVIEW_SECRET = process.env.PREVIEW_SECRET;
 const PREVIEW_PATH_COOKIE = "nvt-preview-path";
 
-type PreviewType = "article" | "news" | "video";
+type PreviewType = "article" | "news" | "video" | "gallery";
 
 function isPreviewType(value: string | null): value is PreviewType {
-  return value === "article" || value === "news" || value === "video";
+  return value === "article" || value === "news" || value === "video" || value === "gallery";
 }
 
 function getRequestOrigin(request: Request) {
@@ -34,6 +34,10 @@ function buildPreviewPath(type: PreviewType, slug: string) {
 
   if (type === "news") {
     return `/news/${slug}`;
+  }
+
+  if (type === "gallery") {
+    return `/gallery/${slug}`;
   }
 
   return `/videos/${slug}`;
