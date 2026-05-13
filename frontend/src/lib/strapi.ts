@@ -1464,6 +1464,7 @@ function normalizeGalleryDetail(item?: GalleryDetail | null) {
 
   return {
     ...normalized,
+    seo: item?.seo ?? null,
     content: normalizeBlocks(item?.content),
     coverSource: typeof item?.coverSource === "string" && item.coverSource.trim() ? item.coverSource.trim() : null,
   } satisfies GalleryDetail;
