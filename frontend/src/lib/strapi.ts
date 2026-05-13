@@ -1137,7 +1137,7 @@ function normalizeBlocks(blocks?: StrapiBlock[] | null) {
       const images = (block.images ?? []).reduce<StrapiMedia[]>((accumulator, image) => {
         const normalized = normalizeMediaAsset(image);
 
-        if (normalized) {
+        if (normalized?.url?.trim()) {
           accumulator.push(normalized);
         }
 

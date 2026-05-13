@@ -14,6 +14,10 @@ type LightboxState = {
   index: number;
 };
 
+function hasValidImageUrl(image: CollectionImage | null | undefined) {
+  return Boolean(image?.url?.trim());
+}
+
 function CollectionHeader({ title, description }: { title?: string | null; description?: string | null }) {
   if (!title && !description) {
     return null;
@@ -175,7 +179,7 @@ function Lightbox({ state, onClose, onNext, onPrev }: { state: LightboxState | n
 
 export function ImageGalleryBlock({ block }: { block: ImageGalleryBlockData }) {
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
-  const images = block.images ?? [];
+  const images = (block.images ?? []).filter(hasValidImageUrl);
 
   const openLightbox = (index: number) => {
     setLightbox({ images, index });
@@ -249,7 +253,7 @@ export function ImageSliderBlock({ block }: { block: ImageSliderBlockData }) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
-  const images = block.images ?? [];
+  const images = (block.images ?? []).filter(hasValidImageUrl);
   const imageCount = images.length;
 
   const scrollToIndex = useCallback((index: number) => {
