@@ -2468,10 +2468,6 @@ export const getGalleryBySlug = cache(async function getGalleryBySlug(slug: stri
 
   const resolvedGallery = await resolveCategoriesForItem("gallery", normalizedGallery);
 
-  if (!status && !isPublishedItemVisible(resolvedGallery)) {
-    return null;
-  }
-
   return resolvedGallery;
 });
 
