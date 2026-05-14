@@ -30,6 +30,11 @@ const DEFAULT_REVALIDATE_SECONDS = 300;
 const SETTINGS_REVALIDATE_SECONDS = 300;
 const HOMEPAGE_REVALIDATE_SECONDS = 120;
 const PREVIEW_PATH_COOKIE = "nvt-preview-path";
+type NextFetchRequestInit = RequestInit & {
+  next?: {
+    revalidate?: number | false;
+  };
+};
 const CATEGORY_FIELDS_QUERY = [
   "populate[0]=categories",
   "populate[categories][fields][0]=name",
@@ -1105,103 +1110,68 @@ function normalizeBlocks(blocks?: StrapiBlock[] | null) {
     return blocks ?? null;
   }
 
-  return blocks.map((block) => {
+  return blocks.reduce<StrapiBlock[]>((accumulator, block) => {
+    if (!block || typeof block !== "object") {
+      return accumulator;
+    }
+
     if (block.__component === "blocks.image-highlight") {
-      return {
+      const image = normalizeMediaAsset(block.image);
+
+      if (!image?.url?.trim()) {
+        return accumulator;
+      }
+
+      accumulator.push({
         ...block,
-        image: {
-          ...block.image,
-          url: normalizeUrl(block.image.url) ?? block.image.url,
-          formats: block.image.formats
-            ? {
-                medium: block.image.formats.medium
-                  ? { url: normalizeUrl(block.image.formats.medium.url) ?? block.image.formats.medium.url }
-                  : undefined,
-                small: block.image.formats.small
-                  ? { url: normalizeUrl(block.image.formats.small.url) ?? block.image.formats.small.url }
-                  : undefined,
-                thumbnail: block.image.formats.thumbnail
-                  ? {
-                      url:
-                        normalizeUrl(block.image.formats.thumbnail.url) ??
-                        block.image.formats.thumbnail.url,
-                    }
-                  : undefined,
-              }
-            : null,
-        },
-      };
+        image,
+      });
+
+      return accumulator;
     }
 
     if (block.__component === "blocks.image-gallery" || block.__component === "blocks.image-slider") {
-      const images = (block.images ?? []).reduce<StrapiMedia[]>((accumulator, image) => {
+      const imagesSource = Array.isArray(block.images) ? block.images : [];
+      const images = imagesSource.reduce<StrapiMedia[]>((imageAccumulator, image) => {
         const normalized = normalizeMediaAsset(image);
 
         if (normalized?.url?.trim()) {
-          accumulator.push(normalized);
+          imageAccumulator.push(normalized);
         }
 
-        return accumulator;
+        return imageAccumulator;
       }, []);
 
-      return {
+      accumulator.push({
         ...block,
         images: images.length ? images : null,
-      };
+      });
+
+      return accumulator;
     }
 
     if (block.__component === "blocks.hero") {
-      return {
+      accumulator.push({
         ...block,
-        backgroundImage: block.backgroundImage
-          ? {
-              ...block.backgroundImage,
-              url: normalizeUrl(block.backgroundImage.url) ?? block.backgroundImage.url,
-              formats: block.backgroundImage.formats
-                ? {
-                    medium: block.backgroundImage.formats.medium
-                      ? {
-                          url:
-                            normalizeUrl(block.backgroundImage.formats.medium.url) ??
-                            block.backgroundImage.formats.medium.url,
-                        }
-                      : undefined,
-                    small: block.backgroundImage.formats.small
-                      ? {
-                          url:
-                            normalizeUrl(block.backgroundImage.formats.small.url) ??
-                            block.backgroundImage.formats.small.url,
-                        }
-                      : undefined,
-                    thumbnail: block.backgroundImage.formats.thumbnail
-                      ? {
-                          url:
-                            normalizeUrl(block.backgroundImage.formats.thumbnail.url) ??
-                            block.backgroundImage.formats.thumbnail.url,
-                        }
-                      : undefined,
-                  }
-                : null,
-            }
-          : null,
-        backgroundVideo: block.backgroundVideo
-          ? {
-              ...block.backgroundVideo,
-              url: normalizeUrl(block.backgroundVideo.url) ?? block.backgroundVideo.url,
-            }
-          : null,
-      };
+        backgroundImage: normalizeMediaAsset(block.backgroundImage),
+        backgroundVideo: normalizeMediaAsset(block.backgroundVideo),
+      });
+
+      return accumulator;
     }
 
     if (block.__component === "blocks.rich-text") {
-      return {
+      accumulator.push({
         ...block,
         content: normalizeRichTextContent(block.content),
-      };
+      });
+
+      return accumulator;
     }
 
-    return block;
-  });
+    accumulator.push(block);
+    return accumulator;
+  }, []);
 }
 
 function normalizeRichTextContent(content?: RichTextContent | string | null): RichTextContent | string {
@@ -1236,9 +1206,15 @@ function normalizeMediaAsset(asset?: StrapiMedia | null) {
     return null;
   }
 
+  const url = normalizeUrl(asset.url);
+
+  if (!url) {
+    return null;
+  }
+
   return {
     ...asset,
-    url: normalizeUrl(asset.url) ?? asset.url,
+    url,
     formats: asset.formats
       ? {
           large: asset.formats.large
@@ -1566,22 +1542,34 @@ async function resolveCategoriesForItems<T extends { slug: string; categories?: 
   kind: CategoryAssignmentKind,
   items: T[],
 ) {
-  const assignments = await getCategoryAssignments();
+  try {
+    const assignments = await getCategoryAssignments();
 
-  return items.map((item) => {
-    const normalizedCategories = normalizeCategorySummaryList(item.categories);
-    const fallbackCategories = assignments[kind].get(item.slug) ?? null;
-    const resolvedCategories = normalizedCategories ?? fallbackCategories ?? null;
+    return items.map((item) => {
+      const normalizedCategories = normalizeCategorySummaryList(item.categories);
+      const fallbackCategories: CategorySummary[] | null = assignments[kind].get(item.slug) ?? null;
+      const resolvedCategories = normalizedCategories ?? fallbackCategories ?? null;
 
-    if (!normalizedCategories && fallbackCategories?.length) {
-      console.warn(`[strapi-debug] restored categories for ${kind}:${item.slug}`, fallbackCategories.map((category) => category.slug ?? category.name));
-    }
+      if (!normalizedCategories && fallbackCategories?.length) {
+        console.warn(
+          `[strapi-debug] restored categories for ${kind}:${item.slug}`,
+          fallbackCategories.map((category: CategorySummary) => category.slug ?? category.name),
+        );
+      }
 
-    return {
+      return {
+        ...item,
+        categories: resolvedCategories,
+      };
+    });
+  } catch (error) {
+    console.error(`[strapi] resolveCategoriesForItems(${kind})`, error);
+
+    return items.map((item) => ({
       ...item,
-      categories: resolvedCategories,
-    };
-  });
+      categories: normalizeCategorySummaryList(item.categories),
+    }));
+  }
 }
 
 async function resolveCategoriesForItem<T extends { slug: string; categories?: CategorySummaryList | null }>(
@@ -1822,14 +1810,20 @@ async function fetchStrapi<T>(path: string, options?: { revalidate?: number | fa
   const shouldUseNoStore = options?.status === "draft" || revalidate === false || !HAS_REVALIDATE_SECRET;
   const authToken = options?.status === "draft" ? (await cookies()).get("vino_auth_jwt")?.value ?? null : null;
   const url = `${CMS_URL}${withStatus(path, options?.status)}`;
-  const response = await fetch(url, {
-    cache: shouldUseNoStore ? "no-store" : undefined,
-    next: shouldUseNoStore ? undefined : { revalidate: revalidate ?? DEFAULT_REVALIDATE_SECONDS },
+  const requestInit: NextFetchRequestInit = {
     headers: {
       ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       "Content-Type": "application/json",
     },
-  });
+  };
+
+  if (shouldUseNoStore) {
+    requestInit.cache = "no-store";
+  } else {
+    requestInit.next = { revalidate: revalidate ?? DEFAULT_REVALIDATE_SECONDS };
+  }
+
+  const response = await fetch(url, requestInit);
 
   if (!response.ok) {
     throw new StrapiRequestError({ status: response.status, statusText: response.statusText, url });
@@ -2072,7 +2066,7 @@ export const getHomepage = cache(async function getHomepage() {
   };
 });
 
-export const getTagCloud = cache(async function getTagCloud() {
+export const getTagCloud = cache(async function getTagCloud(): Promise<TagCloudItem[]> {
   const response = await fetchStrapi<StrapiTagEntry[]>(
     "/api/tags?pagination[limit]=100&sort[0]=name:asc&fields[0]=name&fields[1]=slug&populate[articles][fields][0]=slug&populate[news_items][fields][0]=slug&populate[videos][fields][0]=slug",
     { revalidate: SETTINGS_REVALIDATE_SECONDS },
@@ -2094,7 +2088,7 @@ export const getTagCloud = cache(async function getTagCloud() {
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "ru"));
 });
 
-export const getSitemapTags = cache(async function getSitemapTags() {
+export const getSitemapTags = cache(async function getSitemapTags(): Promise<Array<{ slug: string }>> {
   const tags = await getTagCloud();
 
   return tags.map((tag) => ({

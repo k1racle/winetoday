@@ -149,131 +149,136 @@ function renderRichTextNode(node: RichTextNode, key: string): ReactNode {
 }
 
 async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blocks.archive-feed" }>) {
-  const pageSize = Math.max(block.limit ?? 12, 1);
-  const selectedSlugs = new Set(
-    (block.categories ?? [])
-      .map((category) => category?.slug?.trim())
-      .filter((slug): slug is string => Boolean(slug)),
-  );
-  const filterByCategories = <T extends { categories?: CategorySummaryList | null }>(items: T[]) =>
-    selectedSlugs.size
-      ? items.filter((item) => (item.categories ?? []).some((category) => category?.slug && selectedSlugs.has(category.slug)))
-      : items;
-  switch (block.contentType) {
-    case "articles": {
-      const items = filterByCategories(await getArticles());
+  try {
+    const pageSize = Math.max(block.limit ?? 12, 1);
+    const selectedSlugs = new Set(
+      (block.categories ?? [])
+        .map((category) => category?.slug?.trim())
+        .filter((slug): slug is string => Boolean(slug)),
+    );
+    const filterByCategories = <T extends { categories?: CategorySummaryList | null }>(items: T[]) =>
+      selectedSlugs.size
+        ? items.filter((item) => (item.categories ?? []).some((category) => category?.slug && selectedSlugs.has(category.slug)))
+        : items;
+    switch (block.contentType) {
+      case "articles": {
+        const items = filterByCategories(await getArticles());
 
-      return (
-        <section key={`${block.__component}-${block.id}`} className="space-y-5">
-          {(block.title || block.description) && (
-            <header className="space-y-3">
-              {block.title ? <h2 className="type-h3">{block.title}</h2> : null}
-              {block.description ? <p className="type-body text-zinc-600 dark:text-zinc-400">{block.description}</p> : null}
-            </header>
-          )}
-          <InfiniteArchivePageList
-            emptyLabel="Материалы пока не опубликованы"
-            items={items.map((item) => ({
-              id: item.documentId,
-              href: `/articles/${item.slug}`,
-              title: item.title,
-              excerpt: item.excerpt,
-              imageUrl: item.cover?.url,
-              imageAlt: item.cover?.alternativeText ?? item.title,
-              meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
-            }))}
-            pageSize={pageSize}
-            showExcerpt={false}
-          />
-        </section>
-      );
-    }
-    case "news": {
-      const items = filterByCategories(await getNews());
+        return (
+          <section key={`${block.__component}-${block.id}`} className="space-y-5">
+            {(block.title || block.description) && (
+              <header className="space-y-3">
+                {block.title ? <h2 className="type-h3">{block.title}</h2> : null}
+                {block.description ? <p className="type-body text-zinc-600 dark:text-zinc-400">{block.description}</p> : null}
+              </header>
+            )}
+            <InfiniteArchivePageList
+              emptyLabel="Материалы пока не опубликованы"
+              items={items.map((item) => ({
+                id: item.documentId,
+                href: `/articles/${item.slug}`,
+                title: item.title,
+                excerpt: item.excerpt,
+                imageUrl: item.cover?.url,
+                imageAlt: item.cover?.alternativeText ?? item.title,
+                meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
+              }))}
+              pageSize={pageSize}
+              showExcerpt={false}
+            />
+          </section>
+        );
+      }
+      case "news": {
+        const items = filterByCategories(await getNews());
 
-      return (
-        <section key={`${block.__component}-${block.id}`} className="space-y-5">
-          {(block.title || block.description) && (
-            <header className="space-y-3">
-              {block.title ? <h2 className="type-h3 font-semibold tracking-tight">{block.title}</h2> : null}
-              {block.description ? <p className="type-body leading-8 text-zinc-600 dark:text-zinc-400">{block.description}</p> : null}
-            </header>
-          )}
-          <InfiniteArchivePageList
-            emptyLabel="Новости пока не опубликованы"
-            items={items.map((item) => ({
-              id: item.documentId,
-              href: `/news/${item.slug}`,
-              title: item.title,
-              excerpt: item.excerpt,
-              imageUrl: item.cover?.url,
-              imageAlt: item.cover?.alternativeText ?? item.title,
-              meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
-            }))}
-            pageSize={pageSize}
-            showExcerpt={false}
-          />
-        </section>
-      );
-    }
-    case "galleries": {
-      const items = filterByCategories(await getGalleries());
+        return (
+          <section key={`${block.__component}-${block.id}`} className="space-y-5">
+            {(block.title || block.description) && (
+              <header className="space-y-3">
+                {block.title ? <h2 className="type-h3 font-semibold tracking-tight">{block.title}</h2> : null}
+                {block.description ? <p className="type-body leading-8 text-zinc-600 dark:text-zinc-400">{block.description}</p> : null}
+              </header>
+            )}
+            <InfiniteArchivePageList
+              emptyLabel="Новости пока не опубликованы"
+              items={items.map((item) => ({
+                id: item.documentId,
+                href: `/news/${item.slug}`,
+                title: item.title,
+                excerpt: item.excerpt,
+                imageUrl: item.cover?.url,
+                imageAlt: item.cover?.alternativeText ?? item.title,
+                meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
+              }))}
+              pageSize={pageSize}
+              showExcerpt={false}
+            />
+          </section>
+        );
+      }
+      case "galleries": {
+        const items = filterByCategories(await getGalleries());
 
-      return (
-        <section key={`${block.__component}-${block.id}`} className="space-y-5">
-          {(block.title || block.description) && (
-            <header className="space-y-3">
-              {block.title ? <h2 className="type-h3">{block.title}</h2> : null}
-              {block.description ? <p className="type-body text-zinc-600 dark:text-zinc-400">{block.description}</p> : null}
-            </header>
-          )}
-          <InfiniteArchivePageList
-            emptyLabel="Галереи пока не опубликованы"
-            items={items.map((item) => ({
-              id: item.documentId,
-              href: `/gallery/${item.slug}`,
-              title: item.title,
-              excerpt: item.excerpt,
-              imageUrl: item.cover?.url,
-              imageAlt: item.cover?.alternativeText ?? item.title,
-              meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
-            }))}
-            pageSize={pageSize}
-            showExcerpt={false}
-          />
-        </section>
-      );
-    }
-    case "videos": {
-      const items = filterByCategories(await getVideos());
+        return (
+          <section key={`${block.__component}-${block.id}`} className="space-y-5">
+            {(block.title || block.description) && (
+              <header className="space-y-3">
+                {block.title ? <h2 className="type-h3">{block.title}</h2> : null}
+                {block.description ? <p className="type-body text-zinc-600 dark:text-zinc-400">{block.description}</p> : null}
+              </header>
+            )}
+            <InfiniteArchivePageList
+              emptyLabel="Галереи пока не опубликованы"
+              items={items.map((item) => ({
+                id: item.documentId,
+                href: `/gallery/${item.slug}`,
+                title: item.title,
+                excerpt: item.excerpt,
+                imageUrl: item.cover?.url,
+                imageAlt: item.cover?.alternativeText ?? item.title,
+                meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
+              }))}
+              pageSize={pageSize}
+              showExcerpt={false}
+            />
+          </section>
+        );
+      }
+      case "videos": {
+        const items = filterByCategories(await getVideos());
 
-      return (
-        <section key={`${block.__component}-${block.id}`} className="space-y-5">
-          {(block.title || block.description) && (
-            <header className="space-y-3">
-              {block.title ? <h2 className="type-h3 font-semibold tracking-tight">{block.title}</h2> : null}
-              {block.description ? <p className="type-body leading-8 text-zinc-600 dark:text-zinc-400">{block.description}</p> : null}
-            </header>
-          )}
-          <InfiniteArchivePageList
-            emptyLabel="Видеоматериалы пока не опубликованы"
-            items={items.map((item) => ({
-              id: item.documentId,
-              href: `/videos/${item.slug}`,
-              title: item.title,
-              excerpt: item.excerpt,
-              imageUrl: item.cover?.url,
-              imageAlt: item.cover?.alternativeText ?? item.title,
-              meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
-            }))}
-            pageSize={pageSize}
-            showExcerpt={false}
-          />
-        </section>
-      );
+        return (
+          <section key={`${block.__component}-${block.id}`} className="space-y-5">
+            {(block.title || block.description) && (
+              <header className="space-y-3">
+                {block.title ? <h2 className="type-h3 font-semibold tracking-tight">{block.title}</h2> : null}
+                {block.description ? <p className="type-body leading-8 text-zinc-600 dark:text-zinc-400">{block.description}</p> : null}
+              </header>
+            )}
+            <InfiniteArchivePageList
+              emptyLabel="Видеоматериалы пока не опубликованы"
+              items={items.map((item) => ({
+                id: item.documentId,
+                href: `/videos/${item.slug}`,
+                title: item.title,
+                excerpt: item.excerpt,
+                imageUrl: item.cover?.url,
+                imageAlt: item.cover?.alternativeText ?? item.title,
+                meta: buildCategoryDateOverlayMeta(item.categories, item.publishedAt, item.publishedAtCustom),
+              }))}
+              pageSize={pageSize}
+              showExcerpt={false}
+            />
+          </section>
+        );
+      }
+      default:
+        return null;
     }
-    default:
-      return null;
+  } catch (error) {
+    console.error(`[rich-content] archive-feed ${block.id ?? "unknown"}`, error);
+    return null;
   }
 }
 
@@ -493,6 +498,10 @@ export async function RichContent({ blocks, paragraphLineHeightClassName }: Rich
         }
 
         if (block.__component === "blocks.image-highlight") {
+          if (!block.image?.url?.trim()) {
+            return null;
+          }
+
           return (
             <figure
               key={`${block.__component}-${block.id}`}

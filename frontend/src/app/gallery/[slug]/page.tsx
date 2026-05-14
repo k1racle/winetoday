@@ -18,7 +18,7 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const [gallery, siteSeo] = await Promise.all([
-    getGalleryBySlug(slug),
+    withLoggedFallback(`gallery metadata for ${slug}`, () => getGalleryBySlug(slug), null),
     withLoggedFallback(`gallery metadata site seo for ${slug}`, () => getSiteSeo(), null),
   ]);
 
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function GalleryDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const [gallery, sidebar, tagCloud] = await Promise.all([
-    getGalleryBySlug(slug),
+    withLoggedFallback(`gallery detail for ${slug}`, () => getGalleryBySlug(slug), null),
     withLoggedFallback(
       `gallery sidebar for ${slug}`,
       () => getSidebarForPath(`/gallery/${slug}`),
