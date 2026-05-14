@@ -7,6 +7,7 @@ export type HomepageNewsSidebarItem = {
   publishedLabel: string;
   materialLabel?: string | null;
   popularityCount: number;
+  href: string;
 };
 
 type HomepageNewsSidebarProps = {

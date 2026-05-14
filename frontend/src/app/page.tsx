@@ -15,6 +15,7 @@ import {
   getHomepageSpecialItems,
   getLatestNews,
   getNews,
+  getVideos,
   getSiteSeo,
   getSidebarForPath,
   type NewsSummary,
@@ -140,6 +141,29 @@ async function getNewsLikeCount(targetDocumentId: string) {
 type HomepageNewsItem = NewsSummary & {
   popularityCount: number;
 };
+
+type HomepageSidebarSourceItem = {
+  documentId: string;
+  slug: string;
+  title: string;
+  materialLabel?: string | null;
+  publishedAt?: string | null;
+  publishedAtCustom?: string | null;
+  popularityCount: number;
+  href: string;
+};
+
+function mapHomepageSidebarItem(item: HomepageSidebarSourceItem): HomepageNewsSidebarItem {
+  return {
+    documentId: item.documentId,
+    slug: item.slug,
+    title: item.title,
+    publishedLabel: formatHomepageNewsTime(item.publishedAtCustom ?? item.publishedAt),
+    materialLabel: item.materialLabel,
+    popularityCount: item.popularityCount,
+    href: item.href,
+  };
+}
 
 type InfographicSlot =
   | "topRectangle"
@@ -354,11 +378,12 @@ function renderInfographicCard(
 }
 
 export default async function Home() {
-  const [settings, homepage, sidebar, latestNews, allNews, homepageSpecial] = await Promise.all([
+  const [settings, homepage, sidebar, latestNews, latestVideos, allNews, homepageSpecial] = await Promise.all([
     withLoggedFallback("home global settings", () => getGlobalSettings(), null),
     withLoggedFallback("home homepage", () => getHomepage(), null),
     withLoggedFallback("home sidebar", () => getSidebarForPath("/"), null),
     withLoggedFallback("home latest news", () => getLatestNews(), []),
+    withLoggedFallback("home latest videos", () => getVideos(), []),
     withLoggedFallback("home all news", () => getNews(), []),
     withLoggedFallback("home homepage special items", () => getHomepageSpecialItems(), { featureCards: [], videos: [] }),
   ]);
@@ -394,18 +419,30 @@ export default async function Home() {
       ? right.popularityCount - left.popularityCount
       : comparePublishedDesc(left.publishedAtCustom ?? left.publishedAt, right.publishedAtCustom ?? right.publishedAt)))
     .slice(0, 10);
-  const latestNewsItems: HomepageNewsItem[] = latestNews.slice(0, 10).map((item) => ({
-    ...item,
-    popularityCount: 0,
-  }));
-  const latestNewsSidebarItems: HomepageNewsSidebarItem[] = latestNewsItems.map((item) => ({
+  const latestNewsSidebarItemsSource: HomepageSidebarSourceItem[] = latestNews.slice(0, 10).map((item) => ({
     documentId: item.documentId,
     slug: item.slug,
     title: item.title,
-    publishedLabel: formatHomepageNewsTime(item.publishedAtCustom ?? item.publishedAt),
     materialLabel: item.materialLabel,
-    popularityCount: item.popularityCount,
+    publishedAt: item.publishedAt,
+    publishedAtCustom: item.publishedAtCustom,
+    popularityCount: 0,
+    href: `/news/${item.slug}`,
   }));
+  const latestVideosSidebarItemsSource: HomepageSidebarSourceItem[] = latestVideos.slice(0, 10).map((item) => ({
+    documentId: item.documentId,
+    slug: item.slug,
+    title: item.title,
+    materialLabel: item.materialLabel ?? "video",
+    publishedAt: item.publishedAt,
+    publishedAtCustom: item.publishedAtCustom,
+    popularityCount: 0,
+    href: `/videos/${item.slug}`,
+  }));
+  const latestNewsSidebarItems: HomepageNewsSidebarItem[] = [...latestNewsSidebarItemsSource, ...latestVideosSidebarItemsSource]
+    .sort((left, right) => comparePublishedDesc(left.publishedAtCustom ?? left.publishedAt, right.publishedAtCustom ?? right.publishedAt))
+    .slice(0, 10)
+    .map(mapHomepageSidebarItem);
   const popularNewsSidebarItems: HomepageNewsSidebarItem[] = popularNews.map((item) => ({
     documentId: item.documentId,
     slug: item.slug,
@@ -413,6 +450,7 @@ export default async function Home() {
     publishedLabel: formatHomepageNewsTime(item.publishedAtCustom ?? item.publishedAt),
     materialLabel: item.materialLabel,
     popularityCount: item.popularityCount,
+    href: `/news/${item.slug}`,
   }));
   const specialLead = homepageSpecial.featureCards[0] ?? null;
   const specialSecondary = homepageSpecial.featureCards.slice(1, 3);

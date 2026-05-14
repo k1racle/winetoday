@@ -21,7 +21,7 @@ export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSideba
     activeTab === "latest"
       ? {
           items: latestItems,
-          emptyLabel: "Новостей пока нет.",
+          emptyLabel: "Свежих материалов пока нет.",
         }
       : {
           items: popularItems,
@@ -75,8 +75,8 @@ export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSideba
             <div className="xl:hidden">
               {mobileItems.map((item) => (
                 <Link
-                  key={`${activeTab}-${item.documentId}`}
-                  href={`/news/${item.slug}`}
+                  key={`${activeTab}-${item.href}-${item.documentId}`}
+                  href={item.href}
                   data-material-label={item.materialLabel?.trim().toLowerCase() ?? ""}
                   className="block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
                 >
@@ -119,8 +119,8 @@ export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSideba
             <div className="hidden xl:block">
               {activeConfig.items.map((item) => (
                 <Link
-                  key={`${activeTab}-${item.documentId}`}
-                  href={`/news/${item.slug}`}
+                  key={`${activeTab}-${item.href}-${item.documentId}`}
+                  href={item.href}
                   data-material-label={item.materialLabel?.trim().toLowerCase() ?? ""}
                   className="block min-w-0 border-b border-black/10 px-5 py-4 transition-colors hover:bg-black/[0.03] last:border-b-0 dark:border-white/10 dark:hover:bg-white/[0.03]"
                 >
