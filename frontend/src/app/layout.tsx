@@ -61,6 +61,9 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s | Виноделие сегодня",
     },
     applicationName: settings?.siteName ?? "Виноделие сегодня",
+    icons: {
+      icon: "/favicon.ico",
+    },
     manifest: "/manifest.json",
   };
 }

@@ -31,6 +31,11 @@ function CollectionHeader({ title, description }: { title?: string | null; descr
   );
 }
 
+type GalleryPhotoWallProps = {
+  images: CollectionImage[];
+  title?: string | null;
+};
+
 function CollectionArrow({
   direction,
   onClick,
@@ -177,13 +182,9 @@ function Lightbox({ state, onClose, onNext, onPrev }: { state: LightboxState | n
   );
 }
 
-export function ImageGalleryBlock({ block }: { block: ImageGalleryBlockData }) {
+export function GalleryPhotoWall({ images, title }: GalleryPhotoWallProps) {
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
-  const images = (block.images ?? []).filter(hasValidImageUrl);
-
-  const openLightbox = (index: number) => {
-    setLightbox({ images, index });
-  };
+  const previewImages = images.filter(hasValidImageUrl);
 
   const closeLightbox = useCallback(() => {
     setLightbox(null);
@@ -215,37 +216,58 @@ export function ImageGalleryBlock({ block }: { block: ImageGalleryBlockData }) {
     });
   }, []);
 
-  if (!images.length) {
+  if (!previewImages.length) {
     return null;
   }
 
   return (
     <>
-      <section className="space-y-5">
-        <CollectionHeader title={block.title} description={block.description} />
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {images.map((image, index) => (
-            <button
-              key={`${block.id}-${image.url}-${index}`}
-              type="button"
-              onClick={() => openLightbox(index)}
-              className="group relative overflow-hidden border border-black/10 bg-black/[0.02] text-left transition hover:border-emerald-700/40 dark:border-white/10 dark:bg-white/[0.03] dark:hover:border-emerald-400/40"
-            >
-              <Image
-                src={image.url}
-                alt={image.alternativeText ?? block.title ?? `Gallery image ${index + 1}`}
-                width={960}
-                height={720}
-                sizes="(max-width: 639px) 100vw, (max-width: 1279px) 50vw, 33vw"
-                className="h-72 w-full object-cover transition duration-300 group-hover:scale-[1.02]"
-              />
-              <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/18 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
-            </button>
-          ))}
-        </div>
-      </section>
+      <div className="columns-1 gap-4 sm:columns-2 xl:columns-3">
+        {previewImages.map((image, index) => (
+          <button
+            key={`${image.url}-${index}`}
+            type="button"
+            onClick={() => setLightbox({ images: previewImages, index })}
+            aria-label={`Открыть фото ${index + 1}`}
+            title={image.alternativeText ?? title ?? `Фото ${index + 1}`}
+            className="group relative mb-4 block break-inside-avoid overflow-hidden rounded-[24px] bg-zinc-100 text-left ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:ring-emerald-700/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:bg-zinc-900 dark:ring-white/10 dark:hover:ring-emerald-400/30 dark:focus-visible:ring-offset-[#081623]"
+          >
+            <Image
+              src={image.url}
+              alt={image.alternativeText ?? title ?? `Фото ${index + 1}`}
+              width={image.width ?? 1200}
+              height={image.height ?? 900}
+              sizes="(max-width: 640px) 100vw, (max-width: 1279px) 50vw, 33vw"
+              className="h-auto w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+            />
+            <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
+            <span className="pointer-events-none absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-white backdrop-blur">
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 15l5 5" />
+                <circle cx="10.5" cy="10.5" r="5.5" />
+              </svg>
+              Zoom
+            </span>
+          </button>
+        ))}
+      </div>
       <Lightbox state={lightbox} onClose={closeLightbox} onNext={showNext} onPrev={showPrev} />
     </>
+  );
+}
+
+export function ImageGalleryBlock({ block }: { block: ImageGalleryBlockData }) {
+  const images = (block.images ?? []).filter(hasValidImageUrl);
+
+  if (!images.length) {
+    return null;
+  }
+
+  return (
+    <section className="space-y-5">
+      <CollectionHeader title={block.title} description={block.description} />
+      <GalleryPhotoWall images={images} title={block.title} />
+    </section>
   );
 }
 
