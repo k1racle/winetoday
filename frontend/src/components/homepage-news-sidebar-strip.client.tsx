@@ -96,7 +96,7 @@ export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSideba
                           : "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-white uppercase"
                       }
                       badgeBackgroundClassName={
-                        item.materialLabel?.trim().toLowerCase() === "video" ? "bg-[#cfe95b]" : "bg-[#1d5b43]"
+                        item.materialLabel?.trim().toLowerCase() === "video" ? "bg-[#cfe95b]" : "bg-emerald-700"
                       }
                       gapPx={8}
                     />
@@ -140,7 +140,7 @@ export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSideba
                           : "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-white uppercase"
                       }
                       badgeBackgroundClassName={
-                        item.materialLabel?.trim().toLowerCase() === "video" ? "bg-[#cfe95b]" : "bg-[#1d5b43]"
+                        item.materialLabel?.trim().toLowerCase() === "video" ? "bg-[#cfe95b]" : "bg-emerald-700"
                       }
                       gapPx={8}
                     />
