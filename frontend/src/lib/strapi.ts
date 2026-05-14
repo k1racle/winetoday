@@ -57,22 +57,6 @@ const CONTENT_POPULATE_QUERY = [
   "populate[sources]=true",
 ].join("&");
 
-const GALLERY_CONTENT_POPULATE_QUERY = [
-  "populate[content][populate]=*",
-  "populate[content][on][blocks.archive-feed]=true",
-  "populate[content][on][blocks.cta][populate][link]=true",
-  "populate[content][on][blocks.embed]=true",
-  "populate[content][on][blocks.html-editor]=true",
-  "populate[content][on][blocks.image-gallery][populate][images]=true",
-  "populate[content][on][blocks.image-slider][populate][images]=true",
-  "populate[content][on][blocks.link-grid][populate][links]=true",
-  "populate[content][on][blocks.rich-text]=true",
-  "populate[content][on][blocks.quote]=true",
-  "populate[content][on][blocks.image-highlight][populate][image]=true",
-  "populate[content][on][blocks.hero][populate][backgroundImage]=true",
-  "populate[content][on][blocks.hero][populate][backgroundVideo]=true",
-].join("&");
-
 const VIDEO_CONTENT_POPULATE_QUERY = [
   "populate[content][populate]=*",
   "populate[content][on][blocks.archive-feed]=true",
@@ -641,6 +625,7 @@ export type GallerySummary = {
   slug: string;
   excerpt?: string | null;
   cover?: StrapiMedia | null;
+  photos?: StrapiMedia[] | null;
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
   author?: AuthorSummary | null;
@@ -648,7 +633,7 @@ export type GallerySummary = {
 };
 
 export type GalleryDetail = GallerySummary & {
-  content?: StrapiBlock[] | null;
+  photos?: StrapiMedia[] | null;
   coverSource?: string | null;
   seo?: SeoFields | null;
 };
@@ -1423,11 +1408,14 @@ function normalizeGallerySummary(item?: GallerySummary | null) {
     return null;
   }
 
+  const photos = normalizeGalleryPhotos(item.photos) ?? undefined;
+
   return {
     ...item,
     author: normalizeAuthorSummary(item.author),
     categories: normalizeCategorySummaryList(item.categories),
     cover: normalizeContentCardMedia(item.cover),
+    photos,
   } satisfies GallerySummary;
 }
 
@@ -1441,7 +1429,7 @@ function normalizeGalleryDetail(item?: GalleryDetail | null) {
   return {
     ...normalized,
     seo: item?.seo ?? null,
-    content: normalizeBlocks(item?.content),
+    photos: normalized.photos,
     coverSource: typeof item?.coverSource === "string" && item.coverSource.trim() ? item.coverSource.trim() : null,
   } satisfies GalleryDetail;
 }
@@ -1599,6 +1587,11 @@ function normalizeContentCardMedia(cover?: StrapiMedia | null) {
   }
 
   return normalizeMediaAsset(cover);
+}
+
+function normalizeGalleryPhotos(photos?: StrapiMedia[] | null) {
+  const normalized = photos?.map((photo) => normalizeMediaAsset(photo)).filter(Boolean) as StrapiMedia[] | undefined;
+  return normalized?.length ? normalized : null;
 }
 
 function normalizeSourceLinks(sources?: SourceLink[] | null) {
@@ -2091,7 +2084,7 @@ export const getTagCloud = cache(async function getTagCloud(): Promise<TagCloudI
 export const getSitemapTags = cache(async function getSitemapTags(): Promise<Array<{ slug: string }>> {
   const tags = await getTagCloud();
 
-  return tags.map((tag) => ({
+  return tags.map((tag: { slug: string }) => ({
     slug: tag.slug,
   }));
 });
@@ -2456,23 +2449,12 @@ export async function getGalleries(): Promise<GallerySummary[]> {
 export const getGalleryBySlug = cache(async function getGalleryBySlug(slug: string) {
   const pathname = `/gallery/${slug}`;
   const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
-  const [baseResponse, contentResponse] = await Promise.all([
-    fetchStrapi<GalleryDetail[]>(
-      `/api/galleries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=publishedAt&fields[4]=publishedAtCustom&fields[5]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[seo][populate][metaImage]=true`,
-      { status },
-    ),
-    fetchStrapi<GalleryDetail[]>(
-      `/api/galleries?filters[slug][$eq]=${encodeURIComponent(slug)}&${GALLERY_CONTENT_POPULATE_QUERY}`,
-      { status },
-    ),
-  ]);
+  const response = await fetchStrapi<GalleryDetail[]>(
+    `/api/galleries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=publishedAt&fields[4]=publishedAtCustom&fields[5]=coverSource&populate[cover]=true&populate[photos]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[seo][populate][metaImage]=true`,
+    { status },
+  );
 
-  const gallery = baseResponse.data[0]
-    ? {
-        ...baseResponse.data[0],
-        content: contentResponse.data[0]?.content ?? baseResponse.data[0].content,
-      }
-    : null;
+  const gallery = response.data[0] ?? null;
 
   if (!gallery) {
     return null;

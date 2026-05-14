@@ -83,7 +83,7 @@ function buildEditorPopulate(type: EditorType) {
   if (type === 'gallery') {
     return {
       cover: true,
-      content: { populate: '*' },
+      photos: true,
       author: true,
       memberProfile: true,
       categories: true,
@@ -693,7 +693,6 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     ? materialLabelRaw
     : 'none';
   const cover = payload.cover ? Number(payload.cover) : null;
-  const blocks = normalizeBlocks(payload.blocks);
   const status = payload.status === 'published' ? 'published' : 'draft';
   const publishedAtCustom = typeof payload.publishedAtCustom === 'string' ? payload.publishedAtCustom.trim() : '';
   const seoPayload = payload.seo && typeof payload.seo === 'object' ? (payload.seo as Record<string, unknown>) : null;
@@ -701,6 +700,8 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
   const tags = normalizeRelationIds(payload.tags);
   const sources = normalizeSources(payload.sources);
   const coverSource = typeof payload.coverSource === 'string' ? payload.coverSource.trim() : '';
+  const photos = type === 'gallery' ? normalizeRelationIds(payload.photos) : [];
+  const blocks = type === 'gallery' ? [] : normalizeBlocks(payload.blocks);
 
   if (!title) {
     throw new ValidationError('Укажите заголовок.');
@@ -714,10 +715,6 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     throw new ValidationError('Для видео обязательно краткое описание.');
   }
 
-  if (type === 'gallery' && !blocks.some((block) => block.__component === 'blocks.image-gallery' && Array.isArray(block.images) && block.images.length > 0)) {
-    throw new ValidationError('Для галереи добавьте блок "Галерея изображений" с фотографиями.');
-  }
-
   if (type === 'gallery') {
     return {
       data: {
@@ -725,7 +722,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
         excerpt,
         slug: slug || undefined,
         cover: Number.isInteger(cover) && cover && cover > 0 ? cover : null,
-        content: blocks,
+        photos,
         memberProfile: memberProfileId,
         author: Number.isInteger(resolvedAuthorId) && resolvedAuthorId && resolvedAuthorId > 0 ? resolvedAuthorId : null,
         publishedAtCustom: publishedAtCustom || new Date().toISOString(),

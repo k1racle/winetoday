@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { DesktopSidebarSlot } from "@/components/desktop-sidebar-slot";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
-import { RichContent } from "@/components/rich-content";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { MaterialEditButton } from "@/components/material-edit-button";
 import { buildSeoMetadata, formatRussianDateTime, getGalleryBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, withLoggedFallback } from "@/lib/strapi";
@@ -54,6 +54,7 @@ export default async function GalleryDetailPage({ params }: PageProps) {
 
   const primaryCategory = getPrimaryCategory(gallery.categories);
   const headerDate = formatRussianDateTime(gallery.publishedAtCustom ?? gallery.publishedAt) ?? "Без даты";
+  const photos = gallery.photos ?? [];
 
   return (
     <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
@@ -73,7 +74,26 @@ export default async function GalleryDetailPage({ params }: PageProps) {
 
           {gallery.excerpt ? <div className="type-body max-w-4xl text-zinc-700 dark:text-zinc-300">{gallery.excerpt}</div> : null}
 
-          <RichContent blocks={gallery.content} paragraphLineHeightClassName="leading-6" />
+          {photos.length ? (
+            <section className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {photos.map((photo, index) => (
+                  <figure key={`${photo.url}-${index}`} className="space-y-2">
+                    <div className="overflow-hidden rounded-[24px] bg-zinc-100 ring-1 ring-black/5 dark:bg-zinc-900 dark:ring-white/10">
+                      <Image
+                        src={photo.url}
+                        alt={photo.alternativeText ?? `${gallery.title} — фото ${index + 1}`}
+                        width={photo.width ?? 1280}
+                        height={photo.height ?? 960}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </figure>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <div className="xl:hidden">
             <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} stacked mobile />

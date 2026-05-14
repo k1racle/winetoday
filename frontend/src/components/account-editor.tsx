@@ -74,6 +74,7 @@ type FormState = {
   infographicCardsDesktop: EditorInfographicCard[];
   infographicCardsTablet: EditorInfographicCard[];
   infographicCardsMobile: EditorInfographicCard[];
+  photos: number[];
   seo: EditorSeo;
   blocks: EditorBlock[];
 };
@@ -111,13 +112,6 @@ const EMPTY_EMBED_BLOCK: Extract<EditorBlock, { __component: "blocks.embed" }> =
   __component: "blocks.embed",
   title: "",
   html: "",
-};
-
-const EMPTY_GALLERY_BLOCK: Extract<EditorBlock, { __component: "blocks.image-gallery" }> = {
-  __component: "blocks.image-gallery",
-  title: "",
-  description: "",
-  images: [],
 };
 
 function createEmptyInfographicCard(): EditorInfographicCard {
@@ -188,8 +182,9 @@ function createInitialState(type: EditorContentType): FormState {
     infographicCardsDesktop: normalizeEditorInfographicCards([], INFOGRAPHIC_VIEWPORT_CARD_COUNTS.desktop),
     infographicCardsTablet: normalizeEditorInfographicCards([], INFOGRAPHIC_VIEWPORT_CARD_COUNTS.tablet),
     infographicCardsMobile: normalizeEditorInfographicCards([], INFOGRAPHIC_VIEWPORT_CARD_COUNTS.mobile),
+    photos: [],
     seo: { ...EMPTY_SEO },
-    blocks: type === "gallery" ? [{ ...EMPTY_GALLERY_BLOCK }] : [{ ...EMPTY_RICH_BLOCK }],
+    blocks: type === "gallery" ? [] : [{ ...EMPTY_RICH_BLOCK }],
   };
 }
 
@@ -274,6 +269,16 @@ function flattenLegacyNodes(nodes: any[]): string {
     .join("\n\n");
 }
 
+function normalizeGalleryPhotoIds(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [] as number[];
+  }
+
+  return value
+    .map((item: any) => Number(item?.id ?? item))
+    .filter((item) => Number.isInteger(item) && item > 0);
+}
+
 function normalizeFormState(type: EditorContentType, entry: any): FormState {
   const state = createInitialState(type);
   const normalizedSources = Array.isArray(entry.sources)
@@ -319,6 +324,9 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
     infographicCardsDesktop: normalizeEditorInfographicCards(entry.infographicCardsDesktop ?? entry.infographicCards, INFOGRAPHIC_VIEWPORT_CARD_COUNTS.desktop),
     infographicCardsTablet: normalizeEditorInfographicCards(entry.infographicCardsTablet ?? entry.infographicCards, INFOGRAPHIC_VIEWPORT_CARD_COUNTS.tablet),
     infographicCardsMobile: normalizeEditorInfographicCards(entry.infographicCardsMobile ?? entry.infographicCards, INFOGRAPHIC_VIEWPORT_CARD_COUNTS.mobile),
+    photos: type === "gallery"
+      ? normalizeGalleryPhotoIds(entry.photos)
+      : state.photos,
     seo: {
       metaTitle: entry.seo?.metaTitle ?? "",
       metaDescription: entry.seo?.metaDescription ?? "",
@@ -327,8 +335,10 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
       noIndex: entry.seo?.noIndex === true,
       noFollow: entry.seo?.noFollow === true,
     },
-    blocks: Array.isArray(type === "homepage" ? entry.blocks : entry.content)
-      ? (type === "homepage" ? entry.blocks : entry.content).map((block: any) => {
+    blocks: type === "gallery"
+      ? []
+      : Array.isArray(type === "homepage" ? entry.blocks : entry.content)
+        ? (type === "homepage" ? entry.blocks : entry.content).map((block: any) => {
           if (block.__component === "blocks.html-editor") {
             return {
               __component: "blocks.html-editor" as const,
@@ -368,14 +378,14 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
             };
           }
 
-          return {
-            __component: block.__component,
-            title: block.title ?? "",
-            description: block.description ?? "",
-            images: Array.isArray(block.images) ? block.images.map((image: any) => image?.id).filter(Boolean) : [],
-          };
-        })
-      : state.blocks,
+            return {
+              __component: block.__component,
+              title: block.title ?? "",
+              description: block.description ?? "",
+              images: Array.isArray(block.images) ? block.images.map((image: any) => image?.id).filter(Boolean) : [],
+            };
+          })
+        : state.blocks,
   };
 }
 
@@ -648,6 +658,103 @@ function MediaSummaryCard({
             </button>
           ) : null}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function GalleryPhotoPicker({
+  assets,
+  selectedIds,
+  onToggle,
+  onUpload,
+  onClearAll,
+}: {
+  assets: UploadedAsset[];
+  selectedIds: number[];
+  onToggle: (id: number) => void;
+  onUpload: (event: ChangeEvent<HTMLInputElement>) => void;
+  onClearAll: () => void;
+}) {
+  const imageAssets = filterAssetsByAccept(assets, "image");
+
+  return (
+    <div className="grid gap-4 border border-black/10 p-4 dark:border-white/10">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-lg font-semibold tracking-tight">Фотографии галереи</h3>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Загрузите фото или выберите уже загруженные изображения. Порядок в списке определяет порядок на публичной странице.</p>
+        </div>
+        <button type="button" onClick={onClearAll} className="inline-flex items-center border border-red-200 px-3 py-2 text-sm text-red-700 transition-colors hover:bg-red-50 dark:border-red-500/30 dark:text-red-300 dark:hover:bg-red-950/30">
+          Очистить список
+        </button>
+      </div>
+
+      <input type="file" accept="image/*" multiple onChange={onUpload} className={fileInputClassName} />
+
+      <div className="grid gap-3">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {imageAssets.slice(0, 12).map((asset) => {
+            const isSelected = selectedIds.includes(asset.id);
+            const previewUrl = asset.previewUrl || asset.url || null;
+
+            return (
+              <button
+                key={`gallery-photo-${asset.id}`}
+                type="button"
+                onClick={() => onToggle(asset.id)}
+                className={`overflow-hidden border text-left transition-colors ${isSelected ? "border-emerald-600 bg-emerald-50 dark:border-emerald-400 dark:bg-emerald-500/10" : "border-black/10 hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]"}`}
+              >
+                <div className="relative aspect-[4/3] bg-black/[0.04] dark:bg-white/[0.04]">
+                  {previewUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={previewUrl} alt={asset.alternativeText || asset.name || ""} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full items-center justify-center px-3 text-xs uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">Фото</div>
+                  )}
+                </div>
+                <div className="p-3 text-xs leading-5 text-zinc-600 dark:text-zinc-300">
+                  <div className="font-medium text-zinc-900 dark:text-zinc-100">{asset.name || `Файл #${asset.id}`}</div>
+                  <div>ID: {asset.id}</div>
+                  <div className="mt-1">{isSelected ? "Добавлено в галерею" : "Нажмите, чтобы добавить"}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {selectedIds.length ? (
+          <div className="grid gap-3">
+            {selectedIds.map((id, index) => {
+              const asset = findAssetById(assets, id, "image");
+              const previewUrl = asset?.previewUrl || asset?.url || null;
+
+              return (
+                <div key={`gallery-selected-${id}-${index}`} className="flex flex-wrap items-center gap-3 border border-black/10 p-3 dark:border-white/10">
+                  <div className="h-20 w-24 overflow-hidden border border-black/10 bg-black/[0.04] dark:border-white/10 dark:bg-white/[0.04]">
+                    {previewUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={previewUrl} alt={asset?.alternativeText || asset?.name || ""} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-[11px] uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">Фото</div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">{asset?.name || `Файл #${id}`}</div>
+                    <div className="text-xs text-zinc-500 dark:text-zinc-400">ID: {id}</div>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button type="button" onClick={() => onToggle(id)} className="inline-flex items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]">
+                      Убрать
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-sm text-zinc-500 dark:text-zinc-400">Фотографии пока не добавлены.</div>
+        )}
       </div>
     </div>
   );
@@ -1326,6 +1433,20 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }));
   }
 
+  function toggleGalleryPhoto(id: number) {
+    setForm((current) => {
+      const selected = current.photos.includes(id)
+        ? current.photos.filter((photoId) => photoId !== id)
+        : [...current.photos, id];
+
+      return { ...current, photos: selected };
+    });
+  }
+
+  function clearGalleryPhotos() {
+    setForm((current) => ({ ...current, photos: [] }));
+  }
+
   function addSource() {
     setForm((current) => ({
       ...current,
@@ -1629,6 +1750,34 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }
   }
 
+  async function handleGalleryFiles(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+
+    if (!files.length) {
+      return;
+    }
+
+    setError(null);
+
+    try {
+      const uploadedIds = await Promise.all(files.map((file) => uploadFile(file)));
+
+      setForm((current) => ({
+        ...current,
+        photos: [...current.photos, ...uploadedIds],
+      }));
+
+      const mediaPayload = await refreshMediaAssets();
+      if (mediaPayload) {
+        setMediaAssets(mediaPayload);
+      }
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить изображение.");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
   async function handleSave() {
     try {
       setSaving(true);
@@ -1705,16 +1854,21 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               videoUrl: form.videoUrl,
               duration: form.duration,
               seo: form.seo,
-              blocks: form.blocks.map((block) => {
-                if (block.__component !== "blocks.html-editor") {
-                  return block;
-                }
+              photos: selectedType === "gallery" ? form.photos : undefined,
+              ...(selectedType === "gallery"
+                ? {}
+                : {
+                    blocks: form.blocks.map((block) => {
+                      if (block.__component !== "blocks.html-editor") {
+                        return block;
+                      }
 
-                return {
-                  ...block,
-                  content: serializeTiptapDocument(block.content),
-                };
-              }),
+                      return {
+                        ...block,
+                        content: serializeTiptapDocument(block.content),
+                      };
+                    }),
+                  }),
             },
       };
 
@@ -2059,6 +2213,16 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           <textarea value={form.excerpt} onChange={(event) => updateForm("excerpt", event.target.value)} rows={4} className={inputClassName} />
         </Field>
 
+        {selectedType === "gallery" ? (
+          <GalleryPhotoPicker
+            assets={mediaAssets}
+            selectedIds={form.photos}
+            onToggle={toggleGalleryPhoto}
+            onUpload={handleGalleryFiles}
+            onClearAll={clearGalleryPhotos}
+          />
+        ) : null}
+
           <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
             <div className="grid gap-4">
               <Field label="Статус">
@@ -2197,6 +2361,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           </div>
         ) : null}
 
+        {selectedType !== "gallery" ? (
         <section className="space-y-4 border-t border-black/10 pt-6 dark:border-white/10">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -2276,6 +2441,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
             ))}
           </div>
         </section>
+        ) : null}
           </>
         ) : null}
 

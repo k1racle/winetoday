@@ -30,27 +30,16 @@
       "multiple": false,
       "allowedTypes": ["images"]
     },
+    "photos": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["images"]
+    },
     "coverSource": {
       "type": "string"
     },
     "publishedAtCustom": {
       "type": "datetime"
-    },
-    "content": {
-      "type": "dynamiczone",
-      "components": [
-        "blocks.hero",
-        "blocks.archive-feed",
-        "blocks.cta",
-        "blocks.embed",
-        "blocks.html-editor",
-        "blocks.image-gallery",
-        "blocks.image-slider",
-        "blocks.link-grid",
-        "blocks.rich-text",
-        "blocks.quote",
-        "blocks.image-highlight"
-      ]
     },
     "categories": {
       "type": "relation",
