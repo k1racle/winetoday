@@ -1037,44 +1037,6 @@ export default {
       siteDescription: 'Русскоязычный портал о винных регионах, людях отрасли, аналитике и событиях современного виноделия.',
       tickerText:
         'Следим за российским виноделием, новыми релизами хозяйств, фестивалями, дегустациями и развитием энотуризма.',
-      typography: {
-        menu: {
-          fontFamily: 'inter',
-          fontSize: '14px',
-        },
-        body: {
-          fontFamily: 'inter',
-          fontSize: '16px',
-        },
-        h1: {
-          fontFamily: 'oswald',
-          fontSize: '56px',
-        },
-        h2: {
-          fontFamily: 'oswald',
-          fontSize: '32px',
-        },
-        h3: {
-          fontFamily: 'oswald',
-          fontSize: '24px',
-        },
-        h4: {
-          fontFamily: 'oswald',
-          fontSize: '20px',
-        },
-        small: {
-          fontFamily: 'inter',
-          fontSize: '14px',
-        },
-        caption: {
-          fontFamily: 'inter',
-          fontSize: '12px',
-        },
-        button: {
-          fontFamily: 'inter',
-          fontSize: '14px',
-        },
-      },
     });
 
     await upsertSingleType(strapi, 'api::site-seo.site-seo', {

@@ -30,11 +30,6 @@
     "tickerText": {
       "type": "text"
     },
-    "typography": {
-      "type": "component",
-      "repeatable": false,
-      "component": "shared.typography-settings"
-    },
     "mobileBottomNav": {
       "type": "component",
       "repeatable": true,
