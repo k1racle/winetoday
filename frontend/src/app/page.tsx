@@ -758,16 +758,18 @@ export default async function Home() {
                     </div>
 
                     {specialVideos.length ? (
-                      <HomepageSpecialVideoCarousel
-                        videos={specialVideos.map((video) => ({
-                          documentId: video.documentId,
-                          href: video.href,
-                          title: video.title,
-                          cover: video.cover ?? null,
-                          videoUrl: video.videoUrl,
-                          meta: buildCategoryDateOverlayMeta(video.categories, video.publishedAt, video.publishedAtCustom),
-                        }))}
-                      />
+                      <div className="xl:hidden">
+                        <HomepageSpecialVideoCarousel
+                          videos={specialVideos.map((video) => ({
+                            documentId: video.documentId,
+                            href: video.href,
+                            title: video.title,
+                            cover: video.cover ?? null,
+                            videoUrl: video.videoUrl,
+                            meta: buildCategoryDateOverlayMeta(video.categories, video.publishedAt, video.publishedAtCustom),
+                          }))}
+                        />
+                      </div>
                     ) : null}
                   </div>
 
