@@ -6,7 +6,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 import { AuthWidget } from "@/components/auth-widget";
-import { SocialLinks } from "@/components/social-links";
 import { ThemeToggle } from "@/components/theme-toggle";
 import type { MediaAsset, NavigationLink, SocialLinksBlock } from "@/lib/strapi";
 
@@ -76,6 +75,90 @@ function CloseIcon() {
       <path d="M18 6 6 18" />
       <path d="M6 6l12 12" />
     </svg>
+  );
+}
+
+function resolveSocialIconName(label?: string | null, href?: string | null) {
+  const normalizedLabel = label?.trim().toLowerCase() ?? "";
+  const normalizedHref = href?.trim().toLowerCase() ?? "";
+
+  if (normalizedHref.includes("t.me") || normalizedLabel.includes("telegram") || normalizedLabel.includes("телеграм")) {
+    return "telegram";
+  }
+
+  if (normalizedHref.includes("vk.com") || normalizedLabel.includes("vkontakte") || normalizedLabel.includes("вконтакте") || normalizedLabel === "vk" || normalizedLabel === "вк") {
+    return "vkontakte";
+  }
+
+  if (normalizedHref.includes("youtube.com") || normalizedHref.includes("youtu.be") || normalizedLabel.includes("youtube") || normalizedLabel.includes("ютуб")) {
+    return "youtube";
+  }
+
+  if (normalizedHref.includes("rutube.ru") || normalizedLabel.includes("rutube") || normalizedLabel.includes("рутуб")) {
+    return "rutube";
+  }
+
+  if (normalizedHref.includes("dzen.ru") || normalizedHref.includes("zen.yandex") || normalizedLabel.includes("dzen") || normalizedLabel.includes("дзен")) {
+    return "dzen";
+  }
+
+  if (normalizedHref.includes("max.ru") || normalizedLabel.includes("max") || normalizedLabel.includes("мах")) {
+    return "max";
+  }
+
+  return null;
+}
+
+function MobileDrawerSocialLinks({ widget, theme }: { widget?: SocialLinksBlock | null; theme: ThemeMode }) {
+  if (!widget?.links?.length) {
+    return null;
+  }
+
+  return (
+    <div className="mt-6 border-t border-black/10 pt-4 dark:border-white/10">
+      <div className="flex flex-wrap items-center justify-start gap-3">
+        {widget.links.map((item, index) => {
+          if (!item?.href || !item.label) {
+            return null;
+          }
+
+          const isExternal = /^https?:\/\//i.test(item.href);
+          const iconName = resolveSocialIconName(item.label, item.href);
+          const iconSrc = theme === "dark"
+            ? item.icon?.url ?? (iconName ? `/social-icons-dark/${iconName}.svg` : null)
+            : (iconName ? `/social-icons-dark/${iconName}.svg` : item.icon?.url ?? null);
+
+          return (
+            <Link
+              key={`${item.label}-${item.href}-${index}`}
+              href={item.href}
+              aria-label={item.label}
+              title={item.label}
+              target={isExternal ? "_blank" : undefined}
+              rel={isExternal ? "noreferrer noopener" : undefined}
+              className="inline-flex items-center justify-center rounded-full transition-opacity hover:opacity-100"
+            >
+              <span className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden">
+                {iconSrc ? (
+                  <Image
+                    src={iconSrc}
+                    alt={item.icon?.alternativeText ?? item.label}
+                    fill
+                    sizes="40px"
+                    className="object-contain"
+                  />
+                ) : (
+                  <span className="font-menu inline-flex h-full w-full items-center justify-center rounded-full border border-current/15 text-[10px] font-semibold uppercase tracking-[0.14em]" aria-hidden="true">
+                    {item.label.slice(0, 2)}
+                  </span>
+                )}
+              </span>
+              <span className="sr-only">{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -326,14 +409,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
                     ))}
                   </nav>
 
-                  {socialLinks?.links?.length ? (
-                    <SocialLinks
-                      widget={{ ...socialLinks, title: null }}
-                      className="mt-6 border-t border-black/10 pt-4 dark:border-white/10"
-                      listClassName="justify-center"
-                      iconClassName="h-10 w-10"
-                    />
-                  ) : null}
+                  {socialLinks?.links?.length ? <MobileDrawerSocialLinks widget={socialLinks} theme={theme} /> : null}
                 </div>
               </div>
             </div>
