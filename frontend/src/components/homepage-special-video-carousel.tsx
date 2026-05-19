@@ -120,7 +120,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
   return (
     <>
       <div className="space-y-3 xl:hidden">
-        <div className="max-w-full overflow-hidden px-4">
+        <div className="max-w-full overflow-hidden px-[clamp(12px,4vw,20px)] sm:px-[clamp(16px,3vw,24px)]">
           <div
             ref={mobileTrackRef}
             className="flex w-full max-w-full snap-x snap-mandatory overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -143,7 +143,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
                   titleBelow
                   bodyClassName="px-1.5 py-1.5 sm:px-4 sm:py-3"
                   titleClassName="line-clamp-2 text-[12px] font-medium leading-[1.2] sm:text-[15px] sm:leading-[1.4]"
-                  imageSizes="100vw"
+                  imageSizes="(max-width: 639px) 100vw, (max-width: 1279px) 100vw, 66vw"
                 />
               </div>
             ))}
