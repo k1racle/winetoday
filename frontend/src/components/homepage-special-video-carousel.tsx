@@ -120,15 +120,15 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
   return (
     <>
       <div className="space-y-3 xl:hidden">
-        <div className="max-w-full overflow-hidden">
+        <div className="max-w-full overflow-hidden px-4">
           <div
             ref={mobileTrackRef}
-            className="flex w-full max-w-full snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex w-full max-w-full snap-x snap-mandatory gap-3 overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {videos.map((video) => (
               <div
                 key={video.documentId}
-                className="min-w-[88%] shrink-0 snap-center sm:min-w-[72%]"
+                className="min-w-[92%] shrink-0 snap-center sm:min-w-[78%]"
               >
                 <HomepageSpecialVideoTile
                   href={video.href}
