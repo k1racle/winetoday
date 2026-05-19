@@ -120,7 +120,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
   return (
     <>
       <div className="space-y-3 xl:hidden">
-        <div className="max-w-full overflow-hidden px-[clamp(12px,4vw,20px)] sm:px-[clamp(16px,3vw,24px)]">
+        <div className="w-full max-w-full overflow-hidden px-[clamp(12px,4vw,20px)] sm:px-[clamp(16px,3vw,24px)]">
           <div
             ref={mobileTrackRef}
             className="flex w-full max-w-full snap-x snap-mandatory overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"

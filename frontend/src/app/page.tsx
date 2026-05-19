@@ -758,7 +758,7 @@ export default async function Home() {
                     </div>
 
                     {specialVideos.length ? (
-                      <div className="max-w-full xl:contents">
+                      <div className="min-w-0 max-w-full overflow-hidden xl:contents">
                         <HomepageSpecialVideoCarousel
                           videos={specialVideos.map((video) => ({
                             documentId: video.documentId,
