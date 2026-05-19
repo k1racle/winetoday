@@ -123,12 +123,12 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
         <div className="max-w-full overflow-hidden px-4">
           <div
             ref={mobileTrackRef}
-            className="flex w-full max-w-full snap-x snap-mandatory gap-3 overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="flex w-full max-w-full snap-x snap-mandatory overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {videos.map((video) => (
               <div
                 key={video.documentId}
-                className="min-w-[92%] shrink-0 snap-center sm:min-w-[78%]"
+                className="min-w-full shrink-0 snap-center px-0"
               >
                 <HomepageSpecialVideoTile
                   href={video.href}
