@@ -122,10 +122,10 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
       <div className="space-y-3 xl:hidden">
         <div
           ref={mobileTrackRef}
-          className="flex snap-x snap-mandatory overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="mx-auto flex w-[48vw] max-w-[180px] snap-x snap-mandatory overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:w-[56vw] sm:max-w-[220px]"
         >
           {videos.map((video) => (
-            <div key={video.documentId} className="min-w-full shrink-0 snap-center px-3">
+            <div key={video.documentId} className="min-w-full shrink-0 snap-center px-1 sm:px-2">
               <HomepageSpecialVideoTile
                 href={video.href}
                 title={video.title}
@@ -133,12 +133,12 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
                 coverAlt={video.cover?.alternativeText ?? video.title}
                 videoUrl={video.videoUrl}
                 meta={video.meta}
-                className="mx-auto h-full w-full max-w-[21rem] sm:max-w-none"
-                contentClassName="p-2.5 sm:p-4"
+                className="h-full w-full"
+                contentClassName="p-2 sm:p-4"
                 compactPlayButton
                 titleBelow
-                bodyClassName="px-2.5 py-2 sm:px-4 sm:py-3"
-                titleClassName="line-clamp-2 text-[13px] font-medium leading-[1.3] sm:text-[15px] sm:leading-[1.4]"
+                bodyClassName="px-2 py-1.5 sm:px-4 sm:py-3"
+                titleClassName="line-clamp-2 text-[12px] font-medium leading-[1.25] sm:text-[15px] sm:leading-[1.4]"
                 imageSizes="100vw"
               />
             </div>
