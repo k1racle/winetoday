@@ -6,6 +6,40 @@ const { ApplicationError, ForbiddenError, NotFoundError, ValidationError } = err
 
 const COMMENT_ALLOWED_ACCOUNT_TYPES = new Set(['subscriber', 'author', 'editor']);
 
+const COMMENT_POPULATE = {
+  authorUser: {
+    select: ['id', 'username'],
+  },
+  parentComment: {
+    select: ['id', 'guestName'],
+    populate: {
+      authorUser: {
+        select: ['id', 'username'],
+      },
+    },
+  },
+} as const;
+
+function parseCommentId(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isInteger(value) && value > 0) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number(value.trim());
+
+    if (Number.isInteger(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+
+  if (value && typeof value === 'object') {
+    return parseCommentId((value as { id?: unknown }).id);
+  }
+
+  return null;
+}
+
 function normalizeStopWord(value?: string | null) {
   return value?.trim().toLowerCase() ?? '';
 }
@@ -75,11 +109,7 @@ export default factories.createCoreController('api::comment.comment' as any, ({ 
     const comments = await strapi.db.query('api::comment.comment').findMany({
       where: filters,
       orderBy: { createdAt: 'desc' },
-      populate: {
-        authorUser: {
-          select: ['id', 'username'],
-        },
-      },
+      populate: COMMENT_POPULATE as any,
     });
 
     ctx.body = comments;
@@ -94,11 +124,7 @@ export default factories.createCoreController('api::comment.comment' as any, ({ 
 
     const comment = await strapi.db.query('api::comment.comment').findOne({
       where: { id, status: 'approved' },
-      populate: {
-        authorUser: {
-          select: ['id', 'username'],
-        },
-      },
+      populate: COMMENT_POPULATE as any,
     });
 
     if (!comment) {
@@ -119,6 +145,12 @@ export default factories.createCoreController('api::comment.comment' as any, ({ 
     const targetSlug = typeof payload.targetSlug === 'string' ? payload.targetSlug.trim() : null;
     const guestName = typeof payload.guestName === 'string' ? payload.guestName.trim() : null;
     const guestEmail = typeof payload.guestEmail === 'string' ? payload.guestEmail.trim().toLowerCase() : null;
+    const rawParentComment = payload.parentCommentId ?? payload.parentComment;
+    const parentCommentId = parseCommentId(rawParentComment);
+
+    if (rawParentComment != null && parentCommentId == null) {
+      throw new ValidationError('Некорректный идентификатор родительского комментария.');
+    }
 
     if (!body) {
       throw new ValidationError('Текст комментария обязателен.');
@@ -156,11 +188,44 @@ export default factories.createCoreController('api::comment.comment' as any, ({ 
       );
     }
 
+    let parentComment: {
+      id: number;
+      contentTypeUid?: string | null;
+      targetDocumentId?: string | null;
+      targetSlug?: string | null;
+      authorUser?: { id: number; username?: string | null } | null;
+      guestName?: string | null;
+    } | null = null;
+
+    if (parentCommentId) {
+      parentComment = await strapi.db.query('api::comment.comment').findOne({
+        where: {
+          id: parentCommentId,
+          status: 'approved',
+        },
+        populate: {
+          authorUser: {
+            select: ['id', 'username'],
+          },
+        },
+      });
+
+      if (!parentComment) {
+        throw new NotFoundError('Комментарий для ответа не найден.');
+      }
+
+      if (parentComment.contentTypeUid !== contentTypeUid || parentComment.targetDocumentId !== targetDocumentId) {
+        throw new ValidationError('Нельзя отвечать на комментарий из другого материала.');
+      }
+    }
+
+    const resolvedTargetSlug = parentComment?.targetSlug?.trim() ? parentComment.targetSlug.trim() : targetSlug;
+
     const comment = await strapi.db.query('api::comment.comment').create({
       data: {
         contentTypeUid,
         targetDocumentId,
-        targetSlug,
+        targetSlug: resolvedTargetSlug,
         authorUser: user?.id ?? null,
         guestName: user ? null : guestName,
         guestEmail: user ? null : guestEmail,
@@ -169,16 +234,13 @@ export default factories.createCoreController('api::comment.comment' as any, ({ 
         containsStopWord: false,
         ipHash: null,
         userAgent: ctx.request.header['user-agent'] ?? null,
+        parentComment: parentComment?.id ?? null,
       },
     });
 
     const createdComment = await strapi.db.query('api::comment.comment').findOne({
       where: { id: comment.id },
-      populate: {
-        authorUser: {
-          select: ['id', 'username'],
-        },
-      },
+      populate: COMMENT_POPULATE as any,
     });
 
     ctx.body = createdComment ?? comment;

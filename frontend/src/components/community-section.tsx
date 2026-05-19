@@ -46,6 +46,18 @@ type CommunityComment = {
     id: number;
     username?: string | null;
   } | null;
+  parentComment?: {
+    id: number;
+    guestName?: string | null;
+    authorUser?: {
+      id: number;
+      username?: string | null;
+    } | null;
+  } | null;
+};
+
+type CommunityCommentThread = CommunityComment & {
+  replies: CommunityCommentThread[];
 };
 
 type ReactionSummary = {
@@ -84,6 +96,41 @@ type SubmitState = "idle" | "submitting" | "success" | "error";
 
 function resolveCommentAuthor(comment: CommunityComment) {
   return comment.authorUser?.username?.trim() || comment.guestName?.trim() || "Гость";
+}
+
+function resolveCommentParentAuthor(comment: CommunityComment) {
+  return comment.parentComment?.authorUser?.username?.trim() || comment.parentComment?.guestName?.trim() || "Гость";
+}
+
+function buildCommentThreads(comments: CommunityComment[]) {
+  const nodes = new Map<number, CommunityCommentThread>();
+  const roots: CommunityCommentThread[] = [];
+
+  for (const comment of comments) {
+    nodes.set(comment.id, {
+      ...comment,
+      replies: [],
+    });
+  }
+
+  for (const comment of comments) {
+    const node = nodes.get(comment.id);
+
+    if (!node) {
+      continue;
+    }
+
+    const parentId = comment.parentComment?.id;
+    const parent = parentId ? nodes.get(parentId) : null;
+
+    if (parent) {
+      parent.replies.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+
+  return roots;
 }
 
 function buildShareHref(template: string, values: Record<string, string>) {
@@ -133,6 +180,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
   const [loadingComments, setLoadingComments] = useState(true);
   const [loadingReactions, setLoadingReactions] = useState(true);
   const [body, setBody] = useState("");
+  const [replyingToId, setReplyingToId] = useState<number | null>(null);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [reactionPending, setReactionPending] = useState(false);
@@ -263,6 +311,8 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
       session.user?.memberProfile?.accountType === "author" ||
       session.user?.memberProfile?.accountType === "editor");
   const canSubmit = canComment && bodyLength > 0 && bodyLength <= maxLength && submitState !== "submitting";
+  const replyTarget = useMemo(() => comments.find((comment) => comment.id === replyingToId) ?? null, [comments, replyingToId]);
+  const commentThreads = useMemo(() => buildCommentThreads(comments), [comments]);
 
   const helperText = useMemo(() => {
     if (bodyLength > maxLength) {
@@ -297,6 +347,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
             targetDocumentId,
             targetSlug,
             body: body.trim(),
+            parentCommentId: replyingToId,
           },
         }),
       });
@@ -308,8 +359,9 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
       const createdComment = (await response.json()) as CommunityComment;
 
       setBody("");
+      setReplyingToId(null);
       setSubmitState("success");
-      setMessage("Комментарий опубликован.");
+      setMessage(createdComment.parentComment ? "Ответ опубликован." : "Комментарий опубликован.");
       setComments((currentComments) => [createdComment, ...currentComments]);
     } catch (error) {
       console.error("[community] submit comment", error);
@@ -360,6 +412,43 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
     } finally {
       setReactionPending(false);
     }
+  }
+
+  function handleReply(comment: CommunityCommentThread) {
+    setReplyingToId(comment.id);
+    setSubmitState("idle");
+    setMessage(null);
+  }
+
+  function handleCancelReply() {
+    setReplyingToId(null);
+    setSubmitState("idle");
+    setMessage(null);
+  }
+
+  function renderCommentThread(comment: CommunityCommentThread, depth = 0): ReactNode {
+    const isReply = depth > 0;
+
+    return (
+      <article key={comment.id} className={`${depth ? "ml-6 border-l border-black/10 pl-4 dark:border-white/10" : ""} py-5 first:pt-0 last:pb-0`}>
+        <div className="type-caption mb-3 flex flex-wrap items-center gap-3 text-zinc-500 dark:text-zinc-400">
+          {isReply ? <span>Ответ на {resolveCommentParentAuthor(comment)}</span> : null}
+          <span>{resolveCommentAuthor(comment)}</span>
+          <span>{formatCommunityDate(comment.createdAt) ?? "Только что"}</span>
+        </div>
+        <p className="type-body whitespace-pre-wrap text-zinc-800 dark:text-zinc-100">{comment.body}</p>
+        <div className="mt-3 flex flex-wrap gap-3">
+          <button
+            type="button"
+            className="type-small text-emerald-700 transition-colors hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-emerald-200"
+            onClick={() => handleReply(comment)}
+          >
+            Ответить
+          </button>
+        </div>
+        {comment.replies.length ? <div className="mt-2 space-y-0">{comment.replies.map((reply) => renderCommentThread(reply, depth + 1))}</div> : null}
+      </article>
+    );
   }
 
   return (
@@ -419,6 +508,14 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
+          {replyTarget ? (
+            <div className="flex items-center justify-between gap-3 border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:text-emerald-100">
+              <span>Ответ на {resolveCommentAuthor(replyTarget)}</span>
+              <button type="button" className="type-button text-emerald-700 dark:text-emerald-300" onClick={handleCancelReply}>
+                Отменить
+              </button>
+            </div>
+          ) : null}
           <label className="block space-y-2">
             <textarea
               value={body}
@@ -454,17 +551,9 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
 
         {loadingComments ? (
           <p className="type-small text-zinc-500 dark:text-zinc-400">Загружаем комментарии...</p>
-        ) : comments.length ? (
+        ) : commentThreads.length ? (
           <div className="divide-y divide-black/10 dark:divide-white/10">
-            {comments.map((comment) => (
-              <article key={comment.id} className="py-5 first:pt-0 last:pb-0">
-                <div className="type-caption mb-3 flex flex-wrap items-center gap-3 text-zinc-500 dark:text-zinc-400">
-                  <span>{resolveCommentAuthor(comment)}</span>
-                  <span>{formatCommunityDate(comment.createdAt) ?? "Только что"}</span>
-                </div>
-                <p className="type-body whitespace-pre-wrap text-zinc-800 dark:text-zinc-100">{comment.body}</p>
-              </article>
-            ))}
+            {commentThreads.map((comment) => renderCommentThread(comment))}
           </div>
         ) : null}
       </div>

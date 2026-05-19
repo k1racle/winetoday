@@ -668,6 +668,14 @@ export type CommunityComment = {
     id: number;
     username?: string | null;
   } | null;
+  parentComment?: {
+    id: number;
+    guestName?: string | null;
+    authorUser?: {
+      id: number;
+      username?: string | null;
+    } | null;
+  } | null;
 };
 
 export type ReactionSummary = {

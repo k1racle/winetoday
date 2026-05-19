@@ -241,6 +241,8 @@
   "content-manager.content-types.api::comment.comment.targetDocumentId": "Document ID цели",
   "content-manager.content-types.api::comment.comment.targetSlug": "Слаг цели",
   "content-manager.content-types.api::comment.comment.authorUser": "Пользователь",
+  "content-manager.content-types.api::comment.comment.parentComment": "Родительский комментарий",
+  "content-manager.content-types.api::comment.comment.replies": "Ответы",
   "content-manager.content-types.api::comment.comment.guestName": "Имя гостя",
   "content-manager.content-types.api::comment.comment.guestEmail": "Email гостя",
   "content-manager.content-types.api::comment.comment.body": "Текст комментария",

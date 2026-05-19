@@ -28,6 +28,18 @@
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user"
     },
+    "parentComment": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::comment.comment",
+      "inversedBy": "replies"
+    },
+    "replies": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::comment.comment",
+      "mappedBy": "parentComment"
+    },
     "guestName": {
       "type": "string"
     },

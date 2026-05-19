@@ -241,6 +241,8 @@
   "content-manager.content-types.api::comment.comment.targetDocumentId": "Target document ID",
   "content-manager.content-types.api::comment.comment.targetSlug": "Target slug",
   "content-manager.content-types.api::comment.comment.authorUser": "User",
+  "content-manager.content-types.api::comment.comment.parentComment": "Parent comment",
+  "content-manager.content-types.api::comment.comment.replies": "Replies",
   "content-manager.content-types.api::comment.comment.guestName": "Guest name",
   "content-manager.content-types.api::comment.comment.guestEmail": "Guest email",
   "content-manager.content-types.api::comment.comment.body": "Comment text",
