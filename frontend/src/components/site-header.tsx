@@ -6,8 +6,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 import { AuthWidget } from "@/components/auth-widget";
+import { SocialLinks } from "@/components/social-links";
 import { ThemeToggle } from "@/components/theme-toggle";
-import type { MediaAsset, NavigationLink } from "@/lib/strapi";
+import type { MediaAsset, NavigationLink, SocialLinksBlock } from "@/lib/strapi";
 
 type NavigationItem = {
   href: string;
@@ -24,6 +25,7 @@ type SiteHeaderProps = {
   stickyTablet?: boolean | null;
   stickyMobile?: boolean | null;
   menuLinks?: NavigationLink[] | null;
+  socialLinks?: SocialLinksBlock | null;
   /** fallback, пока Strapi меню пустое */
   navigationItems?: NavigationItem[];
 };
@@ -101,7 +103,7 @@ function useMediaQuery(query: string) {
   );
 }
 
-export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true, stickyTablet = true, stickyMobile = true, menuLinks, navigationItems }: SiteHeaderProps) {
+export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true, stickyTablet = true, stickyMobile = true, menuLinks, socialLinks, navigationItems }: SiteHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
   const theme = useSyncExternalStore<ThemeMode>(subscribeToTheme, readThemeSnapshot, () => "light");
@@ -305,23 +307,34 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
                   </button>
                 </div>
 
-                <nav className="mt-6 grid gap-3 overflow-y-auto">
-                  <Link
-                    href="/"
-                    className="font-menu px-0 py-1 text-[16px] text-zinc-900 transition-colors hover:text-zinc-950 dark:text-zinc-100 dark:hover:text-white"
-                  >
-                    Главная
-                  </Link>
-                  {resolvedMenu.map((item) => (
+                <div className="flex min-h-0 flex-1 flex-col">
+                  <nav className="mt-6 grid flex-1 gap-3 overflow-y-auto">
                     <Link
-                      key={`mobile-${item.href}-${item.label}`}
-                      href={item.href}
+                      href="/"
                       className="font-menu px-0 py-1 text-[16px] text-zinc-900 transition-colors hover:text-zinc-950 dark:text-zinc-100 dark:hover:text-white"
                     >
-                      {item.label}
+                      Главная
                     </Link>
-                  ))}
-                </nav>
+                    {resolvedMenu.map((item) => (
+                      <Link
+                        key={`mobile-${item.href}-${item.label}`}
+                        href={item.href}
+                        className="font-menu px-0 py-1 text-[16px] text-zinc-900 transition-colors hover:text-zinc-950 dark:text-zinc-100 dark:hover:text-white"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </nav>
+
+                  {socialLinks?.links?.length ? (
+                    <SocialLinks
+                      widget={{ ...socialLinks, title: null }}
+                      className="mt-6 border-t border-black/10 pt-4 dark:border-white/10"
+                      listClassName="justify-center"
+                      iconClassName="h-10 w-10"
+                    />
+                  ) : null}
+                </div>
               </div>
             </div>
           </div>

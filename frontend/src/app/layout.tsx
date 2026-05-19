@@ -208,6 +208,14 @@ export default async function RootLayout({
     footerSettings?.column3 ?? null,
     footerSettings?.column4 ?? null,
   ];
+  const footerSocialLinksItem = footerColumns
+    .flatMap((column) => column?.items ?? [])
+    .find((item) => item.kind === "socials");
+  const footerSocialLinks = footerSocialLinksItem
+    ? footerSocialLinksItem.socialLinks?.links?.length
+      ? footerSocialLinksItem.socialLinks
+      : settings?.socialLinks ?? null
+    : null;
   const hasFooterColumnContent = (column: typeof footerColumns[number]) => Boolean(
     column?.title || column?.items?.some((item) => item.kind === "tagCloud" || item.kind === "socials" || item.label || item.text || item.href || item.image?.url || item.socialLinks?.links?.length),
   );
@@ -410,6 +418,7 @@ export default async function RootLayout({
               stickyTablet={headerSettings?.stickyTablet ?? true}
               stickyMobile={headerSettings?.stickyMobile ?? true}
               menuLinks={headerSettings?.menuLinks ?? []}
+              socialLinks={footerSocialLinks}
               navigationItems={navigationItems}
             />
 
