@@ -78,6 +78,8 @@ export function HomepageSpecialVideoTile({
   const [isHovered, setIsHovered] = useState(false);
   const embedUrl = useMemo(() => resolvePreviewEmbedUrl(videoUrl), [videoUrl]);
   const shouldAutoplay = isHovered && Boolean(embedUrl);
+  const overlayClassName = ["absolute inset-x-0 bottom-0 z-20 text-white", contentClassName ?? "p-4"].filter(Boolean).join(" ");
+  const titleBelowClassName = [bodyWrapperClassName, bodyClassName ?? "px-5 py-4 sm:px-6"].filter(Boolean).join(" ");
 
   return (
     <article
@@ -126,7 +128,7 @@ export function HomepageSpecialVideoTile({
             </svg>
           </span>
         </div>
-        <div className={["absolute inset-x-0 bottom-0 z-20 p-4 text-white", contentClassName].filter(Boolean).join(" ")}>
+        <div className={overlayClassName}>
           {meta?.length ? (
             <ArchiveOverlayMeta itemId={href} meta={meta} />
           ) : null}
@@ -143,7 +145,7 @@ export function HomepageSpecialVideoTile({
         </div>
       </div>
       {!hideTitle && titleBelow ? (
-        <div className={["px-5 py-4 sm:px-6", bodyWrapperClassName, bodyClassName].filter(Boolean).join(" ")}>
+        <div className={titleBelowClassName}>
           <h3 className={[
             "text-[#0d3132] dark:text-white",
             titleClassName ?? "type-h4",

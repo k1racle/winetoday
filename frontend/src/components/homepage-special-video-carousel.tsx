@@ -119,13 +119,13 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
 
   return (
     <>
-      <div className="space-y-4 xl:hidden">
+      <div className="space-y-3 xl:hidden">
         <div
           ref={mobileTrackRef}
-          className="flex snap-x snap-mandatory overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {videos.map((video) => (
-            <div key={video.documentId} className="min-w-full shrink-0 snap-center px-2">
+            <div key={video.documentId} className="min-w-full shrink-0 snap-center px-3">
               <HomepageSpecialVideoTile
                 href={video.href}
                 title={video.title}
@@ -133,12 +133,12 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
                 coverAlt={video.cover?.alternativeText ?? video.title}
                 videoUrl={video.videoUrl}
                 meta={video.meta}
-                className="h-full w-full"
-                contentClassName="p-4"
+                className="mx-auto h-full w-full max-w-[21rem] sm:max-w-none"
+                contentClassName="p-2.5 sm:p-4"
                 compactPlayButton
                 titleBelow
-                bodyClassName="px-4 py-3"
-                titleClassName="line-clamp-2 text-[15px] font-medium leading-[1.4]"
+                bodyClassName="px-2.5 py-2 sm:px-4 sm:py-3"
+                titleClassName="line-clamp-2 text-[13px] font-medium leading-[1.3] sm:text-[15px] sm:leading-[1.4]"
                 imageSizes="100vw"
               />
             </div>

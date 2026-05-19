@@ -561,12 +561,12 @@ export default async function Home() {
               <section className="space-y-6 border border-black/8 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,247,0.98))] p-5 shadow-[0_24px_80px_-40px_rgba(6,78,59,0.38)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,_rgba(52,211,153,0.16),_transparent_32%),linear-gradient(180deg,rgba(8,22,35,0.96),rgba(7,18,29,0.98))] sm:p-6 xl:p-8">
                 <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
                   <div className="space-y-6">
-                    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] xl:items-stretch">
+                    <div className="grid gap-3 sm:gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] xl:items-stretch">
                       {specialLead ? (
                         <>
                           {/* Mobile / tablet: match the regular "white card" style */}
-                          <article className="flex h-full flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04] xl:hidden">
-                            <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
+                          <article className="mx-auto flex h-full w-full max-w-[20rem] flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04] sm:max-w-[24rem] xl:mx-0 xl:max-w-none xl:hidden">
+                            <div className="relative aspect-[16/9] w-full overflow-hidden bg-black sm:aspect-[16/10]">
                               <Link href={specialLead.href} aria-label={specialLead.title} className="block h-full">
                                 {specialLead.cover?.url ? (
                                   <Image
@@ -579,9 +579,9 @@ export default async function Home() {
                                 ) : null}
                               </Link>
                             </div>
-                            <div className="p-4">
+                            <div className="p-2.5 sm:p-4">
                               {hasSpecialLeadMeta ? (
-                                <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
+                                <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[11px] font-normal leading-[15px] text-[#4b5d63] dark:text-white/70 sm:mb-2 sm:text-[13px] sm:leading-[18px]">
                                   {specialLeadDate ? <span>{specialLeadDate}</span> : null}
                                   {specialLeadTime ? <span>{specialLeadTime}</span> : null}
                                   {specialLeadCategory?.name ? (
@@ -595,7 +595,7 @@ export default async function Home() {
                                   ) : null}
                                 </div>
                               ) : null}
-                              <h3 className="font-[Lato] text-[18px] leading-[1.35] text-[#10211a] dark:text-white">
+                              <h3 className="line-clamp-2 font-[Lato] text-[15px] leading-[1.25] text-[#10211a] dark:text-white sm:text-[18px] sm:leading-[1.35]">
                                 <Link href={specialLead.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
                                   {specialLead.title}
                                 </Link>
@@ -668,17 +668,17 @@ export default async function Home() {
                         </>
                       ) : null}
 
-                      <div className="grid gap-4 xl:h-full xl:grid-rows-2">
+                      <div className="grid gap-3 sm:gap-4 xl:h-full xl:grid-rows-2">
                         {specialSecondary.map((item) => (
-                          <article key={item.documentId} className="flex h-full flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]">
-                            <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
+                          <article key={item.documentId} className="mx-auto flex h-full w-full max-w-[20rem] flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04] sm:max-w-[24rem] xl:mx-0 xl:max-w-none">
+                            <div className="relative aspect-[16/9] w-full overflow-hidden bg-black sm:aspect-[16/10]">
                               <Link href={item.href} aria-label={item.title} className="block h-full">
                                 {item.cover?.url ? (
                                   <Image src={item.cover.url} alt={item.cover.alternativeText ?? item.title} width={640} height={360} className="h-full w-full object-cover" />
                                 ) : null}
                               </Link>
                             </div>
-                            <div className="p-4">
+                            <div className="p-2.5 sm:p-4">
                               {(() => {
                                 const category = getPrimaryCategory(item.categories);
                                 const categoryName = category?.name;
@@ -692,7 +692,7 @@ export default async function Home() {
                                 }
 
                                 return (
-                                  <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
+                                  <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[11px] font-normal leading-[15px] text-[#4b5d63] dark:text-white/70 sm:mb-2 sm:text-[13px] sm:leading-[18px]">
                                     {publishedDateLabel ? <span>{publishedDateLabel}</span> : null}
                                     {publishedTimeLabel ? <span>{publishedTimeLabel}</span> : null}
                                     {categoryName ? (
@@ -707,7 +707,7 @@ export default async function Home() {
                                   </div>
                                 );
                               })()}
-                              <h3 className="font-[Lato] text-[18px] leading-[1.35] text-[#10211a] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
+                              <h3 className="line-clamp-2 font-[Lato] text-[15px] leading-[1.25] text-[#10211a] dark:text-white sm:line-clamp-none sm:text-[18px] sm:leading-[1.35]"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
                             </div>
                           </article>
                         ))}
