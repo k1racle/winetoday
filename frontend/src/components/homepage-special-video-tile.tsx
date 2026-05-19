@@ -15,6 +15,7 @@ type HomepageSpecialVideoTileProps = {
   meta?: OverlayMetaItem[];
   className?: string;
   mediaClassName?: string;
+  imageClassName?: string;
   titleClassName?: string;
   imageSizes?: string;
   contentClassName?: string;
@@ -66,6 +67,7 @@ export function HomepageSpecialVideoTile({
   meta,
   className,
   mediaClassName,
+  imageClassName,
   titleClassName,
   imageSizes,
   contentClassName,
@@ -100,7 +102,7 @@ export function HomepageSpecialVideoTile({
               alt={coverAlt ?? title}
               fill
               sizes={imageSizes ?? "(max-width: 768px) 100vw, 50vw"}
-              className="object-cover transition duration-500 group-hover:scale-[1.02]"
+              className={["transition duration-500 group-hover:scale-[1.02]", imageClassName ?? "object-cover"].join(" ")}
             />
           ) : (
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(28,55,40,0.55),_rgba(0,0,0,0.95))]" />
