@@ -119,13 +119,16 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
 
   return (
     <>
-      <div className="-mx-5 space-y-3 xl:hidden sm:-mx-6">
+      <div className="space-y-3 xl:hidden">
         <div
           ref={mobileTrackRef}
-          className="flex w-full snap-x snap-mandatory overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {videos.map((video) => (
-            <div key={video.documentId} className="min-w-full shrink-0 snap-center px-0 sm:px-2">
+            <div
+              key={video.documentId}
+              className="min-w-[88%] shrink-0 snap-center first:pl-4 last:pr-4 sm:min-w-[72%]"
+            >
               <HomepageSpecialVideoTile
                 href={video.href}
                 title={video.title}
