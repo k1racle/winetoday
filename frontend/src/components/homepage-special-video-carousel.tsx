@@ -125,7 +125,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
           className="flex snap-x snap-mandatory overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {videos.map((video) => (
-            <div key={video.documentId} className="min-w-full shrink-0 snap-center">
+            <div key={video.documentId} className="min-w-full shrink-0 snap-center px-2">
               <HomepageSpecialVideoTile
                 href={video.href}
                 title={video.title}
