@@ -561,124 +561,167 @@ export default async function Home() {
               <section className="space-y-6 border border-black/8 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,247,0.98))] p-5 shadow-[0_24px_80px_-40px_rgba(6,78,59,0.38)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,_rgba(52,211,153,0.16),_transparent_32%),linear-gradient(180deg,rgba(8,22,35,0.96),rgba(7,18,29,0.98))] sm:p-6 xl:p-8">
                 <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
                   <div className="space-y-6">
-                    <div className="grid gap-3 sm:gap-4 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] xl:items-stretch">
+                    <div className="space-y-4 xl:hidden">
                       {specialLead ? (
-                        <>
-                          {/* Mobile / tablet: match the regular "white card" style */}
-                          <article className="mx-auto flex h-full w-full max-w-[20rem] flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04] sm:max-w-[24rem] xl:mx-0 xl:max-w-none xl:hidden">
-                            <div className="relative aspect-[16/9] w-full overflow-hidden bg-black sm:aspect-[16/10]">
-                              <Link href={specialLead.href} aria-label={specialLead.title} className="block h-full">
-                                {specialLead.cover?.url ? (
-                                  <Image
-                                    src={specialLead.cover.url}
-                                    alt={specialLead.cover.alternativeText ?? specialLead.title}
-                                    width={640}
-                                    height={360}
-                                    className="h-full w-full object-cover"
-                                  />
+                        <article className="flex h-full flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]">
+                          <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
+                            <Link href={specialLead.href} aria-label={specialLead.title} className="block h-full">
+                              {specialLead.cover?.url ? (
+                                <Image
+                                  src={specialLead.cover.url}
+                                  alt={specialLead.cover.alternativeText ?? specialLead.title}
+                                  width={720}
+                                  height={450}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : null}
+                            </Link>
+                          </div>
+                          <div className="p-4">
+                            {hasSpecialLeadMeta ? (
+                              <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
+                                {specialLeadDate ? <span>{specialLeadDate}</span> : null}
+                                {specialLeadTime ? <span>{specialLeadTime}</span> : null}
+                                {specialLeadCategory?.name ? (
+                                  specialLeadCategory.slug ? (
+                                    <Link href={`/categories/${specialLeadCategory.slug}`} className="transition hover:text-emerald-900 dark:hover:text-emerald-200">
+                                      {specialLeadCategory.name}
+                                    </Link>
+                                  ) : (
+                                    <span>{specialLeadCategory.name}</span>
+                                  )
                                 ) : null}
+                              </div>
+                            ) : null}
+                            <h3 className="font-[Lato] text-[18px] leading-[1.35] text-[#10211a] dark:text-white">
+                              <Link href={specialLead.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
+                                {specialLead.title}
                               </Link>
-                            </div>
-                            <div className="p-2.5 sm:p-4">
-                              {hasSpecialLeadMeta ? (
-                                <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[11px] font-normal leading-[15px] text-[#4b5d63] dark:text-white/70 sm:mb-2 sm:text-[13px] sm:leading-[18px]">
-                                  {specialLeadDate ? <span>{specialLeadDate}</span> : null}
-                                  {specialLeadTime ? <span>{specialLeadTime}</span> : null}
-                                  {specialLeadCategory?.name ? (
-                                    specialLeadCategory.slug ? (
-                                      <Link href={`/categories/${specialLeadCategory.slug}`} className="transition hover:text-emerald-900 dark:hover:text-emerald-200">
-                                        {specialLeadCategory.name}
-                                      </Link>
-                                    ) : (
-                                      <span>{specialLeadCategory.name}</span>
-                                    )
-                                  ) : null}
-                                </div>
-                              ) : null}
-                              <h3 className="line-clamp-2 font-[Lato] text-[15px] leading-[1.25] text-[#10211a] dark:text-white sm:text-[18px] sm:leading-[1.35]">
-                                <Link href={specialLead.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
-                                  {specialLead.title}
-                                </Link>
-                              </h3>
-                            </div>
-                          </article>
-
-                          {/* Desktop: keep the original hero-style lead */}
-                          <article className="group relative hidden aspect-square overflow-hidden border border-emerald-950/10 bg-black shadow-[0_20px_60px_-36px_rgba(6,78,59,0.45)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 lg:h-full lg:aspect-auto xl:block">
-                            <div className="absolute inset-0 overflow-hidden">
-                              <Link href={specialLead.href} aria-label={specialLead.title} className="block h-full">
-                                {specialLead.cover?.url ? (
-                                  <Image
-                                    src={specialLead.cover.url}
-                                    alt={specialLead.cover.alternativeText ?? specialLead.title}
-                                    width={960}
-                                    height={960}
-                                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
-                                  />
-                                ) : (
-                                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(28,55,40,0.5),_rgba(0,0,0,0.96))]" />
-                                )}
-                              </Link>
-                              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
-                            </div>
-                            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
-                              <h2
-                                className="mt-4 text-white"
-                                style={{
-                                  fontFamily: "Lato, var(--font-inter), system-ui, sans-serif",
-                                  fontSize: "26px",
-                                  lineHeight: "32px",
-                                  fontWeight: 700,
-                                }}
-                              >
-                                <Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">
-                                  {specialLead.title}
-                                </Link>
-                              </h2>
-                              {specialLead.excerpt ? (
-                                <p className="mt-4 hidden max-w-[60ch] font-[Lato] text-[16px] leading-[1.5] text-white/85 sm:block">
-                                  {specialLead.excerpt}
-                                </p>
-                              ) : null}
-                              {hasSpecialLeadMeta ? (
-                                <div
-                                  className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-white/78"
-                                  style={{
-                                    fontFamily: "Lato, var(--font-inter), system-ui, sans-serif",
-                                    fontSize: "13px",
-                                    lineHeight: "18px",
-                                    fontWeight: 400,
-                                  }}
-                                >
-                                  {specialLeadDate ? <span>{specialLeadDate}</span> : null}
-                                  {specialLeadTime ? <span>{specialLeadTime}</span> : null}
-                                  {specialLeadCategory?.name ? (
-                                    specialLeadCategory.slug ? (
-                                      <Link href={`/categories/${specialLeadCategory.slug}`} className="pointer-events-auto transition hover:text-emerald-200">
-                                        {specialLeadCategory.name}
-                                      </Link>
-                                    ) : (
-                                      <span>{specialLeadCategory.name}</span>
-                                    )
-                                  ) : null}
-                                </div>
-                              ) : null}
-                            </div>
-                          </article>
-                        </>
+                            </h3>
+                          </div>
+                        </article>
                       ) : null}
 
-                      <div className="grid gap-3 sm:gap-4 xl:h-full xl:grid-rows-2">
+                      {specialSecondary.slice(0, 2).map((item) => (
+                        <article key={item.documentId} className="flex h-full flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]">
+                          <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
+                            <Link href={item.href} aria-label={item.title} className="block h-full">
+                              {item.cover?.url ? (
+                                <Image src={item.cover.url} alt={item.cover.alternativeText ?? item.title} width={720} height={450} className="h-full w-full object-cover" />
+                              ) : null}
+                            </Link>
+                          </div>
+                          <div className="p-4">
+                            {(() => {
+                              const category = getPrimaryCategory(item.categories);
+                              const categoryName = category?.name;
+                              const categorySlug = category?.slug;
+                              const publishedValue = item.publishedAtCustom ?? item.publishedAt;
+                              const publishedDateLabel = formatHomepageNewsDateWithMonthLabel(publishedValue);
+                              const publishedTimeLabel = formatRussianTime(publishedValue);
+
+                              if (!categoryName && !publishedDateLabel && !publishedTimeLabel) {
+                                return null;
+                              }
+
+                              return (
+                                <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
+                                  {publishedDateLabel ? <span>{publishedDateLabel}</span> : null}
+                                  {publishedTimeLabel ? <span>{publishedTimeLabel}</span> : null}
+                                  {categoryName ? (
+                                    categorySlug ? (
+                                      <Link href={`/categories/${categorySlug}`} className="transition hover:text-emerald-900 dark:hover:text-emerald-200">
+                                        {categoryName}
+                                      </Link>
+                                    ) : (
+                                      <span>{categoryName}</span>
+                                    )
+                                  ) : null}
+                                </div>
+                              );
+                            })()}
+                            <h3 className="font-[Lato] text-[18px] leading-[1.35] text-[#10211a] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+
+                    <div className="hidden gap-4 xl:grid xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] xl:items-stretch">
+                      {specialLead ? (
+                        <article className="group relative aspect-square overflow-hidden border border-emerald-950/10 bg-black shadow-[0_20px_60px_-36px_rgba(6,78,59,0.45)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 lg:h-full lg:aspect-auto">
+                          <div className="absolute inset-0 overflow-hidden">
+                            <Link href={specialLead.href} aria-label={specialLead.title} className="block h-full">
+                              {specialLead.cover?.url ? (
+                                <Image
+                                  src={specialLead.cover.url}
+                                  alt={specialLead.cover.alternativeText ?? specialLead.title}
+                                  width={960}
+                                  height={960}
+                                  className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                                />
+                              ) : (
+                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(28,55,40,0.5),_rgba(0,0,0,0.96))]" />
+                              )}
+                            </Link>
+                            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
+                          </div>
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
+                            <h2
+                              className="mt-4 text-white"
+                              style={{
+                                fontFamily: "Lato, var(--font-inter), system-ui, sans-serif",
+                                fontSize: "26px",
+                                lineHeight: "32px",
+                                fontWeight: 700,
+                              }}
+                            >
+                              <Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">
+                                {specialLead.title}
+                              </Link>
+                            </h2>
+                            {specialLead.excerpt ? (
+                              <p className="mt-4 hidden max-w-[60ch] font-[Lato] text-[16px] leading-[1.5] text-white/85 sm:block">
+                                {specialLead.excerpt}
+                              </p>
+                            ) : null}
+                            {hasSpecialLeadMeta ? (
+                              <div
+                                className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-white/78"
+                                style={{
+                                  fontFamily: "Lato, var(--font-inter), system-ui, sans-serif",
+                                  fontSize: "13px",
+                                  lineHeight: "18px",
+                                  fontWeight: 400,
+                                }}
+                              >
+                                {specialLeadDate ? <span>{specialLeadDate}</span> : null}
+                                {specialLeadTime ? <span>{specialLeadTime}</span> : null}
+                                {specialLeadCategory?.name ? (
+                                  specialLeadCategory.slug ? (
+                                    <Link href={`/categories/${specialLeadCategory.slug}`} className="pointer-events-auto transition hover:text-emerald-200">
+                                      {specialLeadCategory.name}
+                                    </Link>
+                                  ) : (
+                                    <span>{specialLeadCategory.name}</span>
+                                  )
+                                ) : null}
+                              </div>
+                            ) : null}
+                          </div>
+                        </article>
+                      ) : null}
+
+                      <div className="grid gap-4 xl:h-full xl:grid-rows-2">
                         {specialSecondary.map((item) => (
-                          <article key={item.documentId} className="mx-auto flex h-full w-full max-w-[20rem] flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04] sm:max-w-[24rem] xl:mx-0 xl:max-w-none">
-                            <div className="relative aspect-[16/9] w-full overflow-hidden bg-black sm:aspect-[16/10]">
+                          <article key={item.documentId} className="flex h-full flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]">
+                            <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
                               <Link href={item.href} aria-label={item.title} className="block h-full">
                                 {item.cover?.url ? (
-                                  <Image src={item.cover.url} alt={item.cover.alternativeText ?? item.title} width={640} height={360} className="h-full w-full object-cover" />
+                                  <Image src={item.cover.url} alt={item.cover.alternativeText ?? item.title} width={640} height={400} className="h-full w-full object-cover" />
                                 ) : null}
                               </Link>
                             </div>
-                            <div className="p-2.5 sm:p-4">
+                            <div className="p-4">
                               {(() => {
                                 const category = getPrimaryCategory(item.categories);
                                 const categoryName = category?.name;
@@ -692,7 +735,7 @@ export default async function Home() {
                                 }
 
                                 return (
-                                  <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[11px] font-normal leading-[15px] text-[#4b5d63] dark:text-white/70 sm:mb-2 sm:text-[13px] sm:leading-[18px]">
+                                  <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
                                     {publishedDateLabel ? <span>{publishedDateLabel}</span> : null}
                                     {publishedTimeLabel ? <span>{publishedTimeLabel}</span> : null}
                                     {categoryName ? (
@@ -707,7 +750,7 @@ export default async function Home() {
                                   </div>
                                 );
                               })()}
-                              <h3 className="line-clamp-2 font-[Lato] text-[15px] leading-[1.25] text-[#10211a] dark:text-white sm:line-clamp-none sm:text-[18px] sm:leading-[1.35]"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
+                              <h3 className="font-[Lato] text-[18px] leading-[1.35] text-[#10211a] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
                             </div>
                           </article>
                         ))}
