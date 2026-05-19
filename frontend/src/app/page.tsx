@@ -563,7 +563,7 @@ export default async function Home() {
                   <div className="space-y-6">
                     <div className="space-y-4 xl:hidden">
                       {specialLead ? (
-                        <article className="flex h-full flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]">
+                        <article className="mx-auto flex h-full w-full max-w-[clamp(280px,92vw,520px)] flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]">
                           <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
                             <Link href={specialLead.href} aria-label={specialLead.title} className="block h-full">
                               {specialLead.cover?.url ? (
@@ -603,7 +603,7 @@ export default async function Home() {
                       ) : null}
 
                       {specialSecondary.slice(0, 2).map((item) => (
-                        <article key={item.documentId} className="flex h-full flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]">
+                        <article key={item.documentId} className="mx-auto flex h-full w-full max-w-[clamp(280px,92vw,520px)] flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]">
                           <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
                             <Link href={item.href} aria-label={item.title} className="block h-full">
                               {item.cover?.url ? (
