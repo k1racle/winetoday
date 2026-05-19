@@ -135,7 +135,7 @@ export function HomepageSpecialVideoTile({
               "mt-3 text-[#fff]",
               titleClassName ?? "type-h4",
             ].join(" ")}>
-              <Link href={href} className="pointer-events-auto transition hover:text-emerald-200">
+              <Link href={href} className="pointer-events-auto block transition hover:text-emerald-200">
                 {title}
               </Link>
             </h3>
@@ -148,7 +148,7 @@ export function HomepageSpecialVideoTile({
             "text-[#0d3132] dark:text-white",
             titleClassName ?? "type-h4",
           ].join(" ")}>
-            <Link href={href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
+            <Link href={href} className="block transition hover:text-emerald-700 dark:hover:text-emerald-200">
               {title}
             </Link>
           </h3>
