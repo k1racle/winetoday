@@ -758,7 +758,7 @@ export default async function Home() {
                     </div>
 
                     {specialVideos.length ? (
-                      
+                      <div className="max-w-full xl:contents">
                         <HomepageSpecialVideoCarousel
                           videos={specialVideos.map((video) => ({
                             documentId: video.documentId,
@@ -769,7 +769,7 @@ export default async function Home() {
                             meta: buildCategoryDateOverlayMeta(video.categories, video.publishedAt, video.publishedAtCustom),
                           }))}
                         />
-                     
+                      </div>
                     ) : null}
                   </div>
 
