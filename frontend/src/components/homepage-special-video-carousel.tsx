@@ -137,8 +137,8 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
                   coverAlt={video.cover?.alternativeText ?? video.title}
                   videoUrl={video.videoUrl}
                   meta={video.meta}
-                  className="mx-auto w-full max-w-[clamp(280px,92vw,420px)]"
-                  mediaClassName="aspect-video max-h-[42vh]"
+                  className="mx-auto w-full max-w-[clamp(280px,92vw,420px)] sm:max-w-[clamp(520px,82vw,720px)]"
+                  mediaClassName="aspect-video max-h-[42vh] sm:max-h-[52vh]"
                   imageClassName="object-contain"
                   contentClassName="p-1.5 sm:p-4"
                   compactPlayButton
