@@ -120,7 +120,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
   return (
     <>
       <div className="space-y-3 xl:hidden">
-        <div className="w-full max-w-full overflow-hidden px-0">
+        <div className="w-full max-w-full overflow-hidden pl-0 pr-4">
           <div
             ref={mobileTrackRef}
             className="flex w-full max-w-full snap-x snap-mandatory overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -130,25 +130,23 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
                 key={video.documentId}
                 className="min-w-full shrink-0 snap-center px-0"
               >
-                <div className="px-[clamp(12px,4vw,20px)] sm:px-[clamp(16px,3vw,24px)]">
-                  <HomepageSpecialVideoTile
-                    href={video.href}
-                    title={video.title}
-                    coverUrl={video.cover?.url ?? null}
-                    coverAlt={video.cover?.alternativeText ?? video.title}
-                    videoUrl={video.videoUrl}
-                    meta={video.meta}
-                    className="mx-auto h-full w-full max-w-[clamp(280px,92vw,520px)] sm:max-w-none"
-                    mediaClassName="aspect-video"
-                    imageClassName="object-contain"
-                    contentClassName="p-1.5 sm:p-4"
-                    compactPlayButton
-                    titleBelow
-                    bodyClassName="px-1.5 py-1.5 sm:px-4 sm:py-3"
-                    titleClassName="line-clamp-2 text-[12px] font-medium leading-[1.2] sm:text-[15px] sm:leading-[1.4]"
-                    imageSizes="(max-width: 639px) 100vw, (max-width: 1279px) 100vw, 66vw"
-                  />
-                </div>
+                <HomepageSpecialVideoTile
+                  href={video.href}
+                  title={video.title}
+                  coverUrl={video.cover?.url ?? null}
+                  coverAlt={video.cover?.alternativeText ?? video.title}
+                  videoUrl={video.videoUrl}
+                  meta={video.meta}
+                  className="h-full w-full"
+                  mediaClassName="aspect-video"
+                  imageClassName="object-contain"
+                  contentClassName="p-1.5 sm:p-4"
+                  compactPlayButton
+                  titleBelow
+                  bodyClassName="px-1.5 py-1.5 sm:px-4 sm:py-3"
+                  titleClassName="line-clamp-2 text-[12px] font-medium leading-[1.2] sm:text-[15px] sm:leading-[1.4]"
+                  imageSizes="(max-width: 639px) 100vw, (max-width: 1279px) 100vw, 66vw"
+                />
               </div>
             ))}
           </div>
