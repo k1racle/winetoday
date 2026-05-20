@@ -120,7 +120,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
   return (
     <>
       <div className="space-y-3 xl:hidden">
-        <div className="w-full max-w-full overflow-hidden pl-0 pr-4">
+        <div className="w-full max-w-full overflow-hidden px-0">
           <div
             ref={mobileTrackRef}
             className="flex w-full max-w-full snap-x snap-mandatory overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -137,8 +137,8 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
                   coverAlt={video.cover?.alternativeText ?? video.title}
                   videoUrl={video.videoUrl}
                   meta={video.meta}
-                  className="h-full w-full"
-                  mediaClassName="aspect-video"
+                  className="mx-auto w-full max-w-[clamp(280px,92vw,420px)]"
+                  mediaClassName="aspect-video max-h-[42vh]"
                   imageClassName="object-contain"
                   contentClassName="p-1.5 sm:p-4"
                   compactPlayButton
