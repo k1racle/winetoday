@@ -539,9 +539,13 @@ export async function RichContent({ blocks, paragraphLineHeightClassName }: Rich
             <section key={`${block.__component}-${block.id}`} className="space-y-4">
               {block.title ? <h2 className="type-h3 font-semibold tracking-tight">{block.title}</h2> : null}
               <div className={`prose prose-zinc max-w-none text-[16px] leading-8 text-zinc-700 prose-headings:font-semibold prose-headings:tracking-tight prose-p:my-4 ${paragraphLineHeightProseClassName} prose-ul:my-4 prose-ol:my-4 prose-li:my-1 prose-blockquote:border-l-2 prose-blockquote:border-emerald-700 prose-blockquote:pl-4 prose-blockquote:italic prose-a:text-emerald-700 prose-strong:text-zinc-900 dark:prose-invert dark:text-zinc-300 dark:prose-a:text-emerald-400`}>
-                {typeof block.content === "string"
-                  ? renderLegacyRichTextContent(block.content)
-                  : renderRichTextNodes(block.content, `${block.__component}-${block.id}`)}
+                {typeof block.content === "string" ? (
+                  renderLegacyRichTextContent(block.content)
+                ) : Array.isArray(block.content) ? (
+                  renderRichTextNodes(block.content, `${block.__component}-${block.id}`)
+                ) : (
+                  <TiptapContent content={block.content} paragraphLineHeightClassName={paragraphLineHeightClassName} />
+                )}
               </div>
             </section>
           );

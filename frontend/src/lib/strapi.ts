@@ -240,7 +240,8 @@ export type StrapiBlock =
       __component: "blocks.rich-text";
       id: number;
       title?: string | null;
-      content: RichTextContent | string;
+      // Legacy: массив узлов; новый редактор: tiptap json (объект)
+      content: RichTextContent | Record<string, unknown> | string;
     }
   | {
       __component: "blocks.quote";
@@ -1167,9 +1168,15 @@ function normalizeBlocks(blocks?: StrapiBlock[] | null) {
   }, []);
 }
 
-function normalizeRichTextContent(content?: RichTextContent | string | null): RichTextContent | string {
+function normalizeRichTextContent(content?: RichTextContent | Record<string, unknown> | string | null) {
   if (!content || typeof content === "string") {
     return content ?? "";
+  }
+
+  // Strapi может отдавать rich-text как массив узлов (legacy)
+  // или как tiptap json (объект). Второй вариант нормализуется/рендерится отдельно.
+  if (!Array.isArray(content)) {
+    return content;
   }
 
   return content.map((node) => normalizeRichTextNode(node));
@@ -2709,19 +2716,23 @@ export async function getFooterPages() {
 }
 
 export async function getPageBySlug(slug: string) {
-  const [baseResponse, contentResponse] = await Promise.all([
-    fetchStrapi<PageEntry[]>(
-      `/api/pages?filters[slug][$eq]=${encodeURIComponent(slug)}&populate[seo][populate][metaImage]=true`,
-    ),
-    fetchStrapi<PageEntry[]>(
-      `/api/pages?filters[slug][$eq]=${encodeURIComponent(slug)}&${CONTENT_POPULATE_QUERY}`,
-    ),
-  ]);
+  const baseResponse = await fetchStrapi<PageEntry[]>(
+    `/api/pages?filters[slug][$eq]=${encodeURIComponent(slug)}&populate[seo][populate][metaImage]=true`,
+  );
+
+  const contentResponse = await withLoggedFallback(
+    `page content populate for ${slug}`,
+    () =>
+      fetchStrapi<PageEntry[]>(
+        `/api/pages?filters[slug][$eq]=${encodeURIComponent(slug)}&populate[content][populate]=*`,
+      ),
+    null as Awaited<ReturnType<typeof fetchStrapi<PageEntry[]>>> | null,
+  );
 
   const page = baseResponse.data[0]
     ? {
         ...baseResponse.data[0],
-        content: contentResponse.data[0]?.content ?? baseResponse.data[0].content,
+        content: contentResponse?.data?.[0]?.content ?? baseResponse.data[0].content,
       }
     : null;
 
