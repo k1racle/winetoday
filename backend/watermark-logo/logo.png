@@ -1,0 +1,533 @@
+<!DOCTYPE HTML>
+<!--[if lt IE 7 ]> <html class="ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html class="ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html class="ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html class="ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--><html><!--<![endif]-->
+<head>
+    <title>DropMeFiles – free one-click file sharing service</title>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <meta name="description" content="Share your pictures, send large videos, exchange music or transfer big files. No registration required. Unlimited upload/download speed." />
+    <meta name="keywords" content="free service, big, online, files, send large file share, sharing, storage, transfer, more than 200 Mb, 500 Mb, 1 Gb, 2 Gb, 4 Gb, 5 Gb, 10 Gb, photo, video, without registration" />
+
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="ru_RU" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://dropmefiles.com" />
+    <meta property="og:image" content="https://dropmefiles.com/images/share-logo_vk.png" />
+    <meta property="og:site_name" content="I uploaded files on DropMeFiles" />
+
+    <meta name='yandex-verification' content='7161e0a417b62d9a' />
+    <meta name='yandex-verification' content='56d98521563b47b8' />
+    <meta name="google-site-verification" content="7x3DdFkwp0i9fafcaF3_z2wRMilP3FOzu78aN76uHCo" />
+        <meta name="referrer" content="no-referrer-when-downgrade" />
+        <meta name="ROBOTS" content="NOINDEX, NOFOLLOW" />
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="https://dropmefiles.com/images/favicons/favicon.ico" type="image/x-icon" />
+    <link rel="icon" type="image/png" href="https://dropmefiles.com/images/favicons/192.png" sizes="192x192" />
+    <link rel="icon" type="image/png" href="https://dropmefiles.com/images/favicons/128.png" sizes="128x128" />
+    <link rel="apple-touch-icon" href="https://dropmefiles.com/images/favicons/57.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="https://dropmefiles.com/images/favicons/120.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="120x120" href="https://dropmefiles.com/images/favicons/120.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="https://dropmefiles.com/images/favicons/180.png" />
+    <link rel="apple-touch-icon-precomposed" sizes="180x180" href="https://dropmefiles.com/images/favicons/180.png" />
+    <link rel="manifest" href="https://dropmefiles.com/manifest.json" />
+    <meta name="msapplication-config" content="https://dropmefiles.com/browserconfig.xml" />
+    <link rel="mask-icon" href="https://dropmefiles.com/safari-pinned-tab.svg" color="#dc286b">
+
+    <link rel="image_src" href="https://dropmefiles.com/images/share-logo_vk.png" />
+
+    <!-- Links -->
+    <link rel="stylesheet" type="text/css" media="screen, projection" href="https://dropmefiles.com/css/new.css?ast=eb5cad72" />
+    <link rel="stylesheet" type="text/css" media="screen, projection" href="https://dropmefiles.com/css/jquery.mCustomScrollbar.css?ast=eb5cad72" />
+
+    <link rel="stylesheet" href="https://dropmefiles.com/css/lightbox.css?ast=eb5cad72" type="text/css" />
+        <link rel="stylesheet" href="https://dropmefiles.com/css/swiper.css?ast=eb5cad72" type="text/css" />
+    <link rel="stylesheet" href="https://dropmefiles.com/css/jQueryUI/jquery-ui-1.11.4.structure.min.css?ast=eb5cad72" type="text/css" />
+    <link rel="stylesheet" href="https://dropmefiles.com/css/jQueryUI/jquery-ui-1.11.4.theme.custom.min.css?ast=eb5cad72" type="text/css" />
+    <link rel="stylesheet" href="https://dropmefiles.com/css/troubleTicket.css?ast=eb5cad72" type="text/css" />
+
+    <link rel="stylesheet" href="https://dropmefiles.com/js/video-js/video-js.css?ast=eb5cad72" type="text/css" />
+    <link rel="stylesheet" href="https://dropmefiles.com/js/video-js/videojs.ads.css?ast=eb5cad72" type="text/css" />
+    <link rel="stylesheet" href="https://dropmefiles.com/js/video-js/videojs.ima.css?ast=eb5cad72" type="text/css" />
+
+    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+    <script type='text/javascript'>
+      var googletag = googletag || {};
+      googletag.cmd = googletag.cmd || [];
+/*      (function() {
+        var gads = document.createElement('script');
+        gads.async = true;
+        gads.type = 'text/javascript';
+        var useSSL = 'https:' == document.location.protocol;
+        gads.src = (useSSL ? 'https:' : 'http:') +
+          '//www.googletagservices.com/tag/js/gpt.js';
+        var node = document.getElementsByTagName('script')[0];
+        node.parentNode.insertBefore(gads, node);
+      })();*/
+    </script>
+
+    <script type="text/javascript" src="https://dropmefiles.com/js/jquery/jquery-1.12.4.min.js?ast=eb5cad72"></script>
+    <script type="text/javascript" src="https://dropmefiles.com/js/jquery/jquery-ui-1.11.4.truncated.min.js?ast=eb5cad72"></script>
+    <script type="text/javascript" src="https://dropmefiles.com/js/jquery/jquery.mousewheel.js?ast=eb5cad72"></script>
+    <script type="text/javascript" src="https://dropmefiles.com/js/jquery/jquery.mCustomScrollbar.min.js?ast=eb5cad72"></script>
+    <script type="text/javascript" src="https://dropmefiles.com/js/push/push-1.0.12.min.js?ast=eb5cad72"></script>
+        <script type="text/javascript" src="https://dropmefiles.com/js/jquery/jquery.cookie.js?ast=eb5cad72"></script>
+    <script type="text/javascript" src="https://dropmefiles.com/js/functions.js?ast=eb5cad72"></script>
+    
+        <script type="text/javascript">
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-31255982-3', 'auto');
+      ga('send', 'pageview');
+    </script>
+        <script type="text/javascript">
+        $(function() {
+            var likelayer = false;
+            $('.like-layer').hover(function(){
+                if(!likelayer){ $('.like-layer').animate({ width: 59 }); likelayer=true; }
+            },function(){
+                setTimeout(function(){ if(!likelayer){ $('.like-layer').animate({ width: 20 }); } },1000);
+                likelayer=false;
+            });
+        });
+    </script>
+</head>
+<body class="noselect">
+        
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+(function (d, w, c) {
+    (w[c] = w[c] || []).push(function() {
+        try {
+            w.yaCounter22609366 = new Ya.Metrika({id:22609366,
+                    clickmap:true,
+                    trackLinks:true,
+                    accurateTrackBounce:true});
+        } catch(e) { }
+    });
+
+    var n = d.getElementsByTagName("script")[0],
+        s = d.createElement("script"),
+        f = function () { n.parentNode.insertBefore(s, n); };
+    s.type = "text/javascript";
+    s.async = true;
+    s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+    if (w.opera == "[object Opera]") {
+        d.addEventListener("DOMContentLoaded", f, false);
+    } else { f(); }
+})(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="//mc.yandex.ru/watch/22609366" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+        <div class="like-layer">
+        <div class="button-wrapper">
+                        <a class="share-vk" onclick="window.open('http://vk.com/share.php?url=https%3A%2F%2Fdropmefiles.com%2Fen&amp;title=DropMeFiles+%E2%80%93+free+one-click+file+sharing+service&amp;description=Share+your+pictures%2C+send+large+videos%2C+exchange+music+or+transfer+big+files.+No+registration+required.+Unlimited+upload%2Fdownload+speed&amp;image=https%3A%2F%2Fdropmefiles.com%2Fimages%2Fshare-logo_vk.png', '_blank', 'scrollbars=0, resizable=1, menubar=0, left=200, top=200, width=554, height=421, toolbar=0, status=0');return false"></a>
+                    </div>
+    </div>
+        <div class="head">
+<!--<div class="h-link">
+    <a class="camera" href="http://cameras.inetcom.ru/" target="_blank"></a><a class="otlichnik" href="http://inetcom.tv/school" target="_blank"></a><a class="tv" href="http://inetcom.tv" target="_blank"></a><a class="smart" href="http://inetcom.tv/smarttv" target="_blank"><div class="newserv"><div class="newserv_l"></div>новый сервис</div></a>
+</div>-->
+<!--<p class="h-link"><a title="Помощь" target="_blank" href="http://help.inetcom.ru/">Помощь</a> <a title="Личный кабинет" target="_blank" href="https://cabinet.inetcom.ru/cabinet/">Личный кабинет</a></p>-->
+    </div>
+    
+
+    <div class="wrapper">
+        <div id="language-select">
+<a href="javascript:void(0);" onclick="changeLanguage('ru');" class="ru" title="Русский">Рус</a><b class="en">Eng</b></div>
+            </div>
+
+    <script type="text/javascript" src="https://dropmefiles.com/js/jquery/jquery.plugin.min.js?ast=eb5cad72"></script>
+<script type="text/javascript" src="https://dropmefiles.com/js/jquery/jquery.countdown.min.js?ast=eb5cad72"></script>
+<script type="text/javascript" src="https://dropmefiles.com/js/swiper.min.js?ast=eb5cad72"></script>
+
+<script type="text/javascript" src="https://dropmefiles.com/js/flowplayer/flowplayer-7.2.7.min.js?ast=eb5cad72"></script>
+
+<script type="text/javascript" src="https://dropmefiles.com/js/video-js/video.js?ast=eb5cad72"></script>
+<script src="//imasdk.googleapis.com/js/sdkloader/ima3.js?ast=eb5cad72"></script>
+<script type="text/javascript" src="https://dropmefiles.com/js/video-js/videojs.ads.js?ast=eb5cad72"></script>
+<!--<script type="text/javascript" src="https://dropmefiles.com/js/video-js/vast-client.js"></script>-->
+<!--<script type="text/javascript" src="https://dropmefiles.com/js/video-js/videojs.vast.js"></script>-->
+<script type="text/javascript" src="https://dropmefiles.com/js/video-js/videojs.ima.js?ast=eb5cad72"></script>
+
+<script type="text/javascript" src="https://dropmefiles.com/js/lightbox.min.js?ast=eb5cad72"></script>
+<script type="text/javascript" src="https://dropmefiles.com/js/downloader.js?ast=eb5cad72"></script>
+
+<script type="text/javascript" src="https://dropmefiles.com/js/troubleTicket.js?ast=eb5cad72"></script>
+
+<script type="text/javascript">
+var URL_SCHEME = 'https';
+var SERVERID = '1';
+var SERVERURL = 'https://drop1.dropmefiles.com';
+var DSERVERURL = 'https://drop1.dropmefile.com';
+var UPLOADID = '0GkmZ';
+var UTIMEOUT = 1780071253;
+var USTATUS = 0;
+var UFILES = 1;
+var UHELPUID = 'd1m2f';
+var LANGUAGE = 'en';
+var FWARN = false;
+</script>
+<div class="wrapper" id="dropzone">
+    <div class="container">
+        <div class="main">
+            <div class="preview">
+                <div id="zipWarning">
+                    <a href="/" class="pbtn_exit vrs_exit"></a>
+                    <form class="prm">
+                        <div class="blue">Файл заархивирован<br />с паролем</div><br><br>
+                        <div class="txt">Для разархивации используйте пароль 123</div><br><br>
+                        <input type="button" class="vrs_exit" value="OK" onclick="$('#zipWarning').fadeOut(300); return false;"><br>
+                    </form>
+                </div>
+                                <div class="preview_tbl preview_tbl_many">
+                                        <div class="swiper-container p_images p_images_big">
+                        <ul class="swiper-wrapper">
+                                                    <li class="swiper-slide">
+                            <div class="plist dragout" draggable="true" data-downloadurl="application/octet-stream:logo1.png:https://drop1.dropmefiles.com/dl/0GkmZ/1096831874">
+                                <b>logo1.png</b><i>
+                                <a href="https://drop1.dropmefiles.com/dl/0GkmZ/1096831874" data-lightbox="images" data-title="logo1.png">
+                                                                        <img src="https://drop1.dropmefiles.com/preview/0GkmZ/1096831874">
+                                                                    </a></i>
+                            </div>                            </li>
+                                                </ul>
+                                                <div class="hiddenContent notification notifyOne" id="notifyImgprev">
+                            <div class="nArrow"><div class="nArrowBg"></div></div>
+                            <div class="nTitle">Preview can be drag out</div>
+                            <div class="nContent">
+                                from the window in the original size                            </div>
+                        </div>
+                    </div>                                                                            </div>
+                            </div>
+            <div id="filelist" class="downloader">
+                                                <div class="info">
+                    <a class="error-button"><span class="error-shadow"></span>For complaints</a>
+                    <a href="/" class="exit"></a>
+                    <div class="filestats">
+                        <div class="fileCount">1</div>
+                        <span>file</span>
+                        <div class="fileSize">68 Kb</div>
+                        total size                        <noindex>
+                            <div class="hiddenContent notification noBannerSlide" id="notifySize">
+                                <div class="ntrArrow"><div class="ntrArrowBg"></div></div>
+                                <div class="nTitle">Maximum size</div>
+                                <div class="nContent">
+                                    of the uploaded files is up to 50 Gygabytes                                </div>
+                            </div>
+                        </noindex>
+                    </div>
+                    <div class="time">
+                        <div class="counter" id="uCounter">0 дней<br />00:00:00</div>
+                        until upload<br />expiration                    </div>
+                </div>
+                                        <div class="expand">more</div>
+                    <div class="files" id="upfiles">
+                        <ul>
+                                                                                    <li id="1096831874" data-fsize="69655" class="fileDownload dragout" draggable="true" data-downloadurl="application/octet-stream:logo1.png:https://drop1.dropmefiles.com/dl/0GkmZ/1096831874"><div class="icon"><div class="selected"></div><div class="type">png</div>68 Kb</div>logo1.png</li>
+                                                                                </ul>
+                    </div>
+                                                    <noindex>
+                                        <a rel="nofollow" class="download_btn dragout start_dl_btn" href="javascript:void(0);" 
+                       data-href="https://drop1.dropmefile.com/dl/0GkmZ"
+                       data-downloadurl="application/octet-stream:logo1.png:https://drop1.dropmefile.com/dl/0GkmZ"
+                       >download</a>
+                                        <div class="hiddenContent notification noBannerSlide" id="notifyDownld">
+                        <div class="ntlArrow"><div class="ntlArrowBg"></div></div>
+                        <div class="nTitle">Start download</div>
+                        <div class="nContent">
+                            not only by clicking on this button, but also by dragging it out from the browser                        </div>
+                    </div>
+                </noindex>
+            </div>
+                        <div class="link dl">
+                <span class="url dl_url_p">https://dropmefiles.com/0GkmZ</span>
+                <span class="dl_count">000</span>
+                <a id="sharelink_ok"></a><a id="sharelink_vk"></a>            </div>
+        </div>
+    </div>    
+</div>
+<div class="wrapper">
+    <div class="city minified">
+    </div>
+</div>
+
+<noindex>
+    <div class="hiddenContent notification noBannerSlide" id="notifyCounter">
+        <div class="nArrow"><div class="nArrowBg"></div></div>
+        <div class="nTitle">Counter shows</div>
+        <div class="nContent">
+            number of downloads for this link        </div>
+    </div>
+    
+    <div class="hiddenContent notification noBannerSlide" id="notifyFiles">
+        <div class="nArrow"><div class="nArrowBg"></div></div>
+        <div class="nTitle">Clicking on the icon will</div>
+        <div class="nContent">
+            select it, again - cancelled        </div>
+    </div>
+    
+    <div class="hiddenContent notification" id="notifyLoop6">
+        <div class="nClose"></div>
+        <div class="nrArrow"><div class="nrArrowBg"></div></div>
+        <div class="iImage"></div>
+        <div class="nTitle">Starting the download</div>
+        <div class="nContent">
+            could be done not only by clicking on "Download all" button, but also by dragging it out from the browser        </div>
+    </div>
+    
+    <div id="tt-dialog">
+        <form class="tt-create-form" action="#">
+            <div class="exit tt-close"></div>
+            <p>If you are the owner of this material or the contents of this files violates your privacy, please contact us and we will remove the link.</p>
+            <fieldset>
+                <div class="row">
+                    <label for="link">Link:</label>
+                    <input type="text" name="Subscribers[link]" class="text" id="link" disabled value="https://dropmefiles.com/0GkmZ" />
+                </div>
+                <div class="row txta">
+                    <label for="post" class="textarea-label">Complaint:</label>
+                    <textarea cols="40" class="textarea" rows="10" id="post" name="Subscribers[post]"></textarea>
+                </div>
+                <div class="row">
+                    <label for="email">Contacts:</label>
+                    <input type="text" name="Subscribers[email]" class="text-middle" id="email" />
+                    <input class="button" type="submit" value="SEND" />
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</noindex>    
+
+    <div class="clearing_f"></div>
+
+    <div class="wrapper">
+        
+        <noindex>
+            <div class="rules_wrapper">
+                <div class="rules">
+                    <div id="rules_close" class="rules_close"></div>
+                    <h2>User agreement</h2>
+                    <div class="rules_message">
+                        <ol>
+                            <li>Dropmefiles.com referred to as “the Website”, is designed to share and store files.</li>
+                            <li>This User agreement shall come into effect from the beginning of the use of the Website.</li>
+                            <li>When using the Website it is forbidden to place:                                <ul>
+                                    <li>Materials that are illegal in Russian Federation</li>
+                                    <li>Intellectual property, copying which is prohibited by the original owners.</li>
+                                    <li>Malware</li>
+                                </ul>
+                            </li>
+                            <li>Materials that violates Section 3 of this agreement will be deleted from the Website upon detection.</li>
+                            <li>The Website is not guaranteed safekeeping of the files.</li>
+                            <li>Under no circumstance the Administration of the Website is not responsible for the content uploaded and sent by a User via the Website.</li>
+                            <li>Under no circumstance the Administration of the Website is not responsible for all sorts of lost profits or for any damages by any reasons.</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </noindex>
+        
+        <div class="selector-footer">
+            <div class="up_layer">
+                <div id="help_close" class="rules_close help_close"></div>
+            </div>
+            <a class="help-button">Help</a>
+            <a class="rule-button">Rules</a>
+        </div>
+        <div id="footer">
+            <div id="help">
+                <noindex><div class="help_wrap">
+                    <div class="container">
+                        
+                        <div class="stage1">
+                            
+                            <div class="s1_right">
+                                <div class="h_green s1_drop2">Our service allows<br />you to multiupload<br />files and folders</div>
+                                <div class="h_green s1_drop3">Paste images or<br />text from clipboard<br />by pressing<br /><span>CTRL+V</span></div>
+                                <div class="h_green s1_drop4">Delete wrongly<br />uploaded files by clicking<br />on a cross symbol<br />at the top right<br />corner of file icon.</div>
+                                    
+                                <span class="h_small">* List of supported features depends on<br />&nbsp;&nbsp;your browser. We recommend Google Chrome</span>
+                            </div>
+                            
+                            <div class="s1_left">
+                                <span class="h_blue">Drop your files<br />to the site window,</span>
+                                or select them in browse popup,<br />by clicking on a dropmefiles circle.<br />Add more files to your upload<br />same way.                                <div class="s1_drop1"></div>
+                                <div class="s1_size">Maхimum size for the upload<br />is limited up to 50 Gb,<br />period of storage is up to 14 days</div>
+                            </div>
+                            
+                            <div class="clearing_f"></div>
+                        </div>
+                        
+                        <div class="stage2">
+                            <div class="s2_clock"></div>
+                            <div class="h_blue">Link to your upload will be generated immediately</div>
+                            
+                            <div class="s2_drop1">Without waiting for upload completion<br />send it to an e-mail or mobile phone<br />of your recipient.</div>
+                            <div class="s2_drop2">Copy link to the clipboard or share it<br />in social networks by clicking<br />the corresponding icon</div>
+                            
+                            <div class="s2_link">
+                                Link identifier is a 5-character combination,<br />simple even for verbal transmission<br /><br />
+                                <a href="/d1m2f" target="_blank"></a>
+                            </div>
+                        </div>
+                        
+                        <div class="stage4">
+                            
+                            <div class="s4_right">
+                                <div class="s4_m1">
+                                    <div class="s4_m1_bg"></div>
+                                    <span>*</span>Nowadays, a prerequisite for this option is<br />
+                                    to connect both devices to a common wi-fi network.<br />We are working to cancel this restriction                                </div>
+                                <div class="s4_m2"></div>
+                            </div>
+                            
+                            <div class="s4_drop1 s4_m3">
+                                <div class="h_blue">For quick transfer<br />files from your<br />mobile device<br />to your computer</div>
+                                <span>open dropmefiles.com on your phone, tablet<br />or computer, then start downloading files<br />on your mobile device and press the<br />computer's spacebar with the upper left corner.<br />The link to the file will be transferred<br />instantly, and the download will begin <br />immediately after the upload is finished.<br />The process works in the same way<br />in the direction computer <span class="s4_rarrow"></span> phone.</span>
+                            </div>
+                            
+                            <div class="clearing_f"></div>
+                            
+                        </div>   
+                        
+                        <div class="stage3">
+                            
+                            <div class="s3_right">
+                                By posting<br />information<br />in our<br />file hosting,<br />please respect<br />the rights of<br />copyright holders,<br />as well as<br />personal privacy                            </div>
+                            
+                            <div class="s3_left">
+                                <div class="h_blue">If your information<br />is confidential</div>
+                                <span>make it password protected or use<br />option "1 download" over the «FROM» field.<br />Files will be removed right after the first<br />successful download by a recipient.</span>
+                            </div>
+                            
+                            <div class="clearing_f"></div>
+                        </div>
+                                                
+                        <div class="stage5">
+                            
+                            <div class="s5_right">
+                                <div class="s5_drop1">
+                                    Also you can drag out<br />files, folders, previews<br />or «DOWNLOAD» button<br />to the needed place<br />of your computer's<br />file system                                </div>
+                                <div class="s5_drop2">When download<br />multiple files<br />they are automatically<br />compressed into<br />a single zip-archive</div>
+                            </div>
+                            
+                            <div class="s5_left">
+                                <div class="h_green">To download files<br />to your computer press<br />the «DOWNLOAD» button</div>                                
+                                <span>If you need only some files<br />from the upload, select them<br />in «more» section.</span>
+                                <div class="s5_dlall"></div>
+                            </div>
+                            
+                            <div class="clearing_f"></div>
+                            
+                            <div class="s5_col1">
+                                <div class="h_green h_green_small">Media content<br />contained in<br />the upload</div>
+                                <span>is accessible in the form<br />of a preview. We are<br />working to add more<br />
+                                    image and video formats<br />to be supported<br />by our service.</span>
+                            </div>
+                            <div class="s5_col2">
+                                <div class="h_green h_green_small">The number<br />of users who<br />have downloaded<br />the link</div>
+                                <span>is displayed on<br />the counter at the<br />bottom of the screen.</span>
+                            </div>
+                            <div class="s5_col3">
+                                <div class="h_green h_green_small">If you wish<br />to report<br />any content</div>
+                                <span>click to the right<br />of the downloads bar.<br />Do not forget to specify<br />
+                                    the reason of the complaint,<br />as well as your contacts<br />for feedback.</span>
+                            </div>
+                            
+                            <div class="clearing_f"></div>
+                        </div>
+                        
+                        <div class="stage6">
+                            <div class="h_blue">Your suggestions<br />and wishes</div>
+                            <span>we are ready to listen with<br />pleasure in our groups in social<br />
+                                networks <a href="http://vk.com/topic-43668652_29193924" target="_blank">vkontakte</a>.<br />
+                                e-mail: <a href="mailto:dropmefiles@inetcom.ru" target="_blank">dropmefiles@inetcom.ru</a></span>
+                        </div>
+                            
+                    </div>
+                </div></noindex>
+            </div>
+            <div class="container" id="footer_container">
+                <ul class="footer-socials">
+                    <li><a class="vk" href="http://vk.com/inetcom_ru" target="_blank"></a></li>                </ul>
+                <h1>DropMeFiles - free one-click file sharing service.</h1>
+                Share your pictures, send large videos, exchange music or transfer big files.<br />
+                No registration required. Unlimited upload/download speed.
+            </div>
+        </div>
+        <div id="footer2">
+            <div class="shadow-cut">
+                <div class="container">
+
+                    <ul class="footer-projects">
+                        <li><a class="cams" href="http://cameras.inetcom.ru" target="_blank"></a></li><li><a class="tv" href="http://inetcom.tv" target="_blank"></a></li><li><a class="smart" href="http://inetcom.tv/smarttv" target="_blank"></a></li>
+                    </ul>
+
+                    <strong class="footer-logo"><a href="http://inetcom.ru" target="_blank">Инетком</a></strong>
+                    <ul class="footer-services">
+                        <li><a href="http://inetcom.ru" target="_blank">интернет</a></li><li><a href="http://inetcom.tv" target="_blank">телевидение</a></li><li><a href="http://inetcom.ru" target="_blank">телефония</a></li><li><a href="http://inetcom.ru/business?p=video" target="_blank">видеонаблюдение</a></li>
+                    </ul>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <noindex>
+        <div class="hiddenContent" id="unload_message_upload">Идет загрузка!</div>
+        <div class="hiddenContent" id="unload_message_complete">Some files were uploaded!</div>
+        <div class="hiddenContent" id="unload_message_dlcomplete">uploaded</div>
+        <div class="hiddenContent" id="sms_message_ok">Delivered</div>
+        <div class="hiddenContent" id="sms_message_error">Не доставлено</div>
+        <div class="hiddenContent" id="share_message_title">I uploaded files on DropMeFiles</div>
+        <div class="hiddenContent" id="share_message_descr">DropMeFiles – free one-click file sharing service</div>
+        <div class="hiddenContent" id="upload_message_expand">more</div>
+        <div class="hiddenContent" id="upload_message_expanded">hide</div>
+        <div class="hiddenContent" id="fl_message_file">file</div>
+        <div class="hiddenContent" id="fl_message_files">files</div>
+        <div class="hiddenContent" id="fl_message_filess">files</div>
+        <div class="hiddenContent" id="fl_message_utext">add</div>
+        <div class="hiddenContent" id="sms_message_placeholder">Name</div>
+        <div class="hiddenContent" id="sms_message_email_placeholder">Name or E-mail</div>
+        <div class="hiddenContent" id="share_message_title">I uploaded files on DropMeFiles</div>
+        <div class="hiddenContent" id="share_message_descr">DropMeFiles – free one-click file sharing service</div>
+        <div class="hiddenContent" id="upload_message_expand">more</div>
+        <div class="hiddenContent" id="upload_message_expanded">hide</div>
+        <div class="hiddenContent" id="counter_message_days">days</div>
+        <div class="hiddenContent" id="dl_message_some"><span class="count"></span><span class="count_s"></span><span class="size"></span></div>
+        <div class="hiddenContent" id="dl_message_all">download</div>
+        <div class="hiddenContent" id="dl_message_pre">download when uploaded</div>
+        <div class="hiddenContent" id="dl_message_wait">waiting...<small>click to cancel</small></div>
+        <div class="hiddenContent" id="upass_wrong">wrong password</div>
+        <div class="hiddenContent" id="upass_disconnect">Error! Server is not responding</div>
+        <div class="hiddenContent" id="dl_message_some_files">["file","files","files"]</div>
+        
+        <div class="hiddenContent notification noBannerSlide" id="notifyLogin">
+            <div class="ntlArrow"><div class="ntlArrowBg"></div></div>
+            <div class="nTitle">Abonents of INETCOM.TV can</div>
+            <div class="nContent">
+                authorize under their profile and get extended functionality to manage their uploads            </div>
+        </div>
+        
+        <div class="hiddenContent notification noBannerSlide notifyOne" id="notifyLike">
+            <div class="nrArrow"><div class="nrArrowBg"></div></div>
+            <div class="nTitle">Liked our service?</div>
+            <div class="nContent">
+                Tell about it on social networks            </div>
+        </div>
+        
+        <div id="pastewrapper">
+            <div id="paster" contenteditable="true"></div>
+        </div>
+    </noindex>
+</body>
+</html>
