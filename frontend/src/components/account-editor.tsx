@@ -1784,20 +1784,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       return;
     }
 
-    const blockWidth = block.__component === "blocks.image-highlight"
-      ? 720
-      : block.__component === "blocks.image-slider"
-        ? 960
-        : 1280;
-    const blockHeight = block.__component === "blocks.image-highlight"
-      ? 540
-      : block.__component === "blocks.image-slider"
-        ? 540
-        : 720;
-
     setError(null);
     try {
-      await applyWatermarkAsset(assetId, block.__component, blockWidth, blockHeight);
+      await applyWatermarkAsset(assetId, block.__component, 0, 0);
       const mediaPayload = await refreshMediaAssets();
       if (mediaPayload) {
         setMediaAssets(mediaPayload);
