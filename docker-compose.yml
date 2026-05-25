@@ -72,6 +72,9 @@ services:
       - "1337:1337"
     volumes:
       - backend_uploads:/app/public/uploads
+      - watermark_jobs:/app/watermark/jobs
+      - watermark_input:/app/watermark/input
+      - watermark_output:/app/watermark/output
     depends_on:
       postgres:
         condition: service_healthy
@@ -131,8 +134,31 @@ services:
       retries: 10
     restart: unless-stopped
 
+  watermark:
+    build:
+      context: ./watermark
+      dockerfile: Dockerfile
+    container_name: vino_watermark
+    working_dir: /app
+    command: node /app/worker.js
+    environment:
+      NODE_ENV: production
+      JOBS_DIR: /app/jobs
+      INPUT_DIR: /app/input
+      OUTPUT_DIR: /app/output
+      WATERMARK_LOGO_PATH: /app/assets/logo1.png
+    volumes:
+      - watermark_jobs:/app/jobs
+      - watermark_input:/app/input
+      - watermark_output:/app/output
+      - backend_uploads:/app/shared/uploads
+    restart: unless-stopped
+
 volumes:
   backend_uploads:
+  watermark_jobs:
+  watermark_input:
+  watermark_output:
   postgres_data:
   redis_data:
   meili_data:

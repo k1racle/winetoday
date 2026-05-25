@@ -3,6 +3,7 @@ import { errors } from '@strapi/utils';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { resolveUsersPermissionsUser, resolveUsersPermissionsUserFromCookie } from '../../../utils/auth';
 
 const { ForbiddenError, NotFoundError, ValidationError } = errors;
@@ -274,6 +275,77 @@ function serializeUploadedAsset(asset: Record<string, any>) {
     alternativeText: asset.alternativeText ?? null,
     previewUrl: resolveAssetPreviewUrl(asset),
   };
+}
+
+function resolveWatermarkJobDir() {
+  return process.env.WATERMARK_JOB_DIR ?? path.join(process.cwd(), 'watermark', 'jobs');
+}
+
+function resolveWatermarkInputDir() {
+  return process.env.WATERMARK_INPUT_DIR ?? path.join(process.cwd(), 'watermark', 'input');
+}
+
+function resolveWatermarkOutputDir() {
+  return process.env.WATERMARK_OUTPUT_DIR ?? path.join(process.cwd(), 'watermark', 'output');
+}
+
+function buildWatermarkPosition(blockKind: string, blockWidth?: number | null, blockHeight?: number | null) {
+  const width = Number(blockWidth) > 0 ? Number(blockWidth) : 0;
+  const height = Number(blockHeight) > 0 ? Number(blockHeight) : 0;
+
+  return {
+    blockKind,
+    blockWidth: width,
+    blockHeight: height,
+    position: 'bottom-left',
+    marginX: Math.max(8, Math.round(width * 0.03)),
+    marginY: Math.max(8, Math.round(height * 0.03)),
+  };
+}
+
+async function enqueueWatermarkJob(payload: Record<string, unknown>) {
+  const jobDir = resolveWatermarkJobDir();
+  await fs.mkdir(jobDir, { recursive: true });
+
+  const jobId = `${Date.now()}-${crypto.randomUUID()}`;
+  const jobPath = path.join(jobDir, `${jobId}.json`);
+  await fs.writeFile(jobPath, JSON.stringify(payload, null, 2));
+  return jobPath;
+}
+
+async function copyToWatermarkInput(sourcePath: string, targetName: string) {
+  const inputDir = resolveWatermarkInputDir();
+  await fs.mkdir(inputDir, { recursive: true });
+
+  const targetPath = path.join(inputDir, targetName);
+  await fs.copyFile(sourcePath, targetPath);
+  return targetPath;
+}
+
+async function readWatermarkResult(outputFileName: string) {
+  const outputPath = path.join(resolveWatermarkOutputDir(), outputFileName);
+  const errorPath = `${outputPath}.error`;
+
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    try {
+      await fs.access(outputPath);
+      return outputPath;
+    } catch {
+      try {
+        await fs.access(errorPath);
+        const errorPayload = JSON.parse(await fs.readFile(errorPath, 'utf8')) as { error?: string };
+        throw new ValidationError(errorPayload.error ?? 'Не удалось обработать watermark.');
+      } catch (error) {
+        if (attempt === 29) {
+          throw new ValidationError('Не дождались результата watermark-обработки.');
+        }
+      }
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+
+  throw new ValidationError('Не удалось обработать watermark.');
 }
 
 async function getMemberProfile(strapi: any, userId: number) {
@@ -1102,6 +1174,50 @@ export default factories.createCoreController('api::member-profile.member-profil
         await fs.rm(cleanupDirectory, { recursive: true, force: true });
       }
     }
+  },
+
+  async watermark(ctx: any) {
+    const user =
+      ctx.state.user ??
+      (await resolveUsersPermissionsUser(strapi, ctx.request.header?.authorization ?? null)) ??
+      (await resolveUsersPermissionsUserFromCookie(strapi, ctx.cookies?.get('vino_auth_jwt') ?? null));
+
+    await resolveAccess(strapi, user);
+
+    const fileId = Number(ctx.params.id);
+    if (!Number.isInteger(fileId) || fileId <= 0) {
+      throw new ValidationError('Некорректный идентификатор файла.');
+    }
+
+    const blockWidth = Number(ctx.request.body?.blockWidth ?? 0);
+    const blockHeight = Number(ctx.request.body?.blockHeight ?? 0);
+    const blockKind = typeof ctx.request.body?.blockKind === 'string' ? ctx.request.body.blockKind : 'unknown';
+
+    const asset = await strapi.db.query('plugin::upload.file').findOne({ where: { id: fileId } });
+    if (!asset || asset.provider !== 'local' || typeof asset.url !== 'string') {
+      throw new NotFoundError('Файл не найден или недоступен для watermark.');
+    }
+
+    const sourcePath = path.join(process.cwd(), 'public', asset.url.replace(/^\//, ''));
+    const jobInputName = `${asset.id}-${path.basename(sourcePath)}`;
+    const copiedInput = await copyToWatermarkInput(sourcePath, jobInputName);
+    const jobPayload = {
+      assetId: asset.id,
+      inputFile: path.basename(copiedInput),
+      outputFile: path.basename(copiedInput),
+      ...buildWatermarkPosition(blockKind, blockWidth, blockHeight),
+    };
+
+    await enqueueWatermarkJob(jobPayload);
+    const resultPath = await readWatermarkResult(path.basename(copiedInput));
+    await fs.copyFile(resultPath, sourcePath);
+
+    ctx.body = {
+      ok: true,
+      assetId: asset.id,
+      job: jobPayload,
+      outputPath: resultPath,
+    };
   },
 
   async save(ctx: any) {

@@ -432,6 +432,22 @@ async function refreshMediaAssets() {
   return mediaPayload;
 }
 
+async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidth: number, blockHeight: number) {
+  const response = await fetch(`/api/editor/watermark/${assetId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ blockKind, blockWidth, blockHeight }),
+  });
+
+  const responsePayload = await parseJson<EditorApiError | { ok?: boolean }>(response);
+
+  if (!response.ok) {
+    throw new Error(getErrorMessage(responsePayload as EditorApiError | null, "Не удалось нанести watermark."));
+  }
+}
+
 type MediaPickerProps = {
   assets: UploadedAsset[];
   accept: "image" | "video";
@@ -1750,6 +1766,48 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }
   }
 
+  async function handleApplyWatermark(index: number) {
+    const block = form.blocks[index];
+
+    if (!block || !block.__component) {
+      return;
+    }
+
+    const assetId = block.__component === "blocks.image-highlight"
+      ? block.image
+      : isMediaCollectionBlock(block)
+        ? block.images[0] ?? null
+        : null;
+
+    if (!assetId) {
+      setError("Сначала выберите изображение для блока.");
+      return;
+    }
+
+    const blockWidth = block.__component === "blocks.image-highlight"
+      ? 720
+      : block.__component === "blocks.image-slider"
+        ? 960
+        : 1280;
+    const blockHeight = block.__component === "blocks.image-highlight"
+      ? 540
+      : block.__component === "blocks.image-slider"
+        ? 540
+        : 720;
+
+    setError(null);
+    try {
+      await applyWatermarkAsset(assetId, block.__component, blockWidth, blockHeight);
+      const mediaPayload = await refreshMediaAssets();
+      if (mediaPayload) {
+        setMediaAssets(mediaPayload);
+      }
+      setSuccess("Watermark нанесён.");
+    } catch (watermarkError) {
+      setError(watermarkError instanceof Error ? watermarkError.message : "Не удалось нанести watermark.");
+    }
+  }
+
   async function handleGalleryFiles(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []);
 
@@ -2417,6 +2475,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                       <textarea value={block.description ?? ""} onChange={(event) => updateBlock(index, { ...block, description: event.target.value })} rows={3} className={inputClassName} placeholder="Описание блока" />
                       <input type="file" accept="image/*" multiple onChange={(event) => void handleBlockFiles(index, event)} className={fileInputClassName} />
                       <p className="text-xs text-zinc-500 dark:text-zinc-400">Загружено изображений: {block.images.length}</p>
+                      <button type="button" onClick={() => void handleApplyWatermark(index)} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]">
+                        Добавить watermark
+                      </button>
                     </>
                   ) : null}
 
@@ -2425,6 +2486,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                       <input value={block.caption ?? ""} onChange={(event) => updateBlock(index, { ...block, caption: event.target.value })} className={inputClassName} placeholder="Подпись" />
                       <input value={block.credit ?? ""} onChange={(event) => updateBlock(index, { ...block, credit: event.target.value })} className={inputClassName} placeholder="Авторство / credit" />
                       <input type="file" accept="image/*" onChange={(event) => void handleBlockFiles(index, event)} className={fileInputClassName} />
+                      <button type="button" onClick={() => void handleApplyWatermark(index)} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]">
+                        Добавить watermark
+                      </button>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400">Можно загрузить файл сразу или выбрать уже загруженное изображение в боковой панели.</p>
                       <MediaSummaryCard
                         asset={findAssetById(mediaAssets, block.image, "image")}
