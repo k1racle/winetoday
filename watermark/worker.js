@@ -32,15 +32,15 @@ async function applyWatermark(job) {
   const referenceWidth = blockWidth > 0 ? blockWidth : width;
   const referenceHeight = blockHeight > 0 ? blockHeight : height;
   const watermarkSizeBase = Math.min(referenceWidth || width || 0, referenceHeight || height || 0);
-  const watermarkWidth = Math.max(120, Math.round(watermarkSizeBase * 0.32));
+  const watermarkWidth = Math.max(160, Math.round(watermarkSizeBase * 0.42));
   const logo = sharp(watermarkPath).resize({
     width: watermarkWidth,
     withoutEnlargement: true,
   });
   const logoBuffer = await logo.png().toBuffer();
   const logoMeta = await sharp(logoBuffer).metadata();
-  const marginX = Math.max(12, Math.round(referenceWidth * 0.035));
-  const marginY = Math.max(12, Math.round(referenceHeight * 0.035));
+  const marginX = Math.max(16, Math.round(referenceWidth * 0.04));
+  const marginY = Math.max(16, Math.round(referenceHeight * 0.04));
   const safeLeft = Math.max(0, referenceWidth - (logoMeta.width || 0) - marginX);
   const safeTop = Math.max(0, referenceHeight - (logoMeta.height || 0) - marginY);
   const left = pos.includes('left') ? marginX : safeLeft;

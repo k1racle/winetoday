@@ -1927,9 +1927,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               tags: form.tags,
               homepageSpecialBlock: form.homepageSpecialBlock,
               status: form.status,
-              publishedAtCustom: form.status === "published"
-                ? new Date().toISOString()
-                : (form.publishedAtCustom ? new Date(form.publishedAtCustom).toISOString() : new Date().toISOString()),
+              publishedAtCustom: form.publishedAtCustom ? new Date(form.publishedAtCustom).toISOString() : null,
               readingTime: form.readingTime,
               coverSource: form.coverSource,
               ...(selectedType === "video"
@@ -2517,7 +2515,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                       <textarea value={block.description ?? ""} onChange={(event) => updateBlock(index, { ...block, description: event.target.value })} rows={3} className={inputClassName} placeholder="Описание блока" />
                       <input type="file" accept="image/*" multiple onChange={(event) => void handleBlockFiles(index, event)} className={fileInputClassName} />
                       <p className="text-xs text-zinc-500 dark:text-zinc-400">Загружено изображений: {block.images.length}</p>
-                      <button type="button" onClick={() => void handleApplyWatermark(index)} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]">
+                      <button type="button" onClick={(event) => void handleApplyWatermark(index, (event.currentTarget as HTMLElement).closest(".watermark-target") as HTMLElement | null)} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]">
                         Добавить водяной знак Виноделие Сегодня
                       </button>
                     </>
@@ -2528,7 +2526,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                       <input value={block.caption ?? ""} onChange={(event) => updateBlock(index, { ...block, caption: event.target.value })} className={inputClassName} placeholder="Подпись" />
                       <input value={block.credit ?? ""} onChange={(event) => updateBlock(index, { ...block, credit: event.target.value })} className={inputClassName} placeholder="Авторство / credit" />
                       <input type="file" accept="image/*" onChange={(event) => void handleBlockFiles(index, event)} className={fileInputClassName} />
-                      <button type="button" onClick={() => void handleApplyWatermark(index)} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]">
+                      <button type="button" onClick={(event) => void handleApplyWatermark(index, (event.currentTarget as HTMLElement).closest(".watermark-target") as HTMLElement | null)} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]">
                         Добавить водяной знак Виноделие Сегодня
                       </button>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400">Можно загрузить файл сразу или выбрать уже загруженное изображение в боковой панели.</p>
