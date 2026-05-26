@@ -848,11 +848,12 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     data.sources = sources;
   }
 
-  if (type === 'news') {
-    data.sources = sources;
-    data.sourceName = sources[0]?.name ?? null;
-    data.sourceUrl = sources[0]?.url ?? null;
-  }
+    if (type === 'news') {
+      data.sources = sources;
+      data.sourceName = sources[0]?.name ?? null;
+      data.sourceUrl = sources[0]?.url ?? null;
+      data.publishedAt = status === 'published' ? new Date().toISOString() : null;
+    }
 
   if (type === 'video') {
     const videoUrl = typeof payload.videoUrl === 'string' ? payload.videoUrl.trim() : '';
