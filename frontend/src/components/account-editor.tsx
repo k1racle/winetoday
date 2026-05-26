@@ -433,6 +433,7 @@ async function refreshMediaAssets() {
 }
 
 async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidth: number, blockHeight: number) {
+  console.info("[watermark] sending request", { assetId, blockKind, blockWidth, blockHeight });
   const response = await fetch(`/api/editor/watermark/${assetId}`, {
     method: "POST",
     headers: {
@@ -442,6 +443,8 @@ async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidt
   });
 
   const responsePayload = await parseJson<EditorApiError | { ok?: boolean }>(response);
+
+  console.info("[watermark] response", { status: response.status, ok: response.ok, payload: responsePayload });
 
   if (!response.ok) {
     throw new Error(getErrorMessage(responsePayload as EditorApiError | null, "Не удалось нанести watermark."));
