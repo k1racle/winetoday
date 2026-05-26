@@ -1924,7 +1924,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               tags: form.tags,
               homepageSpecialBlock: form.homepageSpecialBlock,
               status: form.status,
-              publishedAtCustom: form.publishedAtCustom ? new Date(form.publishedAtCustom).toISOString() : new Date().toISOString(),
+              publishedAtCustom: form.status === "published"
+                ? new Date().toISOString()
+                : (form.publishedAtCustom ? new Date(form.publishedAtCustom).toISOString() : new Date().toISOString()),
               readingTime: form.readingTime,
               coverSource: form.coverSource,
               ...(selectedType === "video"
