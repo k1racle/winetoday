@@ -1177,12 +1177,23 @@ export default factories.createCoreController('api::member-profile.member-profil
   },
 
   async watermark(ctx: any) {
-    const user =
-      ctx.state.user ??
-      (await resolveUsersPermissionsUser(strapi, ctx.request.header?.authorization ?? null)) ??
-      (await resolveUsersPermissionsUserFromCookie(strapi, ctx.cookies?.get('vino_auth_jwt') ?? null));
+    const watermarkSecret = typeof process.env.WATERMARK_SECRET === 'string' ? process.env.WATERMARK_SECRET.trim() : '';
+    const requestSecret = typeof ctx.request.header?.['x-watermark-secret'] === 'string'
+      ? ctx.request.header['x-watermark-secret'].trim()
+      : '';
 
-    const access = await resolveAccess(strapi, user);
+    const isInternalWatermarkRequest = Boolean(watermarkSecret) && requestSecret === watermarkSecret;
+
+    let access: Awaited<ReturnType<typeof resolveAccess>> | null = null;
+
+    if (!isInternalWatermarkRequest) {
+      const user =
+        ctx.state.user ??
+        (await resolveUsersPermissionsUser(strapi, ctx.request.header?.authorization ?? null)) ??
+        (await resolveUsersPermissionsUserFromCookie(strapi, ctx.cookies?.get('vino_auth_jwt') ?? null));
+
+      access = await resolveAccess(strapi, user);
+    }
 
     const fileId = Number(ctx.params.id);
     if (!Number.isInteger(fileId) || fileId <= 0) {
@@ -1206,6 +1217,10 @@ export default factories.createCoreController('api::member-profile.member-profil
     const asset = await strapi.db.query('plugin::upload.file').findOne({ where: { id: fileId } });
     if (!asset || asset.provider !== 'local' || typeof asset.url !== 'string') {
       throw new NotFoundError('Файл не найден или недоступен для watermark.');
+    }
+
+    if (access && !access.allowedTypes.includes('gallery')) {
+      throw new ForbiddenError('Доступ к watermark для этого пользователя закрыт.');
     }
 
     const sourcePath = path.join(process.cwd(), 'public', asset.url.replace(/^\//, ''));
