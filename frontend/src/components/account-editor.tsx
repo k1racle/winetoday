@@ -1178,6 +1178,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const [itemsQuery, setItemsQuery] = useState("");
   const [itemsPage, setItemsPage] = useState(1);
   const [activeInfographicVersion, setActiveInfographicVersion] = useState<EditorInfographicVersion>("desktop");
+  const [coverWatermarkEnabled, setCoverWatermarkEnabled] = useState(false);
   const [activeMediaPanel, setActiveMediaPanel] = useState<{
     kind: "cover" | "block-highlight" | "infographic-image" | "infographic-video" | "infographic-corner-icon";
     blockIndex?: number;
@@ -1573,6 +1574,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   }
 
   async function toggleCoverWatermark(enabled: boolean) {
+    setCoverWatermarkEnabled(enabled);
+
     const assetId = form.cover;
 
     if (!assetId) {
@@ -2361,7 +2364,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                 <label className="inline-flex items-center gap-3 text-sm text-zinc-900 dark:text-zinc-100">
                   <input
                     type="checkbox"
-                    checked={Boolean(coverAsset)}
+                    checked={coverWatermarkEnabled}
                     onChange={(event) => void toggleCoverWatermark(event.target.checked)}
                   />
                   <span>Добавить watermark</span>
