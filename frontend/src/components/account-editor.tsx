@@ -1568,6 +1568,10 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     setActiveMediaPanel({ kind: "cover" });
   }
 
+  function openCoverWatermarkPanel() {
+    setActiveMediaPanel({ kind: "cover" });
+  }
+
   function openHighlightMediaPanel(blockIndex: number) {
     setActiveMediaPanel({ kind: "block-highlight", blockIndex });
   }
@@ -2328,6 +2332,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   onClear={() => updateForm("cover", null)}
                   openLabel="Открыть библиотеку"
                 />
+                <button type="button" onClick={openCoverWatermarkPanel} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]">
+                  Добавить watermark
+                </button>
               </div>
             </Field>
           </div>
