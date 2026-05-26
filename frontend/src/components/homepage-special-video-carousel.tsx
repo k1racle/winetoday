@@ -173,6 +173,12 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
         <div className="space-y-3 pr-4">
           <div className="flex items-end justify-between border-b border-white/10 pb-3">
             <h2 className="text-[18px] font-bold leading-none text-white">Видео</h2>
+            <Link
+              href="/videos"
+              className="inline-flex items-center gap-1 text-sm font-medium text-amber-400 transition hover:text-amber-300"
+            >
+              Все видео →
+            </Link>
           </div>
           <div ref={leadVideoRef} className="relative">
             <HomepageSpecialVideoTile
@@ -187,12 +193,6 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
               titleClassName="type-h3"
               imageSizes="(max-width: 1279px) 100vw, 66vw"
             />
-            <Link
-              href="/videos"
-              className="absolute right-0 top-0 z-10 inline-flex items-center gap-1 text-sm font-medium text-amber-400 transition hover:text-amber-300"
-            >
-              Все видео →
-            </Link>
           </div>
 
         </div>
