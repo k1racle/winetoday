@@ -116,7 +116,7 @@ function MobileDrawerSocialLinks({ widget, theme }: { widget?: SocialLinksBlock 
 
   return (
     <div className="mt-6 border-t border-black/10 pt-4 dark:border-white/10">
-      <div className="flex flex-wrap items-center justify-start gap-3">
+      <div className="flex w-full items-center justify-between gap-3">
         {widget.links.map((item, index) => {
           if (!item?.href || !item.label) {
             return null;
@@ -136,8 +136,8 @@ function MobileDrawerSocialLinks({ widget, theme }: { widget?: SocialLinksBlock 
               title={item.label}
               target={isExternal ? "_blank" : undefined}
               rel={isExternal ? "noreferrer noopener" : undefined}
-              className="inline-flex items-center justify-center rounded-full transition-opacity hover:opacity-100"
-            >
+            className="inline-flex items-center justify-center rounded-full transition-opacity hover:opacity-100"
+          >
               <span className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden">
                 {iconSrc ? (
                   <Image
