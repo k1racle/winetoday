@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 
 import type { OverlayMetaItem } from "@/components/archive-overlay-meta";
 import { HomepageSpecialVideoTile } from "@/components/homepage-special-video-tile";
@@ -169,19 +170,28 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
       </div>
 
       <div className="hidden xl:grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] xl:items-start">
-        <div ref={leadVideoRef}>
-          <HomepageSpecialVideoTile
-            href={leadVideo.href}
-            title={leadVideo.title}
-            coverUrl={leadVideo.cover?.url ?? null}
-            coverAlt={leadVideo.cover?.alternativeText ?? leadVideo.title}
-            videoUrl={leadVideo.videoUrl}
-            meta={leadVideo.meta}
-            titleBelow
-            bodyClassName="p-5 sm:p-6"
-            titleClassName="type-h3"
-            imageSizes="(max-width: 1279px) 100vw, 66vw"
-          />
+        <div className="space-y-3">
+          <div ref={leadVideoRef}>
+            <HomepageSpecialVideoTile
+              href={leadVideo.href}
+              title={leadVideo.title}
+              coverUrl={leadVideo.cover?.url ?? null}
+              coverAlt={leadVideo.cover?.alternativeText ?? leadVideo.title}
+              videoUrl={leadVideo.videoUrl}
+              meta={leadVideo.meta}
+              titleBelow
+              bodyClassName="p-5 sm:p-6"
+              titleClassName="type-h3"
+              imageSizes="(max-width: 1279px) 100vw, 66vw"
+            />
+          </div>
+
+          <Link
+            href="/videos"
+            className="inline-flex w-fit items-center justify-center border border-white/10 bg-white/5 px-4 py-2 text-[13px] font-medium text-white transition hover:border-emerald-400/40 hover:bg-emerald-400/10 hover:text-emerald-200 dark:border-white/10 dark:bg-white/[0.04]"
+          >
+            Все видео
+          </Link>
         </div>
 
         {secondaryVideos.length ? (
