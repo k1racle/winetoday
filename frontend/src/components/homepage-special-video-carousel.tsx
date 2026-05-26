@@ -171,6 +171,15 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
 
       <div className="hidden xl:grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] xl:items-start">
         <div className="space-y-3 pr-4">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <h2 className="text-[18px] font-bold leading-none text-white">Видео</h2>
+            <Link
+              href="/videos"
+              className="text-sm font-medium text-amber-400 transition hover:text-amber-300"
+            >
+              Все видео →
+            </Link>
+          </div>
           <div ref={leadVideoRef}>
             <HomepageSpecialVideoTile
               href={leadVideo.href}
@@ -186,12 +195,6 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
             />
           </div>
 
-          <Link
-            href="/videos"
-            className="inline-flex w-full items-center justify-center border border-white/10 bg-white/5 px-4 py-2 text-[13px] font-medium text-white transition hover:border-emerald-400/40 hover:bg-emerald-400/10 hover:text-emerald-200 dark:border-white/10 dark:bg-white/[0.04]"
-          >
-            Все видео
-          </Link>
         </div>
 
         {secondaryVideos.length ? (
