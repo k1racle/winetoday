@@ -1,4 +1,3 @@
-import { getAuthToken } from "@/lib/auth";
 import { CMS_API_URL } from "@/lib/strapi";
 
 export const runtime = "nodejs";
@@ -12,16 +11,11 @@ type RouteContext = {
 export async function POST(request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
-    const token = await getAuthToken();
     const payload = await request.text();
 
     const headers = new Headers();
     headers.set("Content-Type", "application/json");
     headers.set("X-Watermark-Secret", process.env.WATERMARK_SECRET ?? "");
-
-    if (token) {
-      headers.set("Authorization", `Bearer ${token}`);
-    }
 
     const response = await fetch(new URL(`/api/editor/watermark/${id}`, CMS_API_URL), {
       method: "POST",

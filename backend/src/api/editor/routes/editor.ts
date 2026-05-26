@@ -47,6 +47,9 @@ export default {
       method: 'POST',
       path: '/editor/watermark/:id',
       handler: 'editor.watermark',
+      config: {
+        auth: false,
+      },
     },
     {
       method: 'POST',
