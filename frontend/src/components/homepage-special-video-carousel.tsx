@@ -170,7 +170,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
       </div>
 
       <div className="hidden xl:grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] xl:items-start">
-        <div className="space-y-3">
+        <div className="space-y-3 pr-4">
           <div ref={leadVideoRef}>
             <HomepageSpecialVideoTile
               href={leadVideo.href}
