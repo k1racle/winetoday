@@ -1133,7 +1133,7 @@ export default factories.createCoreController('api::member-profile.member-profil
       (await resolveUsersPermissionsUser(strapi, ctx.request.header?.authorization ?? null)) ??
       (await resolveUsersPermissionsUserFromCookie(strapi, ctx.cookies?.get('vino_auth_jwt') ?? null));
 
-    await resolveAccess(strapi, user);
+    const access = await resolveAccess(strapi, user);
 
     const files = normalizeRequestFiles(ctx.request.files);
 
@@ -1182,7 +1182,7 @@ export default factories.createCoreController('api::member-profile.member-profil
       (await resolveUsersPermissionsUser(strapi, ctx.request.header?.authorization ?? null)) ??
       (await resolveUsersPermissionsUserFromCookie(strapi, ctx.cookies?.get('vino_auth_jwt') ?? null));
 
-    await resolveAccess(strapi, user);
+    const access = await resolveAccess(strapi, user);
 
     const fileId = Number(ctx.params.id);
     if (!Number.isInteger(fileId) || fileId <= 0) {
@@ -1202,6 +1202,10 @@ export default factories.createCoreController('api::member-profile.member-profil
     const blockWidth = Number(body?.blockWidth ?? 0);
     const blockHeight = Number(body?.blockHeight ?? 0);
     const blockKind = typeof body?.blockKind === 'string' ? body.blockKind : 'unknown';
+
+    if (!access.isEditor && !access.allowedTypes.includes('gallery')) {
+      throw new ForbiddenError('Нет доступа для нанесения watermark.');
+    }
 
     const asset = await strapi.db.query('plugin::upload.file').findOne({ where: { id: fileId } });
     if (!asset || asset.provider !== 'local' || typeof asset.url !== 'string') {

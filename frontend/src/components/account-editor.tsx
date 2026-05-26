@@ -446,10 +446,6 @@ async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidt
 
   console.info("[watermark] response", { status: response.status, ok: response.ok, payload: responsePayload });
 
-  if (response.status === 403) {
-    throw new Error("Нет доступа для нанесения watermark.");
-  }
-
   if (!response.ok) {
     throw new Error(getErrorMessage(responsePayload as EditorApiError | null, "Не удалось нанести watermark."));
   }
