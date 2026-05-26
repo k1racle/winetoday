@@ -1572,6 +1572,32 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     setActiveMediaPanel({ kind: "cover" });
   }
 
+  async function toggleCoverWatermark(enabled: boolean) {
+    const assetId = form.cover;
+
+    if (!assetId) {
+      setError("Сначала выберите обложку.");
+      return;
+    }
+
+    setError(null);
+
+    try {
+      if (enabled) {
+        await applyWatermarkAsset(assetId, "cover", 0, 0);
+        const mediaPayload = await refreshMediaAssets();
+        if (mediaPayload) {
+          setMediaAssets(mediaPayload);
+        }
+        setSuccess("Watermark включён для обложки.");
+      } else {
+        setSuccess("Watermark выключен для обложки.");
+      }
+    } catch (watermarkError) {
+      setError(watermarkError instanceof Error ? watermarkError.message : "Не удалось изменить watermark.");
+    }
+  }
+
   function openHighlightMediaPanel(blockIndex: number) {
     setActiveMediaPanel({ kind: "block-highlight", blockIndex });
   }
@@ -2332,9 +2358,14 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   onClear={() => updateForm("cover", null)}
                   openLabel="Открыть библиотеку"
                 />
-                <button type="button" onClick={openCoverWatermarkPanel} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]">
-                  Добавить watermark
-                </button>
+                <label className="inline-flex items-center gap-3 text-sm text-zinc-900 dark:text-zinc-100">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(coverAsset)}
+                    onChange={(event) => void toggleCoverWatermark(event.target.checked)}
+                  />
+                  <span>Добавить watermark</span>
+                </label>
               </div>
             </Field>
           </div>
