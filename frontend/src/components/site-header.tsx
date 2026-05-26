@@ -138,13 +138,13 @@ function MobileDrawerSocialLinks({ widget, theme }: { widget?: SocialLinksBlock 
               rel={isExternal ? "noreferrer noopener" : undefined}
             className="inline-flex items-center justify-center rounded-full transition-opacity hover:opacity-100"
           >
-              <span className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden">
+              <span className="relative inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden">
                 {iconSrc ? (
                   <Image
                     src={iconSrc}
                     alt={item.icon?.alternativeText ?? item.label}
                     fill
-                    sizes="32px"
+                    sizes="28px"
                     className="object-contain"
                   />
                 ) : (
