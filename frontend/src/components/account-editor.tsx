@@ -1806,7 +1806,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }
   }
 
-  async function handleApplyWatermark(index: number) {
+  async function handleApplyWatermark(index: number, target?: HTMLElement | null) {
     const block = form.blocks[index];
 
     if (!block || !block.__component) {
@@ -1826,8 +1826,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
     setError(null);
     try {
-      const blockWidth = typeof window !== "undefined" ? window.innerWidth : 0;
-      const blockHeight = typeof window !== "undefined" ? window.innerHeight : 0;
+      const blockElement = target?.closest(".watermark-target") as HTMLElement | null;
+      const blockWidth = Math.max(0, Math.round(blockElement?.clientWidth ?? 0));
+      const blockHeight = Math.max(0, Math.round(blockElement?.clientHeight ?? 0));
       await applyWatermarkAsset(assetId, block.__component, blockWidth, blockHeight);
       const mediaPayload = await refreshMediaAssets();
       if (mediaPayload) {

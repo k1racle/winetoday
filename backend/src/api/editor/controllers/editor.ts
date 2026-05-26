@@ -852,7 +852,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
       data.sources = sources;
       data.sourceName = sources[0]?.name ?? null;
       data.sourceUrl = sources[0]?.url ?? null;
-      data.publishedAt = status === 'published' ? new Date().toISOString() : null;
+      data.publishedAt = status === 'published' ? publishedAtCustom || new Date().toISOString() : null;
     }
 
   if (type === 'video') {
