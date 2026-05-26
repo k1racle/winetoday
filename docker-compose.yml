@@ -15,6 +15,7 @@ services:
       CMS_URL: http://backend:1337
       MEDIA_URL: ${MEDIA_URL:-http://localhost/uploads}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+      WATERMARK_SECRET: ${WATERMARK_SECRET}
       NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
       NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
     ports:
@@ -58,6 +59,7 @@ services:
       STRAPI_ADMIN_PASSWORD: ${STRAPI_ADMIN_PASSWORD}
       FRONTEND_REVALIDATE_URL: http://frontend:3000/api/revalidate
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+      WATERMARK_SECRET: ${WATERMARK_SECRET}
       DATABASE_CLIENT: postgres
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432

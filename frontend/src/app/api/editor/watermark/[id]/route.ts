@@ -17,6 +17,7 @@ export async function POST(request: Request, context: RouteContext) {
 
     const headers = new Headers();
     headers.set("Content-Type", "application/json");
+    headers.set("X-Watermark-Secret", process.env.WATERMARK_SECRET ?? "");
 
     if (token) {
       headers.set("Authorization", `Bearer ${token}`);
