@@ -1189,9 +1189,19 @@ export default factories.createCoreController('api::member-profile.member-profil
       throw new ValidationError('Некорректный идентификатор файла.');
     }
 
-    const blockWidth = Number(ctx.request.body?.blockWidth ?? 0);
-    const blockHeight = Number(ctx.request.body?.blockHeight ?? 0);
-    const blockKind = typeof ctx.request.body?.blockKind === 'string' ? ctx.request.body.blockKind : 'unknown';
+    const body = typeof ctx.request.body === 'string'
+      ? (() => {
+          try {
+            return JSON.parse(ctx.request.body);
+          } catch {
+            return {};
+          }
+        })()
+      : (ctx.request.body ?? {});
+
+    const blockWidth = Number(body?.blockWidth ?? 0);
+    const blockHeight = Number(body?.blockHeight ?? 0);
+    const blockKind = typeof body?.blockKind === 'string' ? body.blockKind : 'unknown';
 
     const asset = await strapi.db.query('plugin::upload.file').findOne({ where: { id: fileId } });
     if (!asset || asset.provider !== 'local' || typeof asset.url !== 'string') {
