@@ -45,6 +45,11 @@ export default {
     },
     {
       method: 'POST',
+      path: '/editor/watermark/:id',
+      handler: 'editor.watermark',
+    },
+    {
+      method: 'POST',
       path: '/editor/content/:type',
       handler: 'editor.save',
     },
