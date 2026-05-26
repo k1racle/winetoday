@@ -1203,10 +1203,6 @@ export default factories.createCoreController('api::member-profile.member-profil
     const blockHeight = Number(body?.blockHeight ?? 0);
     const blockKind = typeof body?.blockKind === 'string' ? body.blockKind : 'unknown';
 
-    if (!access.isEditor && !access.allowedTypes.includes('gallery')) {
-      throw new ForbiddenError('Нет доступа для нанесения watermark.');
-    }
-
     const asset = await strapi.db.query('plugin::upload.file').findOne({ where: { id: fileId } });
     if (!asset || asset.provider !== 'local' || typeof asset.url !== 'string') {
       throw new NotFoundError('Файл не найден или недоступен для watermark.');
