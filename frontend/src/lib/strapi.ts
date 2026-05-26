@@ -765,6 +765,11 @@ function isPublishedItemVisible<T extends PublishedSortable>(item: T, now = Date
   return isPublishedAtVisible(getEffectivePublishedAt(item), now);
 }
 
+function isArchiveItemVisible<T extends PublishedSortable>(item: T) {
+  const publishedAt = item.publishedAtCustom ?? item.publishedAt ?? null;
+  return Boolean(publishedAt) && !Number.isNaN(new Date(publishedAt).getTime());
+}
+
 function filterVisiblePublishedItems<T extends PublishedSortable>(items: T[], now = Date.now()) {
   return items.filter((item) => isPublishedItemVisible(item, now));
 }
@@ -786,7 +791,8 @@ function sortPublishedItems<T extends PublishedSortable>(items: T[]) {
 }
 
 function sortArchiveItems<T extends ArchiveSortable & PublishedSortable>(items: T[]) {
-  const sortedItems = sortPublishedItems(items);
+  const visibleItems = items.filter((item) => isArchiveItemVisible(item));
+  const sortedItems = sortPublishedItems(visibleItems);
   const leadItems = sortedItems.filter((item) => item.homepageLead);
   const pinnedItems = sortedItems.filter((item) => !item.homepageLead && item.pinned);
   const regularItems = sortedItems.filter((item) => !item.homepageLead && !item.pinned);

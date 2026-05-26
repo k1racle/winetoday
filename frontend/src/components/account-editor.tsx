@@ -1827,8 +1827,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     setError(null);
     try {
       const blockElement = target?.closest(".watermark-target") as HTMLElement | null;
-      const blockWidth = Math.max(0, Math.round(blockElement?.clientWidth ?? 0));
-      const blockHeight = Math.max(0, Math.round(blockElement?.clientHeight ?? 0));
+      const imageElement = blockElement?.querySelector("img") as HTMLElement | null;
+      const blockWidth = Math.max(0, Math.round((imageElement?.clientWidth ?? blockElement?.clientWidth ?? 0)));
+      const blockHeight = Math.max(0, Math.round((imageElement?.clientHeight ?? blockElement?.clientHeight ?? 0)));
       await applyWatermarkAsset(assetId, block.__component, blockWidth, blockHeight);
       const mediaPayload = await refreshMediaAssets();
       if (mediaPayload) {
