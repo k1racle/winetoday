@@ -1826,7 +1826,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
     setError(null);
     try {
-      await applyWatermarkAsset(assetId, block.__component, 0, 0);
+      const blockWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+      const blockHeight = typeof window !== "undefined" ? window.innerHeight : 0;
+      await applyWatermarkAsset(assetId, block.__component, blockWidth, blockHeight);
       const mediaPayload = await refreshMediaAssets();
       if (mediaPayload) {
         setMediaAssets(mediaPayload);

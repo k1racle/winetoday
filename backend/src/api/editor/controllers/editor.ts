@@ -298,8 +298,8 @@ function buildWatermarkPosition(blockKind: string, blockWidth?: number | null, b
     blockWidth: width,
     blockHeight: height,
     position: 'bottom-left',
-    marginX: Math.max(8, Math.round(width * 0.03)),
-    marginY: Math.max(8, Math.round(height * 0.03)),
+    marginX: Math.max(12, Math.round(width * 0.05)),
+    marginY: Math.max(12, Math.round(height * 0.05)),
   };
 }
 

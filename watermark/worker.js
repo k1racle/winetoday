@@ -29,16 +29,22 @@ async function applyWatermark(job) {
   const blockWidth = Number(job.blockWidth) > 0 ? Number(job.blockWidth) : width;
   const blockHeight = Number(job.blockHeight) > 0 ? Number(job.blockHeight) : height;
   const pos = typeof job.position === 'string' ? job.position : 'bottom-left';
+  const referenceWidth = blockWidth > 0 ? blockWidth : width;
+  const referenceHeight = blockHeight > 0 ? blockHeight : height;
+  const watermarkSizeBase = Math.min(referenceWidth || width || 0, referenceHeight || height || 0);
+  const watermarkWidth = Math.max(120, Math.round(watermarkSizeBase * 0.32));
   const logo = sharp(watermarkPath).resize({
-    width: Math.max(64, Math.round(Math.min(blockWidth, blockHeight) * 0.18)),
+    width: watermarkWidth,
     withoutEnlargement: true,
   });
   const logoBuffer = await logo.png().toBuffer();
   const logoMeta = await sharp(logoBuffer).metadata();
-  const marginX = Math.max(8, Math.round(blockWidth * 0.03));
-  const marginY = Math.max(8, Math.round(blockHeight * 0.03));
-  const left = pos.includes('left') ? marginX : Math.max(0, blockWidth - (logoMeta.width || 0) - marginX);
-  const top = pos.includes('bottom') ? Math.max(0, blockHeight - (logoMeta.height || 0) - marginY) : marginY;
+  const marginX = Math.max(12, Math.round(referenceWidth * 0.035));
+  const marginY = Math.max(12, Math.round(referenceHeight * 0.035));
+  const safeLeft = Math.max(0, referenceWidth - (logoMeta.width || 0) - marginX);
+  const safeTop = Math.max(0, referenceHeight - (logoMeta.height || 0) - marginY);
+  const left = pos.includes('left') ? marginX : safeLeft;
+  const top = pos.includes('bottom') ? safeTop : marginY;
   await image.composite([{ input: logoBuffer, left, top }]).toFile(outputPath);
   return outputPath;
 }
