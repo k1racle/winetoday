@@ -767,7 +767,7 @@ function isPublishedItemVisible<T extends PublishedSortable>(item: T, now = Date
 
 function isArchiveItemVisible<T extends PublishedSortable>(item: T) {
   const publishedAt = item.publishedAtCustom ?? item.publishedAt ?? null;
-  return Boolean(publishedAt) && !Number.isNaN(new Date(publishedAt).getTime());
+  return typeof publishedAt === "string" && publishedAt.length > 0 && !Number.isNaN(new Date(publishedAt).getTime());
 }
 
 function filterVisiblePublishedItems<T extends PublishedSortable>(items: T[], now = Date.now()) {
