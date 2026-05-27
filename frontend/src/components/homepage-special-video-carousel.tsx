@@ -197,7 +197,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
         {secondaryVideos.length ? (
            <div
             className="hidden xl:block xl:overflow-y-auto xl:pr-2"
-            style={{ height: sidebarHeight ? Math.max(0, sidebarHeight - 52) : undefined }}
+            style={{ height: sidebarHeight ? Math.max(0, sidebarHeight) : undefined }}
           >
             <div className="grid gap-4">
               {secondaryVideos.map((video) => (
