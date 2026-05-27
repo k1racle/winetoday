@@ -171,7 +171,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
 
       <div className="hidden xl:grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] xl:items-start">
         <div className="xl:col-span-2 flex items-end justify-between border-b border-white/10 pb-3">
-          <h2 className="text-[18px] font-bold leading-none text-white">Видео</h2>
+          <h2 className="text-[18px] font-bold leading-none text-zinc-900 dark:text-white">Видео</h2>
           <Link
             href="/videos"
             className="inline-flex items-center gap-1 text-sm font-medium text-amber-400 transition hover:text-amber-300"
@@ -201,7 +201,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
         {secondaryVideos.length ? (
           <div
             className="hidden xl:block xl:overflow-y-auto xl:pr-2"
-            style={sidebarHeight ? { height: sidebarHeight + 53 } : undefined}
+            style={sidebarHeight ? { height: Math.max(0, sidebarHeight - 52) } : undefined}
           >
             <div className="grid gap-4">
               {secondaryVideos.map((video) => (
