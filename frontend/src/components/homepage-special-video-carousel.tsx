@@ -20,35 +20,10 @@ type HomepageSpecialVideoCarouselProps = {
 export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCarouselProps) {
   const leadVideoRef = useRef<HTMLDivElement | null>(null);
   const mobileTrackRef = useRef<HTMLDivElement | null>(null);
-  const [sidebarHeight, setSidebarHeight] = useState<number | null>(null);
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
 
   const leadVideo = videos[0] ?? null;
   const secondaryVideos = useMemo(() => videos.slice(1), [videos]);
-
-  useEffect(() => {
-    const leadVideoElement = leadVideoRef.current;
-
-    if (!leadVideoElement) {
-      return;
-    }
-
-    const updateSidebarHeight = () => {
-      setSidebarHeight(leadVideoElement.getBoundingClientRect().height);
-    };
-
-    updateSidebarHeight();
-
-    const resizeObserver = new ResizeObserver(() => {
-      updateSidebarHeight();
-    });
-
-    resizeObserver.observe(leadVideoElement);
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [leadVideo]);
 
   const scrollToMobileIndex = useCallback((index: number) => {
     const track = mobileTrackRef.current;
@@ -169,7 +144,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
         ) : null}
       </div>
 
-      <div className="hidden xl:grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] xl:items-stretch">
+      <div className="hidden xl:grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] xl:items-start">
         <div className="xl:col-span-2 flex items-end justify-between border-b border-white/10 pb-3">
           <h2 className="text-[18px] font-bold leading-none text-zinc-900 dark:text-white">Видео</h2>
           <Link
@@ -181,7 +156,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
         </div>
 
         <div className="space-y-3 pr-4">
-          <div ref={leadVideoRef} className="relative h-full">
+          <div ref={leadVideoRef} className="relative">
             <HomepageSpecialVideoTile
               href={leadVideo.href}
               title={leadVideo.title}
@@ -199,7 +174,7 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
         </div>
 
         {secondaryVideos.length ? (
-          <div className="hidden xl:block xl:h-full xl:overflow-y-auto xl:pr-2">
+          <div className="hidden xl:block xl:overflow-y-auto xl:pr-2">
             <div className="grid gap-4">
               {secondaryVideos.map((video) => (
                 <HomepageSpecialVideoTile
