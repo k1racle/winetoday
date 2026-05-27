@@ -408,7 +408,7 @@ export function ImageSliderBlock({ block }: { block: ImageSliderBlockData }) {
                   sizes="(max-width: 639px) 88vw, (max-width: 1023px) 72vw, 58vw"
                   className="h-[260px] w-full object-cover transition duration-300 group-hover:scale-[1.02] sm:h-[360px]"
                 />
-               
+                <span className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/5 transition group-hover:ring-emerald-700/30 dark:ring-white/10 dark:group-hover:ring-emerald-400/30" />
               </button>
             ))}
           </div>
