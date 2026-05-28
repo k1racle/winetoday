@@ -33,10 +33,12 @@ async function applyWatermark(job) {
   const referenceHeight = blockHeight > 0 ? blockHeight : height;
   const watermarkSizeBase = Math.min(referenceWidth || width || 0, referenceHeight || height || 0);
   const watermarkWidth = Math.max(160, Math.round(watermarkSizeBase * 0.42));
-  const logo = sharp(watermarkPath).resize({
-    width: watermarkWidth,
-    withoutEnlargement: true,
-  });
+  const logo = sharp(watermarkPath)
+    .trim()
+    .resize({
+      width: watermarkWidth,
+      withoutEnlargement: true,
+    });
   const logoBuffer = await logo.png().toBuffer();
   const logoMeta = await sharp(logoBuffer).metadata();
   const marginX = Math.max(16, Math.round(referenceWidth * 0.04));
