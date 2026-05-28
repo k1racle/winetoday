@@ -26,12 +26,10 @@ async function applyWatermark(job) {
   const meta = await image.metadata();
   const width = meta.width || 0;
   const height = meta.height || 0;
-  const blockWidth = Number(job.blockWidth) > 0 ? Number(job.blockWidth) : width;
-  const blockHeight = Number(job.blockHeight) > 0 ? Number(job.blockHeight) : height;
   const pos = typeof job.position === 'string' ? job.position : 'bottom-left';
-  const referenceWidth = blockWidth > 0 ? blockWidth : width;
-  const referenceHeight = blockHeight > 0 ? blockHeight : height;
-  const watermarkSizeBase = Math.min(referenceWidth || width || 0, referenceHeight || height || 0);
+  const referenceWidth = width;
+  const referenceHeight = height;
+  const watermarkSizeBase = Math.min(referenceWidth || 0, referenceHeight || 0);
   const watermarkWidth = Math.max(160, Math.round(watermarkSizeBase * 0.42));
   const logo = sharp(watermarkPath)
     .trim()
