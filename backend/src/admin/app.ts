@@ -171,7 +171,11 @@ export default {
 
     app.registerHook(
       'Admin/CM/pages/ListView/inject-column-in-table',
-      ({ displayedHeaders, layout }: { displayedHeaders: any[]; layout: any }) => {
+      ({ displayedHeaders, layout }: { displayedHeaders?: any[]; layout?: any }) => {
+        if (!Array.isArray(displayedHeaders) || !Array.isArray(layout)) {
+          return { displayedHeaders, layout };
+        }
+
         const uid = getCurrentContentTypeUid();
 
         if (!uid || !(uid in FRONTEND_COLLECTION_PATHS)) {
@@ -233,6 +237,13 @@ export default {
     app.registerHook(
       'Admin/CM/pages/EditView/mutate-edit-view-layout',
       ({ layout, ...rest }: { layout: any; [key: string]: any }) => {
+        if (!Array.isArray(layout)) {
+          return {
+            ...rest,
+            layout,
+          };
+        }
+
         const updatedLayout = layout.map((rowGroup: any[]) =>
           rowGroup.map((row: any[]) => row.filter((field) => field?.attribute?.name !== 'views')),
         );

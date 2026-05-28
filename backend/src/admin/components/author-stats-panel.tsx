@@ -66,11 +66,12 @@ function SummaryMetric({ label, value }: { label: string; value: number }) {
 }
 
 export default function AuthorStatsPanel() {
-  const { slug, id, isCreatingEntry } = useContentManagerContext() as {
+  const context = useContentManagerContext() as {
     slug?: string;
     id?: string | null;
     isCreatingEntry?: boolean;
-  };
+  } | undefined;
+  const { slug, id, isCreatingEntry } = context ?? {};
   const authorDocumentId = typeof id === 'string' ? id.trim() : '';
   const isAuthorEditView = slug === 'api::author.author' && !isCreatingEntry && Boolean(authorDocumentId);
 
