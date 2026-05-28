@@ -36,6 +36,22 @@ export default {
       handler: 'editor.media',
     },
     {
+      method: 'GET',
+      path: '/editor/author-stats/:documentId',
+      handler: 'editor.authorStats',
+      config: {
+        auth: false,
+      },
+    },
+    {
+      method: 'POST',
+      path: '/editor/views/:type/:documentId',
+      handler: 'editor.trackView',
+      config: {
+        auth: false,
+      },
+    },
+    {
       method: 'POST',
       path: '/editor/upload',
       handler: 'editor.upload',

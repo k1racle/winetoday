@@ -12,6 +12,7 @@ import { MaterialEditButton } from "@/components/material-edit-button";
 import { RelatedTags } from "@/components/related-tags";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { SourceLinks } from "@/components/source-links";
+import { ContentViewTracker } from "@/components/content-view-tracker";
 import { buildSeoMetadata, formatRussianDateTime, getNews, getNewsBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, type NewsSummary, withLoggedFallback } from "@/lib/strapi";
 
 export const revalidate = 300;
@@ -110,6 +111,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
 
   return (
     <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
+      <ContentViewTracker contentType="news" documentId={item.documentId} />
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />

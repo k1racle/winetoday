@@ -41,6 +41,11 @@
     "publishedAtCustom": {
       "type": "datetime"
     },
+    "views": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
     "categories": {
       "type": "relation",
       "relation": "manyToMany",

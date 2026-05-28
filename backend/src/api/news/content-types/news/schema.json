@@ -74,6 +74,11 @@
     "publishedAtCustom": {
       "type": "datetime"
     },
+    "views": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
     "sources": {
       "type": "component",
       "repeatable": true,

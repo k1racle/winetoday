@@ -84,6 +84,11 @@
     "publishedAtCustom": {
       "type": "datetime"
     },
+    "views": {
+      "type": "integer",
+      "default": 0,
+      "min": 0
+    },
     "memberProfile": {
       "type": "relation",
       "relation": "manyToOne",

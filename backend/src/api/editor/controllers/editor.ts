@@ -11,25 +11,54 @@ const { ForbiddenError, NotFoundError, ValidationError } = errors;
 const TYPE_CONFIG = {
   article: {
     uid: 'api::article.article',
-    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt'],
+    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt', 'views'],
   },
   news: {
     uid: 'api::news.news',
-    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt'],
+    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt', 'views'],
   },
   video: {
     uid: 'api::video.video',
-    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt'],
+    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt', 'views'],
   },
   gallery: {
     uid: 'api::gallery.gallery',
-    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt'],
+    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt', 'views'],
   },
   homepage: {
     uid: 'api::homepage.homepage',
     summaryFields: ['title', 'documentId', 'updatedAt', 'publishedAt'],
   },
 } as const;
+
+const AUTHOR_STATS_TYPES = {
+  article: {
+    uid: TYPE_CONFIG.article.uid,
+    label: 'Статья',
+    labelEn: 'Article',
+    path: '/articles',
+  },
+  news: {
+    uid: TYPE_CONFIG.news.uid,
+    label: 'Новость',
+    labelEn: 'News',
+    path: '/news',
+  },
+  video: {
+    uid: TYPE_CONFIG.video.uid,
+    label: 'Видео',
+    labelEn: 'Video',
+    path: '/videos',
+  },
+  gallery: {
+    uid: TYPE_CONFIG.gallery.uid,
+    label: 'Галерея',
+    labelEn: 'Gallery',
+    path: '/gallery',
+  },
+} as const;
+
+type AuthorStatsType = keyof typeof AUTHOR_STATS_TYPES;
 
 const ALLOWED_BLOCKS = new Set([
   'blocks.html-editor',
@@ -43,6 +72,10 @@ type EditorType = keyof typeof TYPE_CONFIG;
 
 function isEditorType(value: string): value is EditorType {
   return value in TYPE_CONFIG;
+}
+
+function isAuthorStatsType(value: string): value is AuthorStatsType {
+  return value in AUTHOR_STATS_TYPES;
 }
 
 function buildEditorPopulate(type: EditorType) {
@@ -736,6 +769,77 @@ async function findHomepageDocument(strapi: any, status?: 'published') {
   } as any);
 }
 
+function buildAuthorRecordHref(type: AuthorStatsType, slug?: string | null) {
+  if (!slug) {
+    return null;
+  }
+
+  return `${AUTHOR_STATS_TYPES[type].path}/${slug}`.replace(/\/+/g, '/');
+}
+
+function serializeAuthorRecord(type: AuthorStatsType, item: Record<string, any>) {
+  const publishedAt = typeof item.publishedAt === 'string' && item.publishedAt.trim() ? item.publishedAt : null;
+  const views = Number(item.views) > 0 ? Number(item.views) : 0;
+
+  return {
+    type,
+    typeLabel: AUTHOR_STATS_TYPES[type].label,
+    typeLabelEn: AUTHOR_STATS_TYPES[type].labelEn,
+    documentId: item.documentId,
+    title: typeof item.title === 'string' && item.title.trim() ? item.title.trim() : 'Без названия',
+    slug: typeof item.slug === 'string' ? item.slug.trim() || null : null,
+    href: buildAuthorRecordHref(type, typeof item.slug === 'string' ? item.slug.trim() : null),
+    status: publishedAt ? 'published' : 'draft',
+    publishedAt,
+    updatedAt: typeof item.updatedAt === 'string' && item.updatedAt.trim() ? item.updatedAt : null,
+    views,
+  };
+}
+
+async function resolveAuthorStats(strapi: any, author: Record<string, any>) {
+  const recordGroups = await Promise.all(
+    (Object.keys(AUTHOR_STATS_TYPES) as AuthorStatsType[]).map(async (type) => {
+      const items = await strapi.documents(AUTHOR_STATS_TYPES[type].uid as any).findMany({
+        filters: {
+          author: { id: author.id },
+        },
+        fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
+        sort: ['updatedAt:desc'],
+      } as any);
+
+      return items.map((item: Record<string, any>) => serializeAuthorRecord(type, item));
+    }),
+  );
+
+  const records = recordGroups.flat();
+  const totals = records.reduce(
+    (accumulator, record) => ({
+      allRecords: accumulator.allRecords + 1,
+      publishedRecords: accumulator.publishedRecords + (record.status === 'published' ? 1 : 0),
+      views: accumulator.views + record.views,
+    }),
+    { allRecords: 0, publishedRecords: 0, views: 0 },
+  );
+
+  records.sort((left, right) => {
+    const leftTime = left.publishedAt ?? left.updatedAt ?? '';
+    const rightTime = right.publishedAt ?? right.updatedAt ?? '';
+
+    return rightTime.localeCompare(leftTime);
+  });
+
+  return {
+    author: {
+      id: author.id,
+      documentId: author.documentId,
+      name: author.name,
+      slug: author.slug ?? null,
+    },
+    totals,
+    records,
+  };
+}
+
 function serializeHomepageSummary(item: Record<string, any>, publishedItem: Record<string, any> | null) {
   return {
     documentId: item.documentId,
@@ -1126,6 +1230,58 @@ export default factories.createCoreController('api::member-profile.member-profil
     });
 
     ctx.body = assets.map((asset: Record<string, any>) => serializeUploadedAsset(asset));
+  },
+
+  async authorStats(ctx: any) {
+    const documentId = typeof ctx.params.documentId === 'string' ? ctx.params.documentId.trim() : '';
+
+    if (!documentId) {
+      throw new ValidationError('Некорректный запрос статистики автора.');
+    }
+
+    const author = await strapi.documents('api::author.author' as any).findFirst({
+      filters: { documentId },
+      fields: ['name', 'slug', 'documentId'],
+    } as any);
+
+    if (!author) {
+      throw new NotFoundError('Автор не найден.');
+    }
+
+    ctx.body = await resolveAuthorStats(strapi, author);
+  },
+
+  async trackView(ctx: any) {
+    const rawType = typeof ctx.params.type === 'string' ? ctx.params.type.trim() : '';
+    const documentId = typeof ctx.params.documentId === 'string' ? ctx.params.documentId.trim() : '';
+
+    if (!isAuthorStatsType(rawType) || !documentId) {
+      throw new ValidationError('Некорректный запрос счётчика просмотров.');
+    }
+
+    const current = await strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).findFirst({
+      filters: { documentId },
+      fields: ['documentId', 'views'],
+    } as any);
+
+    if (!current) {
+      throw new NotFoundError('Материал для счётчика просмотров не найден.');
+    }
+
+    const nextViews = Math.max(0, Number(current.views) || 0) + 1;
+
+    await strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).update({
+      documentId,
+      data: {
+        views: nextViews,
+      },
+    } as any);
+
+    ctx.body = {
+      ok: true,
+      documentId,
+      views: nextViews,
+    };
   },
 
   async upload(ctx: any) {
