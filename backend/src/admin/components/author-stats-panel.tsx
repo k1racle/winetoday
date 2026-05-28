@@ -52,6 +52,38 @@ function formatViews(value?: number | null) {
   return numberValue.toLocaleString('ru-RU');
 }
 
+function sanitizeCsvFileName(value?: string | null) {
+  const normalized = value?.trim().replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, '-') || 'author';
+  return normalized.slice(0, 80);
+}
+
+function csvCell(value: unknown) {
+  const text = value == null ? '' : String(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function buildAuthorStatsCsv(payload: AuthorStatsResponse) {
+  const rows = [
+    ['Автор', payload.author?.name ?? '', '', '', '', '', '', '', ''],
+    ['Всего записей', payload.totals?.allRecords ?? 0, 'Опубликовано', payload.totals?.publishedRecords ?? 0, 'Просмотры', payload.totals?.views ?? 0, '', '', ''],
+    [],
+    ['Тип', 'Статус', 'Название', 'Слаг', 'Просмотры', 'Опубликовано', 'Обновлено', 'URL', 'Document ID'],
+    ...(payload.records ?? []).map((record) => [
+      record.typeLabel,
+      record.status === 'published' ? 'Опубликовано' : 'Черновик',
+      record.title,
+      record.slug ?? '',
+      record.views,
+      record.publishedAt ?? '',
+      record.updatedAt ?? '',
+      record.href ?? '',
+      record.documentId,
+    ]),
+  ];
+
+  return `\uFEFF${rows.map((row) => row.map(csvCell).join(';')).join('\r\n')}`;
+}
+
 function SummaryMetric({ label, value }: { label: string; value: number }) {
   return (
     <Box background="neutral100" borderColor="neutral200" hasRadius padding={3}>
@@ -137,6 +169,25 @@ export default function AuthorStatsPanel() {
     [payload],
   );
 
+  function handleExportCsv() {
+    if (!payload) {
+      return;
+    }
+
+    const csv = buildAuthorStatsCsv(payload);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const date = new Date().toISOString().slice(0, 10);
+
+    link.href = url;
+    link.download = `views-${sanitizeCsvFileName(payload.author?.slug ?? payload.author?.name)}-${date}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   if (!isAuthorEditView) {
     return null;
   }
@@ -186,7 +237,25 @@ export default function AuthorStatsPanel() {
 
       <Box background="neutral0" borderColor="neutral200" hasRadius marginTop={4} padding={6} shadow="tableShadow">
         <Flex direction="column" gap={3} alignItems="stretch">
-          <Typography variant="beta">Записи автора</Typography>
+          <Flex justifyContent="space-between" gap={3} alignItems="center" wrap="wrap">
+            <Typography variant="beta">Записи автора</Typography>
+            <button
+              type="button"
+              onClick={handleExportCsv}
+              disabled={!payload?.records?.length}
+              style={{
+                border: '1px solid var(--strapi.colors.primary600)',
+                borderRadius: 4,
+                background: payload?.records?.length ? 'var(--strapi.colors.primary600)' : 'var(--strapi.colors.neutral200)',
+                color: payload?.records?.length ? 'var(--strapi.colors.neutral0)' : 'var(--strapi.colors.neutral600)',
+                cursor: payload?.records?.length ? 'pointer' : 'not-allowed',
+                fontWeight: 600,
+                padding: '0.5rem 0.75rem',
+              }}
+            >
+              Скачать CSV
+            </button>
+          </Flex>
 
           {payload?.records?.length ? (
             <Flex direction="column" gap={3} alignItems="stretch">
