@@ -799,15 +799,54 @@ function serializeAuthorRecord(type: AuthorStatsType, item: Record<string, any>)
 async function resolveAuthorStats(strapi: any, author: Record<string, any>) {
   const recordGroups = await Promise.all(
     (Object.keys(AUTHOR_STATS_TYPES) as AuthorStatsType[]).map(async (type) => {
-      const items = await strapi.documents(AUTHOR_STATS_TYPES[type].uid as any).findMany({
-        filters: {
-          author: { id: author.id },
-        },
-        fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
-        sort: ['updatedAt:desc'],
-      } as any);
+      const [draftItems, publishedItems] = await Promise.all([
+        strapi.documents(AUTHOR_STATS_TYPES[type].uid as any).findMany({
+          filters: {
+            author: { id: author.id },
+          },
+          status: 'draft',
+          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
+          sort: ['updatedAt:desc'],
+        } as any),
+        strapi.documents(AUTHOR_STATS_TYPES[type].uid as any).findMany({
+          filters: {
+            author: { id: author.id },
+          },
+          status: 'published',
+          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
+          sort: ['updatedAt:desc'],
+        } as any),
+      ]);
 
-      return items.map((item: Record<string, any>) => serializeAuthorRecord(type, item));
+      const merged = new Map<string, Record<string, any>>();
+
+      for (const item of draftItems as Record<string, any>[]) {
+        if (typeof item.documentId !== 'string' || !item.documentId.trim()) {
+          continue;
+        }
+
+        merged.set(item.documentId, item);
+      }
+
+      for (const item of publishedItems as Record<string, any>[]) {
+        if (typeof item.documentId !== 'string' || !item.documentId.trim()) {
+          continue;
+        }
+
+        const existing = merged.get(item.documentId);
+        if (!existing) {
+          merged.set(item.documentId, item);
+          continue;
+        }
+
+        merged.set(item.documentId, {
+          ...existing,
+          ...item,
+          views: Math.max(Number(existing.views) || 0, Number(item.views) || 0),
+        });
+      }
+
+      return [...merged.values()].map((item: Record<string, any>) => serializeAuthorRecord(type, item));
     }),
   );
 
@@ -1263,27 +1302,45 @@ export default factories.createCoreController('api::member-profile.member-profil
       throw new ValidationError('Некорректный запрос счётчика просмотров.');
     }
 
-    const current = await strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).findFirst({
-      filters: { documentId },
-      fields: ['documentId', 'views'],
-    } as any);
+    const [draftDocument, publishedDocument] = await Promise.all([
+      strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).findFirst({
+        filters: { documentId },
+        status: 'draft',
+        fields: ['documentId', 'views'],
+      } as any),
+      strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).findFirst({
+        filters: { documentId },
+        status: 'published',
+        fields: ['documentId', 'views'],
+      } as any),
+    ]);
+
+    const current = draftDocument ?? publishedDocument;
 
     if (!current) {
       throw new NotFoundError('Материал для счётчика просмотров не найден.');
     }
 
     const nextViews = Math.max(0, Number(current.views) || 0) + 1;
-    const publishedDocument = await strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).findFirst({
-      filters: { documentId },
-      status: 'published',
-      fields: ['documentId'],
-    } as any);
 
-    const updateOptions = publishedDocument
-      ? { documentId, status: 'published' as const, data: { views: nextViews } }
-      : { documentId, data: { views: nextViews } };
+    const updateTasks = [
+      draftDocument
+        ? strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).update({
+            documentId,
+            status: 'draft',
+            data: { views: nextViews },
+          } as any)
+        : Promise.resolve(null),
+      publishedDocument
+        ? strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).update({
+            documentId,
+            status: 'published',
+            data: { views: nextViews },
+          } as any)
+        : Promise.resolve(null),
+    ];
 
-    await strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).update(updateOptions as any);
+    await Promise.all(updateTasks);
 
     ctx.body = {
       ok: true,
