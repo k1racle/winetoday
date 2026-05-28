@@ -1273,13 +1273,17 @@ export default factories.createCoreController('api::member-profile.member-profil
     }
 
     const nextViews = Math.max(0, Number(current.views) || 0) + 1;
-
-    await strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).update({
-      documentId,
-      data: {
-        views: nextViews,
-      },
+    const publishedDocument = await strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).findFirst({
+      filters: { documentId },
+      status: 'published',
+      fields: ['documentId'],
     } as any);
+
+    const updateOptions = publishedDocument
+      ? { documentId, status: 'published' as const, data: { views: nextViews } }
+      : { documentId, data: { views: nextViews } };
+
+    await strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).update(updateOptions as any);
 
     ctx.body = {
       ok: true,
