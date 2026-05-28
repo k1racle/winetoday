@@ -515,7 +515,7 @@ export async function RichContent({ blocks, paragraphLineHeightClassName }: Rich
                 className="h-auto w-full object-cover"
               />
               {(block.caption || block.credit) ? (
-                <figcaption className="space-y-2 p-5">
+                <figcaption className="space-y-2 py-5 pr-5 pl-0">
                   {block.caption ? (
                     <p className="type-small leading-7 text-zinc-700 dark:text-zinc-300">{block.caption}</p>
                   ) : null}
