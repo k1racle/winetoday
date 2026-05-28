@@ -1934,6 +1934,12 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       setError(null);
       setSuccess(null);
 
+      const normalizedExcerpt = form.excerpt.trim();
+
+      if ((selectedType === "article" || selectedType === "news") && form.status === "published" && !normalizedExcerpt) {
+        throw new Error("Для публикации нужно заполнить краткое описание.");
+      }
+
       const payload = {
         data: selectedType === "homepage"
           ? {
@@ -2410,6 +2416,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
         <Field label="Краткое описание (необязательно для новостей/статей)">
           <textarea value={form.excerpt} onChange={(event) => updateForm("excerpt", event.target.value)} rows={4} className={inputClassName} />
+          {(selectedType === "article" || selectedType === "news") ? (
+            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Для публикации новостей и статей краткое описание обязательно.</p>
+          ) : null}
         </Field>
 
         {selectedType === "gallery" ? (

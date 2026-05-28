@@ -887,6 +887,10 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     throw new ValidationError('Для галереи обязательно описание.');
   }
 
+  if ((type === 'article' || type === 'news') && status === 'published' && !excerpt) {
+    throw new ValidationError('Для публикации нужно заполнить краткое описание.');
+  }
+
   if (type === 'video' && !excerpt) {
     throw new ValidationError('Для видео обязательно краткое описание.');
   }
