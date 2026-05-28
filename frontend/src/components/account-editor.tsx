@@ -1447,8 +1447,14 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
-  function updateMultiSelect(key: "categories" | "tags", values: string[]) {
-    updateForm(key, values.map((value) => Number(value)).filter((value) => Number.isInteger(value) && value > 0));
+  function toggleMultiSelectItem(key: "categories" | "tags", id: number) {
+    setForm((current) => {
+      const selected = current[key].includes(id)
+        ? current[key].filter((itemId) => itemId !== id)
+        : [...current[key], id];
+
+      return { ...current, [key]: selected };
+    });
   }
 
   function updateSource(index: number, key: keyof SourceItem, value: string) {
@@ -2511,18 +2517,42 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Рубрики">
-            <select multiple value={form.categories.map(String)} onChange={(event) => updateMultiSelect("categories", Array.from(event.target.selectedOptions).map((option) => option.value))} className={`${inputClassName} min-h-[180px]`}>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>{category.name}</option>
-              ))}
-            </select>
+            <div className="max-h-[240px] space-y-2 overflow-y-auto rounded-none border border-black/10 p-3 dark:border-white/10">
+              {categories.length ? (
+                categories.map((category) => (
+                  <label key={category.id} className="flex items-start gap-3 text-sm text-zinc-900 dark:text-zinc-100">
+                    <input
+                      type="checkbox"
+                      checked={form.categories.includes(category.id)}
+                      onChange={() => toggleMultiSelectItem("categories", category.id)}
+                      className="mt-1 h-4 w-4 rounded-none border-black/20 text-black focus:ring-black dark:border-white/20 dark:bg-[#08110b] dark:text-white dark:focus:ring-white"
+                    />
+                    <span>{category.name}</span>
+                  </label>
+                ))
+              ) : (
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Рубрики не найдены.</div>
+              )}
+            </div>
           </Field>
           <Field label="Теги">
-            <select multiple value={form.tags.map(String)} onChange={(event) => updateMultiSelect("tags", Array.from(event.target.selectedOptions).map((option) => option.value))} className={`${inputClassName} min-h-[180px]`}>
-              {tags.map((tag) => (
-                <option key={tag.id} value={tag.id}>{tag.name}</option>
-              ))}
-            </select>
+            <div className="max-h-[240px] space-y-2 overflow-y-auto rounded-none border border-black/10 p-3 dark:border-white/10">
+              {tags.length ? (
+                tags.map((tag) => (
+                  <label key={tag.id} className="flex items-start gap-3 text-sm text-zinc-900 dark:text-zinc-100">
+                    <input
+                      type="checkbox"
+                      checked={form.tags.includes(tag.id)}
+                      onChange={() => toggleMultiSelectItem("tags", tag.id)}
+                      className="mt-1 h-4 w-4 rounded-none border-black/20 text-black focus:ring-black dark:border-white/20 dark:bg-[#08110b] dark:text-white dark:focus:ring-white"
+                    />
+                    <span>{tag.name}</span>
+                  </label>
+                ))
+              ) : (
+                <div className="text-sm text-zinc-500 dark:text-zinc-400">Теги не найдены.</div>
+              )}
+            </div>
           </Field>
         </div>
 
