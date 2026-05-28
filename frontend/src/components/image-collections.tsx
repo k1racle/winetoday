@@ -18,6 +18,25 @@ function hasValidImageUrl(image: CollectionImage | null | undefined) {
   return Boolean(image?.url?.trim());
 }
 
+function getMostVisibleSlideIndex(track: HTMLDivElement) {
+  const trackRect = track.getBoundingClientRect();
+  let nextIndex = 0;
+  let maxVisibleWidth = 0;
+
+  Array.from(track.children).forEach((child, index) => {
+    const item = child as HTMLElement;
+    const itemRect = item.getBoundingClientRect();
+    const visibleWidth = Math.max(0, Math.min(itemRect.right, trackRect.right) - Math.max(itemRect.left, trackRect.left));
+
+    if (visibleWidth > maxVisibleWidth) {
+      maxVisibleWidth = visibleWidth;
+      nextIndex = index;
+    }
+  });
+
+  return nextIndex;
+}
+
 function CollectionHeader({ title, description }: { title?: string | null; description?: string | null }) {
   if (!title && !description) {
     return null;
@@ -241,13 +260,6 @@ export function GalleryPhotoWall({ images, title }: GalleryPhotoWallProps) {
               className="h-auto w-full object-cover transition duration-500 group-hover:scale-[1.03]"
             />
             <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
-            <span className="pointer-events-none absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-white backdrop-blur">
-              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M15 15l5 5" />
-                <circle cx="10.5" cy="10.5" r="5.5" />
-              </svg>
-              Zoom
-            </span>
           </button>
         ))}
       </div>
@@ -291,9 +303,10 @@ export function ImageSliderBlock({ block }: { block: ImageSliderBlockData }) {
       return;
     }
 
-    track.scrollTo({
-      left: item.offsetLeft - track.offsetLeft,
+    item.scrollIntoView({
       behavior: "smooth",
+      block: "nearest",
+      inline: "start",
     });
     setActiveIndex(index);
   }, []);
@@ -306,34 +319,16 @@ export function ImageSliderBlock({ block }: { block: ImageSliderBlockData }) {
     }
 
     const handleScroll = () => {
-      const items = Array.from(track.children) as HTMLElement[];
-
-      if (!items.length) {
-        return;
-      }
-
-      const trackCenter = track.scrollLeft + track.clientWidth / 2;
-      let nextIndex = 0;
-      let minDistance = Number.POSITIVE_INFINITY;
-
-      items.forEach((item, index) => {
-        const itemCenter = item.offsetLeft + item.offsetWidth / 2;
-        const distance = Math.abs(itemCenter - trackCenter);
-
-        if (distance < minDistance) {
-          minDistance = distance;
-          nextIndex = index;
-        }
-      });
-
-      setActiveIndex(nextIndex);
+      setActiveIndex(getMostVisibleSlideIndex(track));
     };
 
     handleScroll();
     track.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
 
     return () => {
       track.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
     };
   }, [imageCount]);
 
