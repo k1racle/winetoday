@@ -1321,7 +1321,7 @@ export default factories.createCoreController('api::member-profile.member-profil
       throw new NotFoundError('Материал для счётчика просмотров не найден.');
     }
 
-    const nextViews = Math.max(0, Number(current.views) || 0) + 1;
+    const nextViews = Math.max(Number(draftDocument?.views) || 0, Number(publishedDocument?.views) || 0, Number(current.views) || 0) + 1;
 
     const updateTasks = [
       draftDocument
@@ -1340,7 +1340,13 @@ export default factories.createCoreController('api::member-profile.member-profil
         : Promise.resolve(null),
     ];
 
-    await Promise.all(updateTasks);
+    const updateResults = await Promise.allSettled(updateTasks);
+
+    if (updateResults.every((result) => result.status === 'rejected')) {
+      throw updateResults[0]?.status === 'rejected'
+        ? updateResults[0].reason
+        : new Error('Не удалось обновить счётчик просмотров.');
+    }
 
     ctx.body = {
       ok: true,

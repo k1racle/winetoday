@@ -2,6 +2,8 @@ import { CMS_API_URL } from "@/lib/strapi";
 
 export const runtime = "nodejs";
 
+const ALLOWED_VIEW_TYPES = new Set(["article", "news", "video", "gallery"]);
+
 type RouteContext = {
   params: Promise<{
     type: string;
@@ -12,6 +14,10 @@ type RouteContext = {
 export async function POST(_request: Request, context: RouteContext) {
   try {
     const { type, documentId } = await context.params;
+
+    if (!ALLOWED_VIEW_TYPES.has(type) || !documentId) {
+      return Response.json({ error: { message: "Некорректный запрос счётчика просмотров." } }, { status: 400 });
+    }
 
     const response = await fetch(new URL(`/api/editor/views/${type}/${documentId}`, CMS_API_URL), {
       method: "POST",

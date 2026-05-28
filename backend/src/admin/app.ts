@@ -220,11 +220,12 @@ export default {
 
         const statusIndex = displayedHeaders.findIndex((header) => header?.name === 'status');
         const headersWithOpen = [...displayedHeaders];
+        const shouldShowViewsColumn = ['api::article.article', 'api::news.news', 'api::video.video', 'api::gallery.gallery'].includes(uid);
 
         if (statusIndex >= 0) {
-          headersWithOpen.splice(statusIndex, 0, ...(uid === 'api::article.article' ? [viewsColumn, openColumn] : [openColumn]));
+          headersWithOpen.splice(statusIndex, 0, ...(shouldShowViewsColumn ? [viewsColumn, openColumn] : [openColumn]));
         } else {
-          headersWithOpen.push(...(uid === 'api::article.article' ? [viewsColumn, openColumn] : [openColumn]));
+          headersWithOpen.push(...(shouldShowViewsColumn ? [viewsColumn, openColumn] : [openColumn]));
         }
 
         return {
