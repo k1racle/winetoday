@@ -1877,31 +1877,19 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }
   }
 
-  async function handleApplyWatermark(index: number, target?: HTMLElement | null) {
-    const block = form.blocks[index];
-
-    if (!block || !block.__component) {
-      return;
-    }
-
-    const assetId = block.__component === "blocks.image-highlight"
-      ? block.image
-      : isMediaCollectionBlock(block)
-        ? block.images[0] ?? null
-        : null;
-
+  async function handleApplyWatermark(assetId: number, blockKind: string, target?: HTMLElement | null) {
     if (!assetId) {
-      setError("Сначала выберите изображение для блока.");
+      setError("Сначала выберите изображение.");
       return;
     }
 
     setError(null);
     try {
       const blockElement = target?.closest(".watermark-target") as HTMLElement | null;
-      const imageFrame = blockElement?.querySelector<HTMLElement>("div.relative.h-52.overflow-hidden") ?? null;
+      const imageFrame = blockElement?.querySelector<HTMLElement>("[data-watermark-frame]") ?? blockElement;
       const blockWidth = Math.max(0, Math.round(imageFrame?.clientWidth ?? blockElement?.clientWidth ?? 0));
       const blockHeight = Math.max(0, Math.round(imageFrame?.clientHeight ?? blockElement?.clientHeight ?? 0));
-      await applyWatermarkAsset(assetId, block.__component, blockWidth, blockHeight);
+      await applyWatermarkAsset(assetId, blockKind, blockWidth, blockHeight);
       const mediaPayload = await refreshMediaAssets();
       if (mediaPayload) {
         setMediaAssets(mediaPayload);
@@ -2655,35 +2643,73 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   ) : null}
 
                   {block.__component === "blocks.image-gallery" || block.__component === "blocks.image-slider" ? (
-                    <>
+                    <div className="space-y-4">
                       <input value={block.title ?? ""} onChange={(event) => updateBlock(index, { ...block, title: event.target.value })} className={inputClassName} placeholder="Заголовок блока" />
                       <textarea value={block.description ?? ""} onChange={(event) => updateBlock(index, { ...block, description: event.target.value })} rows={3} className={inputClassName} placeholder="Описание блока" />
                       <input type="file" accept="image/*" multiple onChange={(event) => void handleBlockFiles(index, event)} className={fileInputClassName} />
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Загружено изображений: {block.images.length}</p>
-                      <button type="button" onClick={(event) => void handleApplyWatermark(index, (event.currentTarget as HTMLElement).closest(".watermark-target") as HTMLElement | null)} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]">
-                        Добавить водяной знак Виноделие Сегодня
-                      </button>
-                    </>
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">Загружено изображений: {block.images.length}</p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">Нажмите на нужное фото, чтобы нанести watermark только на него.</p>
+                      </div>
+                      {block.images.length ? (
+                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                          {block.images.map((imageId, imageIndex) => {
+                            const asset = findAssetById(mediaAssets, imageId, "image");
+                            const previewUrl = asset?.previewUrl || asset?.url || null;
+
+                            return (
+                              <div key={`${block.__component}-${block.id ?? index}-${imageId}-${imageIndex}`} className="watermark-target overflow-hidden border border-black/10 p-3 dark:border-white/10">
+                                <div data-watermark-frame className="relative aspect-video overflow-hidden bg-black/[0.04] dark:bg-white/[0.04]">
+                                  {previewUrl ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={previewUrl} alt={asset?.alternativeText || asset?.name || ""} className="h-full w-full object-cover" />
+                                  ) : (
+                                    <div className="flex h-full items-center justify-center px-3 text-xs uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">Фото</div>
+                                  )}
+                                </div>
+                                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <div className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">{asset?.name || `Файл #${imageId}`}</div>
+                                    <div className="text-xs text-zinc-500 dark:text-zinc-400">ID: {imageId}</div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={(event) => void handleApplyWatermark(imageId, block.__component, event.currentTarget as HTMLElement)}
+                                    className="inline-flex items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]"
+                                  >
+                                    Добавить водяной знак
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400">Изображения ещё не добавлены.</p>
+                      )}
+                    </div>
                   ) : null}
 
                   {block.__component === "blocks.image-highlight" ? (
-                    <>
+                    <div className="watermark-target mt-4 grid gap-4">
                       <input value={block.caption ?? ""} onChange={(event) => updateBlock(index, { ...block, caption: event.target.value })} className={inputClassName} placeholder="Подпись" />
                       <input value={block.credit ?? ""} onChange={(event) => updateBlock(index, { ...block, credit: event.target.value })} className={inputClassName} placeholder="Авторство / credit" />
                       <input type="file" accept="image/*" onChange={(event) => void handleBlockFiles(index, event)} className={fileInputClassName} />
-                      <button type="button" onClick={(event) => void handleApplyWatermark(index, (event.currentTarget as HTMLElement).closest(".watermark-target") as HTMLElement | null)} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]">
+                      <button type="button" disabled={!block.image} onClick={(event) => void handleApplyWatermark(block.image ?? 0, block.__component, event.currentTarget as HTMLElement)} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:hover:bg-white/[0.04]">
                         Добавить водяной знак Виноделие Сегодня
                       </button>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400">Можно загрузить файл сразу или выбрать уже загруженное изображение в боковой панели.</p>
-                      <MediaSummaryCard
-                        asset={findAssetById(mediaAssets, block.image, "image")}
-                        accept="image"
-                        emptyLabel="Изображение не выбрано"
-                        onOpen={() => openHighlightMediaPanel(index)}
-                        onClear={() => updateBlock(index, { ...block, image: null })}
-                        openLabel="Открыть библиотеку"
-                      />
-                    </>
+                      <div data-watermark-frame>
+                        <MediaSummaryCard
+                          asset={findAssetById(mediaAssets, block.image, "image")}
+                          accept="image"
+                          emptyLabel="Изображение не выбрано"
+                          onOpen={() => openHighlightMediaPanel(index)}
+                          onClear={() => updateBlock(index, { ...block, image: null })}
+                          openLabel="Открыть библиотеку"
+                        />
+                      </div>
+                    </div>
                   ) : null}
                 </div>
               </div>
