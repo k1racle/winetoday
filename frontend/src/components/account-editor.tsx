@@ -8,6 +8,7 @@ import { getAuthModeLabel, resolveAuthMode } from "@/lib/auth-shared";
 import type { EditorAuthorOption, EditorBlock, EditorContentType, EditorEntrySummary, EditorInfographicCard, EditorInfographicVersion, EditorSeo, EditorSession, EditorTaxonomyOption } from "@/lib/editor-shared";
 import { EDITOR_BLOCK_TYPES, isEditorContentType } from "@/lib/editor-shared";
 import { createEmptyTiptapDocument, parseTiptapDocument, serializeTiptapDocument, tiptapExtensions } from "@/lib/tiptap";
+import { typografText } from "@/lib/typograf";
 
 type EditorApiError = {
   error?: {
@@ -1543,6 +1544,60 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }));
   }
 
+  function typografHtmlEditorContent(content: Extract<EditorBlock, { __component: "blocks.html-editor" }>["content"]) {
+    const html = typeof content === "string" ? content : generateHTML(content, tiptapExtensions);
+    return generateJSON(typografText(html), tiptapExtensions);
+  }
+
+  function typografBlock(block: EditorBlock): EditorBlock {
+    switch (block.__component) {
+      case "blocks.html-editor":
+        return {
+          ...block,
+          title: typeof block.title === "string" ? typografText(block.title) : block.title,
+          content: typografHtmlEditorContent(block.content),
+        };
+      case "blocks.embed":
+        return {
+          ...block,
+          title: typeof block.title === "string" ? typografText(block.title) : block.title,
+          html: typografText(block.html),
+        };
+      case "blocks.image-gallery":
+      case "blocks.image-slider":
+        return {
+          ...block,
+          title: typeof block.title === "string" ? typografText(block.title) : block.title,
+          description: typeof block.description === "string" ? typografText(block.description) : block.description,
+        };
+      case "blocks.image-highlight":
+        return {
+          ...block,
+          caption: typeof block.caption === "string" ? typografText(block.caption) : block.caption,
+          credit: typeof block.credit === "string" ? typografText(block.credit) : block.credit,
+        };
+      default:
+        return block;
+    }
+  }
+
+  function handleApplyTypograf() {
+    setError(null);
+    setSuccess(null);
+
+    try {
+      setForm((current) => ({
+        ...current,
+        title: typografText(current.title),
+        excerpt: typografText(current.excerpt),
+        blocks: current.blocks.map((block) => typografBlock(block)),
+      }));
+      setSuccess("Типограф применён.");
+    } catch (typografError) {
+      setError(typografError instanceof Error ? typografError.message : "Не удалось применить типограф.");
+    }
+  }
+
   function addBlock(type: EditorBlock["__component"]) {
     let nextBlock: EditorBlock;
 
@@ -2346,6 +2401,17 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Заголовок"><input value={form.title} onChange={(event) => updateForm("title", event.target.value)} className={inputClassName} /></Field>
           <Field label="Ссылка"><input value={form.slug} onChange={(event) => updateForm("slug", event.target.value)} className={inputClassName} placeholder="Можно оставить пустым" /></Field>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleApplyTypograf}
+            className="inline-flex items-center justify-center border border-black/10 px-4 py-2 text-sm font-medium text-zinc-800 transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:text-zinc-100 dark:hover:bg-white/[0.04]"
+          >
+            Типограф
+          </button>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400">Применить типографику к заголовку, описанию и текстовым блокам.</span>
         </div>
 
         <Field label="Краткое описание (необязательно для новостей/статей)">
