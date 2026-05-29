@@ -51,7 +51,7 @@ export default async function GalleryPage() {
             <p className="type-caption text-emerald-700 dark:text-emerald-400">
               Галереи
             </p>
-            <h1 className="type-h1 mt-3">
+            <h1 className="type-h1 archive-page-mobile-title mt-3">
               Фотоподборки и визуальные истории
             </h1>
           </header>

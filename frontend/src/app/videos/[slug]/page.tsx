@@ -81,7 +81,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
 
           <header className="space-y-4">
             <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Видео", href: "/videos" }]} />
-            <h1 className="type-h1">{video.title}</h1>
+            <h1 className="type-h1 archive-page-mobile-title">{video.title}</h1>
             <div className="type-caption flex flex-wrap items-center gap-3 text-zinc-500 dark:text-zinc-400">
               <span>{headerDate}</span>
               {primaryCategory ? <span>{primaryCategory.name}</span> : null}

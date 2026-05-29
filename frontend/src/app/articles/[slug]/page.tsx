@@ -101,7 +101,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
               {article.readingTime ? <span>{article.readingTime} мин чтения</span> : null}
               {article.author?.name ? <span>{article.author.name}</span> : null}
             </div>
-            <h1 className="type-h1">{article.title}</h1>
+            <h1 className="type-h1 archive-page-mobile-title">{article.title}</h1>
             <MaterialEditButton type="article" documentId={article.documentId} authorSlug={article.author?.slug} />
             {article.cover?.url ? (
               <>

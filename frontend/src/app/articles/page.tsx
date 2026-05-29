@@ -49,7 +49,7 @@ export default async function ArticlesPage() {
             <p className="type-caption text-emerald-700 dark:text-emerald-400">
               Статьи
             </p>
-            <h1 className="type-h1 mt-3">
+            <h1 className="type-h1 archive-page-mobile-title mt-3">
               Аналитика, регионы, интервью и большие редакционные материалы
             </h1>
           </header>

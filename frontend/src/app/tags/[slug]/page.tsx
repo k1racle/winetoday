@@ -56,7 +56,7 @@ export default async function TagPage({ params }: PageProps) {
             <p className="type-caption text-emerald-700 dark:text-emerald-400">
               Тег
             </p>
-            <h1 className="type-h1 mt-3">{tagPage.name}</h1>
+            <h1 className="type-h1 archive-page-mobile-title mt-3">{tagPage.name}</h1>
           </header>
 
           <InfiniteArchivePageList

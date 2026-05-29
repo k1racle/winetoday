@@ -70,7 +70,7 @@ export default async function GalleryDetailPage({ params }: PageProps) {
               {primaryCategory ? <span>{primaryCategory.name}</span> : null}
               {gallery.author?.name ? <span>{gallery.author.name}</span> : null}
             </div>
-            <h1 className="type-h1">{gallery.title}</h1>
+            <h1 className="type-h1 archive-page-mobile-title">{gallery.title}</h1>
             <MaterialEditButton type="gallery" documentId={gallery.documentId} authorSlug={gallery.author?.slug} />
           </header>
 
