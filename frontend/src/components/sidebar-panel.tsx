@@ -142,23 +142,51 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                     ) : null}
                   </div>
                 ) : null}
-                <div>
-                  {(block.items ?? []).map((item) => (
-                    <Link
-                      key={`${block.contentType}-${item.href}-${item.label}`}
-                      href={item.href}
-                      className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
-                    >
-                      <div className="flex min-w-0 items-start gap-x-1.5 font-[Lato] text-[13px] font-normal leading-[18px] text-foreground dark:text-white/88">
-                        {item.meta ? (
-                          <span className="w-[44px] shrink-0 font-menu text-[12px] uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
-                            {item.meta}
-                          </span>
-                        ) : null}
-                        <span className={`min-w-0 flex-1 ${wordWrapClassName}`}>{item.label}</span>
-                      </div>
-                    </Link>
-                  ))}
+                <div className="space-y-4">
+                  {block.categoryGroups?.length ? (
+                    block.categoryGroups.map((group) => (
+                      <section key={`${block.contentType}-${group.category.slug}`} className="space-y-1">
+                        <h3 className="font-menu text-[12px] font-normal uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
+                          {group.category.name}
+                        </h3>
+                        <div>
+                          {group.items.map((item) => (
+                            <Link
+                              key={`${block.contentType}-${group.category.slug}-${item.href}-${item.label}`}
+                              href={item.href}
+                              className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
+                            >
+                              <div className="flex min-w-0 items-start gap-x-1.5 font-[Lato] text-[13px] font-normal leading-[18px] text-foreground dark:text-white/88">
+                                {item.meta ? (
+                                  <span className="w-[44px] shrink-0 font-menu text-[12px] uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
+                                    {item.meta}
+                                  </span>
+                                ) : null}
+                                <span className={`min-w-0 flex-1 ${wordWrapClassName}`}>{item.label}</span>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      </section>
+                    ))
+                  ) : (
+                    (block.items ?? []).map((item) => (
+                      <Link
+                        key={`${block.contentType}-${item.href}-${item.label}`}
+                        href={item.href}
+                        className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
+                      >
+                        <div className="flex min-w-0 items-start gap-x-1.5 font-[Lato] text-[13px] font-normal leading-[18px] text-foreground dark:text-white/88">
+                          {item.meta ? (
+                            <span className="w-[44px] shrink-0 font-menu text-[12px] uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
+                              {item.meta}
+                            </span>
+                          ) : null}
+                          <span className={`min-w-0 flex-1 ${wordWrapClassName}`}>{item.label}</span>
+                        </div>
+                      </Link>
+                    ))
+                  )}
                 </div>
                 {block.archiveHref && block.archiveLabel ? (
                   <Link

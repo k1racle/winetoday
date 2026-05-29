@@ -441,6 +441,11 @@ export type SidebarArchiveItem = {
   imageAlt?: string | null;
 };
 
+export type SidebarArchiveCategoryGroup = {
+  category: CategorySummary;
+  items: SidebarArchiveItem[];
+};
+
 export type SidebarArchiveBlock = {
   __component?: "sidebar.archive-block";
   id?: number;
@@ -450,6 +455,7 @@ export type SidebarArchiveBlock = {
   categories?: CategorySummaryList | null;
   limit?: number | null;
   items?: SidebarArchiveItem[] | null;
+  categoryGroups?: SidebarArchiveCategoryGroup[] | null;
   archiveHref?: string;
   archiveLabel?: string;
 };
@@ -838,6 +844,30 @@ function filterItemsBySelectedCategories<
   );
 }
 
+function buildSidebarArchiveCategoryGroups<T extends { categories?: CategorySummaryList | null }>(
+  items: T[],
+  selectedCategories: CategorySummaryList | null | undefined,
+  limit: number,
+  serializeItem: (item: T) => SidebarArchiveItem,
+) {
+  const categories = (selectedCategories ?? [])
+    .filter((category): category is CategorySummary => Boolean(category?.slug?.trim() && category.name?.trim()));
+
+  if (!categories.length) {
+    return null;
+  }
+
+  return categories
+    .map((category) => ({
+      category,
+      items: items
+        .filter((item) => (item.categories ?? []).some((itemCategory) => itemCategory?.slug === category.slug))
+        .slice(0, limit)
+        .map(serializeItem),
+    }))
+    .filter((group) => group.items.length > 0);
+}
+
 export { getEffectivePublishedAt, sortArchiveItems, sortPublishedItems };
 
 function formatSidebarDate(value?: string | null) {
@@ -904,87 +934,85 @@ function formatSidebarEventDate(startValue?: string | null, endValue?: string | 
 
 async function resolveSidebarArchiveBlock(block: SidebarArchiveBlock): Promise<SidebarArchiveBlock> {
   const limit = Math.min(Math.max(block.limit ?? 5, 1), 12);
+  const buildBlock = <T extends PublishedSortable & { categories?: CategorySummaryList | null }>(
+    rawItems: T[],
+    serializeItem: (item: T) => SidebarArchiveItem,
+    archiveHref: string,
+    archiveLabel: string,
+  ) => {
+    const sortedItems = rawItems
+      .sort((left, right) => comparePublishedDesc(getEffectivePublishedAt(left), getEffectivePublishedAt(right)) || getStablePublishedOrderKey(left).localeCompare(getStablePublishedOrderKey(right), "ru"));
+    const categoryGroups = buildSidebarArchiveCategoryGroups(sortedItems, block.categories, limit, serializeItem);
+
+    return {
+      ...block,
+      items: categoryGroups?.length ? [] : filterItemsBySelectedCategories(sortedItems, block.categories).slice(0, limit).map(serializeItem),
+      categoryGroups: categoryGroups?.length ? categoryGroups : null,
+      archiveHref,
+      archiveLabel,
+    };
+  };
 
   switch (block.contentType) {
     case "articles": {
-      const items = filterItemsBySelectedCategories(await getArticles(), block.categories)
-        .sort((left, right) => comparePublishedDesc(getEffectivePublishedAt(left), getEffectivePublishedAt(right)) || getStablePublishedOrderKey(left).localeCompare(getStablePublishedOrderKey(right), "ru"))
-        .slice(0, limit)
-        .map((item) => ({
-        label: item.title,
-        href: `/articles/${item.slug}`,
-        meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
-        description: item.excerpt,
-        imageUrl: item.cover?.url ?? null,
-        imageAlt: item.cover?.alternativeText ?? item.title,
-      }));
-
-      return {
-        ...block,
-        items,
-        archiveHref: "/articles",
-        archiveLabel: "Все статьи",
-      };
+      return buildBlock(
+        await getArticles(),
+        (item) => ({
+          label: item.title,
+          href: `/articles/${item.slug}`,
+          meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
+          description: item.excerpt,
+          imageUrl: item.cover?.url ?? null,
+          imageAlt: item.cover?.alternativeText ?? item.title,
+        }),
+        "/articles",
+        "Все статьи",
+      );
     }
     case "news": {
-      const items = filterItemsBySelectedCategories(await getNews(), block.categories)
-        .sort((left, right) => comparePublishedDesc(getEffectivePublishedAt(left), getEffectivePublishedAt(right)) || getStablePublishedOrderKey(left).localeCompare(getStablePublishedOrderKey(right), "ru"))
-        .slice(0, limit)
-        .map((item) => ({
-        label: item.title,
-        href: `/news/${item.slug}`,
-        meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
-        description: item.excerpt,
-        imageUrl: item.cover?.url ?? null,
-        imageAlt: item.cover?.alternativeText ?? item.title,
-      }));
-
-      return {
-        ...block,
-        items,
-        archiveHref: "/news",
-        archiveLabel: "Все новости",
-      };
+      return buildBlock(
+        await getNews(),
+        (item) => ({
+          label: item.title,
+          href: `/news/${item.slug}`,
+          meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
+          description: item.excerpt,
+          imageUrl: item.cover?.url ?? null,
+          imageAlt: item.cover?.alternativeText ?? item.title,
+        }),
+        "/news",
+        "Все новости",
+      );
     }
     case "galleries": {
-      const items = filterItemsBySelectedCategories(await getGalleries(), block.categories)
-        .sort((left, right) => comparePublishedDesc(getEffectivePublishedAt(left), getEffectivePublishedAt(right)) || getStablePublishedOrderKey(left).localeCompare(getStablePublishedOrderKey(right), "ru"))
-        .slice(0, limit)
-        .map((item) => ({
-        label: item.title,
-        href: `/gallery/${item.slug}`,
-        meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
-        description: item.excerpt,
-        imageUrl: item.cover?.url ?? null,
-        imageAlt: item.cover?.alternativeText ?? item.title,
-      }));
-
-      return {
-        ...block,
-        items,
-        archiveHref: "/gallery",
-        archiveLabel: "Все галереи",
-      };
+      return buildBlock(
+        await getGalleries(),
+        (item) => ({
+          label: item.title,
+          href: `/gallery/${item.slug}`,
+          meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
+          description: item.excerpt,
+          imageUrl: item.cover?.url ?? null,
+          imageAlt: item.cover?.alternativeText ?? item.title,
+        }),
+        "/gallery",
+        "Все галереи",
+      );
     }
     case "videos": {
-      const items = filterItemsBySelectedCategories(await getVideos(), block.categories)
-        .sort((left, right) => comparePublishedDesc(getEffectivePublishedAt(left), getEffectivePublishedAt(right)) || getStablePublishedOrderKey(left).localeCompare(getStablePublishedOrderKey(right), "ru"))
-        .slice(0, limit)
-        .map((item) => ({
-        label: item.title,
-        href: `/videos/${item.slug}`,
-        meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
-        description: item.excerpt,
-        imageUrl: item.cover?.url ?? null,
-        imageAlt: item.cover?.alternativeText ?? item.title,
-      }));
-
-      return {
-        ...block,
-        items,
-        archiveHref: "/videos",
-        archiveLabel: "Все видео",
-      };
+      return buildBlock(
+        await getVideos(),
+        (item) => ({
+          label: item.title,
+          href: `/videos/${item.slug}`,
+          meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
+          description: item.excerpt,
+          imageUrl: item.cover?.url ?? null,
+          imageAlt: item.cover?.alternativeText ?? item.title,
+        }),
+        "/videos",
+        "Все видео",
+      );
     }
     default:
       return block;
