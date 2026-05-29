@@ -907,7 +907,7 @@ async function resolveSidebarArchiveBlock(block: SidebarArchiveBlock): Promise<S
 
   switch (block.contentType) {
     case "articles": {
-      const items = filterItemsBySelectedCategories(await getFeaturedArticles(), block.categories)
+      const items = filterItemsBySelectedCategories(await getArticles(), block.categories)
         .sort((left, right) => comparePublishedDesc(getEffectivePublishedAt(left), getEffectivePublishedAt(right)) || getStablePublishedOrderKey(left).localeCompare(getStablePublishedOrderKey(right), "ru"))
         .slice(0, limit)
         .map((item) => ({
@@ -927,7 +927,7 @@ async function resolveSidebarArchiveBlock(block: SidebarArchiveBlock): Promise<S
       };
     }
     case "news": {
-      const items = filterItemsBySelectedCategories(await getLatestNews(), block.categories)
+      const items = filterItemsBySelectedCategories(await getNews(), block.categories)
         .sort((left, right) => comparePublishedDesc(getEffectivePublishedAt(left), getEffectivePublishedAt(right)) || getStablePublishedOrderKey(left).localeCompare(getStablePublishedOrderKey(right), "ru"))
         .slice(0, limit)
         .map((item) => ({
