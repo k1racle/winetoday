@@ -50,7 +50,7 @@ export default async function NewsPage() {
             <p className="type-caption text-emerald-700 dark:text-emerald-400">
               Новости
             </p>
-            <h1 className="type-h1 mt-3">
+            <h1 className="type-h1 archive-page-mobile-title mt-3">
               Оперативная лента отрасли: события, релизы и важные анонсы
             </h1>
           </header>

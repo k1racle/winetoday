@@ -519,6 +519,11 @@ button {
   .type-video-feature-title {
     font-size: var(--font-video-title-size-mobile);
   }
+
+  .archive-page-mobile-title {
+    font-size: 26px !important;
+    line-height: 1.12;
+  }
 }
 
 :focus-visible {

@@ -49,7 +49,7 @@ export default async function VideosPage() {
             <p className="type-caption text-emerald-700 dark:text-emerald-400">
               Видео
             </p>
-            <h1 className="type-h1 mt-3">
+            <h1 className="type-h1 archive-page-mobile-title mt-3">
               Интервью, репортажи и видеоматериалы о современной винной индустрии
             </h1>
           </header>
