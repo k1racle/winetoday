@@ -32,7 +32,7 @@ export function HomepageSpecialVideoMobile({ videos }: HomepageSpecialVideoMobil
     <div className="space-y-3 xl:hidden">
       <div className="space-y-2.5">
         <p className="type-h4 leading-none text-zinc-900 dark:text-white">Видео</p>
-        <h2 className="type-video-feature-title text-[#10211a] dark:text-white">
+        <h2 className="font-[Lato,var(--font-inter),system-ui,sans-serif] text-[18px] font-bold leading-[1.25] tracking-[-0.01em] text-[#10211a] dark:text-white">
           <Link href={activeVideo.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
             {activeVideo.title}
           </Link>
@@ -120,7 +120,7 @@ export function HomepageSpecialVideoMobile({ videos }: HomepageSpecialVideoMobil
                       <VideoDurationBadge durationMinutes={video.duration} />
                     </div>
 
-                    <p className="type-small absolute inset-x-0 bottom-0 z-10 px-2 pb-2 pt-4 font-medium text-white">
+                    <p className="absolute inset-x-0 bottom-0 z-10 px-2 pb-2 pt-4 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[12px] font-medium leading-[1.25] text-white">
                       <span className="line-clamp-2">{video.title}</span>
                     </p>
                   </div>

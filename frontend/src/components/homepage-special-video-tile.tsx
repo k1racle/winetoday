@@ -137,7 +137,7 @@ export function HomepageSpecialVideoTile({
           {!hideTitle && !titleBelow ? (
             <h3 className={[
               "mt-3 text-[#fff]",
-              titleClassName ?? "type-h4",
+              titleClassName ?? "font-[Lato,var(--font-inter),system-ui,sans-serif] text-[18px] font-bold leading-[1.25]",
             ].join(" ")}>
               <Link href={href} className="pointer-events-auto block transition hover:text-emerald-200">
                 {title}
@@ -150,7 +150,7 @@ export function HomepageSpecialVideoTile({
         <div className={titleBelowPaddingClassName}>
           <h3 className={[
             "text-[#0d3132] dark:text-white",
-            titleClassName ?? "type-h4",
+            titleClassName ?? "font-[Lato,var(--font-inter),system-ui,sans-serif] text-[18px] font-bold leading-[1.25]",
           ].join(" ")}>
             <Link href={href} className="block transition hover:text-emerald-700 dark:hover:text-emerald-200">
               {title}
