@@ -42,7 +42,8 @@ const CATEGORY_FIELDS_QUERY = [
 ].join("&");
 const CONTENT_POPULATE_QUERY = [
   "populate[content][populate]=*",
-  "populate[content][on][blocks.archive-feed]=true",
+  "populate[content][on][blocks.archive-feed][populate][categories][fields][0]=name",
+  "populate[content][on][blocks.archive-feed][populate][categories][fields][1]=slug",
   "populate[content][on][blocks.cta][populate][link]=true",
   "populate[content][on][blocks.embed]=true",
   "populate[content][on][blocks.html-editor]=true",
@@ -59,7 +60,8 @@ const CONTENT_POPULATE_QUERY = [
 
 const VIDEO_CONTENT_POPULATE_QUERY = [
   "populate[content][populate]=*",
-  "populate[content][on][blocks.archive-feed]=true",
+  "populate[content][on][blocks.archive-feed][populate][categories][fields][0]=name",
+  "populate[content][on][blocks.archive-feed][populate][categories][fields][1]=slug",
   "populate[content][on][blocks.cta][populate][link]=true",
   "populate[content][on][blocks.embed]=true",
   "populate[content][on][blocks.html-editor]=true",
@@ -75,7 +77,8 @@ const VIDEO_CONTENT_POPULATE_QUERY = [
 
 const HOMEPAGE_BLOCKS_POPULATE_QUERY = [
   "populate[blocks]=true",
-  "populate[blocks][on][blocks.archive-feed]=true",
+  "populate[blocks][on][blocks.archive-feed][populate][categories][fields][0]=name",
+  "populate[blocks][on][blocks.archive-feed][populate][categories][fields][1]=slug",
   "populate[blocks][on][blocks.cta][populate][link]=true",
   "populate[blocks][on][blocks.embed]=true",
   "populate[blocks][on][blocks.html-editor]=true",
@@ -87,6 +90,18 @@ const HOMEPAGE_BLOCKS_POPULATE_QUERY = [
   "populate[blocks][on][blocks.image-highlight][populate][image]=true",
   "populate[blocks][on][blocks.hero][populate][backgroundImage]=true",
   "populate[blocks][on][blocks.hero][populate][backgroundVideo]=true",
+].join("&");
+
+const SIDEBAR_POPULATE_QUERY = [
+  "populate[paths]=true",
+  "populate[links]=true",
+  "populate[sections][populate][links]=true",
+  "populate[archiveBlocks]=true",
+  "populate[archiveBlocks][on][sidebar.archive-block][populate][categories][fields][0]=name",
+  "populate[archiveBlocks][on][sidebar.archive-block][populate][categories][fields][1]=slug",
+  "populate[archiveBlocks][on][sidebar.tag-cloud-block]=true",
+  "populate[archiveBlocks][on][sidebar.homepage-news-block]=true",
+  "populate[socialLinks][populate][links][populate][icon]=true",
 ].join("&");
 
 const SITE_HEADER_POPULATE_QUERY = [
@@ -1999,7 +2014,7 @@ export const getSiteFooter = cache(async function getSiteFooter() {
 
 export async function getSidebars() {
   const response = await fetchStrapi<SidebarEntry[]>(
-    "/api/sidebars?pagination[limit]=100&sort[0]=title:asc&populate=*",
+    `/api/sidebars?pagination[limit]=100&sort[0]=title:asc&${SIDEBAR_POPULATE_QUERY}`,
   );
 
   return Promise.all(response.data.map((sidebar) => enrichSidebar(sidebar)));
@@ -2012,7 +2027,7 @@ export async function getArchiveSettings() {
 
 export async function getSidebarForPath(pathname: string) {
   const response = await fetchStrapi<SidebarEntry[]>(
-    "/api/sidebars?pagination[limit]=100&sort[0]=title:asc&populate=*",
+    `/api/sidebars?pagination[limit]=100&sort[0]=title:asc&${SIDEBAR_POPULATE_QUERY}`,
   );
   const sidebars = response.data;
 
