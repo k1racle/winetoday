@@ -57,7 +57,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
             <section key={`${sidebar.slug}-section-${sectionIndex}`} className={`space-y-3 ${panelInnerWidthClassName}`}>
               {section.title || section.description ? (
                 <div>
-                  {section.title ? <h2 className="font-[Lato] text-[18px] font-bold leading-[1.32] text-foreground dark:text-white">{section.title}</h2> : null}
+                  {section.title ? <h2 className="type-card-heading text-foreground dark:text-white">{section.title}</h2> : null}
                   {section.description ? (
                     <p className={`type-small text-zinc-600 dark:text-zinc-400 ${section.title ? "mt-2" : ""}`}>{section.description}</p>
                   ) : null}
@@ -76,7 +76,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                       href={item.href}
                       className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                     >
-                      <div className="min-w-0 font-[Lato] text-[16px] leading-[1.4] text-foreground dark:text-white">
+                      <div className="type-body min-w-0 text-foreground dark:text-white">
                         <span className={`min-w-0 ${wordWrapClassName}`}>{item.label}</span>
                       </div>
                       {item.description ? (
@@ -103,7 +103,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                 href={item.href}
                 className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
               >
-                <div className={`min-w-0 font-[Lato] text-[16px] leading-[1.4] text-foreground dark:text-white ${panelInnerWidthClassName}`}>
+                <div className={`type-body min-w-0 text-foreground dark:text-white ${panelInnerWidthClassName}`}>
                   <span className={`min-w-0 ${wordWrapClassName}`}>{item.label}</span>
                 </div>
                 {item.description ? (
@@ -136,7 +136,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
               <section key={`${sidebar.slug}-archive-${block.__component ?? block.contentType}-${index}`} className={`space-y-3 border-t border-black/10 pt-4 first:border-t-0 first:pt-0 dark:border-white/10 ${archiveInnerWidthClassName}`}>
                 {block.title || block.description ? (
                   <div>
-                    {block.title ? <h2 className="font-[Lato] text-[18px] font-bold leading-[1.32] text-foreground dark:text-white">{block.title}</h2> : null}
+                    {block.title ? <h2 className="type-card-heading text-foreground dark:text-white">{block.title}</h2> : null}
                     {block.description ? (
                       <p className={`type-small text-zinc-600 dark:text-zinc-400 ${block.title ? "mt-2" : ""}`}>{block.description}</p>
                     ) : null}
@@ -156,7 +156,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                               href={item.href}
                               className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                             >
-                              <div className="flex min-w-0 items-start gap-x-1.5 font-[Lato] text-[13px] font-normal leading-[18px] text-foreground dark:text-white/88">
+                              <div className="type-meta-line flex min-w-0 items-start gap-x-1.5 text-foreground dark:text-white/88">
                                 {item.meta ? (
                                   <span className="w-[44px] shrink-0 font-menu text-[12px] uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
                                     {item.meta}
@@ -176,7 +176,7 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                         href={item.href}
                         className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
                       >
-                        <div className="flex min-w-0 items-start gap-x-1.5 font-[Lato] text-[13px] font-normal leading-[18px] text-foreground dark:text-white/88">
+                        <div className="type-meta-line flex min-w-0 items-start gap-x-1.5 text-foreground dark:text-white/88">
                           {item.meta ? (
                             <span className="w-[44px] shrink-0 font-menu text-[12px] uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
                               {item.meta}

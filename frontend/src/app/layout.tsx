@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
 import { draftMode } from "next/headers";
 import Image from "next/image";
-import { Inter, Oswald } from "next/font/google";
+import { Inter } from "next/font/google";
 import Link from "next/link";
 import Script from "next/script";
 
@@ -21,12 +21,6 @@ import "./globals.css";
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
   variable: "--font-inter",
-  display: "swap",
-});
-
-const oswald = Oswald({
-  subsets: ["latin", "cyrillic"],
-  variable: "--font-oswald",
   display: "swap",
 });
 
@@ -122,60 +116,6 @@ const themeScript = `(() => {
   root.classList.toggle("dark", theme === "dark");
   root.dataset.theme = theme;
 })();`;
-
-function resolveFontFamily(
-  fontFamily?:
-    | "inter"
-    | "lato"
-    | "oswald"
-    | "tt-norms-regular"
-    | "tt-norms-normal"
-    | "tt-norms-medium"
-    | "tt-norms-light"
-    | "tt-norms-extra-light"
-    | "tt-norms-thin"
-    | "tt-norms-bold"
-    | "tt-norms-extra-bold"
-    | "tt-norms-black"
-    | "tt-norms-extra-black"
-    | "system-sans"
-    | "system-serif"
-    | null,
-) {
-  switch (fontFamily) {
-    case "lato":
-      return '"Lato", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "oswald":
-      return 'var(--font-oswald), "Arial Narrow", "Arial", sans-serif';
-    case "tt-norms-regular":
-      return '"TT Norms Pro Regular", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "tt-norms-normal":
-      return '"TT Norms Pro Normal", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "tt-norms-medium":
-      return '"TT Norms Pro Medium", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "tt-norms-light":
-      return '"TT Norms Pro Light", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "tt-norms-extra-light":
-      return '"TT Norms Pro ExtraLight", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "tt-norms-thin":
-      return '"TT Norms Pro Thin", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "tt-norms-bold":
-      return '"TT Norms Pro Bold", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "tt-norms-extra-bold":
-      return '"TT Norms Pro ExtraBold", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "tt-norms-black":
-      return '"TT Norms Pro Black", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "tt-norms-extra-black":
-      return '"TT Norms Pro ExtraBlack", var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "system-sans":
-      return 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    case "system-serif":
-      return 'Georgia, "Times New Roman", serif';
-    case "inter":
-    default:
-      return 'var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-  }
-}
 
 export default async function RootLayout({
   children,
@@ -331,72 +271,14 @@ export default async function RootLayout({
   }
 
   const mobileBottomMenuLinks = settings?.mobileBottomNav?.length ? settings.mobileBottomNav : navigationItems;
-  const typography = settings?.typography;
-  const typographyStyleVars = (slot: {
-    fontFamily?: string | null;
-    fontSize?: string | null;
-    mobileFontSize?: string | null;
-    fontWeight?: string | null;
-    lineHeight?: string | null;
-    mobileLineHeight?: string | null;
-    letterSpacing?: string | null;
-    mobileLetterSpacing?: string | null;
-    textTransform?: "none" | "uppercase" | null;
-  } | null | undefined, prefix: string, fallback: {
-    family: string;
-    size: string;
-    mobileSize: string;
-    weight: string;
-    lineHeight: string;
-    mobileLineHeight: string;
-    letterSpacing: string;
-    mobileLetterSpacing: string;
-    textTransform: "none" | "uppercase";
-  }) => ({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [`--font-${prefix}-family`]: resolveFontFamily((slot?.fontFamily ?? fallback.family) as any),
-    [`--font-${prefix}-size`]: slot?.fontSize ?? fallback.size,
-    [`--font-${prefix}-size-mobile`]: slot?.mobileFontSize ?? slot?.fontSize ?? fallback.mobileSize,
-    [`--font-${prefix}-weight`]: slot?.fontWeight ?? fallback.weight,
-    [`--font-${prefix}-line-height`]: slot?.lineHeight ?? fallback.lineHeight,
-    [`--font-${prefix}-line-height-mobile`]: slot?.mobileLineHeight ?? slot?.lineHeight ?? fallback.mobileLineHeight,
-    [`--font-${prefix}-letter-spacing`]: slot?.letterSpacing ?? fallback.letterSpacing,
-    [`--font-${prefix}-letter-spacing-mobile`]: slot?.mobileLetterSpacing ?? slot?.letterSpacing ?? fallback.mobileLetterSpacing,
-    [`--font-${prefix}-transform`]: slot?.textTransform ?? fallback.textTransform,
-  });
-  const typographyVars = {
-    ...typographyStyleVars(typography?.menu, "menu", { family: "lato", size: "14px", mobileSize: "14px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "0.02em", mobileLetterSpacing: "0.02em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.body, "body", { family: "lato", size: "16px", mobileSize: "16px", weight: "400", lineHeight: "1.7", mobileLineHeight: "1.7", letterSpacing: "normal", mobileLetterSpacing: "normal", textTransform: "none" }),
-    ...typographyStyleVars(typography?.hero ?? typography?.h1, "hero", { family: "oswald", size: "56px", mobileSize: "56px", weight: "700", lineHeight: "1", mobileLineHeight: "1", letterSpacing: "-0.03em", mobileLetterSpacing: "-0.03em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.heroEyebrow ?? typography?.menu, "hero-eyebrow", { family: "lato", size: "14px", mobileSize: "14px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "0.24em", mobileLetterSpacing: "0.24em", textTransform: "uppercase" }),
-    ...typographyStyleVars(typography?.h1, "h1", { family: "oswald", size: "56px", mobileSize: "56px", weight: "700", lineHeight: "1", mobileLineHeight: "1", letterSpacing: "-0.03em", mobileLetterSpacing: "-0.03em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.h2, "h2", { family: "lato", size: "32px", mobileSize: "32px", weight: "700", lineHeight: "1.1", mobileLineHeight: "1.1", letterSpacing: "-0.02em", mobileLetterSpacing: "-0.02em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.h3, "h3", { family: "lato", size: "24px", mobileSize: "24px", weight: "700", lineHeight: "1.15", mobileLineHeight: "1.15", letterSpacing: "-0.02em", mobileLetterSpacing: "-0.02em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.h4, "h4", { family: "lato", size: "20px", mobileSize: "20px", weight: "700", lineHeight: "1.2", mobileLineHeight: "1.2", letterSpacing: "-0.01em", mobileLetterSpacing: "-0.01em", textTransform: "none" }),
-    ...typographyStyleVars(typography?.small, "small", { family: "lato", size: "14px", mobileSize: "14px", weight: "400", lineHeight: "1.6", mobileLineHeight: "1.6", letterSpacing: "normal", mobileLetterSpacing: "normal", textTransform: "none" }),
-    ...typographyStyleVars(typography?.caption, "caption", { family: "lato", size: "12px", mobileSize: "12px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "0.24em", mobileLetterSpacing: "0.24em", textTransform: "uppercase" }),
-    ...typographyStyleVars(typography?.button, "button", { family: "lato", size: "14px", mobileSize: "14px", weight: "500", lineHeight: "1.4", mobileLineHeight: "1.4", letterSpacing: "normal", mobileLetterSpacing: "normal", textTransform: "none" }),
-    "--font-body-family": resolveFontFamily("lato"),
-    "--font-menu-family": resolveFontFamily("lato"),
-    "--font-hero-eyebrow-family": resolveFontFamily("lato"),
-    "--font-h2-family": resolveFontFamily("lato"),
-    "--font-h3-family": resolveFontFamily("lato"),
-    "--font-h4-family": resolveFontFamily("lato"),
-    "--font-small-family": resolveFontFamily("lato"),
-    "--font-caption-family": resolveFontFamily("lato"),
-    "--font-button-family": resolveFontFamily("lato"),
-  } as React.CSSProperties;
 
   return (
     <html
       lang="ru"
-      className="h-full antialiased"
+      className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body
-        className={`${inter.variable} ${oswald.variable} min-h-full bg-background font-sans text-foreground`}
-        style={typographyVars}
-      >
+      <body className="min-h-full bg-background font-sans text-foreground">
         <MobileWidgetsProvider>
           <FirstVisitNotice />
           <Script id="yandex-metrika" strategy="afterInteractive">

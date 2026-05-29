@@ -168,7 +168,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
                             </Link>
                           </div>
                           <div className="p-4">
-                            <p className="font-[Lato,var(--font-inter),system-ui,sans-serif] text-[15px] font-normal leading-[20px] text-[#0d3132] dark:text-white">
+                            <p className="type-body-sm text-[#0d3132] dark:text-white">
                               <Link href={`/news/${relatedItem.slug}`} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
                                 {relatedItem.title}
                               </Link>

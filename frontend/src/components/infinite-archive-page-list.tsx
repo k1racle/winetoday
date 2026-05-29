@@ -101,7 +101,7 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
               const primaryMetaHref = getPrimaryMetaHref(leadItem.meta);
 
               return primaryMetaLabel ? (
-                <div className="mb-3 font-[Lato] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
+                <div className="type-meta-line mb-3 text-[#4b5d63] dark:text-white/70">
                   {primaryMetaHref ? (
                     <Link href={primaryMetaHref} className="pointer-events-auto transition hover:text-emerald-900 dark:hover:text-emerald-200">
                       {primaryMetaLabel}
@@ -112,12 +112,12 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
                 </div>
               ) : null;
             })()}
-            <h2 className="font-[Lato] text-[24px] leading-[1.2] text-foreground dark:text-white">
+            <h2 className="type-h3 text-foreground dark:text-white">
               <Link href={leadItem.href} className="transition hover:text-emerald-800 dark:hover:text-emerald-300">
                 {leadItem.title}
               </Link>
             </h2>
-            {showExcerpt && leadItem.excerpt ? <p className="mt-4 font-[Lato] text-[16px] leading-[1.55] text-zinc-600 dark:text-zinc-400">{leadItem.excerpt}</p> : null}
+            {showExcerpt && leadItem.excerpt ? <p className="type-body mt-4 text-zinc-600 dark:text-zinc-400">{leadItem.excerpt}</p> : null}
           </div>
         </article>
       ) : null}
@@ -139,7 +139,7 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
                   const primaryMetaHref = getPrimaryMetaHref(item.meta);
 
                   return primaryMetaLabel ? (
-                    <div className="mb-2 font-[Lato] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
+                    <div className="type-meta-line mb-2 text-[#4b5d63] dark:text-white/70">
                       {primaryMetaHref ? (
                         <Link href={primaryMetaHref} className="pointer-events-auto transition hover:text-emerald-900 dark:hover:text-emerald-200">
                           {primaryMetaLabel}
@@ -150,12 +150,12 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
                     </div>
                   ) : null;
                 })()}
-                <h2 className="font-[Lato] text-[19px] leading-[1.32] text-foreground dark:text-white">
+                <h2 className="type-list-heading text-foreground dark:text-white">
                   <Link href={item.href} className="transition hover:text-emerald-800 dark:hover:text-emerald-300">
                     {item.title}
                   </Link>
                 </h2>
-                {showExcerpt && item.excerpt ? <p className="mt-4 font-[Lato] text-[15px] leading-[1.55] text-zinc-600 dark:text-zinc-400">{item.excerpt}</p> : null}
+                {showExcerpt && item.excerpt ? <p className="type-body-sm mt-4 text-zinc-600 dark:text-zinc-400">{item.excerpt}</p> : null}
               </div>
             </article>
           ))}

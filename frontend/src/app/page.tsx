@@ -581,7 +581,7 @@ export default async function Home() {
                           </div>
                           <div className="p-4">
                             {hasSpecialLeadMeta ? (
-                              <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
+                              <div className="type-meta-line mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[#4b5d63] dark:text-white/70">
                                 {specialLeadDate ? <span>{specialLeadDate}</span> : null}
                                 {specialLeadTime ? <span>{specialLeadTime}</span> : null}
                                 {specialLeadCategory?.name ? (
@@ -595,7 +595,7 @@ export default async function Home() {
                                 ) : null}
                               </div>
                             ) : null}
-                            <h3 className="font-[Lato] text-[18px] leading-[1.35] text-[#10211a] dark:text-white">
+                            <h3 className="type-card-heading text-[#10211a] dark:text-white">
                               <Link href={specialLead.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
                                 {specialLead.title}
                               </Link>
@@ -627,7 +627,7 @@ export default async function Home() {
                               }
 
                               return (
-                                <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
+                                <div className="type-meta-line mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[#4b5d63] dark:text-white/70">
                                   {publishedDateLabel ? <span>{publishedDateLabel}</span> : null}
                                   {publishedTimeLabel ? <span>{publishedTimeLabel}</span> : null}
                                   {categoryName ? (
@@ -642,7 +642,7 @@ export default async function Home() {
                                 </div>
                               );
                             })()}
-                            <h3 className="font-[Lato] text-[18px] leading-[1.35] text-[#10211a] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
+                            <h3 className="type-card-heading text-[#10211a] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
                           </div>
                         </article>
                       ))}
@@ -668,34 +668,18 @@ export default async function Home() {
                             <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-black/95 via-black/60 to-transparent" />
                           </div>
                           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-5 text-white sm:p-6">
-                            <h2
-                              className="mt-4 text-white"
-                              style={{
-                                fontFamily: "Lato, var(--font-inter), system-ui, sans-serif",
-                                fontSize: "26px",
-                                lineHeight: "32px",
-                                fontWeight: 700,
-                              }}
-                            >
+                            <h2 className="type-h3 mt-4 text-white">
                               <Link href={specialLead.href} className="pointer-events-auto transition hover:text-emerald-200">
                                 {specialLead.title}
                               </Link>
                             </h2>
                             {specialLead.excerpt ? (
-                              <p className="mt-4 hidden max-w-[60ch] font-[Lato] text-[16px] leading-[1.5] text-white/85 sm:block">
+                              <p className="type-body mt-4 hidden max-w-[60ch] text-white/85 sm:block">
                                 {specialLead.excerpt}
                               </p>
                             ) : null}
                             {hasSpecialLeadMeta ? (
-                              <div
-                                className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-white/78"
-                                style={{
-                                  fontFamily: "Lato, var(--font-inter), system-ui, sans-serif",
-                                  fontSize: "13px",
-                                  lineHeight: "18px",
-                                  fontWeight: 400,
-                                }}
-                              >
+                              <div className="type-meta-line mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-white/78">
                                 {specialLeadDate ? <span>{specialLeadDate}</span> : null}
                                 {specialLeadTime ? <span>{specialLeadTime}</span> : null}
                                 {specialLeadCategory?.name ? (
@@ -737,7 +721,7 @@ export default async function Home() {
                                 }
 
                                 return (
-                                  <div className="mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[13px] font-normal leading-[18px] text-[#4b5d63] dark:text-white/70">
+                                  <div className="type-meta-line mb-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[#4b5d63] dark:text-white/70">
                                     {publishedDateLabel ? <span>{publishedDateLabel}</span> : null}
                                     {publishedTimeLabel ? <span>{publishedTimeLabel}</span> : null}
                                     {categoryName ? (
@@ -752,7 +736,7 @@ export default async function Home() {
                                   </div>
                                 );
                               })()}
-                              <h3 className="font-[Lato] text-[18px] leading-[1.35] text-[#10211a] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
+                              <h3 className="type-card-heading text-[#10211a] dark:text-white"><Link href={item.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">{item.title}</Link></h3>
                             </div>
                           </article>
                         ))}

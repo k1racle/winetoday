@@ -278,7 +278,6 @@ export type GlobalSettings = {
   siteDescription: string;
   tickerText?: string | null;
   logo?: StrapiMedia | null;
-  typography?: TypographySettings | null;
   mobileBottomNav?: MobileBottomNavItem[] | null;
   socialLinks?: SocialLinksBlock | null;
 };
@@ -298,48 +297,6 @@ export type SiteSeoSettings = {
   sitemapIncludeVideos?: boolean | null;
   sitemapIncludePages?: boolean | null;
   sitemapExcludePaths?: string | null;
-};
-
-export type TypographyFontFamily =
-  | "inter"
-  | "oswald"
-  | "tt-norms-regular"
-  | "tt-norms-normal"
-  | "tt-norms-medium"
-  | "tt-norms-light"
-  | "tt-norms-extra-light"
-  | "tt-norms-thin"
-  | "tt-norms-bold"
-  | "tt-norms-extra-bold"
-  | "tt-norms-black"
-  | "tt-norms-extra-black"
-  | "system-sans"
-  | "system-serif";
-
-export type TypographyStyle = {
-  fontFamily?: TypographyFontFamily | null;
-  fontSize?: string | null;
-  mobileFontSize?: string | null;
-  fontWeight?: string | null;
-  lineHeight?: string | null;
-  mobileLineHeight?: string | null;
-  letterSpacing?: string | null;
-  mobileLetterSpacing?: string | null;
-  textTransform?: "none" | "uppercase" | null;
-};
-
-export type TypographySettings = {
-  menu?: TypographyStyle | null;
-  body?: TypographyStyle | null;
-  hero?: TypographyStyle | null;
-  heroEyebrow?: TypographyStyle | null;
-  h1?: TypographyStyle | null;
-  h2?: TypographyStyle | null;
-  h3?: TypographyStyle | null;
-  h4?: TypographyStyle | null;
-  small?: TypographyStyle | null;
-  caption?: TypographyStyle | null;
-  button?: TypographyStyle | null;
 };
 
 export type RouteTarget = {
@@ -1939,7 +1896,7 @@ export async function getCommunitySettings() {
 
 export const getGlobalSettings = cache(async function getGlobalSettings(): Promise<GlobalSettings> {
   const response = await fetchStrapi<GlobalSettings>(
-    "/api/global-setting?populate[logo]=true&populate[typography][populate]=*&populate[mobileBottomNav]=true&populate[socialLinks][populate][links][populate][icon]=true",
+    "/api/global-setting?populate[logo]=true&populate[mobileBottomNav]=true&populate[socialLinks][populate][links][populate][icon]=true",
     { revalidate: SETTINGS_REVALIDATE_SECONDS },
   );
 
@@ -1947,21 +1904,6 @@ export const getGlobalSettings = cache(async function getGlobalSettings(): Promi
 
   return {
     ...data,
-    typography: data.typography
-        ? {
-            menu: data.typography.menu ?? null,
-            body: data.typography.body ?? null,
-            hero: data.typography.hero ?? null,
-            heroEyebrow: data.typography.heroEyebrow ?? null,
-            h1: data.typography.h1 ?? null,
-            h2: data.typography.h2 ?? null,
-            h3: data.typography.h3 ?? null,
-            h4: data.typography.h4 ?? null,
-            small: data.typography.small ?? null,
-            caption: data.typography.caption ?? null,
-            button: data.typography.button ?? null,
-          }
-        : null,
     mobileBottomNav:
       data.mobileBottomNav?.filter((item): item is MobileBottomNavItem => Boolean(item?.label && (item.href || item.opensSidebar))) ?? null,
     socialLinks: data.socialLinks

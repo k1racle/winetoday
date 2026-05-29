@@ -89,7 +89,7 @@ export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSideba
                     <SidebarItemTitle
                       title={item.title}
                       materialLabel={item.materialLabel}
-                      className="min-w-0 break-words font-[Lato] text-[15px] leading-[1.45] text-[#10211a] dark:text-white"
+                      className="type-body-sm min-w-0 break-words text-[#10211a] dark:text-white"
                       badgeClassName={
                         item.materialLabel?.trim().toLowerCase() === "video"
                           ? "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-[#1e2f23] uppercase"
@@ -133,7 +133,7 @@ export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSideba
                     <SidebarItemTitle
                       title={item.title}
                       materialLabel={item.materialLabel}
-                      className="min-w-0 break-words font-[Lato] text-[15px] leading-[1.42] text-[#10211a] dark:text-white"
+                      className="type-body-sm min-w-0 break-words text-[#10211a] dark:text-white"
                       badgeClassName={
                         item.materialLabel?.trim().toLowerCase() === "video"
                           ? "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-[#1e2f23] uppercase"

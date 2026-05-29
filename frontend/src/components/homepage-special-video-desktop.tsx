@@ -111,8 +111,8 @@ export function HomepageSpecialVideoDesktop({ videos }: HomepageSpecialVideoDesk
     <div className="hidden space-y-4 xl:block">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 space-y-2.5">
-          <p className="text-[18px] font-bold leading-none text-zinc-900 dark:text-white">Видео</p>
-          <h2 className="font-[Lato,var(--font-inter),system-ui,sans-serif] text-[24px] font-bold leading-[1.2] text-[#10211a] dark:text-white lg:text-[28px]">
+          <p className="type-h4 leading-none text-zinc-900 dark:text-white">Видео</p>
+          <h2 className="type-video-feature-title text-[#10211a] dark:text-white">
             <Link href={activeVideo.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
               {activeVideo.title}
             </Link>
@@ -210,7 +210,7 @@ export function HomepageSpecialVideoDesktop({ videos }: HomepageSpecialVideoDesk
                   </div>
 
                   <div className="px-3 py-3">
-                    <p className="line-clamp-2 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[14px] font-bold leading-[1.25] text-[#10211a] dark:text-white">
+                    <p className="type-h4 line-clamp-2 text-[#10211a] dark:text-white">
                       {video.title}
                     </p>
                   </div>
