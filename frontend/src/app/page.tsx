@@ -16,6 +16,7 @@ import {
   getLatestNews,
   getNews,
   getVideos,
+  getTagCloud,
   getSiteSeo,
   getSidebarForPath,
   type NewsSummary,
@@ -378,7 +379,7 @@ function renderInfographicCard(
 }
 
 export default async function Home() {
-  const [settings, homepage, sidebar, latestNews, latestVideos, allNews, homepageSpecial] = await Promise.all([
+  const [settings, homepage, sidebar, latestNews, latestVideos, allNews, homepageSpecial, tagCloud] = await Promise.all([
     withLoggedFallback("home global settings", () => getGlobalSettings(), null),
     withLoggedFallback("home homepage", () => getHomepage(), null),
     withLoggedFallback("home sidebar", () => getSidebarForPath("/"), null),
@@ -386,6 +387,7 @@ export default async function Home() {
     withLoggedFallback("home latest videos", () => getVideos(), []),
     withLoggedFallback("home all news", () => getNews(), []),
     withLoggedFallback("home homepage special items", () => getHomepageSpecialItems(), { featureCards: [], videos: [] }),
+    withLoggedFallback("home tag cloud", () => getTagCloud(), []),
   ]);
   const organizationJsonLd = {
     "@context": "https://schema.org",
@@ -792,7 +794,7 @@ export default async function Home() {
                 <RichContent blocks={homepage.blocks} />
               </div>
               <DesktopSidebarSlot>
-                <SidebarPanel sidebar={regularSidebar} />
+                <SidebarPanel sidebar={regularSidebar} tagCloud={tagCloud} />
               </DesktopSidebarSlot>
             </div>
           </section>
