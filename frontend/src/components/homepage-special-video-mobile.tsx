@@ -32,7 +32,10 @@ export function HomepageSpecialVideoMobile({ videos }: HomepageSpecialVideoMobil
     <div className="space-y-3 xl:hidden">
       <div className="space-y-2.5">
         <p className="type-h4 leading-none text-zinc-900 dark:text-white">Видео</p>
-        <h2 className="font-[Lato,var(--font-inter),system-ui,sans-serif] text-[18px] font-bold leading-[1.25] tracking-[-0.01em] text-[#10211a] dark:text-white">
+        <h2
+          className="font-[Lato,var(--font-inter),system-ui,sans-serif] font-bold tracking-[-0.01em] text-[#10211a] dark:text-white"
+          style={{ fontSize: "18px", lineHeight: 1.25 }}
+        >
           <Link href={activeVideo.href} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
             {activeVideo.title}
           </Link>
