@@ -122,7 +122,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
               {primaryCategory ? <span>{primaryCategory.name}</span> : null}
               {item.author?.name ? <span>{item.author.name}</span> : null}
             </div>
-            <h1 className="type-h1">{item.title}</h1>
+            <h1 className="type-h1 archive-page-mobile-title">{item.title}</h1>
             <MaterialEditButton type="news" documentId={item.documentId} authorSlug={item.author?.slug} />
             {item.cover?.url ? (
               <>
