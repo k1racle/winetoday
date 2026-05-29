@@ -1143,6 +1143,7 @@ export type HomepageSpecialCard = {
   excerpt?: string | null;
   cover?: StrapiMedia | null;
   videoUrl?: string | null;
+  duration?: number | null;
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
   categories?: CategorySummaryList | null;
@@ -2582,6 +2583,7 @@ export async function getHomepageSpecialItems() {
       excerpt: item.excerpt,
       cover: item.cover ?? null,
       videoUrl: item.videoUrl,
+      duration: item.duration ?? null,
       publishedAt: item.publishedAt,
       publishedAtCustom: item.publishedAtCustom,
       categories: item.categories ?? null,

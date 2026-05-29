@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 import type { OverlayMetaItem } from "@/components/archive-overlay-meta";
+import { HomepageSpecialVideoMobile } from "@/components/homepage-special-video-mobile";
 import { HomepageSpecialVideoTile } from "@/components/homepage-special-video-tile";
 
 type HomepageSpecialVideoCarouselProps = {
@@ -13,15 +14,16 @@ type HomepageSpecialVideoCarouselProps = {
     title: string;
     cover?: { url?: string | null; alternativeText?: string | null } | null;
     videoUrl?: string | null;
+    duration?: number | null;
     meta: OverlayMetaItem[];
   }[];
+  siteLogoUrl?: string | null;
+  siteLogoAlt?: string | null;
 };
 
-export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCarouselProps) {
+export function HomepageSpecialVideoCarousel({ videos, siteLogoUrl, siteLogoAlt }: HomepageSpecialVideoCarouselProps) {
   const leadVideoRef = useRef<HTMLDivElement | null>(null);
-  const mobileTrackRef = useRef<HTMLDivElement | null>(null);
   const [sidebarHeight, setSidebarHeight] = useState<number | null>(null);
-  const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
 
   const leadVideo = videos[0] ?? null;
   const secondaryVideos = useMemo(() => videos.slice(1), [videos]);
@@ -45,126 +47,14 @@ export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCar
   }, [leadVideo]);
 
 
-  const scrollToMobileIndex = useCallback((index: number) => {
-    const track = mobileTrackRef.current;
-
-    if (!track) {
-      return;
-    }
-
-    const item = track.children[index] as HTMLElement | undefined;
-
-    if (!item) {
-      return;
-    }
-
-    track.scrollTo({
-      left: item.offsetLeft - track.offsetLeft,
-      behavior: "smooth",
-    });
-
-    setMobileActiveIndex(index);
-  }, []);
-
-  useEffect(() => {
-    const track = mobileTrackRef.current;
-
-    if (!track) {
-      return;
-    }
-
-    const handleScroll = () => {
-      const items = Array.from(track.children) as HTMLElement[];
-
-      if (!items.length) {
-        return;
-      }
-
-      const trackCenter = track.scrollLeft + track.clientWidth / 2;
-      let nextIndex = 0;
-      let minDistance = Number.POSITIVE_INFINITY;
-
-      items.forEach((item, index) => {
-        const itemCenter = item.offsetLeft + item.offsetWidth / 2;
-        const distance = Math.abs(itemCenter - trackCenter);
-
-        if (distance < minDistance) {
-          minDistance = distance;
-          nextIndex = index;
-        }
-      });
-
-      setMobileActiveIndex(nextIndex);
-    };
-
-    handleScroll();
-    track.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => {
-      track.removeEventListener("scroll", handleScroll);
-    };
-  }, [videos]);
-
-  useEffect(() => {
-    setMobileActiveIndex(0);
-  }, [videos]);
-
   if (!leadVideo) {
     return null;
   }
 
   return (
     <>
-      <div className="space-y-3 xl:hidden">
-        <div className="w-full max-w-full overflow-hidden px-0">
-          <div
-            ref={mobileTrackRef}
-            className="flex w-full max-w-full snap-x snap-mandatory overflow-x-auto pb-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {videos.map((video) => (
-              <div
-                key={video.documentId}
-                className="min-w-full shrink-0 snap-center px-0"
-              >
-                <HomepageSpecialVideoTile
-                  href={video.href}
-                  title={video.title}
-                  coverUrl={video.cover?.url ?? null}
-                  coverAlt={video.cover?.alternativeText ?? video.title}
-                  videoUrl={video.videoUrl}
-                  meta={video.meta}
-                  className="mx-auto w-full max-w-[clamp(280px,92vw,420px)] sm:max-w-[clamp(520px,82vw,720px)]"
-                  mediaClassName="aspect-video max-h-[42vh] sm:max-h-[52vh]"
-                  imageClassName="object-contain"
-                  contentClassName="p-1.5 sm:p-4"
-                  compactPlayButton
-                  titleBelow
-                  bodyClassName="px-1.5 py-1.5 sm:px-4 sm:py-3"
-                  titleClassName="line-clamp-2 text-[12px] font-medium leading-[1.2] sm:text-[15px] sm:leading-[1.4]"
-                  imageSizes="(max-width: 639px) 100vw, (max-width: 1279px) 100vw, 66vw"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+      <HomepageSpecialVideoMobile videos={videos} siteLogoUrl={siteLogoUrl} siteLogoAlt={siteLogoAlt} />
 
-        {videos.length > 1 ? (
-          <div className="flex items-center justify-center gap-2">
-            {videos.map((video, index) => (
-              <button
-                key={`${video.documentId}-dot`}
-                type="button"
-                aria-label={`Go to video slide ${index + 1}`}
-                aria-pressed={index === mobileActiveIndex}
-                onClick={() => scrollToMobileIndex(index)}
-                className={index === mobileActiveIndex ? "h-2.5 w-8 rounded-full bg-emerald-700 dark:bg-emerald-400" : "h-2.5 w-2.5 rounded-full bg-black/15 transition hover:bg-black/30 dark:bg-white/20 dark:hover:bg-white/35"}
-              />
-            ))}
-          </div>
-        ) : null}
-      </div>
-
-      
       <div className="hidden xl:grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] xl:items-start">
         <div className="xl:col-span-2 flex items-end justify-between border-b border-white/10 pb-3">
           <h2 className="text-[18px] font-bold leading-none text-zinc-900 dark:text-white">Видео</h2>
