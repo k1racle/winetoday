@@ -762,8 +762,6 @@ export default async function Home() {
                     {specialVideos.length ? (
                       <div className="min-w-0 max-w-full overflow-hidden xl:contents">
                         <HomepageSpecialVideoCarousel
-                          siteLogoUrl={settings?.logo?.url ?? null}
-                          siteLogoAlt={settings?.logo?.alternativeText ?? settings?.siteName ?? null}
                           videos={specialVideos.map((video) => ({
                             documentId: video.documentId,
                             href: video.href,

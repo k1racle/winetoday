@@ -13,8 +13,6 @@ type HomepageSpecialVideoMobileProps = {
     videoUrl?: string | null;
     duration?: number | null;
   }[];
-  siteLogoUrl?: string | null;
-  siteLogoAlt?: string | null;
 };
 
 function formatVideoDurationLabel(durationMinutes?: number | null) {
@@ -67,18 +65,6 @@ function VideoPlayIcon({ className }: { className?: string }) {
   );
 }
 
-function SiteLogoMark({ logoUrl, logoAlt }: { logoUrl?: string | null; logoAlt?: string | null }) {
-  if (!logoUrl) {
-    return null;
-  }
-
-  return (
-    <span className="inline-flex h-7 w-7 items-center justify-center rounded bg-white/95 p-1 shadow-[0_2px_8px_rgba(0,0,0,0.18)]">
-      <Image src={logoUrl} alt={logoAlt ?? ""} width={20} height={20} className="h-full w-full object-contain" />
-    </span>
-  );
-}
-
 function VideoDurationBadge({ durationMinutes }: { durationMinutes?: number | null }) {
   const label = formatVideoDurationLabel(durationMinutes);
 
@@ -96,7 +82,7 @@ function VideoDurationBadge({ durationMinutes }: { durationMinutes?: number | nu
   );
 }
 
-export function HomepageSpecialVideoMobile({ videos, siteLogoUrl, siteLogoAlt }: HomepageSpecialVideoMobileProps) {
+export function HomepageSpecialVideoMobile({ videos }: HomepageSpecialVideoMobileProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeVideo = videos[activeIndex] ?? videos[0] ?? null;
   const embedUrl = useMemo(() => resolvePreviewEmbedUrl(activeVideo?.videoUrl), [activeVideo?.videoUrl]);
@@ -156,10 +142,6 @@ export function HomepageSpecialVideoMobile({ videos, siteLogoUrl, siteLogoAlt }:
             </div>
           ) : null}
 
-          <div className="pointer-events-none absolute left-2 top-2 z-20">
-            <SiteLogoMark logoUrl={siteLogoUrl} logoAlt={siteLogoAlt} />
-          </div>
-
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[3px] bg-black/25">
             <div className="h-full w-[88%] bg-emerald-600 dark:bg-emerald-400" />
           </div>
@@ -180,37 +162,33 @@ export function HomepageSpecialVideoMobile({ videos, siteLogoUrl, siteLogoAlt }:
                   aria-pressed={isActive}
                   onClick={() => setActiveIndex(index)}
                   className={[
-                    "relative w-[min(42vw,168px)] shrink-0 overflow-hidden rounded-md border text-left transition",
+                    "relative w-[min(58vw,240px)] shrink-0 overflow-hidden rounded-md border text-left transition",
                     isActive
                       ? "border-emerald-700 ring-2 ring-emerald-700/40 ring-offset-2 ring-offset-white dark:border-emerald-400 dark:ring-emerald-400/40 dark:ring-offset-[#0b1612]"
                       : "border-black/10 opacity-95 hover:opacity-100 dark:border-white/10",
                   ].join(" ")}
                 >
-                  <div className="relative aspect-[4/5] w-full bg-black shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)]">
+                  <div className="relative aspect-video w-full bg-black shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)]">
                     {video.cover?.url ? (
                       <Image
                         src={video.cover.url}
                         alt={video.cover.alternativeText ?? video.title}
                         fill
-                        sizes="168px"
+                        sizes="240px"
                         className="object-cover"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(28,55,40,0.55),_rgba(0,0,0,0.95))]" />
                     )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
 
                     <div className="absolute left-1.5 top-1.5 z-10">
                       <VideoDurationBadge durationMinutes={video.duration} />
                     </div>
 
-                    <div className="absolute right-1.5 top-1.5 z-10">
-                      <SiteLogoMark logoUrl={siteLogoUrl} logoAlt={siteLogoAlt} />
-                    </div>
-
-                    <p className="absolute inset-x-0 bottom-0 z-10 px-2 pb-2 pt-6 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[13px] font-medium leading-[1.2] text-white">
-                      <span className="line-clamp-3">{video.title}</span>
+                    <p className="absolute inset-x-0 bottom-0 z-10 px-2 pb-2 pt-4 font-[Lato,var(--font-inter),system-ui,sans-serif] text-[12px] font-medium leading-[1.2] text-white sm:text-[13px]">
+                      <span className="line-clamp-2">{video.title}</span>
                     </p>
                   </div>
                 </button>

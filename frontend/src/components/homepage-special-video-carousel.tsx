@@ -17,11 +17,9 @@ type HomepageSpecialVideoCarouselProps = {
     duration?: number | null;
     meta: OverlayMetaItem[];
   }[];
-  siteLogoUrl?: string | null;
-  siteLogoAlt?: string | null;
 };
 
-export function HomepageSpecialVideoCarousel({ videos, siteLogoUrl, siteLogoAlt }: HomepageSpecialVideoCarouselProps) {
+export function HomepageSpecialVideoCarousel({ videos }: HomepageSpecialVideoCarouselProps) {
   const leadVideoRef = useRef<HTMLDivElement | null>(null);
   const [sidebarHeight, setSidebarHeight] = useState<number | null>(null);
 
@@ -53,7 +51,7 @@ export function HomepageSpecialVideoCarousel({ videos, siteLogoUrl, siteLogoAlt 
 
   return (
     <>
-      <HomepageSpecialVideoMobile videos={videos} siteLogoUrl={siteLogoUrl} siteLogoAlt={siteLogoAlt} />
+      <HomepageSpecialVideoMobile videos={videos} />
 
       <div className="hidden xl:grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(260px,320px)] xl:items-start">
         <div className="xl:col-span-2 flex items-end justify-between border-b border-white/10 pb-3">
