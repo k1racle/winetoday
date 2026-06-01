@@ -377,6 +377,7 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
   const yandexClientSecret = socialAuthSettings?.yandexClientSecret?.trim() || process.env.YANDEX_CLIENT_SECRET || '';
   const yandexAuthorizeUrl = socialAuthSettings?.yandexAuthorizeUrl?.trim() || 'https://oauth.yandex.ru/authorize';
   const yandexAccessUrl = socialAuthSettings?.yandexAccessUrl?.trim() || 'https://oauth.yandex.ru/token';
+  const { scope: _legacyYandexScope, ...currentYandexGrant } = currentGrant.yandex ?? {};
 
   const nextGrant = {
     ...currentGrant,
@@ -403,7 +404,7 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
       scope: vkScope.length ? vkScope : ['email'],
     },
     yandex: {
-      ...(currentGrant.yandex ?? {}),
+      ...currentYandexGrant,
       enabled: Boolean(socialAuthSettings?.yandexEnabled && yandexClientId && yandexClientSecret),
       icon: 'yandex',
       key: yandexClientId || currentGrant.yandex?.key || '',
