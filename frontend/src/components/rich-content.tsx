@@ -185,6 +185,7 @@ async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blo
               }))}
               pageSize={pageSize}
               showExcerpt={false}
+              mobileCardInset
             />
           </section>
         );

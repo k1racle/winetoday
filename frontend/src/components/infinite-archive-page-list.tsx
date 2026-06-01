@@ -42,11 +42,12 @@ type InfiniteArchivePageListProps = {
   emptyLabel: string;
   pageSize?: number;
   showExcerpt?: boolean;
+  mobileCardInset?: boolean;
 };
 
 const DEFAULT_PAGE_SIZE = 10;
 
-export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize = DEFAULT_PAGE_SIZE, showExcerpt = true }: InfiniteArchivePageListProps) {
+export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize = DEFAULT_PAGE_SIZE, showExcerpt = true, mobileCardInset = false }: InfiniteArchivePageListProps) {
   const [visibleCount, setVisibleCount] = useState(pageSize);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const hasMore = visibleCount < items.length;
@@ -123,7 +124,7 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
       ) : null}
 
       {visibleItems.length ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={`grid gap-6 sm:grid-cols-2 lg:grid-cols-3 ${mobileCardInset ? "max-sm:px-4" : ""}`}>
           {visibleItems.map((item) => (
             <article key={item.id} className="group block overflow-hidden border border-black/10 bg-white text-foreground shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-[#12202d] dark:text-white">
               <div className="relative h-52 overflow-hidden">
