@@ -333,22 +333,36 @@ function registerYandexUsersPermissionsProvider(strapi: Core.Strapi) {
       access_url: process.env.YANDEX_ACCESS_URL || 'https://oauth.yandex.ru/token',
       oauth: 2,
     },
-    async authCallback({ accessToken, purest }: any) {
-      const yandex = purest({ provider: 'yandex' });
-
-      const { body } = await yandex
-        .get('info')
-        .subdomain('login')
-        .auth(accessToken)
-        .qs({ format: 'json' })
-        .request();
-
-      return {
-        username: body.login || body.default_email?.split('@')[0] || `yandex-${body.id}`,
-        email: body.default_email,
-      };
+    async authCallback({ accessToken }: any) {
+      return fetchYandexUsersPermissionsProfile(accessToken);
     },
   });
+}
+
+async function fetchYandexUsersPermissionsProfile(accessToken: string) {
+  const response = await fetch('https://login.yandex.ru/info?format=json', {
+    headers: {
+      Authorization: `OAuth ${accessToken}`,
+      Accept: 'application/json',
+    },
+  });
+
+  const body = await response.json().catch(() => null) as Record<string, any> | null;
+
+  if (!response.ok) {
+    throw new Error(`Yandex profile request failed with status ${response.status}: ${JSON.stringify(body)}`);
+  }
+
+  const email = body?.default_email || (Array.isArray(body?.emails) ? body.emails.find(Boolean) : null);
+
+  if (!email) {
+    throw new Error(`Yandex profile response does not contain email: ${JSON.stringify(body)}`);
+  }
+
+  return {
+    username: body?.login || email.split('@')[0] || `yandex-${body?.id}`,
+    email,
+  };
 }
 
 async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
@@ -432,20 +446,8 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
       access_url: yandexAccessUrl,
       oauth: 2,
     },
-    async authCallback({ accessToken, purest }: any) {
-      const yandex = purest({ provider: 'yandex' });
-
-      const { body } = await yandex
-        .get('info')
-        .subdomain('login')
-        .auth(accessToken)
-        .qs({ format: 'json' })
-        .request();
-
-      return {
-        username: body.login || body.default_email?.split('@')[0] || `yandex-${body.id}`,
-        email: body.default_email,
-      };
+    async authCallback({ accessToken }: any) {
+      return fetchYandexUsersPermissionsProfile(accessToken);
     },
   };
   const yandexProvider = providersRegistry.get('yandex');
