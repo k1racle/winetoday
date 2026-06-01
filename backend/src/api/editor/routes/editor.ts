@@ -52,6 +52,14 @@ export default {
       },
     },
     {
+      method: 'GET',
+      path: '/editor/member-profile-stats/:documentId',
+      handler: 'editor.memberProfileStats',
+      config: {
+        auth: false,
+      },
+    },
+    {
       method: 'POST',
       path: '/editor/views/:type/:documentId',
       handler: 'editor.trackView',

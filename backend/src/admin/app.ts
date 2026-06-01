@@ -3,7 +3,7 @@ import { createElement } from 'react';
 import { ADMIN_LOCALES, ADMIN_TRANSLATIONS } from './translations';
 import SocialAuthCallbackHints from './components/social-auth-callback-hints';
 import AuthorStatsPanel from './components/author-stats-panel';
-import ViewsStatsExportPanel from './components/views-stats-export-panel';
+import ViewsStatsExportButton from './components/views-stats-export-button';
 
 const FRONTEND_COLLECTION_PATHS: Record<string, string | null> = {
   'api::article.article': '/articles',
@@ -170,9 +170,9 @@ export default {
       Component: AuthorStatsPanel,
     });
 
-    contentManager?.injectComponent('editView', 'right-links', {
-      name: 'vino-views-stats-export-panel',
-      Component: ViewsStatsExportPanel,
+    contentManager?.injectComponent('listView', 'actions', {
+      name: 'vino-views-stats-export-button',
+      Component: ViewsStatsExportButton,
     });
 
     app.registerHook(

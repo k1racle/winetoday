@@ -16,6 +16,7 @@ type AuthorStatsRecord = {
 };
 
 type AuthorStatsResponse = {
+  eligible?: boolean;
   author?: {
     name?: string | null;
     slug?: string | null;
@@ -62,9 +63,9 @@ function csvCell(value: unknown) {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
-function buildAuthorStatsCsv(payload: AuthorStatsResponse) {
+function buildAuthorStatsCsv(payload: AuthorStatsResponse, subjectLabel = 'Автор') {
   const rows = [
-    ['Автор', payload.author?.name ?? '', '', '', '', '', '', '', ''],
+    [subjectLabel, payload.author?.name ?? '', '', '', '', '', '', '', ''],
     ['Всего записей', payload.totals?.allRecords ?? 0, 'Опубликовано', payload.totals?.publishedRecords ?? 0, 'Просмотры', payload.totals?.views ?? 0, '', '', ''],
     [],
     ['Тип', 'Статус', 'Название', 'Слаг', 'Просмотры', 'Опубликовано', 'Обновлено', 'URL', 'Document ID'],
@@ -104,23 +105,35 @@ export default function AuthorStatsPanel() {
     isCreatingEntry?: boolean;
   } | undefined;
   const { slug, id, isCreatingEntry } = context ?? {};
-  const authorDocumentId = typeof id === 'string' ? id.trim() : '';
-  const isAuthorEditView = slug === 'api::author.author' && !isCreatingEntry && Boolean(authorDocumentId);
+  const documentId = typeof id === 'string' ? id.trim() : '';
+  const isAuthorStatsView = slug === 'api::author.author' && !isCreatingEntry && Boolean(documentId);
+  const isMemberProfileStatsView = slug === 'api::member-profile.member-profile' && !isCreatingEntry && Boolean(documentId);
+  const statsEndpoint = isAuthorStatsView
+    ? `/api/editor/author-stats/${encodeURIComponent(documentId)}`
+    : isMemberProfileStatsView
+      ? `/api/editor/member-profile-stats/${encodeURIComponent(documentId)}`
+      : null;
+  const panelTitle = isMemberProfileStatsView ? 'Статистика редактора' : 'Статистика автора';
+  const subjectLabel = isMemberProfileStatsView ? 'Редактор' : 'Автор';
 
   const [payload, setPayload] = useState<AuthorStatsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isStatsAvailable, setIsStatsAvailable] = useState(false);
 
   useEffect(() => {
-    if (!isAuthorEditView || !authorDocumentId) {
+    if (!statsEndpoint) {
+      setPayload(null);
+      setIsStatsAvailable(false);
       return undefined;
     }
 
     let active = true;
     setIsLoading(true);
     setError(null);
+    setIsStatsAvailable(true);
 
-    void fetch(`/api/editor/author-stats/${encodeURIComponent(authorDocumentId)}`, {
+    void fetch(statsEndpoint, {
       credentials: 'same-origin',
       headers: {
         Accept: 'application/json',
@@ -138,7 +151,15 @@ export default function AuthorStatsPanel() {
           return;
         }
 
+        if (data.eligible === false) {
+          setPayload(null);
+          setIsStatsAvailable(false);
+          setError(null);
+          return;
+        }
+
         setPayload(data);
+        setIsStatsAvailable(true);
         setError(null);
       })
       .catch(() => {
@@ -147,7 +168,7 @@ export default function AuthorStatsPanel() {
         }
 
         setPayload(null);
-        setError('Не удалось загрузить статистику автора.');
+        setError('Не удалось загрузить статистику.');
       })
       .finally(() => {
         if (active) {
@@ -158,7 +179,7 @@ export default function AuthorStatsPanel() {
     return () => {
       active = false;
     };
-  }, [authorDocumentId, isAuthorEditView]);
+  }, [statsEndpoint]);
 
   const totals = useMemo(
     () => ({
@@ -174,7 +195,7 @@ export default function AuthorStatsPanel() {
       return;
     }
 
-    const csv = buildAuthorStatsCsv(payload);
+    const csv = buildAuthorStatsCsv(payload, subjectLabel);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -188,7 +209,7 @@ export default function AuthorStatsPanel() {
     URL.revokeObjectURL(url);
   }
 
-  if (!isAuthorEditView) {
+  if (!statsEndpoint || !isStatsAvailable) {
     return null;
   }
 
@@ -198,9 +219,9 @@ export default function AuthorStatsPanel() {
         <Box background="neutral0" borderColor="neutral200" hasRadius padding={6} shadow="tableShadow">
           <Flex direction="column" gap={3} alignItems="stretch">
             <Flex direction="column" gap={1} alignItems="stretch">
-              <Typography variant="beta">Статистика автора</Typography>
+              <Typography variant="beta">{panelTitle}</Typography>
               <Typography textColor="neutral600" variant="omega">
-                {payload?.author?.name ? `Автор: ${payload.author.name}` : 'Откройте блок, чтобы увидеть сводку по записям и просмотрам.'}
+                {payload?.author?.name ? `${subjectLabel}: ${payload.author.name}` : 'Откройте блок, чтобы увидеть сводку по записям и просмотрам.'}
               </Typography>
             </Flex>
 
@@ -238,7 +259,7 @@ export default function AuthorStatsPanel() {
       <Box background="neutral0" borderColor="neutral200" hasRadius marginTop={4} padding={6} shadow="tableShadow">
         <Flex direction="column" gap={3} alignItems="stretch">
           <Flex justifyContent="space-between" gap={3} alignItems="center" wrap="wrap">
-            <Typography variant="beta">Записи автора</Typography>
+            <Typography variant="beta">Записи {isMemberProfileStatsView ? 'редактора' : 'автора'}</Typography>
             <button
               type="button"
               onClick={handleExportCsv}
@@ -303,7 +324,7 @@ export default function AuthorStatsPanel() {
             </Flex>
           ) : (
             <Typography textColor="neutral600" variant="pi">
-              У этого автора пока нет записей.
+              У этого {isMemberProfileStatsView ? 'редактора' : 'автора'} пока нет записей.
             </Typography>
           )}
         </Flex>

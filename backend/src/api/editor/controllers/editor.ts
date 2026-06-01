@@ -847,6 +847,7 @@ async function resolveAuthorStats(strapi: any, author: Record<string, any>) {
           status: 'draft',
           fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
           sort: ['updatedAt:desc'],
+          limit: 10000,
         } as any),
         strapi.documents(AUTHOR_STATS_TYPES[type].uid as any).findMany({
           filters: {
@@ -855,6 +856,7 @@ async function resolveAuthorStats(strapi: any, author: Record<string, any>) {
           status: 'published',
           fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
           sort: ['updatedAt:desc'],
+          limit: 10000,
         } as any),
       ]);
 
@@ -887,6 +889,65 @@ async function resolveAuthorStats(strapi: any, author: Record<string, any>) {
       documentId: author.documentId,
       name: author.name,
       slug: author.slug ?? null,
+    },
+    totals,
+    records,
+  };
+}
+
+async function resolveMemberProfileStats(strapi: any, profile: Record<string, any>) {
+  const recordGroups = await Promise.all(
+    (Object.keys(AUTHOR_STATS_TYPES) as AuthorStatsType[]).map(async (type) => {
+      const [draftItems, publishedItems] = await Promise.all([
+        strapi.documents(AUTHOR_STATS_TYPES[type].uid as any).findMany({
+          filters: {
+            memberProfile: { id: profile.id },
+          },
+          status: 'draft',
+          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
+          sort: ['updatedAt:desc'],
+          limit: 10000,
+        } as any),
+        strapi.documents(AUTHOR_STATS_TYPES[type].uid as any).findMany({
+          filters: {
+            memberProfile: { id: profile.id },
+          },
+          status: 'published',
+          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
+          sort: ['updatedAt:desc'],
+          limit: 10000,
+        } as any),
+      ]);
+
+      return mergeDraftAndPublishedItems(draftItems as Record<string, any>[], publishedItems as Record<string, any>[]).map((item) =>
+        serializeAuthorRecord(type, item),
+      );
+    }),
+  );
+
+  const records = recordGroups.flat();
+  const totals = records.reduce(
+    (accumulator, record) => ({
+      allRecords: accumulator.allRecords + 1,
+      publishedRecords: accumulator.publishedRecords + (record.status === 'published' ? 1 : 0),
+      views: accumulator.views + record.views,
+    }),
+    { allRecords: 0, publishedRecords: 0, views: 0 },
+  );
+
+  records.sort((left, right) => {
+    const leftTime = left.publishedAt ?? left.updatedAt ?? '';
+    const rightTime = right.publishedAt ?? right.updatedAt ?? '';
+
+    return rightTime.localeCompare(leftTime);
+  });
+
+  return {
+    author: {
+      id: profile.id,
+      documentId: profile.documentId,
+      name: profile.displayName ?? 'Без имени',
+      slug: profile.authorSlug ?? null,
     },
     totals,
     records,
@@ -1368,6 +1429,33 @@ export default factories.createCoreController('api::member-profile.member-profil
 
   async viewsStats(ctx: any) {
     ctx.body = await resolveViewsStats(strapi);
+  },
+
+  async memberProfileStats(ctx: any) {
+    const documentId = typeof ctx.params.documentId === 'string' ? ctx.params.documentId.trim() : '';
+
+    if (!documentId) {
+      throw new ValidationError('Некорректный запрос статистики профиля.');
+    }
+
+    const profile = await strapi.documents('api::member-profile.member-profile' as any).findFirst({
+      filters: { documentId },
+      fields: ['displayName', 'accountType', 'authorSlug', 'documentId'],
+    } as any);
+
+    if (!profile) {
+      throw new NotFoundError('Профиль участника не найден.');
+    }
+
+    if (profile.accountType !== 'editor') {
+      ctx.body = { eligible: false };
+      return;
+    }
+
+    ctx.body = {
+      eligible: true,
+      ...(await resolveMemberProfileStats(strapi, profile)),
+    };
   },
 
   async trackView(ctx: any) {
