@@ -352,6 +352,7 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
       enabled: Boolean(socialAuthSettings?.googleEnabled && googleClientId && googleClientSecret),
       key: googleClientId || currentGrant.google?.key || '',
       secret: googleClientSecret || currentGrant.google?.secret || '',
+      callback: `${authBaseUrl}/google/callback`,
       callbackUrl: `${authBaseUrl}/google/callback`,
       scope: googleScope.length ? googleScope : ['email'],
     },
@@ -360,6 +361,7 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
       enabled: Boolean(socialAuthSettings?.vkEnabled && vkClientId && vkClientSecret),
       key: vkClientId || currentGrant.vk?.key || '',
       secret: vkClientSecret || currentGrant.vk?.secret || '',
+      callback: `${authBaseUrl}/vk/callback`,
       callbackUrl: `${authBaseUrl}/vk/callback`,
       scope: vkScope.length ? vkScope : ['email'],
     },
@@ -369,6 +371,7 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
       icon: 'yandex',
       key: yandexClientId || currentGrant.yandex?.key || '',
       secret: yandexClientSecret || currentGrant.yandex?.secret || '',
+      callback: `${authBaseUrl}/yandex/callback`,
       callbackUrl: `${authBaseUrl}/yandex/callback`,
       authorize_url: yandexAuthorizeUrl,
       access_url: yandexAccessUrl,
@@ -383,18 +386,19 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
 
   if (!providersRegistry.get('yandex')) {
     providersRegistry.add('yandex', {
-      enabled: false,
+      enabled: Boolean(socialAuthSettings?.yandexEnabled && yandexClientId && yandexClientSecret),
       icon: 'yandex',
-        grantConfig: {
-          key: '',
-          secret: '',
-          callbackUrl: `${authBaseUrl}/yandex/callback`,
-          authorize_url: yandexAuthorizeUrl,
-          access_url: yandexAccessUrl,
-          oauth: 2,
-          scope: yandexScope.length ? yandexScope : ['login:email', 'login:info'],
-        },
-        async authCallback({ accessToken, purest }: any) {
+      grantConfig: {
+        key: yandexClientId,
+        secret: yandexClientSecret,
+        callback: `${authBaseUrl}/yandex/callback`,
+        callbackUrl: `${authBaseUrl}/yandex/callback`,
+        authorize_url: yandexAuthorizeUrl,
+        access_url: yandexAccessUrl,
+        oauth: 2,
+        scope: yandexScope.length ? yandexScope : ['login:email', 'login:info'],
+      },
+      async authCallback({ accessToken, purest }: any) {
         const yandex = purest({ provider: 'yandex' });
 
         const { body } = await yandex

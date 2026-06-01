@@ -24,8 +24,14 @@ export async function GET(request: Request, context: RouteContext) {
   const location = response.headers.get("location");
 
   if (!location) {
-    return new Response("Social auth redirect location is missing.", {
-      status: 502,
+    const upstreamBody = await response.text().catch(() => "");
+    const message = upstreamBody.trim() || "Social auth redirect location is missing.";
+
+    return new Response(message, {
+      status: response.status === 200 ? 502 : response.status,
+      headers: {
+        "content-type": response.headers.get("content-type") ?? "text/plain; charset=utf-8",
+      },
     });
   }
 
