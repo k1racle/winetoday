@@ -30,6 +30,23 @@ async function ensureMemberProfile(jwt: string) {
   });
 }
 
+async function resolveStrapiJwt(provider: string | undefined, accessToken: string) {
+  if (!provider) {
+    return accessToken;
+  }
+
+  const response = await fetch(new URL(`/api/auth/${provider}/callback?access_token=${encodeURIComponent(accessToken)}`, CMS_API_URL), {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  });
+
+  const payload = (await response.json().catch(() => null)) as { jwt?: string } | null;
+
+  return payload?.jwt?.trim() || accessToken;
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const providerParam = url.searchParams.get("provider")?.trim();
@@ -41,9 +58,11 @@ export async function GET(request: Request) {
     return Response.redirect(new URL(`/auth-error?reason=missing-token${provider ? `&provider=${encodeURIComponent(provider)}` : ""}`, SITE_URL));
   }
 
-  await setAuthToken(jwt);
-  await ensureMemberProfile(jwt);
-  await fetchCurrentUser(jwt);
+  const strapiJwt = await resolveStrapiJwt(provider, jwt);
+
+  await setAuthToken(strapiJwt);
+  await ensureMemberProfile(strapiJwt);
+  await fetchCurrentUser(strapiJwt);
 
   return Response.redirect(new URL(DEFAULT_REDIRECT, SITE_URL));
 }
