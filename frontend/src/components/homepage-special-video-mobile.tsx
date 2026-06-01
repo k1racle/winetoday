@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   type HomepageSpecialVideoItem,
@@ -20,10 +20,6 @@ export function HomepageSpecialVideoMobile({ videos }: HomepageSpecialVideoMobil
   const activeVideo = videos[activeIndex] ?? videos[0] ?? null;
   const embedUrl = useMemo(() => resolvePreviewEmbedUrl(activeVideo?.videoUrl), [activeVideo?.videoUrl]);
 
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [videos]);
-
   if (!activeVideo) {
     return null;
   }
@@ -31,7 +27,15 @@ export function HomepageSpecialVideoMobile({ videos }: HomepageSpecialVideoMobil
   return (
     <div className="space-y-3 xl:hidden">
       <div className="space-y-2.5">
-        <p className="type-h4 leading-none text-zinc-900 dark:text-white">Видео</p>
+        <div className="flex items-start justify-between gap-3">
+          <p className="type-h4 leading-none text-zinc-900 dark:text-white">Видео</p>
+          <Link
+            href="/videos"
+            className="shrink-0 text-sm font-medium leading-none text-amber-400 transition hover:text-amber-300"
+          >
+            Все видео →
+          </Link>
+        </div>
         <h2
           className="font-[Lato,var(--font-inter),system-ui,sans-serif] font-bold tracking-[-0.01em] text-[#10211a] dark:text-white"
           style={{ fontSize: "18px", lineHeight: 1.25 }}
