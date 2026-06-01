@@ -25,7 +25,12 @@ const config: Core.Config.Middlewares = [
       },
     },
   },
-  'strapi::session',
+  {
+    name: 'strapi::session',
+    config: {
+      secure: false,
+    },
+  },
   'strapi::favicon',
   'strapi::public',
 ];
