@@ -185,7 +185,6 @@ async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blo
               }))}
               pageSize={pageSize}
               showExcerpt={false}
-              mobileCardInset
             />
           </section>
         );
@@ -194,7 +193,7 @@ async function renderArchiveFeed(block: Extract<StrapiBlock, { __component: "blo
         const items = filterByCategories(await getNews());
 
         return (
-          <section key={`${block.__component}-${block.id}`} className="space-y-5">
+          <section key={`${block.__component}-${block.id}`} className="space-y-5 max-sm:px-4">
             {(block.title || block.description) && (
               <header className="space-y-3">
                 {block.title ? <h2 className="type-h3 font-semibold tracking-tight">{block.title}</h2> : null}
