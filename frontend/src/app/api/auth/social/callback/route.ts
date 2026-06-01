@@ -43,8 +43,13 @@ async function resolveStrapiJwt(provider: string | undefined, accessToken: strin
   });
 
   const payload = (await response.json().catch(() => null)) as { jwt?: string } | null;
+  const jwt = payload?.jwt?.trim();
 
-  return payload?.jwt?.trim() || accessToken;
+  if (!response.ok || !jwt) {
+    return null;
+  }
+
+  return jwt;
 }
 
 export async function GET(request: Request) {
@@ -59,6 +64,10 @@ export async function GET(request: Request) {
   }
 
   const strapiJwt = await resolveStrapiJwt(provider, jwt);
+
+  if (!strapiJwt) {
+    return Response.redirect(new URL(`/auth-error?reason=missing-token${provider ? `&provider=${encodeURIComponent(provider)}` : ""}`, SITE_URL));
+  }
 
   await setAuthToken(strapiJwt);
   await ensureMemberProfile(strapiJwt);
