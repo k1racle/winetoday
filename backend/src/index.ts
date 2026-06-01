@@ -332,7 +332,6 @@ function registerYandexUsersPermissionsProvider(strapi: Core.Strapi) {
       authorize_url: process.env.YANDEX_AUTHORIZE_URL || 'https://oauth.yandex.ru/authorize',
       access_url: process.env.YANDEX_ACCESS_URL || 'https://oauth.yandex.ru/token',
       oauth: 2,
-      scope: (process.env.YANDEX_SCOPE || 'login:email login:info').split(/[\s,]+/).filter(Boolean),
     },
     async authCallback({ accessToken, purest }: any) {
       const yandex = purest({ provider: 'yandex' });
@@ -376,10 +375,6 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
 
   const yandexClientId = socialAuthSettings?.yandexClientId?.trim() || process.env.YANDEX_CLIENT_ID || '';
   const yandexClientSecret = socialAuthSettings?.yandexClientSecret?.trim() || process.env.YANDEX_CLIENT_SECRET || '';
-  const yandexScope = socialAuthSettings?.yandexScope
-    ?.split(/[\s,]+/)
-    .map((item: string) => item.trim())
-    .filter(Boolean) ?? ['login:email', 'login:info'];
   const yandexAuthorizeUrl = socialAuthSettings?.yandexAuthorizeUrl?.trim() || 'https://oauth.yandex.ru/authorize';
   const yandexAccessUrl = socialAuthSettings?.yandexAccessUrl?.trim() || 'https://oauth.yandex.ru/token';
 
@@ -418,7 +413,6 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
       authorize_url: yandexAuthorizeUrl,
       access_url: yandexAccessUrl,
       oauth: 2,
-      scope: yandexScope.length ? yandexScope : ['login:email', 'login:info'],
     },
   };
 
@@ -436,7 +430,6 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
       authorize_url: yandexAuthorizeUrl,
       access_url: yandexAccessUrl,
       oauth: 2,
-      scope: yandexScope.length ? yandexScope : ['login:email', 'login:info'],
     },
     async authCallback({ accessToken, purest }: any) {
       const yandex = purest({ provider: 'yandex' });
