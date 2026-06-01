@@ -17,7 +17,7 @@ export function ContentViewTracker({ contentType, documentId }: ContentViewTrack
 
     sentRef.current = true;
 
-    const requestUrl = `/api/views/${contentType}/${encodeURIComponent(documentId)}`;
+    const requestUrl = `/api/editor/views/${contentType}/${encodeURIComponent(documentId)}`;
 
     if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
       const beaconSent = navigator.sendBeacon(requestUrl, new Blob([""], { type: "application/json" }));
