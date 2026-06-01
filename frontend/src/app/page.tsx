@@ -560,7 +560,7 @@ export default async function Home() {
             ) : null}
 
             {hasHomepageSpecialBlock ? (
-              <section className="space-y-6 border border-black/8 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,247,0.98))] p-5 shadow-[0_24px_80px_-40px_rgba(6,78,59,0.38)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,_rgba(52,211,153,0.16),_transparent_32%),linear-gradient(180deg,rgba(8,22,35,0.96),rgba(7,18,29,0.98))] sm:p-6 xl:p-8 max-xl:overflow-x-hidden">
+              <section className="space-y-6 max-xl:overflow-x-hidden">
                 <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
                   <div className="min-w-0 space-y-6">
                     <div className="space-y-4 xl:hidden">
@@ -773,7 +773,7 @@ export default async function Home() {
         </div>
 
         {homepage?.blocks?.length ? (
-          <section className="border border-black/8 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.10),_transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.96),rgba(246,248,247,0.98))] p-5 shadow-[0_24px_80px_-40px_rgba(6,78,59,0.38)] dark:border-white/10 dark:bg-[radial-gradient(circle_at_top_left,_rgba(52,211,153,0.16),_transparent_32%),linear-gradient(180deg,rgba(8,22,35,0.96),rgba(7,18,29,0.98))] sm:p-6 xl:p-8">
+          <section>
             <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
               <div className="min-w-0">
                 <RichContent blocks={homepage.blocks} />
