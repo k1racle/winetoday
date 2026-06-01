@@ -44,6 +44,14 @@ export default {
       },
     },
     {
+      method: 'GET',
+      path: '/editor/views-stats',
+      handler: 'editor.viewsStats',
+      config: {
+        auth: false,
+      },
+    },
+    {
       method: 'POST',
       path: '/editor/views/:type/:documentId',
       handler: 'editor.trackView',

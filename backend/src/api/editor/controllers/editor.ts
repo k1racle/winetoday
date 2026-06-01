@@ -60,6 +60,14 @@ const AUTHOR_STATS_TYPES = {
 
 type AuthorStatsType = keyof typeof AUTHOR_STATS_TYPES;
 
+const VIEWS_STATS_TYPES = {
+  article: AUTHOR_STATS_TYPES.article,
+  news: AUTHOR_STATS_TYPES.news,
+  video: AUTHOR_STATS_TYPES.video,
+} as const;
+
+type ViewsStatsType = keyof typeof VIEWS_STATS_TYPES;
+
 const ALLOWED_BLOCKS = new Set([
   'blocks.html-editor',
   'blocks.embed',
@@ -796,6 +804,38 @@ function serializeAuthorRecord(type: AuthorStatsType, item: Record<string, any>)
   };
 }
 
+function mergeDraftAndPublishedItems(draftItems: Record<string, any>[], publishedItems: Record<string, any>[]) {
+  const merged = new Map<string, Record<string, any>>();
+
+  for (const item of draftItems) {
+    if (typeof item.documentId !== 'string' || !item.documentId.trim()) {
+      continue;
+    }
+
+    merged.set(item.documentId, item);
+  }
+
+  for (const item of publishedItems) {
+    if (typeof item.documentId !== 'string' || !item.documentId.trim()) {
+      continue;
+    }
+
+    const existing = merged.get(item.documentId);
+    if (!existing) {
+      merged.set(item.documentId, item);
+      continue;
+    }
+
+    merged.set(item.documentId, {
+      ...existing,
+      ...item,
+      views: Math.max(Number(existing.views) || 0, Number(item.views) || 0),
+    });
+  }
+
+  return [...merged.values()];
+}
+
 async function resolveAuthorStats(strapi: any, author: Record<string, any>) {
   const recordGroups = await Promise.all(
     (Object.keys(AUTHOR_STATS_TYPES) as AuthorStatsType[]).map(async (type) => {
@@ -818,35 +858,9 @@ async function resolveAuthorStats(strapi: any, author: Record<string, any>) {
         } as any),
       ]);
 
-      const merged = new Map<string, Record<string, any>>();
-
-      for (const item of draftItems as Record<string, any>[]) {
-        if (typeof item.documentId !== 'string' || !item.documentId.trim()) {
-          continue;
-        }
-
-        merged.set(item.documentId, item);
-      }
-
-      for (const item of publishedItems as Record<string, any>[]) {
-        if (typeof item.documentId !== 'string' || !item.documentId.trim()) {
-          continue;
-        }
-
-        const existing = merged.get(item.documentId);
-        if (!existing) {
-          merged.set(item.documentId, item);
-          continue;
-        }
-
-        merged.set(item.documentId, {
-          ...existing,
-          ...item,
-          views: Math.max(Number(existing.views) || 0, Number(item.views) || 0),
-        });
-      }
-
-      return [...merged.values()].map((item: Record<string, any>) => serializeAuthorRecord(type, item));
+      return mergeDraftAndPublishedItems(draftItems as Record<string, any>[], publishedItems as Record<string, any>[]).map((item) =>
+        serializeAuthorRecord(type, item),
+      );
     }),
   );
 
@@ -875,6 +889,64 @@ async function resolveAuthorStats(strapi: any, author: Record<string, any>) {
       slug: author.slug ?? null,
     },
     totals,
+    records,
+  };
+}
+
+async function resolveViewsStats(strapi: any) {
+  const recordGroups = await Promise.all(
+    (Object.keys(VIEWS_STATS_TYPES) as ViewsStatsType[]).map(async (type) => {
+      const [draftItems, publishedItems] = await Promise.all([
+        strapi.documents(VIEWS_STATS_TYPES[type].uid as any).findMany({
+          status: 'draft',
+          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
+          sort: ['updatedAt:desc'],
+          limit: 10000,
+        } as any),
+        strapi.documents(VIEWS_STATS_TYPES[type].uid as any).findMany({
+          status: 'published',
+          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
+          sort: ['updatedAt:desc'],
+          limit: 10000,
+        } as any),
+      ]);
+
+      return mergeDraftAndPublishedItems(draftItems as Record<string, any>[], publishedItems as Record<string, any>[]).map((item) =>
+        serializeAuthorRecord(type, item),
+      );
+    }),
+  );
+
+  const records = recordGroups.flat();
+  const totalsByType = records.reduce<Record<string, { records: number; views: number }>>((accumulator, record) => {
+    const current = accumulator[record.type] ?? { records: 0, views: 0 };
+    accumulator[record.type] = {
+      records: current.records + 1,
+      views: current.views + record.views,
+    };
+
+    return accumulator;
+  }, {});
+  const totals = records.reduce(
+    (accumulator, record) => ({
+      records: accumulator.records + 1,
+      views: accumulator.views + record.views,
+    }),
+    { records: 0, views: 0 },
+  );
+
+  records.sort((left, right) => {
+    if (left.type !== right.type) {
+      return left.typeLabel.localeCompare(right.typeLabel, 'ru');
+    }
+
+    return right.views - left.views || left.title.localeCompare(right.title, 'ru');
+  });
+
+  return {
+    generatedAt: new Date().toISOString(),
+    totals,
+    totalsByType,
     records,
   };
 }
@@ -1292,6 +1364,10 @@ export default factories.createCoreController('api::member-profile.member-profil
     }
 
     ctx.body = await resolveAuthorStats(strapi, author);
+  },
+
+  async viewsStats(ctx: any) {
+    ctx.body = await resolveViewsStats(strapi);
   },
 
   async trackView(ctx: any) {
