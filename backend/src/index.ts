@@ -310,6 +310,48 @@ async function ensureAuthenticatedPermissions(strapi: Core.Strapi) {
   ]);
 }
 
+function registerYandexUsersPermissionsProvider(strapi: Core.Strapi) {
+  const providersRegistry = strapi.plugin('users-permissions').service('providers-registry');
+
+  if (providersRegistry.get('yandex')) {
+    return;
+  }
+
+  const publicServerUrl = strapi.config.get('server.url') as string;
+  const apiPrefix = strapi.config.get('api.rest.prefix') as string;
+  const authBaseUrl = `${publicServerUrl.replace(/\/$/, '')}${apiPrefix}/auth`;
+
+  providersRegistry.add('yandex', {
+    icon: 'yandex',
+    enabled: Boolean(process.env.YANDEX_CLIENT_ID && process.env.YANDEX_CLIENT_SECRET),
+    grantConfig: {
+      key: process.env.YANDEX_CLIENT_ID || '',
+      secret: process.env.YANDEX_CLIENT_SECRET || '',
+      callback: `${authBaseUrl}/yandex/callback`,
+      callbackUrl: `${authBaseUrl}/yandex/callback`,
+      authorize_url: process.env.YANDEX_AUTHORIZE_URL || 'https://oauth.yandex.ru/authorize',
+      access_url: process.env.YANDEX_ACCESS_URL || 'https://oauth.yandex.ru/token',
+      oauth: 2,
+      scope: (process.env.YANDEX_SCOPE || 'login:email login:info').split(/[\s,]+/).filter(Boolean),
+    },
+    async authCallback({ accessToken, purest }: any) {
+      const yandex = purest({ provider: 'yandex' });
+
+      const { body } = await yandex
+        .get('info')
+        .subdomain('login')
+        .auth(accessToken)
+        .qs({ format: 'json' })
+        .request();
+
+      return {
+        username: body.login || body.default_email?.split('@')[0] || `yandex-${body.id}`,
+        email: body.default_email,
+      };
+    },
+  });
+}
+
 async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
   const socialAuthSettings = await strapi.documents('api::social-auth-setting.social-auth-setting' as any).findFirst();
   const pluginStore = strapi.store({ type: 'plugin', name: 'users-permissions' });
@@ -338,8 +380,8 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
     ?.split(/[\s,]+/)
     .map((item: string) => item.trim())
     .filter(Boolean) ?? ['login:email', 'login:info'];
-  const yandexAuthorizeUrl = socialAuthSettings?.yandexAuthorizeUrl?.trim() || 'https://oauth.yandex.com/authorize';
-  const yandexAccessUrl = socialAuthSettings?.yandexAccessUrl?.trim() || 'https://oauth.yandex.com/token';
+  const yandexAuthorizeUrl = socialAuthSettings?.yandexAuthorizeUrl?.trim() || 'https://oauth.yandex.ru/authorize';
+  const yandexAccessUrl = socialAuthSettings?.yandexAccessUrl?.trim() || 'https://oauth.yandex.ru/token';
 
   const nextGrant = {
     ...currentGrant,
@@ -383,37 +425,41 @@ async function ensureUsersPermissionsProviders(strapi: Core.Strapi) {
   await pluginStore.set({ key: 'grant', value: nextGrant });
 
   const providersRegistry = strapi.plugin('users-permissions').service('providers-registry');
+  const yandexProviderConfig = {
+    enabled: Boolean(socialAuthSettings?.yandexEnabled && yandexClientId && yandexClientSecret),
+    icon: 'yandex',
+    grantConfig: {
+      key: yandexClientId,
+      secret: yandexClientSecret,
+      callback: `${authBaseUrl}/yandex/callback`,
+      callbackUrl: `${authBaseUrl}/yandex/callback`,
+      authorize_url: yandexAuthorizeUrl,
+      access_url: yandexAccessUrl,
+      oauth: 2,
+      scope: yandexScope.length ? yandexScope : ['login:email', 'login:info'],
+    },
+    async authCallback({ accessToken, purest }: any) {
+      const yandex = purest({ provider: 'yandex' });
 
-  if (!providersRegistry.get('yandex')) {
-    providersRegistry.add('yandex', {
-      enabled: Boolean(socialAuthSettings?.yandexEnabled && yandexClientId && yandexClientSecret),
-      icon: 'yandex',
-      grantConfig: {
-        key: yandexClientId,
-        secret: yandexClientSecret,
-        callback: `${authBaseUrl}/yandex/callback`,
-        callbackUrl: `${authBaseUrl}/yandex/callback`,
-        authorize_url: yandexAuthorizeUrl,
-        access_url: yandexAccessUrl,
-        oauth: 2,
-        scope: yandexScope.length ? yandexScope : ['login:email', 'login:info'],
-      },
-      async authCallback({ accessToken, purest }: any) {
-        const yandex = purest({ provider: 'yandex' });
+      const { body } = await yandex
+        .get('info')
+        .subdomain('login')
+        .auth(accessToken)
+        .qs({ format: 'json' })
+        .request();
 
-        const { body } = await yandex
-          .get('info')
-          .subdomain('login')
-          .auth(accessToken)
-          .qs({ format: 'json' })
-          .request();
+      return {
+        username: body.login || body.default_email?.split('@')[0] || `yandex-${body.id}`,
+        email: body.default_email,
+      };
+    },
+  };
+  const yandexProvider = providersRegistry.get('yandex');
 
-        return {
-          username: body.login || body.default_email?.split('@')[0] || `yandex-${body.id}`,
-          email: body.default_email,
-        };
-      },
-    });
+  if (yandexProvider) {
+    Object.assign(yandexProvider, yandexProviderConfig);
+  } else {
+    providersRegistry.add('yandex', yandexProviderConfig);
   }
 }
 
@@ -1013,6 +1059,8 @@ function registerCategoryHierarchyValidation(strapi: Core.Strapi) {
 
 export default {
   register({ strapi }: { strapi: Core.Strapi }) {
+    registerYandexUsersPermissionsProvider(strapi);
+
     strapi.customFields.register({
       name: 'color',
       type: 'string',
@@ -1184,8 +1232,8 @@ export default {
       yandexClientId: process.env.YANDEX_CLIENT_ID ?? '',
       yandexClientSecret: process.env.YANDEX_CLIENT_SECRET ?? '',
       yandexScope: 'login:email login:info',
-      yandexAuthorizeUrl: 'https://oauth.yandex.com/authorize',
-      yandexAccessUrl: 'https://oauth.yandex.com/token',
+      yandexAuthorizeUrl: 'https://oauth.yandex.ru/authorize',
+      yandexAccessUrl: 'https://oauth.yandex.ru/token',
     });
 
     await upsertBySlug(strapi, 'api::sidebar.sidebar', 'glavnaya-navigator-redaktsii', {

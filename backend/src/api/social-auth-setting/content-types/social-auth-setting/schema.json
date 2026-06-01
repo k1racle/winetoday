@@ -59,11 +59,11 @@
     },
     "yandexAuthorizeUrl": {
       "type": "string",
-      "default": "https://oauth.yandex.com/authorize"
+      "default": "https://oauth.yandex.ru/authorize"
     },
     "yandexAccessUrl": {
       "type": "string",
-      "default": "https://oauth.yandex.com/token"
+      "default": "https://oauth.yandex.ru/token"
     }
   }
 }
