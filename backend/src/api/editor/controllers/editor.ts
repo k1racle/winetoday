@@ -614,12 +614,18 @@ function normalizeBlocks(blocks: unknown) {
       throw new ValidationError('Галерея и слайдер должны содержать хотя бы одно изображение.');
     }
 
-    return {
+    const normalizedBlock: Record<string, unknown> = {
       __component: component,
       title: typeof value.title === 'string' ? value.title.trim() : null,
       description: typeof value.description === 'string' ? value.description.trim() : null,
       images,
     };
+
+    if (component === 'blocks.image-slider') {
+      normalizedBlock.photoSource = typeof value.photoSource === 'string' ? value.photoSource.trim() : null;
+    }
+
+    return normalizedBlock;
   });
 }
 

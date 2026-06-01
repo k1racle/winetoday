@@ -422,6 +422,9 @@ export function ImageSliderBlock({ block }: { block: ImageSliderBlockData }) {
               ))}
             </div>
           ) : null}
+          {block.photoSource ? (
+            <p className="type-caption text-zinc-500 dark:text-zinc-400">Источник фото: {block.photoSource}</p>
+          ) : null}
         </div>
       </section>
       <Lightbox state={lightbox} onClose={closeLightbox} onNext={showNext} onPrev={showPrev} />

@@ -242,6 +242,7 @@ export type StrapiBlock =
       id: number;
       title?: string | null;
       description?: string | null;
+      photoSource?: string | null;
       images?: StrapiMedia[] | null;
     }
   | {

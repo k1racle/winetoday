@@ -12,6 +12,9 @@
     "description": {
       "type": "text"
     },
+    "photoSource": {
+      "type": "string"
+    },
     "images": {
       "type": "media",
       "multiple": true,

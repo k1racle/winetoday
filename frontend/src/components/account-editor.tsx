@@ -379,6 +379,16 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
             };
           }
 
+          if (block.__component === "blocks.image-slider") {
+            return {
+              __component: "blocks.image-slider" as const,
+              title: block.title ?? "",
+              description: block.description ?? "",
+              photoSource: block.photoSource ?? "",
+              images: Array.isArray(block.images) ? block.images.map((image: any) => image?.id).filter(Boolean) : [],
+            };
+          }
+
             return {
               __component: block.__component,
               title: block.title ?? "",
@@ -1578,11 +1588,17 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           html: typografText(block.html),
         };
       case "blocks.image-gallery":
+        return {
+          ...block,
+          title: typeof block.title === "string" ? typografText(block.title) : block.title,
+          description: typeof block.description === "string" ? typografText(block.description) : block.description,
+        };
       case "blocks.image-slider":
         return {
           ...block,
           title: typeof block.title === "string" ? typografText(block.title) : block.title,
           description: typeof block.description === "string" ? typografText(block.description) : block.description,
+          photoSource: typeof block.photoSource === "string" ? typografText(block.photoSource) : block.photoSource,
         };
       case "blocks.image-highlight":
         return {
@@ -1621,6 +1637,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       nextBlock = { ...EMPTY_EMBED_BLOCK };
     } else if (type === "blocks.image-highlight") {
       nextBlock = { __component: type, caption: "", credit: "", image: null };
+    } else if (type === "blocks.image-slider") {
+      nextBlock = { __component: type, title: "", description: "", photoSource: "", images: [] };
     } else {
       nextBlock = { __component: type, title: "", description: "", images: [] };
     }
@@ -2663,6 +2681,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                     <div className="space-y-4">
                       <input value={block.title ?? ""} onChange={(event) => updateBlock(index, { ...block, title: event.target.value })} className={inputClassName} placeholder="Заголовок блока" />
                       <textarea value={block.description ?? ""} onChange={(event) => updateBlock(index, { ...block, description: event.target.value })} rows={3} className={inputClassName} placeholder="Описание блока" />
+                      {block.__component === "blocks.image-slider" ? (
+                        <input value={block.photoSource ?? ""} onChange={(event) => updateBlock(index, { ...block, photoSource: event.target.value })} className={inputClassName} placeholder="Источник фото" />
+                      ) : null}
                       <input type="file" accept="image/*" multiple onChange={(event) => void handleBlockFiles(index, event)} className={fileInputClassName} />
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <p className="text-xs text-zinc-500 dark:text-zinc-400">Загружено изображений: {block.images.length}</p>

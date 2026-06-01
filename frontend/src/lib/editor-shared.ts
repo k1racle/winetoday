@@ -38,6 +38,7 @@ export type EditorSliderBlock = {
   id?: number;
   title?: string | null;
   description?: string | null;
+  photoSource?: string | null;
   images: number[];
 };
 
