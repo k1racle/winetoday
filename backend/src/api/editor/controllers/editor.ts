@@ -1474,45 +1474,26 @@ export default factories.createCoreController('api::member-profile.member-profil
       throw new ValidationError('Некорректный запрос счётчика просмотров.');
     }
 
-    const [draftDocument, publishedDocument] = await Promise.all([
-      strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).findFirst({
-        filters: { documentId },
-        status: 'draft',
-        fields: ['documentId', 'views'],
-      } as any),
-      strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).findFirst({
-        filters: { documentId },
-        status: 'published',
-        fields: ['documentId', 'views'],
-      } as any),
-    ]);
+    const uid = AUTHOR_STATS_TYPES[rawType].uid;
+    const documents = await strapi.db.query(uid as any).findMany({
+      where: { documentId },
+      select: ['id', 'documentId', 'views'],
+    } as any);
 
-    const current = draftDocument ?? publishedDocument;
-
-    if (!current) {
+    if (!documents.length) {
       throw new NotFoundError('Материал для счётчика просмотров не найден.');
     }
 
-    const nextViews = Math.max(Number(draftDocument?.views) || 0, Number(publishedDocument?.views) || 0, Number(current.views) || 0) + 1;
+    const nextViews = Math.max(...documents.map((item: Record<string, any>) => Number(item.views) || 0)) + 1;
 
-    const updateTasks = [
-      draftDocument
-        ? strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).update({
-            documentId,
-            status: 'draft',
-            data: { views: nextViews },
-          } as any)
-        : Promise.resolve(null),
-      publishedDocument
-        ? strapi.documents(AUTHOR_STATS_TYPES[rawType].uid as any).update({
-            documentId,
-            status: 'published',
-            data: { views: nextViews },
-          } as any)
-        : Promise.resolve(null),
-    ];
-
-    const updateResults = await Promise.allSettled(updateTasks);
+    const updateResults = await Promise.allSettled(
+      documents.map((item: Record<string, any>) =>
+        strapi.db.query(uid as any).update({
+          where: { id: item.id },
+          data: { views: nextViews },
+        } as any),
+      ),
+    );
 
     if (updateResults.every((result) => result.status === 'rejected')) {
       throw updateResults[0]?.status === 'rejected'
