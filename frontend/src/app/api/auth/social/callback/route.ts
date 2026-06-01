@@ -32,8 +32,10 @@ async function ensureMemberProfile(jwt: string) {
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const jwt = url.searchParams.get("access_token")?.trim();
-  const provider = url.searchParams.get("provider")?.trim();
+  const providerParam = url.searchParams.get("provider")?.trim();
+  const providerParts = providerParam?.split("?access_token=") ?? [];
+  const provider = providerParts[0]?.trim();
+  const jwt = (url.searchParams.get("access_token") ?? providerParts[1])?.trim();
 
   if (!jwt) {
     return Response.redirect(new URL(`/auth-error?reason=missing-token${provider ? `&provider=${encodeURIComponent(provider)}` : ""}`, SITE_URL));
