@@ -152,17 +152,17 @@ function normalizeEditorInfographicCards(cards: any, expectedCount: number): Edi
   return normalized;
 }
 
-function createInitialState(type: EditorContentType): FormState {
+function createInitialState(type: EditorContentType, defaults: { author?: number | null } = {}): FormState {
   return {
     documentId: null,
     type,
     title: "",
     slug: "",
     excerpt: "",
-    materialLabel: "none",
+    materialLabel: type === "video" ? "video" : "none",
     cover: null,
     coverSource: "",
-    author: null,
+    author: defaults.author ?? null,
     categories: [],
     tags: [],
     homepageSpecialBlock: false,
@@ -1195,6 +1195,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
   const allowedTypes = useMemo(() => sortEditorTypes(session?.capabilities.canCreate ?? []), [session]);
   const canEditAll = session?.capabilities.canEditAll === true;
+  const currentAccountAuthorId = session?.user?.memberProfile?.author?.id ?? null;
   const materialPublicPath = publicPath(selectedType, form.slug);
   const materialPreviewPath = previewPath(selectedType, form.slug);
   const requestedType = useMemo(() => {
@@ -1366,8 +1367,11 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
         const orderedCreatableTypes = sortEditorTypes(creatableTypes);
         const initialType = orderedCreatableTypes[0] ?? "article";
+        const initialAuthorId = sessionPayload.capabilities.canEditAll
+          ? sessionPayload.user?.memberProfile?.author?.id ?? null
+          : null;
         setSelectedType(initialType);
-        setForm(createInitialState(initialType));
+        setForm(createInitialState(initialType, { author: initialAuthorId }));
 
         const loadedEntries = await Promise.all(
           orderedCreatableTypes.map(async (type) => {
@@ -1445,6 +1449,10 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
   function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function createBlankForm(type: EditorContentType, authorId = currentAccountAuthorId) {
+    return createInitialState(type, { author: canEditAll ? authorId : null });
   }
 
   function toggleMultiSelectItem(key: "categories" | "tags", id: number) {
@@ -2080,7 +2088,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       }
 
       await refreshType(selectedType);
-      setForm(createInitialState(selectedType));
+      setForm(createBlankForm(selectedType));
       setSuccess("Материал удалён.");
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : "Не удалось удалить материал.");
@@ -2121,7 +2129,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   setSelectedType(type);
                   setItemsQuery("");
                   setItemsPage(1);
-                  setForm(createInitialState(type));
+                  setForm(createBlankForm(type));
                   setError(null);
                   setSuccess(null);
                 }}
@@ -2137,7 +2145,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           <button
             type="button"
             onClick={() => {
-              setForm(createInitialState(selectedType));
+              setForm(createBlankForm(selectedType));
               setError(null);
               setSuccess(null);
             }}

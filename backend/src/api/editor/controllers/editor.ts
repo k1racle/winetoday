@@ -540,6 +540,8 @@ async function resolveAccess(strapi: any, user: any) {
     throw new ForbiddenError('Доступ к редактору материалов закрыт.');
   }
 
+  await ensureAuthorEntryForProfile(strapi, profile);
+
   return {
     profile,
     isEditor,
