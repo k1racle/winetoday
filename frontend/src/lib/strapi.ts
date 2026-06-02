@@ -395,6 +395,7 @@ export type SidebarArchiveItem = {
   href: string;
   meta?: string | null;
   description?: string | null;
+  materialLabel?: string | null;
   imageUrl?: string | null;
   imageAlt?: string | null;
 };
@@ -604,6 +605,7 @@ export type GallerySummary = {
   title: string;
   slug: string;
   excerpt?: string | null;
+  materialLabel?: string | null;
   cover?: StrapiMedia | null;
   photos?: StrapiMedia[] | null;
   publishedAt?: string | null;
@@ -920,6 +922,7 @@ async function resolveSidebarArchiveBlock(block: SidebarArchiveBlock): Promise<S
           href: `/articles/${item.slug}`,
           meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
           description: item.excerpt,
+          materialLabel: item.materialLabel?.trim() || null,
           imageUrl: item.cover?.url ?? null,
           imageAlt: item.cover?.alternativeText ?? item.title,
         }),
@@ -935,6 +938,7 @@ async function resolveSidebarArchiveBlock(block: SidebarArchiveBlock): Promise<S
           href: `/news/${item.slug}`,
           meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
           description: item.excerpt,
+          materialLabel: item.materialLabel?.trim() || null,
           imageUrl: item.cover?.url ?? null,
           imageAlt: item.cover?.alternativeText ?? item.title,
         }),
@@ -950,6 +954,7 @@ async function resolveSidebarArchiveBlock(block: SidebarArchiveBlock): Promise<S
           href: `/gallery/${item.slug}`,
           meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
           description: item.excerpt,
+          materialLabel: item.materialLabel?.trim() || null,
           imageUrl: item.cover?.url ?? null,
           imageAlt: item.cover?.alternativeText ?? item.title,
         }),
@@ -965,6 +970,7 @@ async function resolveSidebarArchiveBlock(block: SidebarArchiveBlock): Promise<S
           href: `/videos/${item.slug}`,
           meta: formatSidebarDate(item.publishedAtCustom ?? item.publishedAt),
           description: item.excerpt,
+          materialLabel: item.materialLabel?.trim() || null,
           imageUrl: item.cover?.url ?? null,
           imageAlt: item.cover?.alternativeText ?? item.title,
         }),

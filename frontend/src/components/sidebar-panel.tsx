@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AuthWidget } from "@/components/auth-widget";
+import { SidebarItemTitle } from "@/components/sidebar-item-title";
 import { TagCloud } from "@/components/tag-cloud";
 import type { SidebarEntry } from "@/lib/strapi";
 import type { SidebarArchiveBlock } from "@/lib/strapi";
@@ -162,7 +163,20 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                                     {item.meta}
                                   </span>
                                 ) : null}
-                                <span className={`min-w-0 flex-1 ${wordWrapClassName}`}>{item.label}</span>
+                                <SidebarItemTitle
+                                  title={item.label}
+                                  materialLabel={item.materialLabel}
+                                  className={`min-w-0 flex-1 ${wordWrapClassName}`}
+                                  badgeClassName={
+                                    item.materialLabel?.trim().toLowerCase() === "video"
+                                      ? "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-[#1e2f23] uppercase"
+                                      : "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-white uppercase"
+                                  }
+                                  badgeBackgroundClassName={
+                                    item.materialLabel?.trim().toLowerCase() === "video" ? "bg-[#cfe95b]" : "bg-[#b00000]"
+                                  }
+                                  gapPx={8}
+                                />
                               </div>
                             </Link>
                           ))}
@@ -182,7 +196,20 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
                               {item.meta}
                             </span>
                           ) : null}
-                          <span className={`min-w-0 flex-1 ${wordWrapClassName}`}>{item.label}</span>
+                          <SidebarItemTitle
+                            title={item.label}
+                            materialLabel={item.materialLabel}
+                            className={`min-w-0 flex-1 ${wordWrapClassName}`}
+                            badgeClassName={
+                              item.materialLabel?.trim().toLowerCase() === "video"
+                                ? "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-[#1e2f23] uppercase"
+                                : "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-white uppercase"
+                            }
+                            badgeBackgroundClassName={
+                              item.materialLabel?.trim().toLowerCase() === "video" ? "bg-[#cfe95b]" : "bg-[#b00000]"
+                            }
+                            gapPx={8}
+                          />
                         </div>
                       </Link>
                     ))
