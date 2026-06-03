@@ -8,7 +8,6 @@ import Script from "next/script";
 
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { AuthWidget } from "@/components/auth-widget";
-import { FirstVisitNotice } from "@/components/first-visit-notice";
 import { MobileWidgetsProvider } from "@/components/mobile-widgets-provider";
 import { PreviewBanner } from "@/components/preview-banner";
 import { SocialLinks } from "@/components/social-links";
@@ -280,7 +279,6 @@ export default async function RootLayout({
     >
       <body className="min-h-full bg-background font-sans text-foreground">
         <MobileWidgetsProvider>
-          <FirstVisitNotice />
           <Script id="yandex-metrika" strategy="afterInteractive">
             {yandexMetrikaInitScript}
           </Script>
