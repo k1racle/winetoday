@@ -316,6 +316,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
   const canSubmit = canComment && bodyLength > 0 && bodyLength <= maxLength && submitState !== "submitting";
   const replyTarget = useMemo(() => comments.find((comment) => comment.id === replyingToId) ?? null, [comments, replyingToId]);
   const commentThreads = useMemo(() => buildCommentThreads(comments), [comments]);
+  const commentsCount = comments.length;
 
   const helperText = useMemo(() => {
     if (bodyLength > maxLength) {
@@ -475,14 +476,15 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
               <path d="M7.5 21H4.8a1.6 1.6 0 0 1-1.6-1.6v-7.1a1.6 1.6 0 0 1 1.6-1.6h2.7V21Z" fill={reactions.liked ? "currentColor" : "none"} />
               <path d="M7.5 10.7 11.2 3a2.2 2.2 0 0 1 2.2 2.6l-.6 3h5.3a2.2 2.2 0 0 1 2.1 2.8l-1.7 6.2A3.2 3.2 0 0 1 15.4 20H7.5" />
             </svg>
-            <span>{loadingReactions ? "..." : reactions.count}</span>
+            {!loadingReactions && reactions.count > 0 ? <span>{reactions.count}</span> : null}
           </button>
 
-          <button type="button" className="inline-flex items-center transition-colors hover:text-emerald-800 dark:hover:text-emerald-300" aria-label="Комментарии" onClick={scrollToComments}>
+          <button type="button" className="inline-flex items-center gap-2 transition-colors hover:text-emerald-800 dark:hover:text-emerald-300" aria-label="Комментарии" onClick={scrollToComments}>
             <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M5 5.5h14a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2H9.2L4 21v-3.7H5a2 2 0 0 1-2-2V7.5a2 2 0 0 1 2-2Z" />
               <path d="M8 10h8M8 13.5h5" />
             </svg>
+            {commentsCount > 0 ? <span>{commentsCount}</span> : null}
           </button>
         </div>
 
@@ -553,10 +555,10 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
 
       <div id="community-comments" className="scroll-mt-24 space-y-4">
         <div className="space-y-1">
-          <h3 className="type-h4">Оставить комментарий</h3>
+          <h3 className="type-h4">Комментарии</h3>
         </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-3" onSubmit={handleSubmit}>
           {replyTarget ? (
             <div className="flex items-center justify-between gap-3 border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:text-emerald-100">
               <span>Ответ на {resolveCommentAuthor(replyTarget)}</span>
@@ -565,26 +567,27 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
               </button>
             </div>
           ) : null}
-          <label className="block space-y-2">
+          <label className="relative block">
             <textarea
               value={body}
               onChange={(event) => setBody(event.target.value)}
               rows={5}
-              className="w-full border border-black/10 bg-white px-4 py-3 outline-none transition-colors focus:border-emerald-700 dark:border-white/10 dark:bg-[#08110b] dark:focus:border-emerald-400"
+              className="w-full resize-none border border-black/10 bg-white px-4 py-3 pb-14 outline-none transition-colors focus:border-emerald-700 dark:border-white/10 dark:bg-[#08110b] dark:focus:border-emerald-400"
               placeholder="Поделитесь мнением о материале"
               disabled={submitState === "submitting"}
             />
-          </label>
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className={`type-caption ${bodyLength > maxLength ? "text-red-600 dark:text-red-400" : "text-zinc-500 dark:text-zinc-400"}`}>{helperText}</p>
             <button
               type="submit"
               disabled={bodyLength === 0 || bodyLength > maxLength || submitState === "submitting"}
-              className="type-button inline-flex items-center justify-center border border-emerald-800 bg-emerald-800 px-5 py-2.5 text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-600 dark:bg-emerald-600 dark:text-[#08110b] dark:hover:bg-emerald-500"
+              className="absolute bottom-3 right-3 inline-flex h-10 w-10 items-center justify-center rounded-md border border-emerald-800 bg-emerald-800 text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-600 dark:bg-emerald-600 dark:text-[#08110b] dark:hover:bg-emerald-500"
+              aria-label={submitState === "submitting" ? "Отправка комментария" : "Отправить комментарий"}
             >
-              {submitState === "submitting" ? "Отправка..." : "Отправить комментарий"}
+              <Image src="/comment-send.svg" alt="" width={22} height={22} className="h-5 w-5 brightness-0 invert dark:invert-0" aria-hidden="true" />
             </button>
+          </label>
+
+          <div className="flex items-center justify-between gap-3">
+            <p className={`type-caption ${bodyLength > maxLength ? "text-red-600 dark:text-red-400" : "text-zinc-500 dark:text-zinc-400"}`}>{helperText}</p>
           </div>
         </form>
 
@@ -592,12 +595,6 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
       </div>
 
       <div className="space-y-4">
-        {comments.length ? (
-          <div className="flex items-center justify-end gap-4">
-            <span className="type-caption text-zinc-500 dark:text-zinc-400">{comments.length}</span>
-          </div>
-        ) : null}
-
         {loadingComments ? (
           <p className="type-small text-zinc-500 dark:text-zinc-400">Загружаем комментарии...</p>
         ) : commentThreads.length ? (

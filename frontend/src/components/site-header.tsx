@@ -251,7 +251,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
   return (
     <header className={containerClass}>
       <div className="border-b border-black/10 bg-white dark:border-white/10 dark:bg-[#081623]">
-        <div className="px-4 sm:px-8 lg:px-12">
+        <div className="px-8 sm:px-8 lg:px-12">
           <div className="mx-auto max-w-[1440px]">
             {/* Desktop top row */}
             <div className="hidden h-20 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:grid">
@@ -309,7 +309,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
 
             {/* Mobile/tablet row */}
             <div className="grid h-16 grid-cols-[auto_1fr_44px] items-center gap-3 xl:hidden">
-              <Link href="/" className="min-w-0 justify-self-start px-2">
+              <Link href="/" className="min-w-0 justify-self-start">
                 {logo?.url ? (
                   <Image
                     src={logo.url}
