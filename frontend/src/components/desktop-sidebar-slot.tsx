@@ -5,5 +5,5 @@ type DesktopSidebarSlotProps = {
 };
 
 export function DesktopSidebarSlot({ children }: DesktopSidebarSlotProps) {
-  return <div className="hidden w-[320px] shrink-0 xl:col-start-2 xl:block"><div className="sticky top-[var(--site-header-offset-with-gap,7rem)] max-h-[calc(100vh-var(--site-header-offset-with-gap,7rem)-1rem)] overflow-y-auto">{children}</div></div>;
+  return <div className="hidden w-[320px] shrink-0 xl:col-start-2 xl:block"><div className="sticky top-[var(--site-header-offset-with-gap,7rem)]">{children}</div></div>;
 }
