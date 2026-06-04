@@ -1265,11 +1265,7 @@ function getPreferredSeoImage(asset?: StrapiMedia | null) {
     return undefined;
   }
 
-  return asset.formats?.medium
-    ?? asset.formats?.large
-    ?? asset.formats?.small
-    ?? asset.formats?.thumbnail
-    ?? asset;
+  return asset;
 }
 
 function normalizeHomepageInfographicCards(cards?: HomepageEntry["infographicCards"] | null) {
