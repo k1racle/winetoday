@@ -536,6 +536,7 @@ export type ArticleSummary = {
   pinned?: boolean | null;
   homepageLead?: boolean | null;
   homepageSpecialBlock?: boolean | null;
+  preview?: boolean | null;
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
   cover?: StrapiMedia | null;
@@ -562,6 +563,7 @@ export type NewsSummary = {
   pinned?: boolean | null;
   homepageLead?: boolean | null;
   homepageSpecialBlock?: boolean | null;
+  preview?: boolean | null;
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
   cover?: StrapiMedia | null;
@@ -593,6 +595,7 @@ export type VideoSummary = {
   pinned?: boolean | null;
   homepageLead?: boolean | null;
   homepageSpecialBlock?: boolean | null;
+  preview?: boolean | null;
   author?: AuthorSummary | null;
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
@@ -612,6 +615,7 @@ export type GallerySummary = {
   cover?: StrapiMedia | null;
   archiveCover?: StrapiMedia | null;
   photos?: StrapiMedia[] | null;
+  preview?: boolean | null;
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
   author?: AuthorSummary | null;
