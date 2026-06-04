@@ -446,14 +446,14 @@ async function refreshMediaAssets() {
   return mediaPayload;
 }
 
-async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidth: number, blockHeight: number) {
-  console.info("[watermark] sending request", { assetId, blockKind, blockWidth, blockHeight });
+async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidth: number, blockHeight: number, options?: { createAsset?: boolean }) {
+  console.info("[watermark] sending request", { assetId, blockKind, blockWidth, blockHeight, createAsset: options?.createAsset });
   const response = await fetch(`/api/editor/watermark/${assetId}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ blockKind, blockWidth, blockHeight }),
+    body: JSON.stringify({ blockKind, blockWidth, blockHeight, createAsset: options?.createAsset }),
   });
 
   const responsePayload = await parseJson<EditorApiError | { ok?: boolean; assetId?: number; asset?: UploadedAsset }>(response);
@@ -1701,7 +1701,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
     try {
       if (enabled) {
-        const watermarkedAsset = await applyWatermarkAsset(assetId, "archive-cover", 720, 448);
+        await applyWatermarkAsset(assetId, "cover", 0, 0, { createAsset: false });
+        const watermarkedAsset = await applyWatermarkAsset(assetId, "archive-cover", 720, 448, { createAsset: true });
         const mediaPayload = await refreshMediaAssets();
         if (mediaPayload) {
           setMediaAssets(mediaPayload);
@@ -2546,16 +2547,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                     checked={coverWatermarkEnabled}
                     onChange={(event) => void toggleCoverWatermark(event.target.checked)}
                   />
-                  <span>Создать отдельную обложку карточки с водяным знаком</span>
+                  <span>Добавить водяной знак</span>
                 </label>
-                <MediaSummaryCard
-                  asset={archiveCoverAsset}
-                  accept="image"
-                  emptyLabel="Отдельная обложка карточки не выбрана"
-                  onOpen={openArchiveCoverMediaPanel}
-                  onClear={() => updateForm("archiveCover", null)}
-                  openLabel="Выбрать обложку карточки"
-                />
               </div>
             </Field>
           </div>
