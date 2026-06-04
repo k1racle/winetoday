@@ -28,7 +28,7 @@ async function applyWatermark(job) {
   const height = meta.height || 0;
   const blockWidth = Number(job.blockWidth) > 0 ? Number(job.blockWidth) : 0;
   const blockHeight = Number(job.blockHeight) > 0 ? Number(job.blockHeight) : 0;
-  const hasBlockFrame = blockWidth > 0 && blockHeight > 0 && width > 0 && height > 0;
+  const hasBlockFrame = job.blockKind === 'archive-cover' && blockWidth > 0 && blockHeight > 0 && width > 0 && height > 0;
   const frameMatchesImageRatio = job.blockKind === 'archive-cover' && hasBlockFrame && Math.abs((blockWidth / blockHeight) - (width / height)) < 0.02;
   const coverScale = hasBlockFrame ? (frameMatchesImageRatio ? blockWidth / width : Math.max(blockWidth / width, blockHeight / height)) : 1;
   const referenceWidth = hasBlockFrame ? Math.min(width, Math.round(blockWidth / coverScale)) : width;
