@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -12,13 +14,25 @@ import { RelatedTags } from "@/components/related-tags";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { VideoEmbedPreview } from "@/components/video-embed-preview";
 import { ContentViewTracker } from "@/components/content-view-tracker";
-import { buildSeoMetadata, formatRussianDateTime, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, getVideoBySlug, withLoggedFallback } from "@/lib/strapi";
+import { buildSeoMetadata, formatRussianDateTime, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, getVideoBySlug, getVideos, type VideoSummary, withLoggedFallback } from "@/lib/strapi";
 
 export const revalidate = 300;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
 };
+
+function getPublishedTimestamp(item: Pick<VideoSummary, "publishedAtCustom" | "publishedAt">) {
+  const publishedValue = item.publishedAtCustom ?? item.publishedAt;
+
+  if (!publishedValue) {
+    return Number.NEGATIVE_INFINITY;
+  }
+
+  const timestamp = new Date(publishedValue).getTime();
+
+  return Number.isNaN(timestamp) ? Number.NEGATIVE_INFINITY : timestamp;
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -43,7 +57,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function VideoDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  const [video, sidebar, tagCloud] = await Promise.all([
+  const [video, sidebar, tagCloud, videos] = await Promise.all([
     getVideoBySlug(slug),
     withLoggedFallback(
       `video sidebar for ${slug}`,
@@ -51,6 +65,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
       await withLoggedFallback("video fallback sidebar", () => getSidebarForPath("/videos"), null),
     ),
     withLoggedFallback("video tag cloud", () => getTagCloud(), []),
+    withLoggedFallback("video related items", () => getVideos(), []),
   ]);
 
   if (!video) {
@@ -64,6 +79,36 @@ export default async function VideoDetailPage({ params }: PageProps) {
         .map((tag) => ({ slug: tag.slug, name: tag.name }));
   const primaryCategory = getPrimaryCategory(video.categories);
   const headerDate = formatRussianDateTime(video.publishedAtCustom ?? video.publishedAt) ?? "Без даты";
+  const currentCategorySlugs = new Set(
+    (video.categories ?? [])
+      .map((category) => category?.slug?.trim())
+      .filter((categorySlug): categorySlug is string => Boolean(categorySlug)),
+  );
+  const relatedVideos = videos
+    .filter((videoItem) => videoItem.slug !== video.slug)
+    .map((videoItem) => {
+      const matchingCategories = (videoItem.categories ?? []).reduce((count, category) => {
+        const categorySlug = category?.slug?.trim();
+
+        if (!categorySlug || !currentCategorySlugs.has(categorySlug)) {
+          return count;
+        }
+
+        return count + 1;
+      }, 0);
+
+      return {
+        ...videoItem,
+        matchingCategories,
+        publishedTimestamp: getPublishedTimestamp(videoItem),
+      };
+    })
+    .sort(
+      (left, right) =>
+        right.matchingCategories - left.matchingCategories ||
+        right.publishedTimestamp - left.publishedTimestamp,
+    )
+    .slice(0, 3);
 
   return (
     <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
@@ -99,6 +144,44 @@ export default async function VideoDetailPage({ params }: PageProps) {
               targetSlug={video.slug}
               title={video.title}
               sharePath={`/videos/${video.slug}`}
+              afterShareContent={
+                relatedVideos.length ? (
+                  <section className="space-y-4">
+                    <h3 className="text-[18px] font-semibold text-foreground dark:text-white">
+                      Смотреть также
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                      {relatedVideos.map((relatedItem) => (
+                        <article
+                          key={relatedItem.documentId}
+                          className="flex h-full flex-col overflow-hidden border border-black/10 bg-white shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-white/[0.04]"
+                        >
+                          <div className="relative aspect-[16/10] w-full overflow-hidden bg-black">
+                            <Link href={`/videos/${relatedItem.slug}`} aria-label={relatedItem.title} className="block h-full">
+                              {relatedItem.cover?.url ? (
+                                <Image
+                                  src={relatedItem.cover.url}
+                                  alt={relatedItem.cover.alternativeText ?? relatedItem.title}
+                                  fill
+                                  sizes="(min-width: 1280px) 240px, (min-width: 768px) 50vw, 100vw"
+                                  className="object-cover"
+                                />
+                              ) : null}
+                            </Link>
+                          </div>
+                          <div className="p-4">
+                            <p className="type-body-sm text-[#0d3132] dark:text-white">
+                              <Link href={`/videos/${relatedItem.slug}`} className="transition hover:text-emerald-700 dark:hover:text-emerald-200">
+                                {relatedItem.title}
+                              </Link>
+                            </p>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                ) : null
+              }
             />
           </footer>
           <div className="xl:hidden">

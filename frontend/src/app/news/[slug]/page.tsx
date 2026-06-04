@@ -145,7 +145,7 @@ export default async function NewsDetailPage({ params }: PageProps) {
               afterShareContent={
                 relatedNews.length ? (
                   <section className="space-y-4">
-                    <h3 className="font-menu text-[13px] font-normal uppercase tracking-[0.22em] text-foreground dark:text-white">
+                    <h3 className="text-[18px] font-semibold text-foreground dark:text-white">
                       Читайте также
                     </h3>
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
