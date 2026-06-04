@@ -59,7 +59,7 @@ type FormState = {
   categories: number[];
   tags: number[];
   homepageSpecialBlock: boolean;
-  status: "draft" | "preview" | "published";
+  status: "draft" | "published";
   publishedAtCustom: string;
   readingTime: string;
   sources: SourceItem[];
@@ -307,7 +307,7 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
     categories: Array.isArray(entry.categories) ? entry.categories.map((item: any) => item?.id).filter(Boolean) : [],
     tags: Array.isArray(entry.tags) ? entry.tags.map((item: any) => item?.id).filter(Boolean) : [],
     homepageSpecialBlock: entry.homepageSpecialBlock === true,
-    status: entry.editorStatus === "published" || entry.publishedAt ? "published" : entry.editorStatus === "preview" ? "preview" : "draft",
+    status: entry.editorStatus === "published" || entry.publishedAt ? "published" : "draft",
     publishedAtCustom: toDateTimeLocalValue(typeof entry.publishedAtCustom === "string" ? entry.publishedAtCustom : null),
     readingTime: entry.readingTime ? String(entry.readingTime) : state.readingTime,
     sources: normalizedSources.length
@@ -1543,10 +1543,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       return null;
     }
 
-    if (form.status === "preview") {
-      return publicUrl;
-    }
-
     const query = new URLSearchParams({
       type,
       slug: slug.trim(),
@@ -2263,11 +2259,11 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               ? "Здесь показывается единственная системная запись homepage с настройками инфографики. Новые записи не создаются, удаление недоступно."
               : "Полноценное редактирование контента с блоками и rich text в одном рабочем интерфейсе."}
           </p>
-          {selectedType !== "homepage" && (form.status === "draft" || form.status === "preview") ? (
+          {selectedType !== "homepage" && form.status === "draft" ? (
             <div className="space-y-3 rounded-none border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-100">
               <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
-                  <div className="font-medium">Ссылка для предпросмотра {form.status === "preview" ? "материала" : "черновика"}</div>
+                  <div className="font-medium">Ссылка для предпросмотра черновика</div>
                   {previewAbsoluteUrl(selectedType, form.slug) ? (
                     <a
                       href={previewAbsoluteUrl(selectedType, form.slug) ?? undefined}
@@ -2302,7 +2298,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
             </div>
           ) : null}
           <div className="flex flex-wrap gap-3">
-            {(form.status === "draft" || form.status === "preview") && materialPreviewPath ? (
+            {form.status === "draft" && materialPreviewPath ? (
               <Link href={materialPreviewPath} target="_blank" className="inline-flex w-fit items-center justify-center gap-2 border border-amber-600 px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-50 hover:text-amber-900 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-500/10 dark:hover:text-amber-300">
                 Открыть предпросмотр
               </Link>
@@ -2492,7 +2488,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               <Field label="Статус">
                 <select value={form.status} onChange={(event) => updateForm("status", event.target.value as FormState["status"])} className={inputClassName}>
                   <option value="draft">Черновик</option>
-                  <option value="preview">Предпросмотр</option>
                   <option value="published">Опубликовать</option>
               </select>
             </Field>

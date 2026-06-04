@@ -1,8 +1,6 @@
 import { draftMode } from "next/headers";
 import { NextResponse } from "next/server";
 
-import { getAuthToken } from "@/lib/auth";
-
 const PREVIEW_SECRET = process.env.PREVIEW_SECRET;
 const PREVIEW_PATH_COOKIE = "nvt-preview-path";
 
@@ -59,10 +57,9 @@ export async function GET(request: Request) {
         ? buildPreviewPath(type, slug)
         : null;
 
-  const hasValidSecret = Boolean(PREVIEW_SECRET && secret === PREVIEW_SECRET);
-  const hasEditorSession = Boolean(await getAuthToken());
+  const hasInvalidSecret = Boolean(secret) && (!PREVIEW_SECRET || secret !== PREVIEW_SECRET);
 
-  if (!previewPath || (!hasValidSecret && !hasEditorSession)) {
+  if (!previewPath || hasInvalidSecret) {
     return new Response("Недопустимый запрос предпросмотра", { status: 401 });
   }
 
