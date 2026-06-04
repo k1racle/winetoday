@@ -747,8 +747,7 @@ function isPublishedItemVisible<T extends PublishedSortable>(item: T, now = Date
 }
 
 function isArchiveItemVisible<T extends PublishedSortable>(item: T) {
-  const publishedAt = item.publishedAtCustom ?? item.publishedAt ?? null;
-  return typeof publishedAt === "string" && publishedAt.length > 0 && !Number.isNaN(new Date(publishedAt).getTime());
+  return isPublishedItemVisible(item);
 }
 
 function filterVisiblePublishedItems<T extends PublishedSortable>(items: T[], now = Date.now()) {
@@ -2552,7 +2551,7 @@ export const getTagPageBySlug = cache(async function getTagPageBySlug(slug: stri
     return null;
   }
 
-  const items: TagPageData["items"] = sortPublishedItems([
+  const items: TagPageData["items"] = sortPublishedItems(filterVisiblePublishedItems([
     ...(tag.articles ?? []).map((item) => ({
       kind: "article" as const,
       documentId: item.documentId,
@@ -2600,7 +2599,7 @@ export const getTagPageBySlug = cache(async function getTagPageBySlug(slug: stri
       publishedAtCustom: item.publishedAtCustom,
       categories: normalizeCategorySummaryList(item.categories),
     })),
-  ]);
+  ]));
 
   return {
     name: tag.name,
@@ -2622,7 +2621,7 @@ export const getCategoryPageBySlug = cache(async function getCategoryPageBySlug(
     return null;
   }
 
-  const items: CategoryPageData["items"] = sortPublishedItems([
+  const items: CategoryPageData["items"] = sortPublishedItems(filterVisiblePublishedItems([
     ...(category.articles ?? []).map((item) => ({
       kind: "article" as const,
       documentId: item.documentId,
@@ -2685,7 +2684,7 @@ export const getCategoryPageBySlug = cache(async function getCategoryPageBySlug(
       publishedAtCustom: item.publishedAtCustom,
       categories: normalizeCategorySummaryList(item.categories),
     })),
-  ]);
+  ]));
 
   return {
     name: category.name,
