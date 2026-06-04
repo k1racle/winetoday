@@ -2265,7 +2265,7 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
     coverSource: typeof article.coverSource === "string" && article.coverSource.trim() ? article.coverSource.trim() : null,
   });
 
-  if (!status && !isPublishedItemVisible(resolvedArticle)) {
+  if (!status && !isPublishedItemVisible(resolvedArticle) && article.preview !== true) {
     return null;
   }
 
@@ -2374,7 +2374,7 @@ export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
     coverSource: typeof item.coverSource === "string" && item.coverSource.trim() ? item.coverSource.trim() : null,
   });
 
-  if (!status && !isPublishedItemVisible(resolvedNews)) {
+  if (!status && !isPublishedItemVisible(resolvedNews) && item.preview !== true) {
     return null;
   }
 
@@ -2435,7 +2435,7 @@ export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) 
     coverSource: typeof video.coverSource === "string" && video.coverSource.trim() ? video.coverSource.trim() : null,
   });
 
-  if (!status && !isPublishedItemVisible(resolvedVideo)) {
+  if (!status && !isPublishedItemVisible(resolvedVideo) && video.preview !== true) {
     return null;
   }
 

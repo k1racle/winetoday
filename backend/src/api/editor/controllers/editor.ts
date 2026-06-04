@@ -1737,25 +1737,29 @@ export default factories.createCoreController('api::member-profile.member-profil
 
       delete (normalized.data as Record<string, unknown>).slug;
 
-      await strapi.documents(TYPE_CONFIG[rawType].uid as any).update({
+      const savedDocument = await strapi.documents(TYPE_CONFIG[rawType].uid as any).update({
         documentId,
         data: normalized.data,
         ...(normalized.status === 'published' ? { status: 'published' } : {}),
       } as any);
 
       if (normalized.status === 'draft') {
-        await strapi.documents(TYPE_CONFIG[rawType].uid as any).unpublish({ documentId } as any).catch(() => null);
+        if (normalized.editorStatus === 'preview') {
+          await strapi.documents(TYPE_CONFIG[rawType].uid as any).publish({ documentId } as any);
+        } else {
+          await strapi.documents(TYPE_CONFIG[rawType].uid as any).unpublish({ documentId } as any).catch(() => null);
+        }
       }
 
       const [savedDraft, savedPublished] = await Promise.all([
         strapi.documents(TYPE_CONFIG[rawType].uid as any).findFirst({
           filters: {
-            documentId,
+            documentId: savedDocument?.documentId ?? documentId,
             ...(access.isEditor ? {} : { memberProfile: { id: access.profile.id } }),
           },
           populate: buildEditorPopulate(rawType),
         } as any),
-        findPublishedDocument(strapi, rawType, documentId, access.isEditor ? undefined : access.profile.id),
+        findPublishedDocument(strapi, rawType, savedDocument?.documentId ?? documentId, access.isEditor ? undefined : access.profile.id),
       ]);
 
       ctx.body = mergeEditorStatus(savedDraft, savedPublished ?? null);
@@ -1766,7 +1770,7 @@ export default factories.createCoreController('api::member-profile.member-profil
       data: normalized.data,
     } as any);
 
-    if (normalized.status === 'published') {
+    if (normalized.status === 'published' || normalized.editorStatus === 'preview') {
       await strapi.documents(TYPE_CONFIG[rawType].uid as any).publish({
         documentId: created.documentId,
       } as any);
@@ -1780,7 +1784,7 @@ export default factories.createCoreController('api::member-profile.member-profil
         },
         populate: buildEditorPopulate(rawType),
       } as any),
-      normalized.status === 'published'
+      normalized.status === 'published' || normalized.editorStatus === 'preview'
         ? findPublishedDocument(strapi, rawType, created.documentId, access.isEditor ? undefined : access.profile.id)
         : Promise.resolve(null),
     ]);
