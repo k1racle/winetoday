@@ -53,6 +53,7 @@ type FormState = {
   excerpt: string;
   materialLabel: MaterialLabel;
   cover: number | null;
+  archiveCover: number | null;
   coverSource: string;
   author: number | null;
   categories: number[];
@@ -161,6 +162,7 @@ function createInitialState(type: EditorContentType, defaults: { author?: number
     excerpt: "",
     materialLabel: type === "video" ? "video" : "none",
     cover: null,
+    archiveCover: null,
     coverSource: "",
     author: defaults.author ?? null,
     categories: [],
@@ -299,6 +301,7 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
     excerpt: entry.excerpt ?? "",
     materialLabel: normalizeMaterialLabel(entry.materialLabel),
     cover: entry.cover?.id ?? null,
+    archiveCover: entry.archiveCover?.id ?? null,
     coverSource: entry.coverSource ?? "",
     author: entry.author?.id ?? null,
     categories: Array.isArray(entry.categories) ? entry.categories.map((item: any) => item?.id).filter(Boolean) : [],
@@ -453,7 +456,7 @@ async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidt
     body: JSON.stringify({ blockKind, blockWidth, blockHeight }),
   });
 
-  const responsePayload = await parseJson<EditorApiError | { ok?: boolean }>(response);
+  const responsePayload = await parseJson<EditorApiError | { ok?: boolean; assetId?: number; asset?: UploadedAsset }>(response);
 
   console.info("[watermark] response", { status: response.status, ok: response.ok, payload: responsePayload });
 
@@ -464,6 +467,8 @@ async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidt
   if (!response.ok) {
     throw new Error(getErrorMessage(responsePayload as EditorApiError | null, "Не удалось нанести watermark."));
   }
+
+  return responsePayload && "assetId" in responsePayload ? responsePayload : null;
 }
 
 type MediaPickerProps = {
@@ -1198,7 +1203,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const [activeInfographicVersion, setActiveInfographicVersion] = useState<EditorInfographicVersion>("desktop");
   const [coverWatermarkEnabled, setCoverWatermarkEnabled] = useState(false);
   const [activeMediaPanel, setActiveMediaPanel] = useState<{
-    kind: "cover" | "block-highlight" | "infographic-image" | "infographic-video" | "infographic-corner-icon";
+    kind: "cover" | "archive-cover" | "block-highlight" | "infographic-image" | "infographic-video" | "infographic-corner-icon";
     blockIndex?: number;
     cardIndex?: number;
   } | null>(null);
@@ -1243,6 +1248,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     return filteredItems.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredItems, itemsPage]);
   const coverAsset = useMemo(() => findAssetById(mediaAssets, form.cover, "image"), [form.cover, mediaAssets]);
+  const archiveCoverAsset = useMemo(() => findAssetById(mediaAssets, form.archiveCover, "image"), [form.archiveCover, mediaAssets]);
   const highlightBlock = activeMediaPanel?.kind === "block-highlight" && typeof activeMediaPanel.blockIndex === "number"
     ? form.blocks[activeMediaPanel.blockIndex]
     : null;
@@ -1253,6 +1259,10 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
     if (activeMediaPanel.kind === "cover") {
       return coverAsset;
+    }
+
+    if (activeMediaPanel.kind === "archive-cover") {
+      return archiveCoverAsset;
     }
 
     if (highlightBlock?.__component === "blocks.image-highlight") {
@@ -1276,7 +1286,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     }
 
     return null;
-  }, [activeInfographicCards, activeMediaPanel, coverAsset, highlightBlock, mediaAssets]);
+  }, [activeInfographicCards, activeMediaPanel, archiveCoverAsset, coverAsset, highlightBlock, mediaAssets]);
 
   useEffect(() => {
     let cancelled = false;
@@ -1673,8 +1683,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     setActiveMediaPanel({ kind: "cover" });
   }
 
-  function openCoverWatermarkPanel() {
-    setActiveMediaPanel({ kind: "cover" });
+  function openArchiveCoverMediaPanel() {
+    setActiveMediaPanel({ kind: "archive-cover" });
   }
 
   async function toggleCoverWatermark(enabled: boolean) {
@@ -1691,14 +1701,18 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
     try {
       if (enabled) {
-        await applyWatermarkAsset(assetId, "archive-cover", 720, 448);
+        const watermarkedAsset = await applyWatermarkAsset(assetId, "archive-cover", 720, 448);
         const mediaPayload = await refreshMediaAssets();
         if (mediaPayload) {
           setMediaAssets(mediaPayload);
         }
-        setSuccess("Watermark включён для обложки.");
+        if (watermarkedAsset?.assetId) {
+          updateForm("archiveCover", watermarkedAsset.assetId);
+        }
+        setSuccess("Watermark включён для обложки карточки.");
       } else {
-        setSuccess("Watermark выключен для обложки.");
+        updateForm("archiveCover", null);
+        setSuccess("Watermark выключен для обложки карточки.");
       }
     } catch (watermarkError) {
       setError(watermarkError instanceof Error ? watermarkError.message : "Не удалось изменить watermark.");
@@ -1735,6 +1749,11 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
     if (activeMediaPanel.kind === "cover") {
       updateForm("cover", id);
+      return;
+    }
+
+    if (activeMediaPanel.kind === "archive-cover") {
+      updateForm("archiveCover", id);
       return;
     }
 
@@ -1809,12 +1828,17 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
     try {
       const id = await uploadFile(file);
-      updateForm("cover", id);
+      const targetKind = activeMediaPanel?.kind;
+      updateForm(targetKind === "archive-cover" ? "archiveCover" : "cover", id);
       const mediaPayload = await refreshMediaAssets();
       if (mediaPayload) {
         setMediaAssets(mediaPayload);
       }
-      openCoverMediaPanel();
+      if (targetKind === "archive-cover") {
+        openArchiveCoverMediaPanel();
+      } else {
+        openCoverMediaPanel();
+      }
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить обложку.");
     } finally {
@@ -2014,6 +2038,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               excerpt: form.excerpt,
               materialLabel: form.materialLabel,
               cover: form.cover,
+              archiveCover: form.archiveCover,
               author: form.author,
               categories: form.categories,
               tags: form.tags,
@@ -2521,8 +2546,16 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                     checked={coverWatermarkEnabled}
                     onChange={(event) => void toggleCoverWatermark(event.target.checked)}
                   />
-                  <span>Добавить водяной знак Виноделие Сегодня</span>
+                  <span>Создать отдельную обложку карточки с водяным знаком</span>
                 </label>
+                <MediaSummaryCard
+                  asset={archiveCoverAsset}
+                  accept="image"
+                  emptyLabel="Отдельная обложка карточки не выбрана"
+                  onOpen={openArchiveCoverMediaPanel}
+                  onClear={() => updateForm("archiveCover", null)}
+                  openLabel="Выбрать обложку карточки"
+                />
               </div>
             </Field>
           </div>
@@ -2821,6 +2854,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   <h2 className="mt-1 text-xl font-semibold tracking-tight">
                     {activeMediaPanel.kind === "cover"
                       ? "Выбор обложки"
+                      : activeMediaPanel.kind === "archive-cover"
+                        ? "Выбор обложки карточки"
                       : activeMediaPanel.kind === "infographic-video"
                         ? "Выбор видео для карточки"
                         : activeMediaPanel.kind === "infographic-corner-icon"
@@ -2846,6 +2881,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                     accept={activeMediaPanel.kind === "infographic-video" ? "video" : "image"}
                     emptyLabel={activeMediaPanel.kind === "cover"
                       ? "Обложка не выбрана"
+                      : activeMediaPanel.kind === "archive-cover"
+                        ? "Обложка карточки не выбрана"
                       : activeMediaPanel.kind === "infographic-video"
                         ? "Видео не выбрано"
                         : activeMediaPanel.kind === "infographic-corner-icon"
@@ -2861,7 +2898,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   accept={activeMediaPanel.kind === "infographic-video" ? "video" : "image"}
                   selectedId={activePanelAsset?.id ?? null}
                   onSelect={selectAssetFromPanel}
-                  onUpload={(event) => activeMediaPanel.kind === "cover"
+                  onUpload={(event) => activeMediaPanel.kind === "cover" || activeMediaPanel.kind === "archive-cover"
                     ? void handleCoverUpload(event)
                     : activeMediaPanel.kind === "infographic-corner-icon" && typeof activeMediaPanel.cardIndex === "number"
                       ? void handleInfographicUpload(activeMediaPanel.cardIndex, "infographic-corner-icon", event)
@@ -2874,6 +2911,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                         : undefined}
                   uploadLabel={activeMediaPanel.kind === "cover"
                     ? "Загрузите новую обложку или выберите файл из библиотеки ниже."
+                    : activeMediaPanel.kind === "archive-cover"
+                      ? "Загрузите отдельную обложку для карточки или выберите уже загруженный файл из библиотеки ниже."
                     : activeMediaPanel.kind === "infographic-corner-icon"
                       ? "Загрузите SVG-иконку для карточки инфографики или выберите уже загруженный файл из библиотеки ниже."
                     : activeMediaPanel.kind === "infographic-image"

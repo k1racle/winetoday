@@ -389,6 +389,31 @@ async function readWatermarkResult(outputFileName: string) {
   throw new ValidationError('Не удалось обработать watermark.');
 }
 
+async function createUploadFileFromPath(strapi: any, filePath: string, sourceAsset: Record<string, any>, suffix: string) {
+  const extension = path.extname(filePath) || path.extname(sourceAsset.name ?? '') || '';
+  const baseName = path.basename(sourceAsset.name ?? path.basename(filePath), path.extname(sourceAsset.name ?? path.basename(filePath)));
+  const fileName = `${baseName}-${suffix}${extension}`;
+  const stats = await fs.stat(filePath);
+
+  const uploaded = await strapi.plugin('upload').service('upload').upload({
+    data: {
+      fileInfo: {
+        name: fileName,
+        alternativeText: sourceAsset.alternativeText ?? null,
+        caption: sourceAsset.caption ?? null,
+      },
+    },
+    files: {
+      filepath: filePath,
+      originalFilename: fileName,
+      mimetype: sourceAsset.mime ?? 'application/octet-stream',
+      size: stats.size,
+    },
+  });
+
+  return Array.isArray(uploaded) ? uploaded[0] : uploaded;
+}
+
 async function getMemberProfile(strapi: any, userId: number) {
   let profile = await strapi.db.query('api::member-profile.member-profile').findOne({
     where: { user: userId },
@@ -1049,6 +1074,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     ? materialLabelRaw
     : 'none';
   const cover = payload.cover ? Number(payload.cover) : null;
+  const archiveCover = payload.archiveCover ? Number(payload.archiveCover) : null;
   const status = payload.status === 'published' ? 'published' : 'draft';
   const publishedAtCustom = typeof payload.publishedAtCustom === 'string' ? payload.publishedAtCustom.trim() : '';
   const seoPayload = payload.seo && typeof payload.seo === 'object' ? (payload.seo as Record<string, unknown>) : null;
@@ -1082,6 +1108,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
         excerpt,
         slug: slug || undefined,
         cover: Number.isInteger(cover) && cover && cover > 0 ? cover : null,
+        archiveCover: Number.isInteger(archiveCover) && archiveCover && archiveCover > 0 ? archiveCover : null,
         photos,
         memberProfile: memberProfileId,
         author: Number.isInteger(resolvedAuthorId) && resolvedAuthorId && resolvedAuthorId > 0 ? resolvedAuthorId : null,
@@ -1109,6 +1136,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     slug: slug || undefined,
     materialLabel,
     cover: Number.isInteger(cover) && cover && cover > 0 ? cover : null,
+    archiveCover: Number.isInteger(archiveCover) && archiveCover && archiveCover > 0 ? archiveCover : null,
     content: blocks,
     memberProfile: memberProfileId,
     author: Number.isInteger(resolvedAuthorId) && resolvedAuthorId && resolvedAuthorId > 0 ? resolvedAuthorId : null,
@@ -1605,11 +1633,19 @@ export default factories.createCoreController('api::member-profile.member-profil
 
     await enqueueWatermarkJob(jobPayload);
     const resultPath = await readWatermarkResult(path.basename(copiedInput));
-    await fs.copyFile(resultPath, sourcePath);
+    const shouldCreateSeparateAsset = blockKind === 'archive-cover' && body?.createAsset !== false;
+    const outputAsset = shouldCreateSeparateAsset
+      ? await createUploadFileFromPath(strapi, resultPath, asset, 'archive-cover')
+      : null;
+
+    if (!shouldCreateSeparateAsset) {
+      await fs.copyFile(resultPath, sourcePath);
+    }
 
     ctx.body = {
       ok: true,
-      assetId: asset.id,
+      assetId: outputAsset?.id ?? asset.id,
+      asset: outputAsset ? serializeUploadedAsset(outputAsset) : serializeUploadedAsset(asset),
       job: jobPayload,
       outputPath: resultPath,
     };

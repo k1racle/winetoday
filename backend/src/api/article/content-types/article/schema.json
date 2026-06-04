@@ -30,6 +30,11 @@
       "multiple": false,
       "allowedTypes": ["images"]
     },
+    "archiveCover": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
     "coverSource": {
       "type": "string"
     },

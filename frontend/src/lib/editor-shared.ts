@@ -87,6 +87,7 @@ export type EditorEntrySummary = {
 
 export type EditorEntryDetail = EditorEntrySummary & {
   cover?: number | null;
+  archiveCover?: number | null;
   coverSource?: string | null;
   blocks: EditorBlock[];
   infographicCards?: EditorInfographicCard[];

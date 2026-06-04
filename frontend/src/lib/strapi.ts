@@ -539,6 +539,7 @@ export type ArticleSummary = {
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
   cover?: StrapiMedia | null;
+  archiveCover?: StrapiMedia | null;
   author?: AuthorSummary | null;
   categories?: CategorySummaryList | null;
   tags?: TagSummary[] | null;
@@ -564,6 +565,7 @@ export type NewsSummary = {
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
   cover?: StrapiMedia | null;
+  archiveCover?: StrapiMedia | null;
   author?: AuthorSummary | null;
   sourceName?: string | null;
   categories?: CategorySummaryList | null;
@@ -585,6 +587,7 @@ export type VideoSummary = {
   excerpt?: string | null;
   materialLabel?: string | null;
   cover?: StrapiMedia | null;
+  archiveCover?: StrapiMedia | null;
   videoUrl: string;
   duration?: number | null;
   pinned?: boolean | null;
@@ -607,6 +610,7 @@ export type GallerySummary = {
   excerpt?: string | null;
   materialLabel?: string | null;
   cover?: StrapiMedia | null;
+  archiveCover?: StrapiMedia | null;
   photos?: StrapiMedia[] | null;
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
@@ -1438,7 +1442,7 @@ function normalizeGallerySummary(item?: GallerySummary | null) {
     ...item,
     author: normalizeAuthorSummary(item.author),
     categories: normalizeCategorySummaryList(item.categories),
-    cover: normalizeContentCardMedia(item.cover),
+    cover: normalizeContentCardMedia(item.archiveCover ?? item.cover),
     photos,
   } satisfies GallerySummary;
 }
@@ -1452,6 +1456,7 @@ function normalizeGalleryDetail(item?: GalleryDetail | null) {
 
   return {
     ...normalized,
+    cover: normalizeContentCardMedia(item?.cover),
     seo: item?.seo ?? null,
     photos: normalized.photos,
     coverSource: typeof item?.coverSource === "string" && item.coverSource.trim() ? item.coverSource.trim() : null,
@@ -2100,10 +2105,10 @@ export const getSitemapTags = cache(async function getSitemapTags(): Promise<Arr
 
 export async function getFeaturedArticles(): Promise<ArticleSummary[]> {
   const pathWithMaterialLabel =
-    "/api/articles?filters[featured][$eq]=true&sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=6&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=readingTime&fields[5]=featured&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
+    "/api/articles?filters[featured][$eq]=true&sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=6&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=readingTime&fields[5]=featured&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAtCustom&populate[cover]=true&populate[archiveCover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
 
   const pathWithoutMaterialLabel =
-    "/api/articles?filters[featured][$eq]=true&sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=6&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=readingTime&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
+    "/api/articles?filters[featured][$eq]=true&sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=6&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=readingTime&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAtCustom&populate[cover]=true&populate[archiveCover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
 
   let response: StrapiResponse<ArticleSummary[]>;
   try {
@@ -2125,17 +2130,17 @@ export async function getFeaturedArticles(): Promise<ArticleSummary[]> {
       author: normalizeAuthorSummary(item.author),
       categories: normalizeCategorySummaryList(item.categories),
       tags: normalizeTagSummaryList(item.tags),
-      cover: normalizeContentCardMedia(item.cover),
+      cover: normalizeContentCardMedia(item.archiveCover ?? item.cover),
     }))),
   );
 }
 
 export async function getArticles(): Promise<ArticleSummary[]> {
   const pathWithMaterialLabel =
-    `/api/articles?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=readingTime&fields[5]=featured&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
+    `/api/articles?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=readingTime&fields[5]=featured&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAtCustom&populate[cover]=true&populate[archiveCover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
 
   const pathWithoutMaterialLabel =
-    `/api/articles?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=readingTime&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
+    `/api/articles?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=readingTime&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=publishedAtCustom&populate[cover]=true&populate[archiveCover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
 
   let response: StrapiResponse<ArticleSummary[]>;
   try {
@@ -2158,7 +2163,7 @@ export async function getArticles(): Promise<ArticleSummary[]> {
       author: normalizeAuthorSummary(item.author),
       categories: normalizeCategorySummaryList(item.categories),
       tags: normalizeTagSummaryList(item.tags),
-      cover: normalizeContentCardMedia(item.cover),
+      cover: normalizeContentCardMedia(item.archiveCover ?? item.cover),
     })),
   );
 
@@ -2269,10 +2274,10 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
 
 export async function getLatestNews(): Promise<NewsSummary[]> {
   const pathWithMaterialLabel =
-    "/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=10&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=sourceName&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
+    "/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=10&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=sourceName&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[archiveCover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
 
   const pathWithoutMaterialLabel =
-    "/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=10&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=homepageSpecialBlock&fields[7]=sourceName&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
+    "/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=10&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=homepageSpecialBlock&fields[7]=sourceName&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[archiveCover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&populate[categories][fields][0]=name&populate[categories][fields][1]=slug&populate[tags][fields][0]=name&populate[tags][fields][1]=slug";
 
   let response: StrapiResponse<NewsSummary[]>;
   try {
@@ -2294,15 +2299,15 @@ export async function getLatestNews(): Promise<NewsSummary[]> {
       author: normalizeAuthorSummary(item.author),
       categories: normalizeCategorySummaryList(item.categories),
       tags: normalizeTagSummaryList(item.tags),
-      cover: normalizeContentCardMedia(item.cover),
+      cover: normalizeContentCardMedia(item.archiveCover ?? item.cover),
     }))),
   );
 }
 
 export async function getNews(): Promise<NewsSummary[]> {
-  const pathWithMaterialLabel = `/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=sourceName&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
+  const pathWithMaterialLabel = `/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=homepageSpecialBlock&fields[8]=sourceName&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[archiveCover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
 
-  const pathWithoutMaterialLabel = `/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=homepageSpecialBlock&fields[7]=sourceName&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
+  const pathWithoutMaterialLabel = `/api/news-entries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=featured&fields[4]=pinned&fields[5]=homepageLead&fields[6]=homepageSpecialBlock&fields[7]=sourceName&fields[8]=publishedAt&fields[9]=publishedAtCustom&populate[cover]=true&populate[archiveCover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`;
 
   let response: StrapiResponse<NewsSummary[]>;
   try {
@@ -2325,7 +2330,7 @@ export async function getNews(): Promise<NewsSummary[]> {
       author: normalizeAuthorSummary(item.author),
       categories: normalizeCategorySummaryList(item.categories),
       tags: normalizeTagSummaryList(item.tags),
-      cover: normalizeContentCardMedia(item.cover),
+      cover: normalizeContentCardMedia(item.archiveCover ?? item.cover),
     })),
   );
 
@@ -2378,7 +2383,7 @@ export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
 
 export async function getVideos(): Promise<VideoSummary[]> {
   const response = await fetchStrapi<VideoSummary[]>(
-    `/api/videos?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=videoUrl&fields[5]=duration&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
+    `/api/videos?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=videoUrl&fields[5]=duration&fields[6]=pinned&fields[7]=homepageLead&fields[8]=homepageSpecialBlock&fields[9]=publishedAt&fields[10]=publishedAtCustom&populate[cover]=true&populate[archiveCover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug`,
   );
 
   const items = await resolveCategoriesForItems(
@@ -2388,7 +2393,7 @@ export async function getVideos(): Promise<VideoSummary[]> {
       author: normalizeAuthorSummary(item.author),
       categories: normalizeCategorySummaryList(item.categories),
       tags: normalizeTagSummaryList(item.tags),
-      cover: normalizeContentCardMedia(item.cover),
+      cover: normalizeContentCardMedia(item.archiveCover ?? item.cover),
     })),
   );
 
@@ -2439,7 +2444,7 @@ export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) 
 
 export async function getGalleries(): Promise<GallerySummary[]> {
   const response = await fetchStrapi<GallerySummary[]>(
-    `/api/galleries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=publishedAt&fields[4]=publishedAtCustom&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}`,
+    `/api/galleries?sort[0]=publishedAtCustom:desc&sort[1]=publishedAt:desc&pagination[limit]=100&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=publishedAt&fields[4]=publishedAtCustom&populate[cover]=true&populate[archiveCover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}`,
   );
 
   const items = await resolveCategoriesForItems(
@@ -2448,7 +2453,7 @@ export async function getGalleries(): Promise<GallerySummary[]> {
       ...item,
       author: normalizeAuthorSummary(item.author),
       categories: normalizeCategorySummaryList(item.categories),
-      cover: normalizeContentCardMedia(item.cover),
+      cover: normalizeContentCardMedia(item.archiveCover ?? item.cover),
     })),
   );
 
