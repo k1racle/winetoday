@@ -78,8 +78,8 @@ export function VideoDurationBadge({ durationMinutes }: { durationMinutes?: numb
 
 export function VideoSectionLabel() {
   return (
-    <Link href="/videos" className="inline-flex items-center gap-1.5 bg-[#0c3f24] px-2 py-1 text-[12px] font-bold uppercase leading-none tracking-[0.04em] text-white transition-opacity hover:opacity-85">
-      <VideoPlayIcon className="h-3 w-3" />
+    <Link href="/videos" className="inline-flex items-center gap-1.5 bg-[#0c3f24] px-2 py-1 text-[24px] font-bold uppercase leading-none tracking-[0.04em] text-white transition-opacity hover:opacity-85">
+      <VideoPlayIcon className="h-5 w-5 text-white" />
       Видео
     </Link>
   );

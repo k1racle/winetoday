@@ -587,7 +587,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
             <button
               type="submit"
               disabled={bodyLength === 0 || bodyLength > maxLength || submitState === "submitting"}
-              className="absolute bottom-px right-px grid h-10 w-10 place-items-center rounded-md border border-emerald-800 bg-emerald-800 p-0 text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-600 dark:bg-emerald-600 dark:text-[#08110b] dark:hover:bg-emerald-500"
+              className="absolute bottom-px right-px mb-1 grid h-10 w-10 place-items-center rounded-md border border-emerald-800 bg-emerald-800 p-0 text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-600 dark:bg-emerald-600 dark:text-[#08110b] dark:hover:bg-emerald-500"
               aria-label={submitState === "submitting" ? "Отправка комментария" : "Отправить комментарий"}
             >
               <Image src="/comment-send.svg" alt="" width={22} height={22} className="block h-5 w-5 brightness-0 invert dark:invert-0" aria-hidden="true" />
