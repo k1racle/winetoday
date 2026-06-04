@@ -1543,10 +1543,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       return null;
     }
 
-    if (form.status === "preview") {
-      return publicUrl;
-    }
-
     const query = new URLSearchParams({
       type,
       slug: slug.trim(),
