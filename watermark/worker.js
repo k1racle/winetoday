@@ -27,8 +27,14 @@ async function applyWatermark(job) {
   const width = meta.width || 0;
   const height = meta.height || 0;
   const pos = typeof job.position === 'string' ? job.position : 'bottom-left';
-  const referenceWidth = width;
-  const referenceHeight = height;
+  const blockWidth = Number(job.blockWidth) > 0 ? Number(job.blockWidth) : 0;
+  const blockHeight = Number(job.blockHeight) > 0 ? Number(job.blockHeight) : 0;
+  const hasBlockFrame = blockWidth > 0 && blockHeight > 0 && width > 0 && height > 0;
+  const coverScale = hasBlockFrame ? Math.max(blockWidth / width, blockHeight / height) : 1;
+  const referenceWidth = hasBlockFrame ? Math.min(width, Math.round(blockWidth / coverScale)) : width;
+  const referenceHeight = hasBlockFrame ? Math.min(height, Math.round(blockHeight / coverScale)) : height;
+  const referenceLeft = hasBlockFrame ? Math.max(0, Math.round((width - referenceWidth) / 2)) : 0;
+  const referenceTop = hasBlockFrame ? Math.max(0, Math.round((height - referenceHeight) / 2)) : 0;
   const watermarkSizeBase = Math.min(referenceWidth || 0, referenceHeight || 0);
   const watermarkScale = job.blockKind === 'cover' ? 0.3 : 0.42;
   const watermarkWidth = Math.max(job.blockKind === 'cover' ? 120 : 160, Math.round(watermarkSizeBase * watermarkScale));
@@ -42,10 +48,10 @@ async function applyWatermark(job) {
   const logoMeta = await sharp(logoBuffer).metadata();
   const marginX = Math.max(16, Math.round(referenceWidth * 0.04));
   const marginY = Math.max(16, Math.round(referenceHeight * 0.04));
-  const safeLeft = Math.max(0, referenceWidth - (logoMeta.width || 0) - marginX);
-  const safeTop = Math.max(0, referenceHeight - (logoMeta.height || 0) - marginY);
-  const left = pos.includes('left') ? marginX : safeLeft;
-  const top = pos.includes('bottom') ? safeTop : marginY;
+  const safeLeft = Math.max(referenceLeft, referenceLeft + referenceWidth - (logoMeta.width || 0) - marginX);
+  const safeTop = Math.max(referenceTop, referenceTop + referenceHeight - (logoMeta.height || 0) - marginY);
+  const left = pos.includes('left') ? referenceLeft + marginX : safeLeft;
+  const top = pos.includes('bottom') ? safeTop : referenceTop + marginY;
   await image.composite([{ input: logoBuffer, left, top }]).toFile(outputPath);
   return outputPath;
 }
