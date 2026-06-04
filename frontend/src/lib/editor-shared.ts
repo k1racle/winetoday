@@ -79,7 +79,7 @@ export type EditorEntrySummary = {
   title: string;
   slug: string;
   excerpt?: string | null;
-  status: "draft" | "published";
+  status: "draft" | "preview" | "published";
   publishedAt?: string | null;
   updatedAt?: string | null;
   type: EditorContentType;

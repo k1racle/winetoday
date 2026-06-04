@@ -1075,7 +1075,8 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     : 'none';
   const cover = payload.cover ? Number(payload.cover) : null;
   const archiveCover = payload.archiveCover ? Number(payload.archiveCover) : null;
-  const status = payload.status === 'published' ? 'published' : 'draft';
+  const requestedStatus = payload.status === 'published' || payload.status === 'preview' ? payload.status : 'draft';
+  const status = requestedStatus === 'published' ? 'published' : 'draft';
   const publishedAtCustom = typeof payload.publishedAtCustom === 'string' ? payload.publishedAtCustom.trim() : '';
   const seoPayload = payload.seo && typeof payload.seo === 'object' ? (payload.seo as Record<string, unknown>) : null;
   const categories = normalizeRelationIds(payload.categories);
@@ -1093,7 +1094,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     throw new ValidationError('Для галереи обязательно описание.');
   }
 
-  if ((type === 'article' || type === 'news') && status === 'published' && !excerpt) {
+  if ((type === 'article' || type === 'news') && requestedStatus === 'published' && !excerpt) {
     throw new ValidationError('Для публикации нужно заполнить краткое описание.');
   }
 
@@ -1115,6 +1116,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
         publishedAtCustom: publishedAtCustom || new Date().toISOString(),
         categories,
         coverSource: coverSource || null,
+        preview: requestedStatus === 'preview',
         seo: seoPayload
           ? {
               metaTitle: typeof seoPayload.metaTitle === 'string' ? seoPayload.metaTitle.trim() : null,
@@ -1144,6 +1146,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     categories,
     tags,
     coverSource: coverSource || null,
+    preview: requestedStatus === 'preview',
     homepageSpecialBlock: payload.homepageSpecialBlock === true,
     seo: seoPayload
       ? {
@@ -1159,7 +1162,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
 
   if (type === 'article') {
     data.readingTime = Math.max(1, Number(payload.readingTime) || 5);
-    data.editorialStatus = status === 'published' ? 'published' : 'draft';
+    data.editorialStatus = requestedStatus === 'published' ? 'published' : requestedStatus === 'preview' ? 'in_review' : 'draft';
     data.submittedAt = new Date().toISOString();
     data.sources = sources;
   }
@@ -1182,16 +1185,18 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     data.duration = Math.max(1, Number(payload.duration) || 1);
   }
 
-  return { data, status };
+  return { data, status, editorStatus: requestedStatus };
 }
 
 function serializeSummary(type: EditorType, item: Record<string, any>) {
+  const previewStatus = !item.publishedAt && (item.editorialStatus === 'in_review' || item.preview === true) ? 'preview' : null;
+
   return {
     documentId: item.documentId,
     title: item.title,
     slug: item.slug ?? '',
     excerpt: item.excerpt ?? '',
-    status: item.publishedAt ? 'published' : 'draft',
+    status: item.publishedAt ? 'published' : previewStatus ?? 'draft',
     publishedAt: item.publishedAt ?? null,
     updatedAt: item.updatedAt ?? null,
     type,
@@ -1211,9 +1216,11 @@ async function findPublishedDocument(strapi: any, type: EditorType, documentId: 
 }
 
 function mergeEditorStatus<T extends Record<string, any>>(draftItem: T, publishedItem: Record<string, any> | null) {
+  const previewStatus = !publishedItem && (draftItem?.editorialStatus === 'in_review' || draftItem?.preview === true) ? 'preview' : null;
+
   return {
     ...draftItem,
-    editorStatus: publishedItem ? 'published' : 'draft',
+    editorStatus: publishedItem ? 'published' : previewStatus ?? 'draft',
     publishedAt: publishedItem?.publishedAt ?? null,
   };
 }

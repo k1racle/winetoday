@@ -67,6 +67,10 @@
     "publishedAtCustom": {
       "type": "datetime"
     },
+    "preview": {
+      "type": "boolean",
+      "default": false
+    },
     "views": {
       "type": "integer",
       "default": 0,

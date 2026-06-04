@@ -59,7 +59,7 @@ type FormState = {
   categories: number[];
   tags: number[];
   homepageSpecialBlock: boolean;
-  status: "draft" | "published";
+  status: "draft" | "preview" | "published";
   publishedAtCustom: string;
   readingTime: string;
   sources: SourceItem[];
@@ -307,7 +307,7 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
     categories: Array.isArray(entry.categories) ? entry.categories.map((item: any) => item?.id).filter(Boolean) : [],
     tags: Array.isArray(entry.tags) ? entry.tags.map((item: any) => item?.id).filter(Boolean) : [],
     homepageSpecialBlock: entry.homepageSpecialBlock === true,
-    status: entry.editorStatus === "published" || entry.publishedAt ? "published" : "draft",
+    status: entry.editorStatus === "published" || entry.publishedAt ? "published" : entry.editorStatus === "preview" ? "preview" : "draft",
     publishedAtCustom: toDateTimeLocalValue(typeof entry.publishedAtCustom === "string" ? entry.publishedAtCustom : null),
     readingTime: entry.readingTime ? String(entry.readingTime) : state.readingTime,
     sources: normalizedSources.length
@@ -2488,7 +2488,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               <Field label="Статус">
                 <select value={form.status} onChange={(event) => updateForm("status", event.target.value as FormState["status"])} className={inputClassName}>
                   <option value="draft">Черновик</option>
-                <option value="published">Опубликовать</option>
+                  <option value="preview">Предпросмотр</option>
+                  <option value="published">Опубликовать</option>
               </select>
             </Field>
             <Field label="Метка материала">

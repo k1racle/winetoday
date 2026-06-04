@@ -105,6 +105,10 @@
       "enum": ["draft", "in_review", "published", "rejected"],
       "default": "published"
     },
+    "preview": {
+      "type": "boolean",
+      "default": false
+    },
     "submittedAt": {
       "type": "datetime"
     },
