@@ -26,7 +26,6 @@ async function applyWatermark(job) {
   const meta = await image.metadata();
   const width = meta.width || 0;
   const height = meta.height || 0;
-  const pos = typeof job.position === 'string' ? job.position : 'bottom-left';
   const blockWidth = Number(job.blockWidth) > 0 ? Number(job.blockWidth) : 0;
   const blockHeight = Number(job.blockHeight) > 0 ? Number(job.blockHeight) : 0;
   const hasBlockFrame = blockWidth > 0 && blockHeight > 0 && width > 0 && height > 0;
@@ -49,10 +48,9 @@ async function applyWatermark(job) {
   const logoMeta = await sharp(logoBuffer).metadata();
   const marginX = Math.max(16, Math.round(referenceWidth * 0.04));
   const marginY = Math.max(16, Math.round(referenceHeight * 0.04));
-  const safeLeft = Math.max(referenceLeft, referenceLeft + referenceWidth - (logoMeta.width || 0) - marginX);
   const safeTop = Math.max(referenceTop, referenceTop + referenceHeight - (logoMeta.height || 0) - marginY);
-  const left = pos.includes('left') ? referenceLeft + marginX : safeLeft;
-  const top = pos.includes('bottom') ? safeTop : referenceTop + marginY;
+  const left = referenceLeft + marginX;
+  const top = safeTop;
   await image.composite([{ input: logoBuffer, left, top }]).toFile(outputPath);
   return outputPath;
 }
