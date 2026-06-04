@@ -2259,11 +2259,11 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               ? "Здесь показывается единственная системная запись homepage с настройками инфографики. Новые записи не создаются, удаление недоступно."
               : "Полноценное редактирование контента с блоками и rich text в одном рабочем интерфейсе."}
           </p>
-          {selectedType !== "homepage" && form.status === "draft" ? (
+          {selectedType !== "homepage" && (form.status === "draft" || form.status === "preview") ? (
             <div className="space-y-3 rounded-none border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-100">
               <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
-                  <div className="font-medium">Ссылка для предпросмотра черновика</div>
+                  <div className="font-medium">Ссылка для предпросмотра {form.status === "preview" ? "материала" : "черновика"}</div>
                   {previewAbsoluteUrl(selectedType, form.slug) ? (
                     <a
                       href={previewAbsoluteUrl(selectedType, form.slug) ?? undefined}
@@ -2298,9 +2298,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
             </div>
           ) : null}
           <div className="flex flex-wrap gap-3">
-            {form.status === "draft" && materialPreviewPath ? (
+            {(form.status === "draft" || form.status === "preview") && materialPreviewPath ? (
               <Link href={materialPreviewPath} target="_blank" className="inline-flex w-fit items-center justify-center gap-2 border border-amber-600 px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-50 hover:text-amber-900 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-500/10 dark:hover:text-amber-300">
-                Предпросмотр
+                Открыть предпросмотр
               </Link>
             ) : null}
             {materialPublicPath && form.status === "published" ? (
