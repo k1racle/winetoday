@@ -14,7 +14,7 @@
   "attributes": {
     "type": {
       "type": "enumeration",
-      "enum": ["like"],
+      "enum": ["like", "dislike"],
       "default": "like"
     },
     "user": {

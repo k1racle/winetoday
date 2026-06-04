@@ -63,6 +63,7 @@ type CommunityCommentThread = CommunityComment & {
 type ReactionSummary = {
   count: number;
   liked: boolean;
+  disliked?: boolean;
 };
 
 function formatCommunityDate(value?: string | null) {
@@ -176,7 +177,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
   const [settings, setSettings] = useState<CommunitySettings | null>(null);
   const [session, setSession] = useState<SessionResponse>({ authenticated: false, user: null });
   const [comments, setComments] = useState<CommunityComment[]>([]);
-  const [reactions, setReactions] = useState<ReactionSummary>({ count: 0, liked: false });
+  const [reactions, setReactions] = useState<ReactionSummary>({ count: 0, liked: false, disliked: false });
   const [loadingComments, setLoadingComments] = useState(true);
   const [loadingReactions, setLoadingReactions] = useState(true);
   const [body, setBody] = useState("");
@@ -283,12 +284,13 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
           setReactions({
             count: typeof data?.count === "number" ? data.count : 0,
             liked: Boolean(data?.liked),
+            disliked: Boolean(data?.disliked),
           });
         }
       } catch (error) {
         console.error("[community] reactions", error);
         if (!cancelled) {
-          setReactions({ count: 0, liked: false });
+          setReactions({ count: 0, liked: false, disliked: false });
         }
       } finally {
         if (!cancelled) {
@@ -371,7 +373,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
     }
   }
 
-  async function handleToggleReaction() {
+  async function handleToggleReaction(type: "like" | "dislike") {
     if (reactionPending) {
       return;
     }
@@ -389,6 +391,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
           data: {
             contentTypeUid,
             targetDocumentId,
+            type,
           },
         }),
       });
@@ -399,17 +402,18 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
       }
 
       if (!response.ok) {
-        throw new Error("Не удалось обновить лайк.");
+        throw new Error("Не удалось обновить реакцию.");
       }
 
       const data = (await response.json()) as ReactionSummary;
       setReactions({
         count: typeof data?.count === "number" ? data.count : 0,
         liked: Boolean(data?.liked),
+        disliked: Boolean(data?.disliked),
       });
     } catch (error) {
       console.error("[community] toggle reaction", error);
-      setMessage("Не удалось обновить лайк.");
+      setMessage("Не удалось обновить реакцию.");
     } finally {
       setReactionPending(false);
     }
@@ -460,19 +464,19 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
     <section className="mt-10 space-y-8 border-t border-black/10 pt-8 dark:border-white/10">
       <div className="relative flex items-center justify-between gap-4 border-b border-black/10 pb-5 dark:border-white/10">
         <div className="flex items-center gap-5 text-zinc-600 dark:text-zinc-300">
-        <button
-          type="button"
-          onClick={() => void handleToggleReaction()}
-          disabled={reactionPending}
+          <button
+            type="button"
+            onClick={() => void handleToggleReaction("like")}
+            disabled={reactionPending}
             className={`inline-flex items-center gap-2 transition-colors ${reactions.liked ? "text-emerald-800 dark:text-emerald-300" : "hover:text-emerald-800 dark:hover:text-emerald-300"} disabled:cursor-not-allowed disabled:opacity-60`}
-          aria-label={loadingReactions ? "Лайки загружаются" : `Лайки: ${reactions.count}`}
-        >
+            aria-label={loadingReactions ? "Лайки загружаются" : `Лайки: ${reactions.count}`}
+          >
             <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M7.5 21H4.8a1.6 1.6 0 0 1-1.6-1.6v-7.1a1.6 1.6 0 0 1 1.6-1.6h2.7V21Z" fill={reactions.liked ? "currentColor" : "none"} />
               <path d="M7.5 10.7 11.2 3a2.2 2.2 0 0 1 2.2 2.6l-.6 3h5.3a2.2 2.2 0 0 1 2.1 2.8l-1.7 6.2A3.2 3.2 0 0 1 15.4 20H7.5" />
-          </svg>
-          <span>{loadingReactions ? "..." : reactions.count}</span>
-        </button>
+            </svg>
+            <span>{loadingReactions ? "..." : reactions.count}</span>
+          </button>
 
           <button type="button" className="inline-flex items-center transition-colors hover:text-emerald-800 dark:hover:text-emerald-300" aria-label="Комментарии" onClick={scrollToComments}>
             <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -483,26 +487,27 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
         </div>
 
         <div className="flex items-center gap-5 text-zinc-600 dark:text-zinc-300">
-          <button type="button" className="inline-flex items-center transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Дизлайк">
+          <button
+            type="button"
+            className={`inline-flex items-center transition-colors ${reactions.disliked ? "text-emerald-800 dark:text-emerald-300" : "hover:text-zinc-900 dark:hover:text-white"} disabled:cursor-not-allowed disabled:opacity-60`}
+            aria-label="Дизлайк"
+            disabled={reactionPending}
+            onClick={() => void handleToggleReaction("dislike")}
+          >
             <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M16.5 3h2.7a1.6 1.6 0 0 1 1.6 1.6v7.1a1.6 1.6 0 0 1-1.6 1.6h-2.7V3Z" />
+              <path d="M16.5 3h2.7a1.6 1.6 0 0 1 1.6 1.6v7.1a1.6 1.6 0 0 1-1.6 1.6h-2.7V3Z" fill={reactions.disliked ? "currentColor" : "none"} />
               <path d="M16.5 13.3 12.8 21a2.2 2.2 0 0 1-2.2-2.6l.6-3H5.9a2.2 2.2 0 0 1-2.1-2.8l1.7-6.2A3.2 3.2 0 0 1 8.6 4h7.9" />
             </svg>
           </button>
 
           <button type="button" className="inline-flex items-center transition-colors hover:text-emerald-800 dark:hover:text-emerald-300" aria-label="Поделиться" aria-expanded={sharePanelOpen} onClick={() => setSharePanelOpen((isOpen) => !isOpen)}>
-            <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
-              <path d="M16 6 12 2 8 6" />
-              <path d="M12 2v14" />
-            </svg>
+            <Image src="/share-forward.svg" alt="" width={24} height={24} className="h-6 w-6 dark:invert" aria-hidden="true" />
           </button>
         </div>
 
         {sharePanelOpen ? (
           <div className="fixed inset-0 z-50 flex items-end bg-black/45 sm:absolute sm:inset-auto sm:right-0 sm:top-10 sm:block sm:bg-transparent" onClick={() => setSharePanelOpen(false)}>
             <div className="w-full rounded-t-[28px] bg-white p-5 text-[#171717] shadow-2xl dark:bg-[#111914] dark:text-white sm:w-80 sm:rounded-2xl sm:border sm:border-black/10 sm:p-4 dark:sm:border-white/10" onClick={(event) => event.stopPropagation()}>
-              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-black/10 dark:bg-white/15 sm:hidden" />
               <div className="mb-5 flex items-center justify-between sm:mb-4">
                 <button type="button" className="inline-flex h-9 w-9 items-center justify-center" aria-label="Закрыть" onClick={() => setSharePanelOpen(false)}>
                   <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -514,18 +519,18 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
               </div>
 
               <div className="flex gap-5 overflow-x-auto pb-1 sm:flex-col sm:gap-1 sm:overflow-visible sm:pb-0">
-                <button type="button" className="flex min-w-20 flex-col items-center gap-2 rounded-xl p-2 text-center transition-colors hover:bg-black/5 dark:hover:bg-white/10 sm:min-w-0 sm:flex-row sm:justify-start sm:gap-3 sm:text-left" onClick={() => void navigator.clipboard?.writeText(shareUrl)}>
+                <button type="button" className="flex w-24 shrink-0 flex-col items-center gap-2 rounded-xl p-2 text-center transition-colors hover:bg-black/5 dark:hover:bg-white/10 sm:w-auto sm:min-w-0 sm:flex-row sm:justify-start sm:gap-3 sm:text-left" onClick={() => void navigator.clipboard?.writeText(shareUrl)}>
                   <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-zinc-100 dark:bg-white/10 sm:h-9 sm:w-9">
                     <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current sm:h-5 sm:w-5" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1" />
                       <path d="M14 11a5 5 0 0 0-7.1 0l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1" />
                     </svg>
                   </span>
-                  <span className="type-small">Скопировать ссылку</span>
+                  <span className="type-small whitespace-normal leading-tight">Скопировать ссылку</span>
                 </button>
 
                 {shareLinks.map((network) => (
-                  <a key={network.label} href={network.href} target="_blank" rel="noreferrer" className="flex min-w-20 flex-col items-center gap-2 rounded-xl p-2 text-center transition-colors hover:bg-black/5 dark:hover:bg-white/10 sm:min-w-0 sm:flex-row sm:justify-start sm:gap-3 sm:text-left" onClick={() => setSharePanelOpen(false)}>
+                  <a key={network.label} href={network.href} target="_blank" rel="noreferrer" className="flex w-24 shrink-0 flex-col items-center gap-2 rounded-xl p-2 text-center transition-colors hover:bg-black/5 dark:hover:bg-white/10 sm:w-auto sm:min-w-0 sm:flex-row sm:justify-start sm:gap-3 sm:text-left" onClick={() => setSharePanelOpen(false)}>
                     <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-zinc-100 dark:bg-white/10 sm:h-9 sm:w-9">
                       {network.icon?.url ? (
                         <span className="relative block h-7 w-7 overflow-hidden sm:h-5 sm:w-5">

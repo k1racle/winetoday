@@ -24,6 +24,19 @@ export default factories.createCoreController('api::reaction.reaction' as any, (
       },
     });
 
+    const disliked = Boolean(
+      user || guestId
+        ? await strapi.db.query('api::reaction.reaction').findOne({
+            where: {
+              type: 'dislike',
+              contentTypeUid,
+              targetDocumentId,
+              ...(user ? { user: user.id } : { guestId }),
+            },
+          })
+        : false,
+    );
+
     const liked = user
       ? Boolean(
           await strapi.db.query('api::reaction.reaction').findOne({
@@ -53,6 +66,7 @@ export default factories.createCoreController('api::reaction.reaction' as any, (
     ctx.body = {
       count,
       liked: user ? liked : guestLiked,
+      disliked,
     };
   },
 
@@ -68,6 +82,8 @@ export default factories.createCoreController('api::reaction.reaction' as any, (
     const payload = ctx.request.body?.data ?? ctx.request.body ?? {};
     const contentTypeUid = typeof payload.contentTypeUid === 'string' ? payload.contentTypeUid.trim() : '';
     const targetDocumentId = typeof payload.targetDocumentId === 'string' ? payload.targetDocumentId.trim() : '';
+    const type = payload.type === 'dislike' ? 'dislike' : 'like';
+    const oppositeType = type === 'like' ? 'dislike' : 'like';
 
     if (!contentTypeUid || !targetDocumentId) {
       throw new ValidationError('Не указана цель реакции.');
@@ -75,7 +91,7 @@ export default factories.createCoreController('api::reaction.reaction' as any, (
 
     const existing = await strapi.db.query('api::reaction.reaction').findOne({
       where: {
-        type: 'like',
+        type,
         contentTypeUid,
         targetDocumentId,
         ...(user ? { user: user.id } : { guestId }),
@@ -95,13 +111,28 @@ export default factories.createCoreController('api::reaction.reaction' as any, (
         },
       });
 
-      ctx.body = { liked: false, count };
+      ctx.body = { liked: false, disliked: false, count };
       return;
+    }
+
+    const oppositeReaction = await strapi.db.query('api::reaction.reaction').findOne({
+      where: {
+        type: oppositeType,
+        contentTypeUid,
+        targetDocumentId,
+        ...(user ? { user: user.id } : { guestId }),
+      },
+    });
+
+    if (oppositeReaction?.id) {
+      await strapi.db.query('api::reaction.reaction').delete({
+        where: { id: oppositeReaction.id },
+      });
     }
 
     await strapi.db.query('api::reaction.reaction').create({
       data: {
-        type: 'like',
+        type,
         contentTypeUid,
         targetDocumentId,
         user: user?.id ?? null,
@@ -117,6 +148,6 @@ export default factories.createCoreController('api::reaction.reaction' as any, (
       },
     });
 
-    ctx.body = { liked: true, count };
+    ctx.body = { liked: type === 'like', disliked: type === 'dislike', count };
   },
 }));
