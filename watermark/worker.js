@@ -36,8 +36,8 @@ async function applyWatermark(job) {
   const referenceLeft = hasBlockFrame ? Math.max(0, Math.round((width - referenceWidth) / 2)) : 0;
   const referenceTop = hasBlockFrame ? Math.max(0, Math.round((height - referenceHeight) / 2)) : 0;
   const watermarkSizeBase = Math.min(referenceWidth || 0, referenceHeight || 0);
-  const watermarkScale = job.blockKind === 'cover' ? 0.3 : 0.42;
-  const watermarkWidth = Math.max(job.blockKind === 'cover' ? 120 : 160, Math.round(watermarkSizeBase * watermarkScale));
+  const watermarkScale = job.blockKind === 'cover' ? 0.3 : job.blockKind === 'blocks.image-highlight' ? 0.28 : 0.42;
+  const watermarkWidth = Math.max(job.blockKind === 'cover' || job.blockKind === 'blocks.image-highlight' ? 120 : 160, Math.round(watermarkSizeBase * watermarkScale));
   const logo = sharp(watermarkPath)
     .trim()
     .resize({
