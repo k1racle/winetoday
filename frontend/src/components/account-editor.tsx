@@ -1691,7 +1691,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
     try {
       if (enabled) {
-        await applyWatermarkAsset(assetId, "cover", 0, 0);
+        await applyWatermarkAsset(assetId, "archive-cover", 720, 448);
         const mediaPayload = await refreshMediaAssets();
         if (mediaPayload) {
           setMediaAssets(mediaPayload);
