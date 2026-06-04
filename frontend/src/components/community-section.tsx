@@ -580,14 +580,14 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
                 resizeCommentTextarea(event.currentTarget);
               }}
               rows={1}
-              className="w-full min-h-[64px] resize-none overflow-hidden border border-black/10 bg-white px-4 py-3 pr-14 outline-none transition-colors focus:border-emerald-700 dark:border-white/10 dark:bg-[#08110b] dark:focus:border-emerald-400"
+              className="w-full min-h-[64px] resize-none overflow-hidden border border-black/10 bg-white px-4 py-3 pr-16 outline-none transition-colors focus:border-emerald-700 dark:border-white/10 dark:bg-[#08110b] dark:focus:border-emerald-400"
               placeholder="Поделитесь мнением о материале"
               disabled={submitState === "submitting"}
             />
             <button
               type="submit"
               disabled={bodyLength === 0 || bodyLength > maxLength || submitState === "submitting"}
-              className="absolute bottom-1 right-1 grid h-10 w-10 place-items-center rounded-md border border-emerald-800 bg-emerald-800 p-0 text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-600 dark:bg-emerald-600 dark:text-[#08110b] dark:hover:bg-emerald-500"
+              className="absolute bottom-0 right-0 grid h-10 w-10 place-items-center rounded-md border border-emerald-800 bg-emerald-800 p-0 text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-emerald-600 dark:bg-emerald-600 dark:text-[#08110b] dark:hover:bg-emerald-500"
               aria-label={submitState === "submitting" ? "Отправка комментария" : "Отправить комментарий"}
             >
               <Image src="/comment-send.svg" alt="" width={22} height={22} className="block h-5 w-5 brightness-0 invert dark:invert-0" aria-hidden="true" />

@@ -504,7 +504,7 @@ function SearchOverlay({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Поиск"
-            className="font-menu h-12 min-w-0 flex-1 border-0 bg-transparent px-2 text-zinc-900 outline-none placeholder:text-zinc-500 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+            className="font-menu h-12 min-w-0 flex-1 border-0 bg-transparent px-2 text-zinc-900 outline-none ring-0 placeholder:text-zinc-500 focus:border-transparent focus:outline-none focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-500"
           />
           <button
             type="submit"

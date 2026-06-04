@@ -8,6 +8,7 @@ import {
   type HomepageSpecialVideoItem,
   VideoDurationBadge,
   VideoPlayIcon,
+  VideoSectionLabel,
   resolvePreviewEmbedUrl,
 } from "@/components/homepage-special-video-shared";
 
@@ -111,7 +112,7 @@ export function HomepageSpecialVideoDesktop({ videos }: HomepageSpecialVideoDesk
     <div className="hidden space-y-4 xl:block">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 space-y-2.5">
-          <p className="type-h4 leading-none text-zinc-900 dark:text-white">Видео</p>
+          <VideoSectionLabel />
           <h2
             className="font-[Lato,var(--font-inter),system-ui,sans-serif] font-bold tracking-[-0.01em] text-[#10211a] dark:text-white"
             style={{ fontSize: "22px", lineHeight: 1.18 }}

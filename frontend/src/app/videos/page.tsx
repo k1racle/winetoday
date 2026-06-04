@@ -46,9 +46,6 @@ export default async function VideosPage() {
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="border-b border-black/10 pb-8 dark:border-white/10">
             <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Видео" }]} />
-            <p className="type-caption text-emerald-700 dark:text-emerald-400">
-              Видео
-            </p>
             <h1 className="type-h1 archive-page-mobile-title mt-3">
               Интервью, репортажи и видеоматериалы о современной винной индустрии
             </h1>

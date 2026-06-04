@@ -46,9 +46,6 @@ export default async function ArticlesPage() {
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="border-b border-black/10 pb-8 dark:border-white/10">
             <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Статьи" }]} />
-            <p className="type-caption text-emerald-700 dark:text-emerald-400">
-              Статьи
-            </p>
             <h1 className="type-h1 archive-page-mobile-title mt-3">
               Аналитика, регионы, интервью и большие редакционные материалы
             </h1>

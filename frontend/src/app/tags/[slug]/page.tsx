@@ -53,9 +53,6 @@ export default async function TagPage({ params }: PageProps) {
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="border-b border-black/10 pb-8 dark:border-white/10">
             <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Теги" }]} />
-            <p className="type-caption text-emerald-700 dark:text-emerald-400">
-              Тег
-            </p>
             <h1 className="type-h1 archive-page-mobile-title mt-3">{tagPage.name}</h1>
           </header>
 

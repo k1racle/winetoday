@@ -48,9 +48,6 @@ export default async function GalleryPage() {
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="border-b border-black/10 pb-8 dark:border-white/10">
             <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Галереи" }]} />
-            <p className="type-caption text-emerald-700 dark:text-emerald-400">
-              Галереи
-            </p>
             <h1 className="type-h1 archive-page-mobile-title mt-3">
               Фотоподборки и визуальные истории
             </h1>

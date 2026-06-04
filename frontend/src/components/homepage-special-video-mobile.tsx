@@ -8,6 +8,7 @@ import {
   type HomepageSpecialVideoItem,
   VideoDurationBadge,
   VideoPlayIcon,
+  VideoSectionLabel,
   resolvePreviewEmbedUrl,
 } from "@/components/homepage-special-video-shared";
 
@@ -28,7 +29,7 @@ export function HomepageSpecialVideoMobile({ videos }: HomepageSpecialVideoMobil
     <div className="space-y-3 xl:hidden">
       <div className="space-y-2.5">
         <div className="flex items-start justify-between gap-3">
-          <p className="type-h4 leading-none text-zinc-900 dark:text-white">Видео</p>
+          <VideoSectionLabel />
           <Link
             href="/videos"
             className="shrink-0 text-sm font-medium leading-none text-amber-400 transition hover:text-amber-300"
