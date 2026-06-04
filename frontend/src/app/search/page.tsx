@@ -190,6 +190,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="border-b border-black/10 pb-8 dark:border-white/10">
             <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Поиск" }]} />
+            <div className="mt-4 h-px w-full bg-black/10 dark:bg-white/10" />
             <h1 className="type-h1 mt-3">Поиск по сайту</h1>
             {rawQuery ? (
               <p className="type-body mt-4 text-zinc-600 dark:text-zinc-400">

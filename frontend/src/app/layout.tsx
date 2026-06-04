@@ -309,7 +309,7 @@ export default async function RootLayout({
           <footer
             className="mt-12 border-t border-black/5 dark:border-white/10"
             style={{
-              backgroundColor: footerSettings?.backgroundColor ?? "#0c3f24",
+              backgroundColor: "#0c3f24",
               color: footerSettings?.textColor ?? "#ffffff",
             }}
           >

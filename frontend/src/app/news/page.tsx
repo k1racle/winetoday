@@ -47,6 +47,7 @@ export default async function NewsPage() {
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="border-b border-black/10 pb-8 dark:border-white/10">
             <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Новости" }]} />
+            <div className="mt-4 h-px w-full bg-black/10 dark:bg-white/10" />
             <h1 className="type-h1 archive-page-mobile-title mt-3">
               Оперативная лента отрасли: события, релизы и важные анонсы
             </h1>

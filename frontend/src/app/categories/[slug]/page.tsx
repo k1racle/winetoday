@@ -53,6 +53,7 @@ export default async function CategoryPage({ params }: PageProps) {
           <MobileSidebarBridge sidebar={sidebar} />
           <header className="border-b border-black/10 pb-8 dark:border-white/10">
             <Breadcrumbs items={[{ label: "Главная", href: "/" }, { label: "Рубрики" }]} />
+            <div className="mt-4 h-px w-full bg-black/10 dark:bg-white/10" />
             <h1 className="type-h1 archive-page-mobile-title mt-3">{categoryPage.name}</h1>
           </header>
 

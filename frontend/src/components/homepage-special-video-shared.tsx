@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export type HomepageSpecialVideoItem = {
   documentId: string;
   href: string;
@@ -76,9 +78,9 @@ export function VideoDurationBadge({ durationMinutes }: { durationMinutes?: numb
 
 export function VideoSectionLabel() {
   return (
-    <span className="inline-flex items-center gap-1 bg-[#0c3f24] px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none tracking-[0.04em] text-white">
-      <VideoPlayIcon className="h-2.5 w-2.5" />
+    <Link href="/videos" className="inline-flex items-center gap-1.5 bg-[#0c3f24] px-2 py-1 text-[12px] font-bold uppercase leading-none tracking-[0.04em] text-white transition-opacity hover:opacity-85">
+      <VideoPlayIcon className="h-3 w-3" />
       Видео
-    </span>
+    </Link>
   );
 }

@@ -497,14 +497,14 @@ function SearchOverlay({
             setOpen(false);
             onClose();
           }}
-          className="flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-4 shadow-[0_24px_80px_rgba(8,18,12,0.22)] dark:border-white/10 dark:bg-[#081623]"
+          className="flex items-center gap-3 rounded-2xl border-0 bg-white p-4 shadow-[0_24px_80px_rgba(8,18,12,0.22)] dark:bg-[#081623]"
         >
           <input
             id="site-search-overlay-input"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Поиск"
-            className="font-menu h-12 min-w-0 flex-1 border-0 bg-transparent px-2 text-zinc-900 outline-none ring-0 placeholder:text-zinc-500 focus:border-transparent focus:outline-none focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+            className="font-menu h-12 min-w-0 flex-1 border-0 bg-transparent px-2 text-zinc-900 outline-none ring-0 placeholder:text-zinc-500 hover:border-transparent focus:border-transparent focus:outline-none focus:ring-0 dark:text-zinc-100 dark:placeholder:text-zinc-500"
           />
           <button
             type="submit"
