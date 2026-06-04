@@ -258,6 +258,7 @@ export function AuthWidget({ label, compact = false, className, buttonClassName,
   }));
 
   const triggerLabel = session.authenticated ? (session.user?.username || label || "Кабинет") : (label || "Войти");
+  const accountInitial = triggerLabel.trim().charAt(0).toUpperCase() || "А";
   const usesDrawer = !panelClassName;
 
   return (
@@ -273,7 +274,11 @@ export function AuthWidget({ label, compact = false, className, buttonClassName,
           aria-expanded={open}
           aria-label={triggerLabel}
         >
-          {compact ? (
+          {compact ? session.authenticated ? (
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#8f746b] text-[18px] font-semibold uppercase leading-none text-white" aria-hidden="true">
+              {accountInitial}
+            </span>
+          ) : (
             <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M20 21a8 8 0 0 0-16 0" />
               <circle cx="12" cy="8" r="4" />

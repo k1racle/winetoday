@@ -251,7 +251,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
   return (
     <header className={containerClass}>
       <div className="border-b border-black/10 bg-white dark:border-white/10 dark:bg-[#081623]">
-        <div className="px-8 sm:px-8 lg:px-12">
+        <div className="px-4 sm:px-8 lg:px-12">
           <div className="mx-auto max-w-[1440px]">
             {/* Desktop top row */}
             <div className="hidden h-20 grid-cols-[1fr_auto_1fr] items-center gap-6 xl:grid">
@@ -288,8 +288,8 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
                 </button>
                 <ThemeToggle compact />
                 <AuthWidget
-                  label="Войти"
-                  buttonClassName="type-button inline-flex items-center justify-center rounded-full bg-transparent px-4 py-2 text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-white/10 dark:hover:text-white"
+                  compact
+                  buttonClassName="inline-flex h-11 w-11 items-center justify-center rounded-full bg-transparent text-zinc-700 transition-colors hover:bg-black/5 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-white/10 dark:hover:text-white"
                 />
               </div>
             </div>
