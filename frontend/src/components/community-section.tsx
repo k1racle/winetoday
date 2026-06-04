@@ -184,6 +184,7 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [reactionPending, setReactionPending] = useState(false);
+  const [sharePanelOpen, setSharePanelOpen] = useState(false);
 
   const shareUrl = useMemo(() => {
     if (typeof window !== "undefined" && window.location.origin) {
@@ -426,6 +427,10 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
     setMessage(null);
   }
 
+  function scrollToComments() {
+    document.getElementById("community-comments")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function renderCommentThread(comment: CommunityCommentThread, depth = 0): ReactNode {
     const isReply = depth > 0;
 
@@ -453,56 +458,95 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
 
   return (
     <section className="mt-10 space-y-8 border-t border-black/10 pt-8 dark:border-white/10">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-black/10 pb-5 dark:border-white/10">
-        <div className="flex flex-col gap-3">
-          {shareLinks.length ? <p className="type-caption text-zinc-500 dark:text-zinc-400">Поделиться</p> : null}
-          <div className="flex flex-wrap items-center gap-3">
-            {shareLinks.map((network) => (
-              <a
-                key={network.label}
-                href={network.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={network.label}
-                title={network.label}
-                className="inline-flex h-11 w-11 items-center justify-center border border-black/10 bg-white/80 text-zinc-700 transition-colors hover:border-emerald-700 hover:text-emerald-800 dark:border-white/10 dark:bg-[#0b1710] dark:text-zinc-200 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
-              >
-                {network.icon?.url ? (
-                  <span className="relative block h-5 w-5 overflow-hidden">
-                    <Image
-                      src={network.icon.url}
-                      alt={network.icon.alternativeText ?? network.label}
-                      fill
-                      sizes="20px"
-                      className="object-contain"
-                    />
-                  </span>
-                ) : (
-                  <span className="type-caption">{network.label.slice(0, 2)}</span>
-                )}
-                <span className="sr-only">{network.label}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-
+      <div className="relative flex items-center justify-between gap-4 border-b border-black/10 pb-5 dark:border-white/10">
+        <div className="flex items-center gap-5 text-zinc-600 dark:text-zinc-300">
         <button
           type="button"
           onClick={() => void handleToggleReaction()}
           disabled={reactionPending}
-          className={`type-button inline-flex items-center gap-2 transition-colors ${reactions.liked ? "text-emerald-800 dark:text-emerald-300" : "text-zinc-700 hover:text-emerald-800 dark:text-zinc-200 dark:hover:text-emerald-300"} disabled:cursor-not-allowed disabled:opacity-60`}
+            className={`inline-flex items-center gap-2 transition-colors ${reactions.liked ? "text-emerald-800 dark:text-emerald-300" : "hover:text-emerald-800 dark:hover:text-emerald-300"} disabled:cursor-not-allowed disabled:opacity-60`}
           aria-label={loadingReactions ? "Лайки загружаются" : `Лайки: ${reactions.count}`}
         >
-          <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M12 20.5 4.8 13.6a4.9 4.9 0 0 1 0-7 4.8 4.8 0 0 1 6.9 0L12 7l.3-.4a4.8 4.8 0 0 1 6.9 0 4.9 4.9 0 0 1 0 7Z" fill={reactions.liked ? "currentColor" : "none"} />
+            <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M7.5 21H4.8a1.6 1.6 0 0 1-1.6-1.6v-7.1a1.6 1.6 0 0 1 1.6-1.6h2.7V21Z" fill={reactions.liked ? "currentColor" : "none"} />
+              <path d="M7.5 10.7 11.2 3a2.2 2.2 0 0 1 2.2 2.6l-.6 3h5.3a2.2 2.2 0 0 1 2.1 2.8l-1.7 6.2A3.2 3.2 0 0 1 15.4 20H7.5" />
           </svg>
           <span>{loadingReactions ? "..." : reactions.count}</span>
         </button>
+
+          <button type="button" className="inline-flex items-center transition-colors hover:text-emerald-800 dark:hover:text-emerald-300" aria-label="Комментарии" onClick={scrollToComments}>
+            <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M5 5.5h14a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2H9.2L4 21v-3.7H5a2 2 0 0 1-2-2V7.5a2 2 0 0 1 2-2Z" />
+              <path d="M8 10h8M8 13.5h5" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-5 text-zinc-600 dark:text-zinc-300">
+          <button type="button" className="inline-flex items-center transition-colors hover:text-zinc-900 dark:hover:text-white" aria-label="Дизлайк">
+            <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M16.5 3h2.7a1.6 1.6 0 0 1 1.6 1.6v7.1a1.6 1.6 0 0 1-1.6 1.6h-2.7V3Z" />
+              <path d="M16.5 13.3 12.8 21a2.2 2.2 0 0 1-2.2-2.6l.6-3H5.9a2.2 2.2 0 0 1-2.1-2.8l1.7-6.2A3.2 3.2 0 0 1 8.6 4h7.9" />
+            </svg>
+          </button>
+
+          <button type="button" className="inline-flex items-center transition-colors hover:text-emerald-800 dark:hover:text-emerald-300" aria-label="Поделиться" aria-expanded={sharePanelOpen} onClick={() => setSharePanelOpen((isOpen) => !isOpen)}>
+            <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7" />
+              <path d="M16 6 12 2 8 6" />
+              <path d="M12 2v14" />
+            </svg>
+          </button>
+        </div>
+
+        {sharePanelOpen ? (
+          <div className="fixed inset-0 z-50 flex items-end bg-black/45 sm:absolute sm:inset-auto sm:right-0 sm:top-10 sm:block sm:bg-transparent" onClick={() => setSharePanelOpen(false)}>
+            <div className="w-full rounded-t-[28px] bg-white p-5 text-[#171717] shadow-2xl dark:bg-[#111914] dark:text-white sm:w-80 sm:rounded-2xl sm:border sm:border-black/10 sm:p-4 dark:sm:border-white/10" onClick={(event) => event.stopPropagation()}>
+              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-black/10 dark:bg-white/15 sm:hidden" />
+              <div className="mb-5 flex items-center justify-between sm:mb-4">
+                <button type="button" className="inline-flex h-9 w-9 items-center justify-center" aria-label="Закрыть" onClick={() => setSharePanelOpen(false)}>
+                  <svg viewBox="0 0 24 24" className="h-5 w-5 fill-none stroke-current" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                </button>
+                <h3 className="type-h4">Поделиться</h3>
+                <span className="h-9 w-9" aria-hidden="true" />
+              </div>
+
+              <div className="flex gap-5 overflow-x-auto pb-1 sm:flex-col sm:gap-1 sm:overflow-visible sm:pb-0">
+                <button type="button" className="flex min-w-20 flex-col items-center gap-2 rounded-xl p-2 text-center transition-colors hover:bg-black/5 dark:hover:bg-white/10 sm:min-w-0 sm:flex-row sm:justify-start sm:gap-3 sm:text-left" onClick={() => void navigator.clipboard?.writeText(shareUrl)}>
+                  <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-zinc-100 dark:bg-white/10 sm:h-9 sm:w-9">
+                    <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current sm:h-5 sm:w-5" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M10 13a5 5 0 0 0 7.1 0l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1" />
+                      <path d="M14 11a5 5 0 0 0-7.1 0l-2 2a5 5 0 0 0 7.1 7.1l1.1-1.1" />
+                    </svg>
+                  </span>
+                  <span className="type-small">Скопировать ссылку</span>
+                </button>
+
+                {shareLinks.map((network) => (
+                  <a key={network.label} href={network.href} target="_blank" rel="noreferrer" className="flex min-w-20 flex-col items-center gap-2 rounded-xl p-2 text-center transition-colors hover:bg-black/5 dark:hover:bg-white/10 sm:min-w-0 sm:flex-row sm:justify-start sm:gap-3 sm:text-left" onClick={() => setSharePanelOpen(false)}>
+                    <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-zinc-100 dark:bg-white/10 sm:h-9 sm:w-9">
+                      {network.icon?.url ? (
+                        <span className="relative block h-7 w-7 overflow-hidden sm:h-5 sm:w-5">
+                          <Image src={network.icon.url} alt={network.icon.alternativeText ?? network.label} fill sizes="28px" className="object-contain" />
+                        </span>
+                      ) : (
+                        <span className="type-caption">{network.label.slice(0, 2)}</span>
+                      )}
+                    </span>
+                    <span className="type-small">{network.label}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {afterShareContent ? <div>{afterShareContent}</div> : null}
 
-      <div className="space-y-4">
+      <div id="community-comments" className="scroll-mt-24 space-y-4">
         <div className="space-y-1">
           <h3 className="type-h4">Оставить комментарий</h3>
         </div>
