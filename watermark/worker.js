@@ -8,7 +8,10 @@ const outputDir = process.env.OUTPUT_DIR || '/app/output';
 const watermarkPath = process.env.WATERMARK_LOGO_PATH || '/app/assets/logo1.png';
 const logLevel = (process.env.WATERMARK_LOG_LEVEL || 'debug').toLowerCase();
 const shouldLogPolls = process.env.WATERMARK_LOG_POLLS === '1' || process.env.WATERMARK_LOG_POLLS === 'true';
+const markerTtlHours = Math.max(1, Number(process.env.WATERMARK_MARKER_TTL_HOURS) || 24);
+const markerCleanupIntervalMs = Math.max(60 * 60 * 1000, (Number(process.env.WATERMARK_MARKER_CLEANUP_INTERVAL_HOURS) || 24) * 60 * 60 * 1000);
 const workerStartedAt = Date.now();
+let lastMarkerCleanupAt = 0;
 
 function serializeError(error) {
   if (error instanceof Error) {
@@ -75,6 +78,89 @@ async function ensureDir(dir) {
   log('debug', 'ensure directory started', { dir });
   await fs.promises.mkdir(dir, { recursive: true });
   log('info', 'ensure directory completed', { dir, stats: await pathStats(dir) });
+}
+
+function summarizeJobDirectory(files, jobFiles) {
+  const doneFiles = files.filter((name) => name.endsWith('.json.done'));
+  const errorFiles = files.filter((name) => name.endsWith('.json.error'));
+
+  return {
+    totalFileCount: files.length,
+    jobFileCount: jobFiles.length,
+    doneFileCount: doneFiles.length,
+    errorFileCount: errorFiles.length,
+    otherFileCount: files.length - jobFiles.length - doneFiles.length - errorFiles.length,
+    jobFilesPreview: jobFiles.slice(0, 10),
+    doneFilesPreview: doneFiles.slice(0, 5),
+    errorFilesPreview: errorFiles.slice(0, 5),
+  };
+}
+
+async function cleanupOldMarkers(reason = 'scheduled') {
+  const startedAt = Date.now();
+  const cutoffTime = Date.now() - markerTtlHours * 60 * 60 * 1000;
+  log('info', 'old watermark markers cleanup started', {
+    reason,
+    jobsDir,
+    markerTtlHours,
+    cutoffTime: new Date(cutoffTime).toISOString(),
+  });
+
+  const files = await fs.promises.readdir(jobsDir);
+  const markerFiles = files.filter((name) => name.endsWith('.json.done') || name.endsWith('.json.error'));
+  let deletedCount = 0;
+  let keptCount = 0;
+  let failedCount = 0;
+  const deletedPreview = [];
+  const failedPreview = [];
+
+  for (const file of markerFiles) {
+    const fullPath = path.join(jobsDir, file);
+    try {
+      const stat = await fs.promises.stat(fullPath);
+      if (stat.mtimeMs >= cutoffTime) {
+        keptCount += 1;
+        continue;
+      }
+
+      await fs.promises.unlink(fullPath);
+      deletedCount += 1;
+      if (deletedPreview.length < 20) {
+        deletedPreview.push({ file, mtime: stat.mtime.toISOString(), size: stat.size });
+      }
+    } catch (error) {
+      failedCount += 1;
+      if (failedPreview.length < 10) {
+        failedPreview.push({ file, error: serializeError(error) });
+      }
+    }
+  }
+
+  log(failedCount ? 'warn' : 'info', 'old watermark markers cleanup completed', {
+    reason,
+    markerTtlHours,
+    markerFileCount: markerFiles.length,
+    deletedCount,
+    keptCount,
+    failedCount,
+    deletedPreview,
+    failedPreview,
+    durationMs: Date.now() - startedAt,
+  });
+}
+
+async function cleanupOldMarkersIfDue(reason = 'scheduled') {
+  const now = Date.now();
+  if (lastMarkerCleanupAt && now - lastMarkerCleanupAt < markerCleanupIntervalMs) {
+    return;
+  }
+
+  lastMarkerCleanupAt = now;
+  try {
+    await cleanupOldMarkers(reason);
+  } catch (error) {
+    log('error', 'old watermark markers cleanup failed', { reason, error: serializeError(error) });
+  }
 }
 
 async function applyWatermark(job) {
@@ -185,7 +271,7 @@ async function processJobFile(file) {
   const fullPath = path.join(jobsDir, file);
   log('info', 'job file processing started', { file, fullPath, stats: await pathStats(fullPath) });
   const raw = await fs.promises.readFile(fullPath, 'utf8');
-  log('debug', 'job file read completed', { file, fullPath, rawBytes: Buffer.byteLength(raw), raw });
+  log('debug', 'job file read completed', { file, fullPath, rawBytes: Buffer.byteLength(raw), rawPreview: raw.slice(0, 2000) });
 
   try {
     const job = JSON.parse(raw);
@@ -207,9 +293,30 @@ async function processJobFile(file) {
       failedAt: new Date().toISOString(),
       durationMs: Date.now() - startedAt,
     };
-    log('error', 'job processing failed', { file, fullPath, errorPath, error: serializeError(error), raw });
+    let outputErrorPath = null;
+    try {
+      const parsedJob = JSON.parse(raw);
+      const outputFile = typeof parsedJob.outputFile === 'string' && parsedJob.outputFile.trim()
+        ? parsedJob.outputFile
+        : parsedJob.inputFile;
+      if (typeof outputFile === 'string' && outputFile.trim()) {
+        outputErrorPath = path.join(outputDir, outputFile) + '.error';
+      }
+    } catch {
+      outputErrorPath = null;
+    }
+
+    log('error', 'job processing failed', { file, fullPath, errorPath, outputErrorPath, error: serializeError(error), rawPreview: raw.slice(0, 2000) });
     await fs.promises.writeFile(errorPath, JSON.stringify(errorPayload, null, 2));
     log('warn', 'job error marker written', { file, errorPath, errorPayload });
+    if (outputErrorPath) {
+      try {
+        await fs.promises.writeFile(outputErrorPath, JSON.stringify(errorPayload, null, 2));
+        log('warn', 'output error marker written for backend waiter', { file, outputErrorPath });
+      } catch (writeOutputError) {
+        log('error', 'output error marker write failed', { file, outputErrorPath, error: serializeError(writeOutputError) });
+      }
+    }
     await fs.promises.unlink(fullPath).catch(() => null);
     log('warn', 'job file removed after failure', { file, fullPath, durationMs: Date.now() - startedAt });
   }
@@ -230,6 +337,8 @@ async function main() {
       WATERMARK_LOGO_PATH: watermarkPath,
       WATERMARK_LOG_LEVEL: logLevel,
       WATERMARK_LOG_POLLS: shouldLogPolls,
+      WATERMARK_MARKER_TTL_HOURS: markerTtlHours,
+      WATERMARK_MARKER_CLEANUP_INTERVAL_HOURS: markerCleanupIntervalMs / 60 / 60 / 1000,
     },
   });
   await ensureDir(jobsDir);
@@ -241,6 +350,7 @@ async function main() {
     outputDir: await pathStats(outputDir),
     watermark: await pathStats(watermarkPath),
   });
+  await cleanupOldMarkersIfDue('startup');
 
   setInterval(async () => {
     try {
@@ -250,14 +360,14 @@ async function main() {
       if (shouldLogPolls || jobFiles.length) {
         log('debug', 'jobs directory polled', {
           jobsDir,
-          files,
-          jobFiles,
+          ...summarizeJobDirectory(files, jobFiles),
           durationMs: Date.now() - pollStartedAt,
         });
       }
       for (const file of jobFiles) {
         await processJobFile(file);
       }
+      await cleanupOldMarkersIfDue('scheduled');
     } catch (error) {
       log('error', 'polling loop failed', { error: serializeError(error) });
     }
