@@ -6,26 +6,119 @@ const jobsDir = process.env.JOBS_DIR || '/app/jobs';
 const inputDir = process.env.INPUT_DIR || '/app/input';
 const outputDir = process.env.OUTPUT_DIR || '/app/output';
 const watermarkPath = process.env.WATERMARK_LOGO_PATH || '/app/assets/logo1.png';
+const logLevel = (process.env.WATERMARK_LOG_LEVEL || 'debug').toLowerCase();
+const shouldLogPolls = process.env.WATERMARK_LOG_POLLS === '1' || process.env.WATERMARK_LOG_POLLS === 'true';
+const workerStartedAt = Date.now();
+
+function serializeError(error) {
+  if (error instanceof Error) {
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+    };
+  }
+
+  return { message: String(error) };
+}
+
+function log(level, message, details) {
+  const levels = { debug: 10, info: 20, warn: 30, error: 40 };
+  const activeLevel = levels[logLevel] ?? levels.debug;
+  const messageLevel = levels[level] ?? levels.info;
+
+  if (messageLevel < activeLevel) {
+    return;
+  }
+
+  const payload = {
+    ts: new Date().toISOString(),
+    level,
+    service: 'vino-watermark',
+    pid: process.pid,
+    uptimeMs: Date.now() - workerStartedAt,
+    message,
+    ...(details && typeof details === 'object' ? details : {}),
+  };
+  const line = JSON.stringify(payload);
+
+  if (level === 'error') {
+    console.error(line);
+  } else if (level === 'warn') {
+    console.warn(line);
+  } else {
+    console.log(line);
+  }
+}
+
+async function pathStats(targetPath) {
+  try {
+    const stat = await fs.promises.stat(targetPath);
+    return {
+      exists: true,
+      path: targetPath,
+      isFile: stat.isFile(),
+      isDirectory: stat.isDirectory(),
+      size: stat.size,
+      mtime: stat.mtime.toISOString(),
+    };
+  } catch (error) {
+    return {
+      exists: false,
+      path: targetPath,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
 
 async function ensureDir(dir) {
+  log('debug', 'ensure directory started', { dir });
   await fs.promises.mkdir(dir, { recursive: true });
+  log('info', 'ensure directory completed', { dir, stats: await pathStats(dir) });
 }
 
 async function applyWatermark(job) {
+  const startedAt = Date.now();
+  log('info', 'apply watermark started', { job });
+
   if (!job || typeof job !== 'object') {
+    log('error', 'apply watermark rejected: invalid job payload', { jobType: typeof job, job });
     throw new Error('Invalid job payload.');
   }
 
   if (typeof job.inputFile !== 'string' || !job.inputFile.trim()) {
+    log('error', 'apply watermark rejected: missing inputFile', { job });
     throw new Error('Job is missing inputFile.');
   }
 
   const inputPath = path.join(inputDir, job.inputFile);
   const outputPath = path.join(outputDir, job.outputFile || job.inputFile);
+  log('debug', 'resolved watermark paths', {
+    inputDir,
+    outputDir,
+    watermarkPath,
+    inputFile: job.inputFile,
+    outputFile: job.outputFile || job.inputFile,
+    inputPath,
+    outputPath,
+  });
+  log('debug', 'input/logo/output preflight stats', {
+    input: await pathStats(inputPath),
+    logo: await pathStats(watermarkPath),
+    outputDir: await pathStats(outputDir),
+  });
+
   const image = sharp(inputPath);
   const meta = await image.metadata();
   const width = meta.width || 0;
   const height = meta.height || 0;
+  log('info', 'source image metadata read', {
+    inputPath,
+    metadata: meta,
+    width,
+    height,
+  });
+
   const blockWidth = Number(job.blockWidth) > 0 ? Number(job.blockWidth) : 0;
   const blockHeight = Number(job.blockHeight) > 0 ? Number(job.blockHeight) : 0;
   const hasBlockFrame = job.blockKind === 'archive-cover' && blockWidth > 0 && blockHeight > 0 && width > 0 && height > 0;
@@ -38,6 +131,22 @@ async function applyWatermark(job) {
   const watermarkSizeBase = Math.min(referenceWidth || 0, referenceHeight || 0);
   const watermarkScale = job.blockKind === 'cover' || job.blockKind === 'blocks.image-highlight' ? 0.3 : 0.42;
   const watermarkWidth = Math.max(job.blockKind === 'cover' || job.blockKind === 'blocks.image-highlight' ? 120 : 160, Math.round(watermarkSizeBase * watermarkScale));
+  log('info', 'watermark geometry calculated', {
+    blockKind: job.blockKind,
+    blockWidth,
+    blockHeight,
+    hasBlockFrame,
+    frameMatchesImageRatio,
+    coverScale,
+    referenceWidth,
+    referenceHeight,
+    referenceLeft,
+    referenceTop,
+    watermarkSizeBase,
+    watermarkScale,
+    watermarkWidth,
+  });
+
   const logo = sharp(watermarkPath)
     .trim()
     .resize({
@@ -51,44 +160,111 @@ async function applyWatermark(job) {
   const safeTop = Math.max(referenceTop, referenceTop + referenceHeight - (logoMeta.height || 0) - marginY);
   const left = referenceLeft + marginX;
   const top = safeTop;
+  log('info', 'logo prepared and final position calculated', {
+    logoMeta,
+    logoBufferBytes: logoBuffer.length,
+    marginX,
+    marginY,
+    left,
+    top,
+  });
+
+  log('debug', 'writing watermarked output started', { outputPath });
   await image.composite([{ input: logoBuffer, left, top }]).toFile(outputPath);
+  log('info', 'writing watermarked output completed', {
+    outputPath,
+    output: await pathStats(outputPath),
+    durationMs: Date.now() - startedAt,
+  });
+
   return outputPath;
 }
 
 async function processJobFile(file) {
+  const startedAt = Date.now();
   const fullPath = path.join(jobsDir, file);
+  log('info', 'job file processing started', { file, fullPath, stats: await pathStats(fullPath) });
   const raw = await fs.promises.readFile(fullPath, 'utf8');
+  log('debug', 'job file read completed', { file, fullPath, rawBytes: Buffer.byteLength(raw), raw });
 
   try {
     const job = JSON.parse(raw);
+    log('info', 'job json parsed', { file, job });
     const result = await applyWatermark(job);
-    await fs.promises.writeFile(fullPath + '.done', JSON.stringify({ ok: true, result }, null, 2));
+    const donePayload = { ok: true, result, processedAt: new Date().toISOString(), durationMs: Date.now() - startedAt };
+    await fs.promises.writeFile(fullPath + '.done', JSON.stringify(donePayload, null, 2));
+    log('info', 'job done marker written', { file, donePath: fullPath + '.done', donePayload });
     await fs.promises.unlink(fullPath);
+    log('info', 'job file removed after success', { file, fullPath, durationMs: Date.now() - startedAt });
   } catch (error) {
     const errorPath = fullPath + '.error';
     const message = error instanceof Error ? error.message : 'Unknown error';
-    await fs.promises.writeFile(errorPath, JSON.stringify({ ok: false, error: message, raw }, null, 2));
+    const errorPayload = {
+      ok: false,
+      error: message,
+      errorDetails: serializeError(error),
+      raw,
+      failedAt: new Date().toISOString(),
+      durationMs: Date.now() - startedAt,
+    };
+    log('error', 'job processing failed', { file, fullPath, errorPath, error: serializeError(error), raw });
+    await fs.promises.writeFile(errorPath, JSON.stringify(errorPayload, null, 2));
+    log('warn', 'job error marker written', { file, errorPath, errorPayload });
     await fs.promises.unlink(fullPath).catch(() => null);
+    log('warn', 'job file removed after failure', { file, fullPath, durationMs: Date.now() - startedAt });
   }
 }
 
 async function main() {
+  log('info', 'vino watermark worker starting', {
+    nodeVersion: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    cwd: process.cwd(),
+    pid: process.pid,
+    env: {
+      NODE_ENV: process.env.NODE_ENV,
+      JOBS_DIR: jobsDir,
+      INPUT_DIR: inputDir,
+      OUTPUT_DIR: outputDir,
+      WATERMARK_LOGO_PATH: watermarkPath,
+      WATERMARK_LOG_LEVEL: logLevel,
+      WATERMARK_LOG_POLLS: shouldLogPolls,
+    },
+  });
   await ensureDir(jobsDir);
   await ensureDir(inputDir);
   await ensureDir(outputDir);
+  log('info', 'vino watermark worker ready', {
+    jobsDir: await pathStats(jobsDir),
+    inputDir: await pathStats(inputDir),
+    outputDir: await pathStats(outputDir),
+    watermark: await pathStats(watermarkPath),
+  });
+
   setInterval(async () => {
     try {
+      const pollStartedAt = Date.now();
       const files = await fs.promises.readdir(jobsDir);
-      for (const file of files.filter((name) => name.endsWith('.json'))) {
+      const jobFiles = files.filter((name) => name.endsWith('.json'));
+      if (shouldLogPolls || jobFiles.length) {
+        log('debug', 'jobs directory polled', {
+          jobsDir,
+          files,
+          jobFiles,
+          durationMs: Date.now() - pollStartedAt,
+        });
+      }
+      for (const file of jobFiles) {
         await processJobFile(file);
       }
     } catch (error) {
-      console.error(error);
+      log('error', 'polling loop failed', { error: serializeError(error) });
     }
   }, 1000);
 }
 
 main().catch((error) => {
-  console.error(error);
+  log('error', 'vino watermark worker fatal startup error', { error: serializeError(error) });
   process.exit(1);
 });
