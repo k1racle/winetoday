@@ -332,13 +332,154 @@ function resolveWatermarkOutputDir() {
 
 const watermarkMaxConcurrent = Math.max(1, Number(process.env.WATERMARK_MAX_CONCURRENT) || 1);
 const watermarkMaxQueuedJobs = Math.max(1, Number(process.env.WATERMARK_MAX_QUEUED_JOBS) || 25);
-let watermarkInFlight = 0;
+let watermarkEnqueueInFlight = 0;
+const watermarkFinalizeInFlight = new Set<string>();
+
+type WatermarkPendingMeta = {
+  assetId: number;
+  blockKind: string;
+  createAsset: boolean;
+  sourcePath: string;
+  outputFileName: string;
+  enqueuedAt: string;
+};
+
+type WatermarkFinalizedMeta = {
+  ok: true;
+  status: 'done';
+  assetId: number;
+  asset: ReturnType<typeof serializeUploadedAsset>;
+  finalizedAt: string;
+};
+
+function isInternalWatermarkRequest(ctx: any) {
+  const watermarkSecret = typeof process.env.WATERMARK_SECRET === 'string' ? process.env.WATERMARK_SECRET.trim() : '';
+  const requestSecret = typeof ctx.request.header?.['x-watermark-secret'] === 'string'
+    ? ctx.request.header['x-watermark-secret'].trim()
+    : '';
+
+  return Boolean(watermarkSecret) && requestSecret === watermarkSecret;
+}
+
+function assertInternalWatermarkRequest(ctx: any) {
+  if (!isInternalWatermarkRequest(ctx)) {
+    throw new ForbiddenError('Для watermark требуется внутренний секрет.');
+  }
+}
+
+function resolveWatermarkMetaPath(outputFileName: string) {
+  return path.join(resolveWatermarkOutputDir(), `${outputFileName}.meta.json`);
+}
+
+function resolveWatermarkFinalizedPath(outputFileName: string) {
+  return path.join(resolveWatermarkOutputDir(), `${outputFileName}.finalized.json`);
+}
+
+async function writeWatermarkPendingMeta(meta: WatermarkPendingMeta) {
+  const outputDir = resolveWatermarkOutputDir();
+  await fs.mkdir(outputDir, { recursive: true });
+  await fs.writeFile(resolveWatermarkMetaPath(meta.outputFileName), JSON.stringify(meta, null, 2));
+}
+
+async function readWatermarkPendingMeta(outputFileName: string) {
+  try {
+    const raw = await fs.readFile(resolveWatermarkMetaPath(outputFileName), 'utf8');
+    return JSON.parse(raw) as WatermarkPendingMeta;
+  } catch {
+    return null;
+  }
+}
+
+async function readWatermarkFinalizedMeta(outputFileName: string) {
+  try {
+    const raw = await fs.readFile(resolveWatermarkFinalizedPath(outputFileName), 'utf8');
+    return JSON.parse(raw) as WatermarkFinalizedMeta;
+  } catch {
+    return null;
+  }
+}
+
+async function writeWatermarkFinalizedMeta(outputFileName: string, payload: WatermarkFinalizedMeta) {
+  await fs.writeFile(resolveWatermarkFinalizedPath(outputFileName), JSON.stringify(payload, null, 2));
+}
+
+async function removeWatermarkMetaFiles(outputFileName: string) {
+  await Promise.all([
+    removeWatermarkArtifactIfExists(resolveWatermarkMetaPath(outputFileName)),
+    removeWatermarkArtifactIfExists(resolveWatermarkFinalizedPath(outputFileName)),
+  ]);
+}
+
+type WatermarkOutputState =
+  | { status: 'pending' }
+  | { status: 'error'; message: string }
+  | { status: 'ready'; resultPath: string };
+
+async function checkWatermarkOutputOnce(outputFileName: string): Promise<WatermarkOutputState> {
+  const outputPath = path.join(resolveWatermarkOutputDir(), outputFileName);
+  const errorPath = `${outputPath}.error`;
+
+  try {
+    await fs.access(outputPath);
+    return { status: 'ready', resultPath: outputPath };
+  } catch {
+    try {
+      await fs.access(errorPath);
+      const errorPayload = JSON.parse(await fs.readFile(errorPath, 'utf8')) as { error?: string };
+      return { status: 'error', message: errorPayload.error ?? 'Не удалось обработать watermark.' };
+    } catch {
+      return { status: 'pending' };
+    }
+  }
+}
+
+async function finalizeWatermarkResult(
+  strapi: any,
+  meta: WatermarkPendingMeta,
+  resultPath: string,
+): Promise<WatermarkFinalizedMeta> {
+  const asset = await strapi.db.query('plugin::upload.file').findOne({ where: { id: meta.assetId } });
+  if (!asset || asset.provider !== 'local' || typeof asset.url !== 'string') {
+    throw new NotFoundError('Файл не найден или недоступен для watermark.');
+  }
+
+  const shouldCreateSeparateAsset = meta.blockKind === 'archive-cover' && meta.createAsset !== false;
+  const outputAsset = shouldCreateSeparateAsset
+    ? await createUploadFileFromPath(strapi, resultPath, asset, 'archive-cover')
+    : null;
+
+  if (!shouldCreateSeparateAsset) {
+    await fs.copyFile(resultPath, meta.sourcePath);
+  }
+
+  return {
+    ok: true,
+    status: 'done',
+    assetId: outputAsset?.id ?? asset.id,
+    asset: outputAsset ? serializeUploadedAsset(outputAsset) : serializeUploadedAsset(asset),
+    finalizedAt: new Date().toISOString(),
+  };
+}
+
+function isPendingWatermarkJobFile(fileName: string) {
+  return fileName.endsWith('.json')
+    && !fileName.endsWith('.json.done')
+    && !fileName.endsWith('.json.error')
+    && !fileName.endsWith('.json.processing');
+}
+
+function buildWatermarkJobFileName(assetId: number, blockKind: string, sourcePath: string) {
+  const sourceBasename = path.basename(sourcePath);
+  const jobToken = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;
+  const blockSuffix = blockKind.replace(/[^a-z0-9.-]+/gi, '-').replace(/^-+|-+$/g, '') || 'image';
+  return `${assetId}-${blockSuffix}-${jobToken}-${sourceBasename}`;
+}
 
 async function getWatermarkQueuedJobsCount() {
   const jobDir = resolveWatermarkJobDir();
   try {
     const files = await fs.readdir(jobDir);
-    return files.filter((file) => file.endsWith('.json')).length;
+    return files.filter((file) => isPendingWatermarkJobFile(file)).length;
   } catch {
     return 0;
   }
@@ -394,36 +535,6 @@ async function copyToWatermarkInput(sourcePath: string, targetName: string) {
   const targetPath = path.join(inputDir, targetName);
   await fs.copyFile(sourcePath, targetPath);
   return targetPath;
-}
-
-async function readWatermarkResult(outputFileName: string) {
-  const outputPath = path.join(resolveWatermarkOutputDir(), outputFileName);
-  const errorPath = `${outputPath}.error`;
-  const maxAttempts = Math.max(5, Number(process.env.WATERMARK_RESULT_MAX_ATTEMPTS) || 30);
-  const pollIntervalMs = Math.max(250, Number(process.env.WATERMARK_RESULT_POLL_MS) || 1000);
-
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    try {
-      await fs.access(outputPath);
-      return outputPath;
-    } catch {
-      try {
-        await fs.access(errorPath);
-        const errorPayload = JSON.parse(await fs.readFile(errorPath, 'utf8')) as { error?: string };
-        throw new ValidationError(errorPayload.error ?? 'Не удалось обработать watermark.');
-      } catch (error) {
-        if (error instanceof ValidationError) {
-          throw error;
-        }
-      }
-    }
-
-    if (attempt < maxAttempts - 1) {
-      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
-    }
-  }
-
-  throw new ValidationError('Не дождались результата watermark-обработки.');
 }
 
 async function createUploadFileFromPath(strapi: any, filePath: string, sourceAsset: Record<string, any>, suffix: string) {
@@ -1630,16 +1741,7 @@ export default factories.createCoreController('api::member-profile.member-profil
   },
 
   async watermark(ctx: any) {
-    const watermarkSecret = typeof process.env.WATERMARK_SECRET === 'string' ? process.env.WATERMARK_SECRET.trim() : '';
-    const requestSecret = typeof ctx.request.header?.['x-watermark-secret'] === 'string'
-      ? ctx.request.header['x-watermark-secret'].trim()
-      : '';
-
-    const isInternalWatermarkRequest = Boolean(watermarkSecret) && requestSecret === watermarkSecret;
-
-    if (!isInternalWatermarkRequest) {
-      throw new ForbiddenError('Для watermark требуется внутренний секрет.');
-    }
+    assertInternalWatermarkRequest(ctx);
 
     const fileId = Number(ctx.params.id);
     if (!Number.isInteger(fileId) || fileId <= 0) {
@@ -1665,7 +1767,7 @@ export default factories.createCoreController('api::member-profile.member-profil
       throw new NotFoundError('Файл не найден или недоступен для watermark.');
     }
 
-    if (watermarkInFlight >= watermarkMaxConcurrent) {
+    if (watermarkEnqueueInFlight >= watermarkMaxConcurrent) {
       throw new ValidationError('Сервис watermark перегружен. Повторите попытку через несколько секунд.');
     }
 
@@ -1674,45 +1776,96 @@ export default factories.createCoreController('api::member-profile.member-profil
       throw new ValidationError('Очередь watermark переполнена. Повторите попытку чуть позже.');
     }
 
-    watermarkInFlight += 1;
+    watermarkEnqueueInFlight += 1;
     try {
       const sourcePath = path.join(process.cwd(), 'public', asset.url.replace(/^\//, ''));
-      const jobInputName = `${asset.id}-${path.basename(sourcePath)}`;
-      await cleanupWatermarkArtifactsForFile(jobInputName);
+      const jobInputName = buildWatermarkJobFileName(asset.id, blockKind, sourcePath);
       const copiedInput = await copyToWatermarkInput(sourcePath, jobInputName);
+      const outputFileName = path.basename(copiedInput);
       const jobPayload = {
         assetId: asset.id,
-        inputFile: path.basename(copiedInput),
-        outputFile: path.basename(copiedInput),
+        inputFile: outputFileName,
+        outputFile: outputFileName,
         ...buildWatermarkPosition(blockKind, blockWidth, blockHeight),
       };
 
-      let resultPath: string | null = null;
+      await enqueueWatermarkJob(jobPayload);
+      await writeWatermarkPendingMeta({
+        assetId: asset.id,
+        blockKind,
+        createAsset: body?.createAsset !== false,
+        sourcePath,
+        outputFileName,
+        enqueuedAt: new Date().toISOString(),
+      });
 
-      try {
-        await enqueueWatermarkJob(jobPayload);
-        resultPath = await readWatermarkResult(path.basename(copiedInput));
-        const shouldCreateSeparateAsset = blockKind === 'archive-cover' && body?.createAsset !== false;
-        const outputAsset = shouldCreateSeparateAsset
-          ? await createUploadFileFromPath(strapi, resultPath, asset, 'archive-cover')
-          : null;
-
-        if (!shouldCreateSeparateAsset) {
-          await fs.copyFile(resultPath, sourcePath);
-        }
-
-        ctx.body = {
-          ok: true,
-          assetId: outputAsset?.id ?? asset.id,
-          asset: outputAsset ? serializeUploadedAsset(outputAsset) : serializeUploadedAsset(asset),
-          job: jobPayload,
-          outputPath: resultPath,
-        };
-      } finally {
-        await cleanupWatermarkArtifactsForFile(jobInputName);
-      }
+      ctx.body = {
+        ok: true,
+        status: 'pending',
+        outputFileName,
+        assetId: asset.id,
+        job: jobPayload,
+      };
     } finally {
-      watermarkInFlight = Math.max(0, watermarkInFlight - 1);
+      watermarkEnqueueInFlight = Math.max(0, watermarkEnqueueInFlight - 1);
+    }
+  },
+
+  async watermarkStatus(ctx: any) {
+    assertInternalWatermarkRequest(ctx);
+
+    const outputFileName = typeof ctx.params.outputFileName === 'string' ? ctx.params.outputFileName.trim() : '';
+    if (!outputFileName) {
+      throw new ValidationError('Некорректное имя watermark-задачи.');
+    }
+
+    const finalized = await readWatermarkFinalizedMeta(outputFileName);
+    if (finalized) {
+      ctx.body = finalized;
+      return;
+    }
+
+    const meta = await readWatermarkPendingMeta(outputFileName);
+    if (!meta) {
+      throw new NotFoundError('Watermark-задача не найдена.');
+    }
+
+    const outputState = await checkWatermarkOutputOnce(outputFileName);
+    if (outputState.status === 'pending') {
+      ctx.body = {
+        ok: true,
+        status: 'pending',
+        outputFileName,
+        assetId: meta.assetId,
+      };
+      return;
+    }
+
+    if (outputState.status === 'error') {
+      await cleanupWatermarkArtifactsForFile(outputFileName);
+      await removeWatermarkMetaFiles(outputFileName);
+      throw new ValidationError(outputState.message);
+    }
+
+    if (watermarkFinalizeInFlight.has(outputFileName)) {
+      ctx.body = {
+        ok: true,
+        status: 'pending',
+        outputFileName,
+        assetId: meta.assetId,
+      };
+      return;
+    }
+
+    watermarkFinalizeInFlight.add(outputFileName);
+    try {
+      const finalizedPayload = await finalizeWatermarkResult(strapi, meta, outputState.resultPath);
+      await writeWatermarkFinalizedMeta(outputFileName, finalizedPayload);
+      await cleanupWatermarkArtifactsForFile(outputFileName);
+      await removeWatermarkMetaFiles(outputFileName);
+      ctx.body = finalizedPayload;
+    } finally {
+      watermarkFinalizeInFlight.delete(outputFileName);
     }
   },
 

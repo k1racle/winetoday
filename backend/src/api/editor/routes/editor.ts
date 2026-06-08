@@ -84,6 +84,14 @@ export default {
       },
     },
     {
+      method: 'GET',
+      path: '/editor/watermark/status/:outputFileName',
+      handler: 'editor.watermarkStatus',
+      config: {
+        auth: false,
+      },
+    },
+    {
       method: 'POST',
       path: '/editor/content/:type',
       handler: 'editor.save',

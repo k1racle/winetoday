@@ -16,6 +16,13 @@ const workerStartedAt = Date.now();
 let lastMarkerCleanupAt = 0;
 const processingJobs = new Set();
 
+function isPendingWatermarkJobFile(fileName) {
+  return fileName.endsWith('.json')
+    && !fileName.endsWith('.json.done')
+    && !fileName.endsWith('.json.error')
+    && !fileName.endsWith('.json.processing');
+}
+
 sharp.cache(false);
 sharp.concurrency(Math.max(1, Number(process.env.SHARP_CONCURRENCY) || 1));
 
@@ -87,8 +94,8 @@ async function ensureDir(dir) {
 }
 
 function summarizeJobDirectory(files, jobFiles) {
-  const doneFiles = files.filter((name) => name.endsWith('.json.done'));
-  const errorFiles = files.filter((name) => name.endsWith('.json.error'));
+  const doneFiles = files.filter((name) => name.endsWith('.json.done') || name.endsWith('.json.processing.done'));
+  const errorFiles = files.filter((name) => name.endsWith('.json.error') || name.endsWith('.json.processing.error'));
 
   return {
     totalFileCount: files.length,
@@ -113,7 +120,13 @@ async function cleanupOldMarkers(reason = 'scheduled') {
   });
 
   const files = await fs.promises.readdir(jobsDir);
-  const markerFiles = files.filter((name) => name.endsWith('.json.done') || name.endsWith('.json.error'));
+  const markerFiles = files.filter((name) => (
+    name.endsWith('.json.done')
+    || name.endsWith('.json.error')
+    || name.endsWith('.json.processing')
+    || name.endsWith('.json.processing.done')
+    || name.endsWith('.json.processing.error')
+  ));
   let deletedCount = 0;
   let keptCount = 0;
   let failedCount = 0;
@@ -232,7 +245,10 @@ async function cleanupDirectoryByAge(dir, reason, options = {}) {
 
 async function cleanupStaleFiles(reason = 'scheduled') {
   await cleanupDirectoryByAge(inputDir, reason);
-  await cleanupDirectoryByAge(outputDir, reason, { includeErrorSuffix: true });
+  await cleanupDirectoryByAge(outputDir, reason, {
+    includeErrorSuffix: true,
+    excludeExtensions: ['.meta.json', '.finalized.json'],
+  });
 }
 
 
@@ -344,26 +360,34 @@ async function processJobFile(file) {
     return;
   }
 
+  const fullPath = path.join(jobsDir, file);
+  const processingPath = `${fullPath}.processing`;
+
+  try {
+    await fs.promises.rename(fullPath, processingPath);
+  } catch {
+    return;
+  }
+
   processingJobs.add(file);
   const startedAt = Date.now();
-  const fullPath = path.join(jobsDir, file);
-  log('info', 'job file processing started', { file, fullPath, stats: await pathStats(fullPath) });
+  log('info', 'job file processing started', { file, fullPath: processingPath, stats: await pathStats(processingPath) });
   let raw = '';
   let parsedJob = null;
 
   try {
-    raw = await fs.promises.readFile(fullPath, 'utf8');
+    raw = await fs.promises.readFile(processingPath, 'utf8');
     log('debug', 'job file read completed', { file, fullPath, rawBytes: Buffer.byteLength(raw), rawPreview: raw.slice(0, 2000) });
     parsedJob = JSON.parse(raw);
     log('info', 'job json parsed', { file, job: parsedJob });
     const result = await applyWatermark(parsedJob);
     const donePayload = { ok: true, result, processedAt: new Date().toISOString(), durationMs: Date.now() - startedAt };
-    await fs.promises.writeFile(fullPath + '.done', JSON.stringify(donePayload, null, 2));
-    log('info', 'job done marker written', { file, donePath: fullPath + '.done', donePayload });
-    await fs.promises.unlink(fullPath);
-    log('info', 'job file removed after success', { file, fullPath, durationMs: Date.now() - startedAt });
+    await fs.promises.writeFile(processingPath + '.done', JSON.stringify(donePayload, null, 2));
+    log('info', 'job done marker written', { file, donePath: processingPath + '.done', donePayload });
+    await fs.promises.unlink(processingPath);
+    log('info', 'job file removed after success', { file, fullPath: processingPath, durationMs: Date.now() - startedAt });
   } catch (error) {
-    const errorPath = fullPath + '.error';
+    const errorPath = processingPath + '.error';
     const message = error instanceof Error ? error.message : 'Unknown error';
     const errorPayload = {
       ok: false,
@@ -397,8 +421,8 @@ async function processJobFile(file) {
         log('error', 'output error marker write failed', { file, outputErrorPath, error: serializeError(writeOutputError) });
       }
     }
-    await fs.promises.unlink(fullPath).catch(() => null);
-    log('warn', 'job file removed after failure', { file, fullPath, durationMs: Date.now() - startedAt });
+    await fs.promises.unlink(processingPath).catch(() => null);
+    log('warn', 'job file removed after failure', { file, fullPath: processingPath, durationMs: Date.now() - startedAt });
   } finally {
     processingJobs.delete(file);
   }
@@ -447,7 +471,7 @@ async function main() {
     try {
       const pollStartedAt = Date.now();
       const files = await fs.promises.readdir(jobsDir);
-      const jobFiles = files.filter((name) => name.endsWith('.json') && !name.endsWith('.json.done') && !name.endsWith('.json.error'));
+      const jobFiles = files.filter((name) => isPendingWatermarkJobFile(name));
       if (shouldLogPolls || jobFiles.length) {
         log('debug', 'jobs directory polled', {
           jobsDir,

@@ -34,6 +34,8 @@ services:
       timeout: 5s
       retries: 12
       start_period: 120s
+    mem_limit: 1024m
+    memswap_limit: 1024m
     restart: unless-stopped
 
   backend:
@@ -104,6 +106,8 @@ services:
       timeout: 10s
       retries: 30
       start_period: 120s
+    mem_limit: 1536m
+    memswap_limit: 1536m
     restart: unless-stopped
 
   postgres:
@@ -174,10 +178,8 @@ services:
       - watermark_jobs:/app/jobs
       - watermark_input:/app/input
       - watermark_output:/app/output
-    deploy:
-      resources:
-        limits:
-          memory: 512M
+    mem_limit: 512m
+    memswap_limit: 512m
     healthcheck:
       test: ["CMD", "node", "-e", "const fs=require('node:fs');const dir=process.env.JOBS_DIR||'/app/jobs';try{fs.accessSync(dir);process.exit(0)}catch{process.exit(1)}"]
       interval: 15s

@@ -446,6 +446,55 @@ async function refreshMediaAssets() {
   return mediaPayload;
 }
 
+function sleep(ms: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+type WatermarkApiResponse = EditorApiError | {
+  ok?: boolean;
+  status?: "pending" | "done";
+  assetId?: number;
+  asset?: UploadedAsset;
+  outputFileName?: string;
+};
+
+async function pollWatermarkStatus(outputFileName: string) {
+  const maxAttempts = 60;
+  const pollMs = 2000;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    await sleep(pollMs);
+
+    const statusResponse = await fetch(`/api/editor/watermark/status/${encodeURIComponent(outputFileName)}`, {
+      method: "GET",
+      cache: "no-store",
+    });
+    const statusPayload = await parseJson<WatermarkApiResponse>(statusResponse);
+
+    console.info("[watermark] poll", { attempt: attempt + 1, status: statusResponse.status, payload: statusPayload });
+
+    if (statusResponse.status === 403) {
+      throw new Error("Нет доступа для нанесения watermark.");
+    }
+
+    if (!statusResponse.ok) {
+      throw new Error(getErrorMessage(statusPayload as EditorApiError | null, "Не удалось получить статус watermark."));
+    }
+
+    if (statusPayload && "status" in statusPayload && statusPayload.status === "done" && statusPayload.assetId) {
+      return statusPayload;
+    }
+
+    if (statusPayload && "status" in statusPayload && statusPayload.status !== "pending") {
+      break;
+    }
+  }
+
+  throw new Error("Не дождались результата watermark-обработки.");
+}
+
 async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidth: number, blockHeight: number, options?: { createAsset?: boolean }) {
   console.info("[watermark] sending request", { assetId, blockKind, blockWidth, blockHeight, createAsset: options?.createAsset });
   const response = await fetch(`/api/editor/watermark/${assetId}`, {
@@ -456,7 +505,7 @@ async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidt
     body: JSON.stringify({ blockKind, blockWidth, blockHeight, createAsset: options?.createAsset }),
   });
 
-  const responsePayload = await parseJson<EditorApiError | { ok?: boolean; assetId?: number; asset?: UploadedAsset }>(response);
+  const responsePayload = await parseJson<WatermarkApiResponse>(response);
 
   console.info("[watermark] response", { status: response.status, ok: response.ok, payload: responsePayload });
 
@@ -468,7 +517,16 @@ async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidt
     throw new Error(getErrorMessage(responsePayload as EditorApiError | null, "Не удалось нанести watermark."));
   }
 
-  return responsePayload && "assetId" in responsePayload ? responsePayload : null;
+  if (responsePayload && "status" in responsePayload && responsePayload.status === "done" && responsePayload.assetId) {
+    return responsePayload;
+  }
+
+  const outputFileName = responsePayload && "outputFileName" in responsePayload ? responsePayload.outputFileName : null;
+  if (!outputFileName) {
+    throw new Error("Сервер не вернул идентификатор watermark-задачи.");
+  }
+
+  return pollWatermarkStatus(outputFileName);
 }
 
 type MediaPickerProps = {
