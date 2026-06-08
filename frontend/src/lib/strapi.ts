@@ -4,6 +4,7 @@ import { cache } from "react";
 
 export const SITE_URL = process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://127.0.0.1";
 const CMS_URL = process.env.CMS_URL ?? "http://localhost:1337";
+const MEDIA_URL = process.env.MEDIA_URL?.trim() || new URL("/uploads/", SITE_URL).toString();
 export const CMS_API_URL = CMS_URL;
 const HAS_REVALIDATE_SECRET = Boolean(process.env.REVALIDATE_SECRET);
 
@@ -22,8 +23,7 @@ function normalizeSiteOrigin(value?: string | null, fallback = SITE_URL) {
 
 function resolveMediaUrl(path: string) {
   const normalizedPath = path.replace(/^\/+/, "").replace(/^uploads\//, "");
-  // Always relative: works via domain, IP:8080 gateway, or IP:3000 with Next rewrite.
-  return `/uploads/${normalizedPath}`;
+  return new URL(normalizedPath, `${MEDIA_URL.replace(/\/+$/, "")}/`).toString();
 }
 
 const DEFAULT_REVALIDATE_SECONDS = 300;
@@ -1737,60 +1737,26 @@ export function buildSeoMetadata({
   };
 }
 
-export function normalizePublicMediaUrl(url?: string | null) {
+function normalizeUrl(url?: string | null) {
   if (!url) {
     return null;
   }
 
-  const trimmed = url.trim();
-
-  if (!trimmed) {
-    return null;
-  }
-
-  if (trimmed.startsWith("//")) {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
     try {
-      const parsed = new URL(`https:${trimmed}`);
-
-      if (parsed.pathname.startsWith("/uploads/")) {
-        return resolveMediaUrl(`${parsed.pathname}${parsed.search}${parsed.hash}`);
-      }
-    } catch {
-      return trimmed;
-    }
-  }
-
-  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-    try {
-      const parsedUrl = new URL(trimmed);
+      const parsedUrl = new URL(url);
 
       if (parsedUrl.pathname.startsWith("/uploads/")) {
         return resolveMediaUrl(`${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`);
       }
 
-      return trimmed;
+      return url;
     } catch {
-      return trimmed;
+      return url;
     }
   }
 
-  return resolveMediaUrl(trimmed);
-}
-
-function normalizeUrl(url?: string | null) {
-  return normalizePublicMediaUrl(url);
-}
-
-export function rewriteUploadUrlsInHtml(html: string) {
-  return html.replace(/(\s(?:src|href)=["'])([^"']+)(["'])/gi, (match, prefix, value, suffix) => {
-    const normalized = normalizePublicMediaUrl(value);
-
-    if (!normalized || normalized === value) {
-      return match;
-    }
-
-    return `${prefix}${normalized}${suffix}`;
-  });
+  return resolveMediaUrl(url);
 }
 
 export function toAbsoluteSiteUrl(url?: string | null, baseUrl = SITE_URL) {

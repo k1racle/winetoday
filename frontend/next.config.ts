@@ -2,14 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    // Sharp inside the frontend container caused OOM and aborted /_next/image requests.
-    // Media is proxied via app/uploads/[...path]/route.ts (Range-aware for mobile Safari).
+    dangerouslyAllowLocalIP: true,
     unoptimized: true,
-    localPatterns: [
-      {
-        pathname: "/uploads/**",
-      },
-    ],
     remotePatterns: [
       {
         protocol: "http",
@@ -18,12 +12,25 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "http",
+        hostname: "localhost",
+      },
+      {
+        protocol: "http",
         hostname: "127.0.0.1",
         port: "1337",
       },
       {
         protocol: "http",
+        hostname: "127.0.0.1",
+      },
+      {
+        protocol: "http",
         hostname: "backend",
+        port: "1337",
+      },
+      {
+        protocol: "http",
+        hostname: "185.72.147.187",
         port: "1337",
       },
       {

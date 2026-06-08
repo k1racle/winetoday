@@ -1,31 +1,11 @@
 services:
-  gateway:
-    image: nginx:1.27-alpine
-    container_name: vino_gateway
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    ports:
-      - "8080:80"
-    depends_on:
-      frontend:
-        condition: service_healthy
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1/"]
-      interval: 10s
-      timeout: 5s
-      retries: 6
-      start_period: 10s
-    restart: unless-stopped
-
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
-        NEXT_PUBLIC_MEILISEARCH_URL: ${SITE_URL:-http://localhost}/search
+        NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
     container_name: vino_frontend
     working_dir: /app
     environment:
@@ -36,11 +16,12 @@ services:
       NEXTAUTH_URL: ${NEXTAUTH_URL}
       SITE_URL: ${SITE_URL:-http://localhost}
       CMS_URL: http://backend:1337
+      MEDIA_URL: ${MEDIA_URL:-}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
       NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
-      NEXT_PUBLIC_MEILISEARCH_URL: ${SITE_URL:-http://localhost}/search
+      NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3000:3000"
     depends_on:
       backend:
         condition: service_healthy
@@ -82,9 +63,6 @@ services:
       STRAPI_ADMIN_PASSWORD: ${STRAPI_ADMIN_PASSWORD}
       FRONTEND_REVALIDATE_URL: http://frontend:3000/api/revalidate
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
-      SITE_URL: ${SITE_URL:-http://localhost}
-      CLIENT_URL: ${CLIENT_URL:-http://localhost}
-      PUBLIC_SERVER_URL: ${PUBLIC_SERVER_URL:-http://localhost}
       DATABASE_CLIENT: postgres
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
@@ -96,7 +74,7 @@ services:
       MEILISEARCH_URL: http://meilisearch:7700
       MEILISEARCH_API_KEY: ${MEILI_MASTER_KEY}
     ports:
-      - "127.0.0.1:1337:1337"
+      - "1337:1337"
     volumes:
       - backend_uploads:/app/public/uploads
     depends_on:
