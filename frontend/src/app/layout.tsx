@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import Link from "next/link";
 import Script from "next/script";
 
+import { BrowserResourceDebug } from "@/components/browser-resource-debug";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { AuthWidget } from "@/components/auth-widget";
 import { MobileWidgetsProvider } from "@/components/mobile-widgets-provider";
@@ -303,6 +304,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full bg-background font-sans text-foreground">
+        <BrowserResourceDebug />
         <MobileWidgetsProvider>
           <Script id="yandex-metrika" strategy="afterInteractive">
             {yandexMetrikaInitScript}
