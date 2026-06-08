@@ -15,7 +15,6 @@ services:
       CMS_URL: http://backend:1337
       MEDIA_URL: ${MEDIA_URL:-http://localhost/uploads}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
-      WATERMARK_SECRET: ${WATERMARK_SECRET}
       NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
       NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
     ports:
@@ -84,9 +83,6 @@ services:
       - "1337:1337"
     volumes:
       - backend_uploads:/app/public/uploads
-      - watermark_jobs:/app/watermark/jobs
-      - watermark_input:/app/watermark/input
-      - watermark_output:/app/watermark/output
     depends_on:
       postgres:
         condition: service_healthy
@@ -183,9 +179,6 @@ services:
 
 volumes:
   backend_uploads:
-  watermark_jobs:
-  watermark_input:
-  watermark_output:
   postgres_data:
   redis_data:
   meili_data:
