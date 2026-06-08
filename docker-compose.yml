@@ -60,6 +60,8 @@ services:
       FRONTEND_REVALIDATE_URL: http://frontend:3000/api/revalidate
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
       WATERMARK_SECRET: ${WATERMARK_SECRET}
+      WATERMARK_RESULT_MAX_ATTEMPTS: 30
+      WATERMARK_RESULT_POLL_MS: 1000
       SITE_URL: ${SITE_URL:-http://localhost}
       PUBLIC_SERVER_URL: ${PUBLIC_SERVER_URL:-${SITE_URL:-http://localhost}}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
@@ -157,11 +159,26 @@ services:
       INPUT_DIR: /app/input
       OUTPUT_DIR: /app/output
       WATERMARK_LOGO_PATH: /app/assets/logo1.png
+      WATERMARK_LOG_LEVEL: info
+      WATERMARK_FILE_TTL_HOURS: 6
+      WATERMARK_MARKER_TTL_HOURS: 24
+      WATERMARK_MARKER_CLEANUP_INTERVAL_HOURS: 1
+      WATERMARK_POLL_INTERVAL_MS: 1000
+      SHARP_CONCURRENCY: 1
     volumes:
       - watermark_jobs:/app/jobs
       - watermark_input:/app/input
       - watermark_output:/app/output
-      - backend_uploads:/app/shared/uploads
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "node", "-e", "const fs=require('node:fs');const dir=process.env.JOBS_DIR||'/app/jobs';try{fs.accessSync(dir);process.exit(0)}catch{process.exit(1)}"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     restart: unless-stopped
 
 volumes:

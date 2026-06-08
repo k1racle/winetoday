@@ -344,6 +344,25 @@ function buildWatermarkPosition(blockKind: string, blockWidth?: number | null, b
   };
 }
 
+async function removeWatermarkArtifactIfExists(targetPath: string) {
+  try {
+    await fs.unlink(targetPath);
+  } catch {
+    // Artifact may not exist yet.
+  }
+}
+
+async function cleanupWatermarkArtifactsForFile(fileName: string) {
+  const inputPath = path.join(resolveWatermarkInputDir(), fileName);
+  const outputPath = path.join(resolveWatermarkOutputDir(), fileName);
+
+  await Promise.all([
+    removeWatermarkArtifactIfExists(inputPath),
+    removeWatermarkArtifactIfExists(outputPath),
+    removeWatermarkArtifactIfExists(`${outputPath}.error`),
+  ]);
+}
+
 async function enqueueWatermarkJob(payload: Record<string, unknown>) {
   const jobDir = resolveWatermarkJobDir();
   await fs.mkdir(jobDir, { recursive: true });
@@ -366,8 +385,10 @@ async function copyToWatermarkInput(sourcePath: string, targetName: string) {
 async function readWatermarkResult(outputFileName: string) {
   const outputPath = path.join(resolveWatermarkOutputDir(), outputFileName);
   const errorPath = `${outputPath}.error`;
+  const maxAttempts = Math.max(5, Number(process.env.WATERMARK_RESULT_MAX_ATTEMPTS) || 30);
+  const pollIntervalMs = Math.max(250, Number(process.env.WATERMARK_RESULT_POLL_MS) || 1000);
 
-  for (let attempt = 0; attempt < 30; attempt += 1) {
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     try {
       await fs.access(outputPath);
       return outputPath;
@@ -377,16 +398,18 @@ async function readWatermarkResult(outputFileName: string) {
         const errorPayload = JSON.parse(await fs.readFile(errorPath, 'utf8')) as { error?: string };
         throw new ValidationError(errorPayload.error ?? 'Не удалось обработать watermark.');
       } catch (error) {
-        if (attempt === 29) {
-          throw new ValidationError('Не дождались результата watermark-обработки.');
+        if (error instanceof ValidationError) {
+          throw error;
         }
       }
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    if (attempt < maxAttempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+    }
   }
 
-  throw new ValidationError('Не удалось обработать watermark.');
+  throw new ValidationError('Не дождались результата watermark-обработки.');
 }
 
 async function createUploadFileFromPath(strapi: any, filePath: string, sourceAsset: Record<string, any>, suffix: string) {
@@ -1630,6 +1653,7 @@ export default factories.createCoreController('api::member-profile.member-profil
 
     const sourcePath = path.join(process.cwd(), 'public', asset.url.replace(/^\//, ''));
     const jobInputName = `${asset.id}-${path.basename(sourcePath)}`;
+    await cleanupWatermarkArtifactsForFile(jobInputName);
     const copiedInput = await copyToWatermarkInput(sourcePath, jobInputName);
     const jobPayload = {
       assetId: asset.id,
@@ -1638,24 +1662,30 @@ export default factories.createCoreController('api::member-profile.member-profil
       ...buildWatermarkPosition(blockKind, blockWidth, blockHeight),
     };
 
-    await enqueueWatermarkJob(jobPayload);
-    const resultPath = await readWatermarkResult(path.basename(copiedInput));
-    const shouldCreateSeparateAsset = blockKind === 'archive-cover' && body?.createAsset !== false;
-    const outputAsset = shouldCreateSeparateAsset
-      ? await createUploadFileFromPath(strapi, resultPath, asset, 'archive-cover')
-      : null;
+    let resultPath: string | null = null;
 
-    if (!shouldCreateSeparateAsset) {
-      await fs.copyFile(resultPath, sourcePath);
+    try {
+      await enqueueWatermarkJob(jobPayload);
+      resultPath = await readWatermarkResult(path.basename(copiedInput));
+      const shouldCreateSeparateAsset = blockKind === 'archive-cover' && body?.createAsset !== false;
+      const outputAsset = shouldCreateSeparateAsset
+        ? await createUploadFileFromPath(strapi, resultPath, asset, 'archive-cover')
+        : null;
+
+      if (!shouldCreateSeparateAsset) {
+        await fs.copyFile(resultPath, sourcePath);
+      }
+
+      ctx.body = {
+        ok: true,
+        assetId: outputAsset?.id ?? asset.id,
+        asset: outputAsset ? serializeUploadedAsset(outputAsset) : serializeUploadedAsset(asset),
+        job: jobPayload,
+        outputPath: resultPath,
+      };
+    } finally {
+      await cleanupWatermarkArtifactsForFile(jobInputName);
     }
-
-    ctx.body = {
-      ok: true,
-      assetId: outputAsset?.id ?? asset.id,
-      asset: outputAsset ? serializeUploadedAsset(outputAsset) : serializeUploadedAsset(asset),
-      job: jobPayload,
-      outputPath: resultPath,
-    };
   },
 
   async save(ctx: any) {
