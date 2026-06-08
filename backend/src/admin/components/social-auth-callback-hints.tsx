@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 type CallbackUrls = {
   google?: string;
   vk?: string;
-  yandex?: string;
 };
 
 type SocialAuthSettingsResponse = {
@@ -113,7 +112,6 @@ export default function SocialAuthCallbackHints() {
         <Flex direction="column" gap={4} alignItems="stretch">
           <ProviderHint label="Google callback URL" value={callbackUrls?.google} />
           <ProviderHint label="VK callback URL" value={callbackUrls?.vk} />
-          <ProviderHint label="Yandex callback URL" value={callbackUrls?.yandex} />
         </Flex>
 
         {error ? (

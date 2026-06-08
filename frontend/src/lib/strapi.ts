@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { cookies, draftMode } from "next/headers";
+import { cookies } from "next/headers";
 import { cache } from "react";
 
 export const SITE_URL = process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://127.0.0.1";
@@ -22,19 +22,13 @@ function normalizeSiteOrigin(value?: string | null, fallback = SITE_URL) {
 
 function resolveMediaUrl(path: string) {
   const normalizedPath = path.replace(/^\/+/, "").replace(/^uploads\//, "");
-  const siteOrigin = normalizeSiteOrigin(process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? null);
-
-  if (!/localhost|127\.0\.0\.1/i.test(siteOrigin)) {
-    return new URL(normalizedPath, `${siteOrigin.replace(/\/+$/, "")}/uploads/`).toString();
-  }
-
+  // Always relative: works via domain, IP:8080 gateway, or IP:3000 with Next rewrite.
   return `/uploads/${normalizedPath}`;
 }
 
 const DEFAULT_REVALIDATE_SECONDS = 300;
 const SETTINGS_REVALIDATE_SECONDS = 300;
 const HOMEPAGE_REVALIDATE_SECONDS = 120;
-const PREVIEW_PATH_COOKIE = "nvt-preview-path";
 type NextFetchRequestInit = RequestInit & {
   next?: {
     revalidate?: number | false;
@@ -1743,26 +1737,60 @@ export function buildSeoMetadata({
   };
 }
 
-function normalizeUrl(url?: string | null) {
+export function normalizePublicMediaUrl(url?: string | null) {
   if (!url) {
     return null;
   }
 
-  if (url.startsWith("http://") || url.startsWith("https://")) {
+  const trimmed = url.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  if (trimmed.startsWith("//")) {
     try {
-      const parsedUrl = new URL(url);
+      const parsed = new URL(`https:${trimmed}`);
+
+      if (parsed.pathname.startsWith("/uploads/")) {
+        return resolveMediaUrl(`${parsed.pathname}${parsed.search}${parsed.hash}`);
+      }
+    } catch {
+      return trimmed;
+    }
+  }
+
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    try {
+      const parsedUrl = new URL(trimmed);
 
       if (parsedUrl.pathname.startsWith("/uploads/")) {
         return resolveMediaUrl(`${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`);
       }
 
-      return url;
+      return trimmed;
     } catch {
-      return url;
+      return trimmed;
     }
   }
 
-  return resolveMediaUrl(url);
+  return resolveMediaUrl(trimmed);
+}
+
+function normalizeUrl(url?: string | null) {
+  return normalizePublicMediaUrl(url);
+}
+
+export function rewriteUploadUrlsInHtml(html: string) {
+  return html.replace(/(\s(?:src|href)=["'])([^"']+)(["'])/gi, (match, prefix, value, suffix) => {
+    const normalized = normalizePublicMediaUrl(value);
+
+    if (!normalized || normalized === value) {
+      return match;
+    }
+
+    return `${prefix}${normalized}${suffix}`;
+  });
 }
 
 export function toAbsoluteSiteUrl(url?: string | null, baseUrl = SITE_URL) {
@@ -1795,22 +1823,6 @@ function toAbsoluteMetadataUrl(url?: string | null, siteOrigin = SITE_URL) {
   } catch {
     return toAbsoluteSiteUrl(url, normalizedSiteOrigin);
   }
-}
-
-async function isPreviewEnabled() {
-  return (await draftMode()).isEnabled;
-}
-
-async function getPreviewPath() {
-  return (await cookies()).get(PREVIEW_PATH_COOKIE)?.value?.trim() || null;
-}
-
-async function shouldUseDraftForPath(pathname: string) {
-  if (!(await isPreviewEnabled())) {
-    return false;
-  }
-
-  return (await getPreviewPath()) === pathname;
 }
 
 function withStatus(path: string, status?: "draft" | "published") {
@@ -2180,8 +2192,6 @@ export async function getArticles(): Promise<ArticleSummary[]> {
 }
 
 export const getArticleBySlug = cache(async function getArticleBySlug(slug: string) {
-  const pathname = `/articles/${slug}`;
-  const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
   const basePathWithMaterialLabel =
     `/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}`
     + "&fields[0]=title"
@@ -2234,8 +2244,8 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
 
   try {
     [baseResponse, contentResponse] = await Promise.all([
-      fetchStrapi<ArticleDetail[]>(basePathWithMaterialLabel, { status }),
-      fetchStrapi<ArticleDetail[]>(contentPath, { status }),
+      fetchStrapi<ArticleDetail[]>(basePathWithMaterialLabel),
+      fetchStrapi<ArticleDetail[]>(contentPath),
     ]);
   } catch (error) {
     if (error instanceof StrapiRequestError && error.status === 400) {
@@ -2243,8 +2253,8 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
         "[strapi] getArticleBySlug: retry without materialLabel due to 400 Bad Request (field may be missing in Strapi schema)",
       );
       [baseResponse, contentResponse] = await Promise.all([
-        fetchStrapi<ArticleDetail[]>(basePathWithoutMaterialLabel, { status }),
-        fetchStrapi<ArticleDetail[]>(contentPath, { status }),
+        fetchStrapi<ArticleDetail[]>(basePathWithoutMaterialLabel),
+        fetchStrapi<ArticleDetail[]>(contentPath),
       ]);
     } else {
       throw error;
@@ -2274,7 +2284,7 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
     coverSource: typeof article.coverSource === "string" && article.coverSource.trim() ? article.coverSource.trim() : null,
   });
 
-  if (!status && !isPublishedItemVisible(resolvedArticle) && article.preview !== true) {
+  if (!isPublishedItemVisible(resolvedArticle)) {
     return null;
   }
 
@@ -2347,16 +2357,12 @@ export async function getNews(): Promise<NewsSummary[]> {
 }
 
 export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
-  const pathname = `/news/${slug}`;
-  const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<NewsDetail[]>(
       `/api/news-entries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=sourceName&fields[8]=sourceUrl&fields[9]=publishedAt&fields[10]=publishedAtCustom&fields[11]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
-      { status },
     ),
     fetchStrapi<NewsDetail[]>(
       `/api/news-entries?filters[slug][$eq]=${encodeURIComponent(slug)}&${CONTENT_POPULATE_QUERY}`,
-      { status },
     ),
   ]);
 
@@ -2383,7 +2389,7 @@ export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
     coverSource: typeof item.coverSource === "string" && item.coverSource.trim() ? item.coverSource.trim() : null,
   });
 
-  if (!status && !isPublishedItemVisible(resolvedNews) && item.preview !== true) {
+  if (!isPublishedItemVisible(resolvedNews)) {
     return null;
   }
 
@@ -2410,16 +2416,12 @@ export async function getVideos(): Promise<VideoSummary[]> {
 }
 
 export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) {
-  const pathname = `/videos/${slug}`;
-  const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<VideoSummary[]>(
       `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=videoUrl&fields[5]=duration&fields[6]=pinned&fields[7]=homepageLead&fields[8]=publishedAt&fields[9]=publishedAtCustom&fields[10]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
-      { status },
     ),
     fetchStrapi<VideoSummary[]>(
       `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&${VIDEO_CONTENT_POPULATE_QUERY}`,
-      { status },
     ),
   ]);
 
@@ -2444,7 +2446,7 @@ export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) 
     coverSource: typeof video.coverSource === "string" && video.coverSource.trim() ? video.coverSource.trim() : null,
   });
 
-  if (!status && !isPublishedItemVisible(resolvedVideo) && video.preview !== true) {
+  if (!isPublishedItemVisible(resolvedVideo)) {
     return null;
   }
 
@@ -2470,11 +2472,8 @@ export async function getGalleries(): Promise<GallerySummary[]> {
 }
 
 export const getGalleryBySlug = cache(async function getGalleryBySlug(slug: string) {
-  const pathname = `/gallery/${slug}`;
-  const status = await shouldUseDraftForPath(pathname) ? "draft" : undefined;
   const response = await fetchStrapi<GalleryDetail[]>(
     `/api/galleries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=publishedAt&fields[4]=publishedAtCustom&fields[5]=coverSource&populate[cover]=true&populate[photos]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[seo][populate][metaImage]=true`,
-    { status },
   );
 
   const gallery = response.data[0] ?? null;

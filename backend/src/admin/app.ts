@@ -3,7 +3,6 @@ import { createElement } from 'react';
 import { ADMIN_LOCALES, ADMIN_TRANSLATIONS } from './translations';
 import SocialAuthCallbackHints from './components/social-auth-callback-hints';
 import AuthorStatsPanel from './components/author-stats-panel';
-import ViewsStatsExportButton from './components/views-stats-export-button';
 
 const FRONTEND_COLLECTION_PATHS: Record<string, string | null> = {
   'api::article.article': '/articles',
@@ -170,11 +169,6 @@ export default {
       Component: AuthorStatsPanel,
     });
 
-    contentManager?.injectComponent('listView', 'actions', {
-      name: 'vino-views-stats-export-button',
-      Component: ViewsStatsExportButton,
-    });
-
     app.registerHook(
       'Admin/CM/pages/ListView/inject-column-in-table',
       ({ displayedHeaders, layout }: { displayedHeaders?: any[]; layout?: any }) => {
@@ -193,19 +187,6 @@ export default {
         }
 
         const openLabel = getAdminUiLabel('На сайт', 'Open');
-        const viewsLabel = getAdminUiLabel('Просмотры', 'Views');
-
-        const viewsColumn = {
-          attribute: { type: 'integer' },
-          label: viewsLabel,
-          name: 'views',
-          searchable: false,
-          sortable: false,
-          cellFormatter: (document: Record<string, unknown>) => {
-            const rawViews = Number((document as Record<string, unknown>).views);
-            return Number.isFinite(rawViews) && rawViews > 0 ? rawViews.toLocaleString('ru-RU') : '0';
-          },
-        };
 
         const openColumn = {
           attribute: { type: 'custom' },
@@ -226,12 +207,11 @@ export default {
 
         const statusIndex = displayedHeaders.findIndex((header) => header?.name === 'status');
         const headersWithOpen = [...displayedHeaders];
-        const shouldShowViewsColumn = ['api::article.article', 'api::news.news', 'api::video.video', 'api::gallery.gallery'].includes(uid);
 
         if (statusIndex >= 0) {
-          headersWithOpen.splice(statusIndex, 0, ...(shouldShowViewsColumn ? [viewsColumn, openColumn] : [openColumn]));
+          headersWithOpen.splice(statusIndex, 0, openColumn);
         } else {
-          headersWithOpen.push(...(shouldShowViewsColumn ? [viewsColumn, openColumn] : [openColumn]));
+          headersWithOpen.push(openColumn);
         }
 
         return {

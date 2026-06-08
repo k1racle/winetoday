@@ -34,7 +34,7 @@ type SessionResponse = {
 };
 
 type AuthProvider = {
-  id: "google" | "vk" | "yandex";
+  id: "google" | "vk";
   label: string;
   enabled: boolean;
 };

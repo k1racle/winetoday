@@ -13,7 +13,6 @@ function buildProviderCallbackUrls(strapi: any, ctx?: any) {
   return {
     google: `${authBaseUrl}/auth/google/callback`,
     vk: `${authBaseUrl}/auth/vk/callback`,
-    yandex: `${authBaseUrl}/auth/yandex/callback`,
   };
 }
 
@@ -28,13 +27,11 @@ async function buildPublicSocialAuthSettingsResponse(strapi: any, ctx?: any) {
           documentId: document.documentId,
           googleEnabled: document.googleEnabled ?? false,
           vkEnabled: document.vkEnabled ?? false,
-          yandexEnabled: document.yandexEnabled ?? false,
           callbackUrls,
         }
       : {
           googleEnabled: false,
           vkEnabled: false,
-          yandexEnabled: false,
           callbackUrls,
         },
   };

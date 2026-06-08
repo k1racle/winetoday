@@ -1244,7 +1244,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const canEditAll = session?.capabilities.canEditAll === true;
   const currentAccountAuthorId = session?.user?.memberProfile?.author?.id ?? null;
   const materialPublicPath = publicPath(selectedType, form.slug);
-  const materialPreviewPath = previewPath(selectedType, form.slug);
   const requestedType = useMemo(() => {
     const rawType = initialQuery?.type?.trim() ?? "";
     return isEditorContentType(rawType) ? rawType : null;
@@ -1557,31 +1556,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           : type === "gallery"
             ? `/gallery/${slug}`
             : null;
-  }
-
-  function previewPath(type: EditorContentType, slug: string) {
-    const publicUrl = publicPath(type, slug);
-
-    if (!publicUrl || type === "homepage") {
-      return null;
-    }
-
-    const query = new URLSearchParams({
-      type,
-      slug: slug.trim(),
-    });
-
-    return `/api/preview?${query.toString()}`;
-  }
-
-  function previewAbsoluteUrl(type: EditorContentType, slug: string) {
-    const path = previewPath(type, slug);
-
-    if (!path) {
-      return null;
-    }
-
-    return `https://winemaking-today.ru${path}`;
   }
 
   function updateSeo<K extends keyof EditorSeo>(key: K, value: EditorSeo[K]) {
@@ -2226,50 +2200,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               ? "Здесь показывается единственная системная запись homepage с настройками инфографики. Новые записи не создаются, удаление недоступно."
               : "Полноценное редактирование контента с блоками и rich text в одном рабочем интерфейсе."}
           </p>
-          {selectedType !== "homepage" && form.status === "draft" ? (
-            <div className="space-y-3 rounded-none border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-100">
-              <div className="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
-                <div className="min-w-0">
-                  <div className="font-medium">Ссылка для предпросмотра черновика</div>
-                  {previewAbsoluteUrl(selectedType, form.slug) ? (
-                    <a
-                      href={previewAbsoluteUrl(selectedType, form.slug) ?? undefined}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="break-all text-amber-900 underline decoration-amber-500 underline-offset-4 transition hover:text-amber-700 dark:text-amber-50 dark:hover:text-white"
-                    >
-                      {previewAbsoluteUrl(selectedType, form.slug)}
-                    </a>
-                  ) : (
-                    <div className="text-amber-800 dark:text-amber-200">Сначала заполните slug, чтобы появилась ссылка на предпросмотр.</div>
-                  )}
-                </div>
-                {previewAbsoluteUrl(selectedType, form.slug) ? (
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const url = previewAbsoluteUrl(selectedType, form.slug);
-
-                      if (!url) {
-                        return;
-                      }
-
-                      await navigator.clipboard.writeText(url);
-                    }}
-                    className="inline-flex shrink-0 items-center justify-center border border-amber-600 px-3 py-2 text-sm font-medium text-amber-800 transition-colors hover:bg-amber-100 hover:text-amber-950 dark:border-amber-500 dark:text-amber-200 dark:hover:bg-amber-500/10 dark:hover:text-white"
-                  >
-                    Скопировать ссылку
-                  </button>
-                ) : null}
-              </div>
-            </div>
-          ) : null}
           <div className="flex flex-wrap gap-3">
-            {form.status === "draft" && materialPreviewPath ? (
-              <Link href={materialPreviewPath} target="_blank" className="inline-flex w-fit items-center justify-center gap-2 border border-amber-600 px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-50 hover:text-amber-900 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-500/10 dark:hover:text-amber-300">
-                Открыть предпросмотр
-              </Link>
-            ) : null}
             {materialPublicPath && form.status === "published" ? (
               <Link href={materialPublicPath} target="_blank" className="inline-flex w-fit items-center justify-center gap-2 border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-300">
                 Перейти к материалу

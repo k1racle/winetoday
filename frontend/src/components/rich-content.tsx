@@ -9,7 +9,7 @@ import { ImageGalleryBlock, ImageSliderBlock } from "@/components/image-collecti
 import { parseTiptapDocument, tiptapExtensions } from "@/lib/tiptap";
 import type { StrapiBlock } from "@/lib/strapi";
 import type { RichTextContent, RichTextNode } from "@/lib/strapi";
-import { buildCategoryDateOverlayMeta, getArticles, getGalleries, getNews, getVideos } from "@/lib/strapi";
+import { buildCategoryDateOverlayMeta, getArticles, getGalleries, getNews, getVideos, rewriteUploadUrlsInHtml } from "@/lib/strapi";
 import type { CategorySummaryList } from "@/lib/strapi";
 
 type RichContentProps = {
@@ -32,7 +32,7 @@ function renderTiptapContent(content?: Record<string, unknown> | string | null):
 
   try {
     const html = generateHTML(document, tiptapExtensions);
-    return parse(html);
+    return parse(rewriteUploadUrlsInHtml(html));
   } catch {
     return null;
   }

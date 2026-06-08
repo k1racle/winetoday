@@ -39,7 +39,7 @@ type MemberProfileResponse = {
 export type AuthUser = MemberProfileResponse;
 
 export type AuthProvider = {
-  id: "google" | "vk" | "yandex";
+  id: "google" | "vk";
   label: string;
   enabled: boolean;
 };
@@ -47,7 +47,6 @@ export type AuthProvider = {
 const AUTH_PROVIDER_LABELS: Record<AuthProvider["id"], string> = {
   google: "Google",
   vk: "VK",
-  yandex: "Яндекс",
 };
 
 function cookieOptions() {
@@ -95,14 +94,12 @@ export async function getAuthProviders() {
     data?: {
       googleEnabled?: boolean | null;
       vkEnabled?: boolean | null;
-      yandexEnabled?: boolean | null;
     } | null;
   } | null;
 
   return [
     { id: "google" as const, label: AUTH_PROVIDER_LABELS.google, enabled: Boolean(payload?.data?.googleEnabled) },
     { id: "vk" as const, label: AUTH_PROVIDER_LABELS.vk, enabled: Boolean(payload?.data?.vkEnabled) },
-    { id: "yandex" as const, label: AUTH_PROVIDER_LABELS.yandex, enabled: Boolean(payload?.data?.yandexEnabled) },
   ];
 }
 

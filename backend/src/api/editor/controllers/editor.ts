@@ -10,19 +10,19 @@ const { ForbiddenError, NotFoundError, ValidationError } = errors;
 const TYPE_CONFIG = {
   article: {
     uid: 'api::article.article',
-    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt', 'views'],
+    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt'],
   },
   news: {
     uid: 'api::news.news',
-    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt', 'views'],
+    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt'],
   },
   video: {
     uid: 'api::video.video',
-    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt', 'views'],
+    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt'],
   },
   gallery: {
     uid: 'api::gallery.gallery',
-    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt', 'views'],
+    summaryFields: ['title', 'slug', 'excerpt', 'documentId', 'updatedAt', 'publishedAt'],
   },
   homepage: {
     uid: 'api::homepage.homepage',
@@ -58,14 +58,6 @@ const AUTHOR_STATS_TYPES = {
 } as const;
 
 type AuthorStatsType = keyof typeof AUTHOR_STATS_TYPES;
-
-const VIEWS_STATS_TYPES = {
-  article: AUTHOR_STATS_TYPES.article,
-  news: AUTHOR_STATS_TYPES.news,
-  video: AUTHOR_STATS_TYPES.video,
-} as const;
-
-type ViewsStatsType = keyof typeof VIEWS_STATS_TYPES;
 
 const ALLOWED_BLOCKS = new Set([
   'blocks.html-editor',
@@ -723,7 +715,6 @@ function buildAuthorRecordHref(type: AuthorStatsType, slug?: string | null) {
 
 function serializeAuthorRecord(type: AuthorStatsType, item: Record<string, any>) {
   const publishedAt = typeof item.publishedAt === 'string' && item.publishedAt.trim() ? item.publishedAt : null;
-  const views = Number(item.views) > 0 ? Number(item.views) : 0;
 
   return {
     type,
@@ -736,7 +727,6 @@ function serializeAuthorRecord(type: AuthorStatsType, item: Record<string, any>)
     status: publishedAt ? 'published' : 'draft',
     publishedAt,
     updatedAt: typeof item.updatedAt === 'string' && item.updatedAt.trim() ? item.updatedAt : null,
-    views,
   };
 }
 
@@ -765,7 +755,6 @@ function mergeDraftAndPublishedItems(draftItems: Record<string, any>[], publishe
     merged.set(item.documentId, {
       ...existing,
       ...item,
-      views: Math.max(Number(existing.views) || 0, Number(item.views) || 0),
     });
   }
 
@@ -781,7 +770,7 @@ async function resolveAuthorStats(strapi: any, author: Record<string, any>) {
             author: { id: author.id },
           },
           status: 'draft',
-          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
+          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt'],
           sort: ['updatedAt:desc'],
           limit: 10000,
         } as any),
@@ -790,7 +779,7 @@ async function resolveAuthorStats(strapi: any, author: Record<string, any>) {
             author: { id: author.id },
           },
           status: 'published',
-          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
+          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt'],
           sort: ['updatedAt:desc'],
           limit: 10000,
         } as any),
@@ -807,9 +796,8 @@ async function resolveAuthorStats(strapi: any, author: Record<string, any>) {
     (accumulator, record) => ({
       allRecords: accumulator.allRecords + 1,
       publishedRecords: accumulator.publishedRecords + (record.status === 'published' ? 1 : 0),
-      views: accumulator.views + record.views,
     }),
-    { allRecords: 0, publishedRecords: 0, views: 0 },
+    { allRecords: 0, publishedRecords: 0 },
   );
 
   records.sort((left, right) => {
@@ -840,7 +828,7 @@ async function resolveMemberProfileStats(strapi: any, profile: Record<string, an
             memberProfile: { id: profile.id },
           },
           status: 'draft',
-          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
+          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt'],
           sort: ['updatedAt:desc'],
           limit: 10000,
         } as any),
@@ -849,7 +837,7 @@ async function resolveMemberProfileStats(strapi: any, profile: Record<string, an
             memberProfile: { id: profile.id },
           },
           status: 'published',
-          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
+          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt'],
           sort: ['updatedAt:desc'],
           limit: 10000,
         } as any),
@@ -866,9 +854,8 @@ async function resolveMemberProfileStats(strapi: any, profile: Record<string, an
     (accumulator, record) => ({
       allRecords: accumulator.allRecords + 1,
       publishedRecords: accumulator.publishedRecords + (record.status === 'published' ? 1 : 0),
-      views: accumulator.views + record.views,
     }),
-    { allRecords: 0, publishedRecords: 0, views: 0 },
+    { allRecords: 0, publishedRecords: 0 },
   );
 
   records.sort((left, right) => {
@@ -886,64 +873,6 @@ async function resolveMemberProfileStats(strapi: any, profile: Record<string, an
       slug: profile.authorSlug ?? null,
     },
     totals,
-    records,
-  };
-}
-
-async function resolveViewsStats(strapi: any) {
-  const recordGroups = await Promise.all(
-    (Object.keys(VIEWS_STATS_TYPES) as ViewsStatsType[]).map(async (type) => {
-      const [draftItems, publishedItems] = await Promise.all([
-        strapi.documents(VIEWS_STATS_TYPES[type].uid as any).findMany({
-          status: 'draft',
-          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
-          sort: ['updatedAt:desc'],
-          limit: 10000,
-        } as any),
-        strapi.documents(VIEWS_STATS_TYPES[type].uid as any).findMany({
-          status: 'published',
-          fields: ['documentId', 'title', 'slug', 'publishedAt', 'updatedAt', 'views'],
-          sort: ['updatedAt:desc'],
-          limit: 10000,
-        } as any),
-      ]);
-
-      return mergeDraftAndPublishedItems(draftItems as Record<string, any>[], publishedItems as Record<string, any>[]).map((item) =>
-        serializeAuthorRecord(type, item),
-      );
-    }),
-  );
-
-  const records = recordGroups.flat();
-  const totalsByType = records.reduce<Record<string, { records: number; views: number }>>((accumulator, record) => {
-    const current = accumulator[record.type] ?? { records: 0, views: 0 };
-    accumulator[record.type] = {
-      records: current.records + 1,
-      views: current.views + record.views,
-    };
-
-    return accumulator;
-  }, {});
-  const totals = records.reduce(
-    (accumulator, record) => ({
-      records: accumulator.records + 1,
-      views: accumulator.views + record.views,
-    }),
-    { records: 0, views: 0 },
-  );
-
-  records.sort((left, right) => {
-    if (left.type !== right.type) {
-      return left.typeLabel.localeCompare(right.typeLabel, 'ru');
-    }
-
-    return right.views - left.views || left.title.localeCompare(right.title, 'ru');
-  });
-
-  return {
-    generatedAt: new Date().toISOString(),
-    totals,
-    totalsByType,
     records,
   };
 }
@@ -978,8 +907,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     : 'none';
   const cover = payload.cover ? Number(payload.cover) : null;
   const archiveCover = payload.archiveCover ? Number(payload.archiveCover) : null;
-  const requestedStatus = payload.status === 'published' || payload.status === 'preview' ? payload.status : 'draft';
-  const status = requestedStatus === 'published' ? 'published' : 'draft';
+  const status = payload.status === 'published' ? 'published' : 'draft';
   const publishedAtCustom = typeof payload.publishedAtCustom === 'string' ? payload.publishedAtCustom.trim() : '';
   const seoPayload = payload.seo && typeof payload.seo === 'object' ? (payload.seo as Record<string, unknown>) : null;
   const categories = normalizeRelationIds(payload.categories);
@@ -997,7 +925,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     throw new ValidationError('Для галереи обязательно описание.');
   }
 
-  if ((type === 'article' || type === 'news') && requestedStatus === 'published' && !excerpt) {
+  if ((type === 'article' || type === 'news') && status === 'published' && !excerpt) {
     throw new ValidationError('Для публикации нужно заполнить краткое описание.');
   }
 
@@ -1019,7 +947,6 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
         publishedAtCustom: publishedAtCustom || new Date().toISOString(),
         categories,
         coverSource: coverSource || null,
-        preview: requestedStatus === 'preview',
         seo: seoPayload
           ? {
               metaTitle: typeof seoPayload.metaTitle === 'string' ? seoPayload.metaTitle.trim() : null,
@@ -1049,7 +976,6 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     categories,
     tags,
     coverSource: coverSource || null,
-    preview: requestedStatus === 'preview',
     homepageSpecialBlock: payload.homepageSpecialBlock === true,
     seo: seoPayload
       ? {
@@ -1065,7 +991,7 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
 
   if (type === 'article') {
     data.readingTime = Math.max(1, Number(payload.readingTime) || 5);
-    data.editorialStatus = requestedStatus === 'published' ? 'published' : requestedStatus === 'preview' ? 'in_review' : 'draft';
+    data.editorialStatus = status === 'published' ? 'published' : 'draft';
     data.submittedAt = new Date().toISOString();
     data.sources = sources;
   }
@@ -1088,18 +1014,16 @@ function normalizePayload(type: EditorType, payload: Record<string, unknown>, me
     data.duration = Math.max(1, Number(payload.duration) || 1);
   }
 
-  return { data, status, editorStatus: requestedStatus };
+  return { data, status };
 }
 
 function serializeSummary(type: EditorType, item: Record<string, any>) {
-  const previewStatus = !item.publishedAt && (item.editorialStatus === 'in_review' || item.preview === true) ? 'preview' : null;
-
   return {
     documentId: item.documentId,
     title: item.title,
     slug: item.slug ?? '',
     excerpt: item.excerpt ?? '',
-    status: item.publishedAt ? 'published' : previewStatus ?? 'draft',
+    status: item.publishedAt ? 'published' : 'draft',
     publishedAt: item.publishedAt ?? null,
     updatedAt: item.updatedAt ?? null,
     type,
@@ -1119,11 +1043,9 @@ async function findPublishedDocument(strapi: any, type: EditorType, documentId: 
 }
 
 function mergeEditorStatus<T extends Record<string, any>>(draftItem: T, publishedItem: Record<string, any> | null) {
-  const previewStatus = !publishedItem && (draftItem?.editorialStatus === 'in_review' || draftItem?.preview === true) ? 'preview' : null;
-
   return {
     ...draftItem,
-    editorStatus: publishedItem ? 'published' : previewStatus ?? 'draft',
+    editorStatus: publishedItem ? 'published' : 'draft',
     publishedAt: publishedItem?.publishedAt ?? null,
   };
 }
@@ -1373,10 +1295,6 @@ export default factories.createCoreController('api::member-profile.member-profil
     ctx.body = await resolveAuthorStats(strapi, author);
   },
 
-  async viewsStats(ctx: any) {
-    ctx.body = await resolveViewsStats(strapi);
-  },
-
   async memberProfileStats(ctx: any) {
     const documentId = typeof ctx.params.documentId === 'string' ? ctx.params.documentId.trim() : '';
 
@@ -1401,48 +1319,6 @@ export default factories.createCoreController('api::member-profile.member-profil
     ctx.body = {
       eligible: true,
       ...(await resolveMemberProfileStats(strapi, profile)),
-    };
-  },
-
-  async trackView(ctx: any) {
-    const rawType = typeof ctx.params.type === 'string' ? ctx.params.type.trim() : '';
-    const documentId = typeof ctx.params.documentId === 'string' ? ctx.params.documentId.trim() : '';
-
-    if (!isAuthorStatsType(rawType) || !documentId) {
-      throw new ValidationError('Некорректный запрос счётчика просмотров.');
-    }
-
-    const uid = AUTHOR_STATS_TYPES[rawType].uid;
-    const documents = await strapi.db.query(uid as any).findMany({
-      where: { documentId },
-      select: ['id', 'documentId', 'views'],
-    } as any);
-
-    if (!documents.length) {
-      throw new NotFoundError('Материал для счётчика просмотров не найден.');
-    }
-
-    const nextViews = Math.max(...documents.map((item: Record<string, any>) => Number(item.views) || 0)) + 1;
-
-    const updateResults = await Promise.allSettled(
-      documents.map((item: Record<string, any>) =>
-        strapi.db.query(uid as any).update({
-          where: { id: item.id },
-          data: { views: nextViews },
-        } as any),
-      ),
-    );
-
-    if (updateResults.every((result) => result.status === 'rejected')) {
-      throw updateResults[0]?.status === 'rejected'
-        ? updateResults[0].reason
-        : new Error('Не удалось обновить счётчик просмотров.');
-    }
-
-    ctx.body = {
-      ok: true,
-      documentId,
-      views: nextViews,
     };
   },
 
@@ -1581,11 +1457,7 @@ export default factories.createCoreController('api::member-profile.member-profil
       } as any);
 
       if (normalized.status === 'draft') {
-        if (normalized.editorStatus === 'preview') {
-          await strapi.documents(TYPE_CONFIG[rawType].uid as any).publish({ documentId } as any);
-        } else {
-          await strapi.documents(TYPE_CONFIG[rawType].uid as any).unpublish({ documentId } as any).catch(() => null);
-        }
+        await strapi.documents(TYPE_CONFIG[rawType].uid as any).unpublish({ documentId } as any).catch(() => null);
       }
 
       const [savedDraft, savedPublished] = await Promise.all([
@@ -1607,7 +1479,7 @@ export default factories.createCoreController('api::member-profile.member-profil
       data: normalized.data,
     } as any);
 
-    if (normalized.status === 'published' || normalized.editorStatus === 'preview') {
+    if (normalized.status === 'published') {
       await strapi.documents(TYPE_CONFIG[rawType].uid as any).publish({
         documentId: created.documentId,
       } as any);
@@ -1621,7 +1493,7 @@ export default factories.createCoreController('api::member-profile.member-profil
         },
         populate: buildEditorPopulate(rawType),
       } as any),
-      normalized.status === 'published' || normalized.editorStatus === 'preview'
+      normalized.status === 'published'
         ? findPublishedDocument(strapi, rawType, created.documentId, access.isEditor ? undefined : access.profile.id)
         : Promise.resolve(null),
     ]);

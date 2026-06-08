@@ -12,7 +12,6 @@ type AuthorStatsRecord = {
   status: 'draft' | 'published';
   publishedAt?: string | null;
   updatedAt?: string | null;
-  views: number;
 };
 
 type AuthorStatsResponse = {
@@ -24,7 +23,6 @@ type AuthorStatsResponse = {
   totals?: {
     allRecords?: number;
     publishedRecords?: number;
-    views?: number;
   };
   records?: AuthorStatsRecord[];
 };
@@ -48,11 +46,6 @@ function formatDate(value?: string | null) {
   });
 }
 
-function formatViews(value?: number | null) {
-  const numberValue = Number(value) || 0;
-  return numberValue.toLocaleString('ru-RU');
-}
-
 function sanitizeCsvFileName(value?: string | null) {
   const normalized = value?.trim().replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, '-') || 'author';
   return normalized.slice(0, 80);
@@ -65,16 +58,15 @@ function csvCell(value: unknown) {
 
 function buildAuthorStatsCsv(payload: AuthorStatsResponse, subjectLabel = 'Автор') {
   const rows = [
-    [subjectLabel, payload.author?.name ?? '', '', '', '', '', '', '', ''],
-    ['Всего записей', payload.totals?.allRecords ?? 0, 'Опубликовано', payload.totals?.publishedRecords ?? 0, 'Просмотры', payload.totals?.views ?? 0, '', '', ''],
+    [subjectLabel, payload.author?.name ?? '', '', '', '', '', ''],
+    ['Всего записей', payload.totals?.allRecords ?? 0, 'Опубликовано', payload.totals?.publishedRecords ?? 0, '', '', ''],
     [],
-    ['Тип', 'Статус', 'Название', 'Слаг', 'Просмотры', 'Опубликовано', 'Обновлено', 'URL', 'Document ID'],
+    ['Тип', 'Статус', 'Название', 'Слаг', 'Опубликовано', 'Обновлено', 'URL', 'Document ID'],
     ...(payload.records ?? []).map((record) => [
       record.typeLabel,
       record.status === 'published' ? 'Опубликовано' : 'Черновик',
       record.title,
       record.slug ?? '',
-      record.views,
       record.publishedAt ?? '',
       record.updatedAt ?? '',
       record.href ?? '',
@@ -92,7 +84,7 @@ function SummaryMetric({ label, value }: { label: string; value: number }) {
         {label}
       </Typography>
       <Typography fontWeight="bold" textColor="neutral900" variant="delta">
-        {formatViews(value)}
+        {value.toLocaleString('ru-RU')}
       </Typography>
     </Box>
   );
@@ -185,7 +177,6 @@ export default function AuthorStatsPanel() {
     () => ({
       allRecords: payload?.totals?.allRecords ?? 0,
       publishedRecords: payload?.totals?.publishedRecords ?? 0,
-      views: payload?.totals?.views ?? 0,
     }),
     [payload],
   );
@@ -202,7 +193,7 @@ export default function AuthorStatsPanel() {
     const date = new Date().toISOString().slice(0, 10);
 
     link.href = url;
-    link.download = `views-${sanitizeCsvFileName(payload.author?.slug ?? payload.author?.name)}-${date}.csv`;
+    link.download = `author-stats-${sanitizeCsvFileName(payload.author?.slug ?? payload.author?.name)}-${date}.csv`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -221,7 +212,7 @@ export default function AuthorStatsPanel() {
             <Flex direction="column" gap={1} alignItems="stretch">
               <Typography variant="beta">{panelTitle}</Typography>
               <Typography textColor="neutral600" variant="omega">
-                {payload?.author?.name ? `${subjectLabel}: ${payload.author.name}` : 'Откройте блок, чтобы увидеть сводку по записям и просмотрам.'}
+                {payload?.author?.name ? `${subjectLabel}: ${payload.author.name}` : 'Откройте блок, чтобы увидеть сводку по записям.'}
               </Typography>
             </Flex>
 
@@ -231,9 +222,6 @@ export default function AuthorStatsPanel() {
               </div>
               <div style={{ flex: '1 1 120px', minWidth: 120 }}>
                 <SummaryMetric label="Опубликовано" value={totals.publishedRecords} />
-              </div>
-              <div style={{ flex: '1 1 120px', minWidth: 120 }}>
-                <SummaryMetric label="Просмотры" value={totals.views} />
               </div>
             </Flex>
 
@@ -292,10 +280,6 @@ export default function AuthorStatsPanel() {
                           {record.typeLabel} · {record.status === 'published' ? 'Опубликовано' : 'Черновик'}
                         </Typography>
                       </div>
-
-                      <Typography textColor="neutral800" variant="omega">
-                        {formatViews(record.views)} просмотров
-                      </Typography>
                     </Flex>
 
                     <Flex wrap="wrap" gap={3} alignItems="center">

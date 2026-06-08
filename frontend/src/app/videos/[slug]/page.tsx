@@ -13,7 +13,6 @@ import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { RelatedTags } from "@/components/related-tags";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { VideoEmbedPreview } from "@/components/video-embed-preview";
-import { ContentViewTracker } from "@/components/content-view-tracker";
 import { buildSeoMetadata, formatRussianDateTime, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, getVideoBySlug, getVideos, type VideoSummary, withLoggedFallback } from "@/lib/strapi";
 
 export const revalidate = 300;
@@ -112,7 +111,6 @@ export default async function VideoDetailPage({ params }: PageProps) {
 
   return (
     <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
-      <ContentViewTracker contentType="video" documentId={video.documentId} />
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />

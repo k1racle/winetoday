@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
-import { draftMode } from "next/headers";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import Link from "next/link";
@@ -9,7 +8,6 @@ import Script from "next/script";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { AuthWidget } from "@/components/auth-widget";
 import { MobileWidgetsProvider } from "@/components/mobile-widgets-provider";
-import { PreviewBanner } from "@/components/preview-banner";
 import { SocialLinks } from "@/components/social-links";
 import { SiteHeader } from "@/components/site-header";
 import { TagCloud } from "@/components/tag-cloud";
@@ -62,6 +60,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f6f8f3" },
     { media: "(prefers-color-scheme: dark)", color: "#08110b" },
@@ -121,7 +121,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  const { isEnabled: isPreview } = await draftMode();
   const [settings, headerSettings, footerSettings, tagCloud] = await Promise.all([
     withLoggedFallback("layout global settings", () => getGlobalSettings(), null),
     withLoggedFallback("layout site header", () => getSiteHeader(), null),
@@ -289,7 +288,6 @@ export default async function RootLayout({
             </div>
           </noscript>
           <div className="flex min-h-full flex-col bg-white dark:bg-[#081623]">
-            {isPreview ? <PreviewBanner exitHref="/" /> : null}
             <SiteHeader
               lightLogo={headerSettings?.lightLogo ?? null}
               darkLogo={headerSettings?.darkLogo ?? null}

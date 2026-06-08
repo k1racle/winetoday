@@ -13,7 +13,6 @@ import { MaterialEditButton } from "@/components/material-edit-button";
 import { RelatedTags } from "@/components/related-tags";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { SourceLinks } from "@/components/source-links";
-import { ContentViewTracker } from "@/components/content-view-tracker";
 import { SITE_URL, buildSeoMetadata, formatRussianDateTime, getArticleBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, withLoggedFallback } from "@/lib/strapi";
 
 export const revalidate = 300;
@@ -89,7 +88,6 @@ export default async function ArticleDetailPage({ params }: PageProps) {
       <Script id="article-jsonld" type="application/ld+json">
         {JSON.stringify(articleJsonLd)}
       </Script>
-      <ContentViewTracker contentType="article" documentId={article.documentId} />
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />

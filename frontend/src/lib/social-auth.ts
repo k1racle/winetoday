@@ -1,6 +1,6 @@
 const SITE_URL = process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://127.0.0.1";
 
-export type SocialAuthProvider = "google" | "vk" | "yandex";
+export type SocialAuthProvider = "google" | "vk";
 
 export function buildSocialAuthUrl(provider: SocialAuthProvider, accountType: "subscriber" | "author" = "subscriber") {
   const callbackUrl = new URL("/api/auth/social/callback", SITE_URL);
