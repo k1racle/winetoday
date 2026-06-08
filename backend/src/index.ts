@@ -114,6 +114,8 @@ async function ensurePublicPermissions(strapi: Core.Strapi) {
     'api::sidebar.sidebar.findOne',
     'api::video.video.find',
     'api::video.video.findOne',
+    'api::gallery.gallery.find',
+    'api::gallery.gallery.findOne',
     'api::global-setting.global-setting.find',
     'api::global-setting.global-setting.findOne',
     'api::site-seo.site-seo.find',
