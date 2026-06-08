@@ -67,7 +67,7 @@ services:
       WATERMARK_RESULT_MAX_ATTEMPTS: 30
       WATERMARK_RESULT_POLL_MS: 1000
       WATERMARK_MAX_CONCURRENT: 1
-      WATERMARK_MAX_QUEUED_JOBS: 20
+      WATERMARK_MAX_QUEUED_JOBS: 5
       SITE_URL: ${SITE_URL:-http://localhost}
       PUBLIC_SERVER_URL: ${PUBLIC_SERVER_URL:-${SITE_URL:-http://localhost}}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
@@ -163,23 +163,31 @@ services:
     command: node /app/worker.js
     environment:
       NODE_ENV: production
-      NODE_OPTIONS: --max-old-space-size=384
+      NODE_OPTIONS: --max-old-space-size=256
       JOBS_DIR: /app/jobs
       INPUT_DIR: /app/input
       OUTPUT_DIR: /app/output
+      UPLOADS_DIR: /app/shared/uploads
       WATERMARK_LOGO_PATH: /app/assets/logo1.png
-      WATERMARK_LOG_LEVEL: info
-      WATERMARK_FILE_TTL_HOURS: 6
-      WATERMARK_MARKER_TTL_HOURS: 24
+      WATERMARK_LOG_LEVEL: warn
+      WATERMARK_FILE_TTL_HOURS: 2
+      WATERMARK_MARKER_TTL_HOURS: 12
       WATERMARK_MARKER_CLEANUP_INTERVAL_HOURS: 1
-      WATERMARK_POLL_INTERVAL_MS: 1000
+      WATERMARK_POLL_INTERVAL_MS: 3000
+      WATERMARK_IDLE_POLL_INTERVAL_MS: 5000
+      WATERMARK_MAX_DIMENSION: 1600
+      WATERMARK_ARCHIVE_MAX_WIDTH: 720
+      WATERMARK_JPEG_QUALITY: 82
+      WATERMARK_MAX_INPUT_BYTES: 15728640
       SHARP_CONCURRENCY: 1
     volumes:
       - watermark_jobs:/app/jobs
       - watermark_input:/app/input
       - watermark_output:/app/output
-    mem_limit: 512m
-    memswap_limit: 512m
+      - backend_uploads:/app/shared/uploads:ro
+    cpus: 0.75
+    mem_limit: 384m
+    memswap_limit: 384m
     healthcheck:
       test: ["CMD", "node", "-e", "const fs=require('node:fs');const dir=process.env.JOBS_DIR||'/app/jobs';try{fs.accessSync(dir);process.exit(0)}catch{process.exit(1)}"]
       interval: 15s

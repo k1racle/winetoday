@@ -331,7 +331,7 @@ function resolveWatermarkOutputDir() {
 }
 
 const watermarkMaxConcurrent = Math.max(1, Number(process.env.WATERMARK_MAX_CONCURRENT) || 1);
-const watermarkMaxQueuedJobs = Math.max(1, Number(process.env.WATERMARK_MAX_QUEUED_JOBS) || 25);
+const watermarkMaxQueuedJobs = Math.max(1, Number(process.env.WATERMARK_MAX_QUEUED_JOBS) || 5);
 let watermarkEnqueueInFlight = 0;
 const watermarkFinalizeInFlight = new Set<string>();
 
@@ -341,6 +341,7 @@ type WatermarkPendingMeta = {
   createAsset: boolean;
   sourcePath: string;
   outputFileName: string;
+  archiveOutputFileName?: string;
   enqueuedAt: string;
 };
 
@@ -415,22 +416,33 @@ type WatermarkOutputState =
   | { status: 'error'; message: string }
   | { status: 'ready'; resultPath: string };
 
-async function checkWatermarkOutputOnce(outputFileName: string): Promise<WatermarkOutputState> {
+async function checkWatermarkOutputOnce(outputFileName: string, archiveOutputFileName?: string): Promise<WatermarkOutputState> {
   const outputPath = path.join(resolveWatermarkOutputDir(), outputFileName);
   const errorPath = `${outputPath}.error`;
 
   try {
-    await fs.access(outputPath);
-    return { status: 'ready', resultPath: outputPath };
+    await fs.access(errorPath);
+    const errorPayload = JSON.parse(await fs.readFile(errorPath, 'utf8')) as { error?: string };
+    return { status: 'error', message: errorPayload.error ?? 'Не удалось обработать watermark.' };
   } catch {
+    // no error marker yet
+  }
+
+  try {
+    await fs.access(outputPath);
+  } catch {
+    return { status: 'pending' };
+  }
+
+  if (archiveOutputFileName) {
     try {
-      await fs.access(errorPath);
-      const errorPayload = JSON.parse(await fs.readFile(errorPath, 'utf8')) as { error?: string };
-      return { status: 'error', message: errorPayload.error ?? 'Не удалось обработать watermark.' };
+      await fs.access(path.join(resolveWatermarkOutputDir(), archiveOutputFileName));
     } catch {
       return { status: 'pending' };
     }
   }
+
+  return { status: 'ready', resultPath: outputPath };
 }
 
 async function finalizeWatermarkResult(
@@ -441,6 +453,24 @@ async function finalizeWatermarkResult(
   const asset = await strapi.db.query('plugin::upload.file').findOne({ where: { id: meta.assetId } });
   if (!asset || asset.provider !== 'local' || typeof asset.url !== 'string') {
     throw new NotFoundError('Файл не найден или недоступен для watermark.');
+  }
+
+  if (meta.blockKind === 'cover-and-archive') {
+    await fs.copyFile(resultPath, meta.sourcePath);
+
+    let outputAsset = null;
+    if (meta.createAsset !== false && meta.archiveOutputFileName) {
+      const archivePath = path.join(resolveWatermarkOutputDir(), meta.archiveOutputFileName);
+      outputAsset = await createUploadFileFromPath(strapi, archivePath, asset, 'archive-cover');
+    }
+
+    return {
+      ok: true,
+      status: 'done',
+      assetId: outputAsset?.id ?? asset.id,
+      asset: outputAsset ? serializeUploadedAsset(outputAsset) : serializeUploadedAsset(asset),
+      finalizedAt: new Date().toISOString(),
+    };
   }
 
   const shouldCreateSeparateAsset = meta.blockKind === 'archive-cover' && meta.createAsset !== false;
@@ -468,11 +498,20 @@ function isPendingWatermarkJobFile(fileName: string) {
     && !fileName.endsWith('.json.processing');
 }
 
+function resolveAssetUploadsRelativePath(assetUrl: string) {
+  return assetUrl.replace(/^\//, '').replace(/^uploads\//, '');
+}
+
 function buildWatermarkJobFileName(assetId: number, blockKind: string, sourcePath: string) {
-  const sourceBasename = path.basename(sourcePath);
+  const sourceExtension = path.extname(sourcePath) || '.jpg';
+  const sourceBasename = path.basename(sourcePath, sourceExtension);
   const jobToken = `${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;
   const blockSuffix = blockKind.replace(/[^a-z0-9.-]+/gi, '-').replace(/^-+|-+$/g, '') || 'image';
-  return `${assetId}-${blockSuffix}-${jobToken}-${sourceBasename}`;
+  return `${assetId}-${blockSuffix}-${jobToken}-${sourceBasename}${sourceExtension}`;
+}
+
+function buildArchiveOutputFileName(outputFileName: string) {
+  return outputFileName.replace(/\.[^.]+$/, '') + '-archive.jpg';
 }
 
 async function getWatermarkQueuedJobsCount() {
@@ -507,7 +546,7 @@ async function removeWatermarkArtifactIfExists(targetPath: string) {
   }
 }
 
-async function cleanupWatermarkArtifactsForFile(fileName: string) {
+async function cleanupWatermarkArtifactsForFile(fileName: string, archiveFileName?: string) {
   const inputPath = path.join(resolveWatermarkInputDir(), fileName);
   const outputPath = path.join(resolveWatermarkOutputDir(), fileName);
 
@@ -515,6 +554,7 @@ async function cleanupWatermarkArtifactsForFile(fileName: string) {
     removeWatermarkArtifactIfExists(inputPath),
     removeWatermarkArtifactIfExists(outputPath),
     removeWatermarkArtifactIfExists(`${outputPath}.error`),
+    archiveFileName ? removeWatermarkArtifactIfExists(path.join(resolveWatermarkOutputDir(), archiveFileName)) : Promise.resolve(),
   ]);
 }
 
@@ -528,20 +568,15 @@ async function enqueueWatermarkJob(payload: Record<string, unknown>) {
   return jobPath;
 }
 
-async function copyToWatermarkInput(sourcePath: string, targetName: string) {
-  const inputDir = resolveWatermarkInputDir();
-  await fs.mkdir(inputDir, { recursive: true });
-
-  const targetPath = path.join(inputDir, targetName);
-  await fs.copyFile(sourcePath, targetPath);
-  return targetPath;
-}
-
 async function createUploadFileFromPath(strapi: any, filePath: string, sourceAsset: Record<string, any>, suffix: string) {
   const extension = path.extname(filePath) || path.extname(sourceAsset.name ?? '') || '';
   const baseName = path.basename(sourceAsset.name ?? path.basename(filePath), path.extname(sourceAsset.name ?? path.basename(filePath)));
   const fileName = `${baseName}-${suffix}${extension}`;
   const stats = await fs.stat(filePath);
+
+  const resolvedMime = path.extname(filePath).toLowerCase() === '.jpg' || path.extname(filePath).toLowerCase() === '.jpeg'
+    ? 'image/jpeg'
+    : (sourceAsset.mime ?? 'application/octet-stream');
 
   const uploaded = await strapi.plugin('upload').service('upload').upload({
     data: {
@@ -554,7 +589,7 @@ async function createUploadFileFromPath(strapi: any, filePath: string, sourceAss
     files: {
       filepath: filePath,
       originalFilename: fileName,
-      mimetype: sourceAsset.mime ?? 'application/octet-stream',
+      mimetype: resolvedMime,
       size: stats.size,
     },
   });
@@ -1779,13 +1814,14 @@ export default factories.createCoreController('api::member-profile.member-profil
     watermarkEnqueueInFlight += 1;
     try {
       const sourcePath = path.join(process.cwd(), 'public', asset.url.replace(/^\//, ''));
-      const jobInputName = buildWatermarkJobFileName(asset.id, blockKind, sourcePath);
-      const copiedInput = await copyToWatermarkInput(sourcePath, jobInputName);
-      const outputFileName = path.basename(copiedInput);
+      const outputFileName = buildWatermarkJobFileName(asset.id, blockKind, sourcePath);
+      const archiveOutputFileName = blockKind === 'cover-and-archive' ? buildArchiveOutputFileName(outputFileName) : undefined;
       const jobPayload = {
         assetId: asset.id,
+        sourceRelativePath: resolveAssetUploadsRelativePath(asset.url),
         inputFile: outputFileName,
         outputFile: outputFileName,
+        ...(archiveOutputFileName ? { archiveOutputFile: archiveOutputFileName } : {}),
         ...buildWatermarkPosition(blockKind, blockWidth, blockHeight),
       };
 
@@ -1796,6 +1832,7 @@ export default factories.createCoreController('api::member-profile.member-profil
         createAsset: body?.createAsset !== false,
         sourcePath,
         outputFileName,
+        archiveOutputFileName,
         enqueuedAt: new Date().toISOString(),
       });
 
@@ -1830,7 +1867,7 @@ export default factories.createCoreController('api::member-profile.member-profil
       throw new NotFoundError('Watermark-задача не найдена.');
     }
 
-    const outputState = await checkWatermarkOutputOnce(outputFileName);
+    const outputState = await checkWatermarkOutputOnce(outputFileName, meta.archiveOutputFileName);
     if (outputState.status === 'pending') {
       ctx.body = {
         ok: true,
@@ -1842,7 +1879,7 @@ export default factories.createCoreController('api::member-profile.member-profil
     }
 
     if (outputState.status === 'error') {
-      await cleanupWatermarkArtifactsForFile(outputFileName);
+      await cleanupWatermarkArtifactsForFile(outputFileName, meta.archiveOutputFileName);
       await removeWatermarkMetaFiles(outputFileName);
       throw new ValidationError(outputState.message);
     }
@@ -1861,7 +1898,7 @@ export default factories.createCoreController('api::member-profile.member-profil
     try {
       const finalizedPayload = await finalizeWatermarkResult(strapi, meta, outputState.resultPath);
       await writeWatermarkFinalizedMeta(outputFileName, finalizedPayload);
-      await cleanupWatermarkArtifactsForFile(outputFileName);
+      await cleanupWatermarkArtifactsForFile(outputFileName, meta.archiveOutputFileName);
       await removeWatermarkMetaFiles(outputFileName);
       ctx.body = finalizedPayload;
     } finally {

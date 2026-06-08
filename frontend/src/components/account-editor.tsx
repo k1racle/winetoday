@@ -461,11 +461,12 @@ type WatermarkApiResponse = EditorApiError | {
 };
 
 async function pollWatermarkStatus(outputFileName: string) {
-  const maxAttempts = 60;
-  const pollMs = 2000;
+  const maxAttempts = 45;
+  let pollMs = 3000;
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     await sleep(pollMs);
+    pollMs = Math.min(5000, pollMs + 250);
 
     const statusResponse = await fetch(`/api/editor/watermark/status/${encodeURIComponent(outputFileName)}`, {
       method: "GET",
@@ -1759,8 +1760,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
     try {
       if (enabled) {
-        await applyWatermarkAsset(assetId, "cover", 0, 0, { createAsset: false });
-        const watermarkedAsset = await applyWatermarkAsset(assetId, "archive-cover", 720, 448, { createAsset: true });
+        const watermarkedAsset = await applyWatermarkAsset(assetId, "cover-and-archive", 720, 448, { createAsset: true });
         const mediaPayload = await refreshMediaAssets();
         if (mediaPayload) {
           setMediaAssets(mediaPayload);
