@@ -22,6 +22,12 @@ function normalizeSiteOrigin(value?: string | null, fallback = SITE_URL) {
 
 function resolveMediaUrl(path: string) {
   const normalizedPath = path.replace(/^\/+/, "").replace(/^uploads\//, "");
+  const siteOrigin = normalizeSiteOrigin(process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? null);
+
+  if (!/localhost|127\.0\.0\.1/i.test(siteOrigin)) {
+    return new URL(normalizedPath, `${siteOrigin.replace(/\/+$/, "")}/uploads/`).toString();
+  }
+
   return `/uploads/${normalizedPath}`;
 }
 
