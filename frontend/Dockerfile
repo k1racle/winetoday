@@ -7,3 +7,17 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+
+ARG NEXT_PUBLIC_SITE_URL=http://localhost
+ARG NEXT_PUBLIC_MEILISEARCH_URL=http://localhost/search
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_MEILISEARCH_URL=$NEXT_PUBLIC_MEILISEARCH_URL
+
+RUN NODE_OPTIONS="--max-old-space-size=2048" npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start", "--", "--hostname", "0.0.0.0", "--port", "3000"]

@@ -3,12 +3,14 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
+        NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
     container_name: vino_frontend
     working_dir: /app
-    command: sh -c "npm run build && npm run start -- --hostname 0.0.0.0 --port 3000"
     environment:
       NODE_ENV: production
-      NODE_OPTIONS: --max-old-space-size=768
+      NODE_OPTIONS: --max-old-space-size=512
       NEXT_TELEMETRY_DISABLED: "1"
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL}
@@ -32,9 +34,9 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
-      start_period: 120s
-    mem_limit: 1024m
-    memswap_limit: 1024m
+      start_period: 30s
+    mem_limit: 768m
+    memswap_limit: 1536m
     restart: unless-stopped
 
   backend:
