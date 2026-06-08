@@ -32,6 +32,19 @@ import { SidebarPanel } from "@/components/sidebar-panel";
 
 export const revalidate = 120;
 
+// #region agent log
+const AGENT_DEBUG_ENDPOINT = "http://127.0.0.1:7308/ingest/e5b160b2-f1d0-4782-b6e4-70859f118b60";
+const AGENT_DEBUG_SESSION_ID = "38d826";
+
+function agentDebugLog(hypothesisId: string, location: string, message: string, data: Record<string, unknown>) {
+  fetch(AGENT_DEBUG_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": AGENT_DEBUG_SESSION_ID },
+    body: JSON.stringify({ sessionId: AGENT_DEBUG_SESSION_ID, runId: "initial", hypothesisId, location, message, data, timestamp: Date.now() }),
+  }).catch(() => {});
+}
+// #endregion
+
 function formatHomepageNewsDateWithMonthLabel(value?: string | null) {
   if (!value) {
     return null;
@@ -379,6 +392,12 @@ function renderInfographicCard(
 }
 
 export default async function Home() {
+  const homeStartedAt = Date.now();
+  // #region agent log
+  agentDebugLog("H2,H3,H5", "frontend/src/app/page.tsx:Home:start", "Home render start", {
+    revalidate,
+  });
+  // #endregion
   const [settings, homepage, sidebar, latestNews, latestVideos, allNews, homepageSpecial, tagCloud] = await Promise.all([
     withLoggedFallback("home global settings", () => getGlobalSettings(), null),
     withLoggedFallback("home homepage", () => getHomepage(), null),
@@ -389,6 +408,20 @@ export default async function Home() {
     withLoggedFallback("home homepage special items", () => getHomepageSpecialItems(), { featureCards: [], videos: [] }),
     withLoggedFallback("home tag cloud", () => getTagCloud(), []),
   ]);
+  // #region agent log
+  agentDebugLog("H2,H3,H5", "frontend/src/app/page.tsx:Home:data", "Home primary data loaded", {
+    durationMs: Date.now() - homeStartedAt,
+    hasSettings: Boolean(settings),
+    hasHomepage: Boolean(homepage),
+    hasSidebar: Boolean(sidebar),
+    latestNewsCount: latestNews.length,
+    latestVideosCount: latestVideos.length,
+    allNewsCount: allNews.length,
+    homepageFeatureCards: homepageSpecial.featureCards.length,
+    homepageVideos: homepageSpecial.videos.length,
+    tagCloudCount: tagCloud.length,
+  });
+  // #endregion
   const organizationJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -411,6 +444,7 @@ export default async function Home() {
       }
     : null;
   const popularNewsBase = allNews.slice(0, 20);
+  const popularityStartedAt = Date.now();
   const popularNews: HomepageNewsItem[] = (await Promise.all(
     popularNewsBase.map(async (item) => ({
       ...item,
@@ -421,6 +455,13 @@ export default async function Home() {
       ? right.popularityCount - left.popularityCount
       : comparePublishedDesc(left.publishedAtCustom ?? left.publishedAt, right.publishedAtCustom ?? right.publishedAt)))
     .slice(0, 10);
+  // #region agent log
+  agentDebugLog("H3,H5", "frontend/src/app/page.tsx:Home:popularity", "Home popularity requests finished", {
+    baseCount: popularNewsBase.length,
+    durationMs: Date.now() - popularityStartedAt,
+    nonZeroCount: popularNews.filter((item) => item.popularityCount > 0).length,
+  });
+  // #endregion
   const latestNewsSidebarItemsSource: HomepageSidebarSourceItem[] = latestNews.slice(0, 10).map((item) => ({
     documentId: item.documentId,
     slug: item.slug,

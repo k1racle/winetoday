@@ -15,6 +15,19 @@ import { buildSeoMetadata, getGlobalSettings, getSiteFooter, getSiteHeader, getS
 
 import "./globals.css";
 
+// #region agent log
+const AGENT_DEBUG_ENDPOINT = "http://127.0.0.1:7308/ingest/e5b160b2-f1d0-4782-b6e4-70859f118b60";
+const AGENT_DEBUG_SESSION_ID = "38d826";
+
+function agentDebugLog(hypothesisId: string, location: string, message: string, data: Record<string, unknown>) {
+  fetch(AGENT_DEBUG_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": AGENT_DEBUG_SESSION_ID },
+    body: JSON.stringify({ sessionId: AGENT_DEBUG_SESSION_ID, runId: "initial", hypothesisId, location, message, data, timestamp: Date.now() }),
+  }).catch(() => {});
+}
+// #endregion
+
 const inter = Inter({
   subsets: ["latin", "cyrillic"],
   variable: "--font-inter",
@@ -121,12 +134,25 @@ export default async function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const layoutStartedAt = Date.now();
+  // #region agent log
+  agentDebugLog("H2,H3,H5", "frontend/src/app/layout.tsx:RootLayout:start", "Root layout render start", {});
+  // #endregion
   const [settings, headerSettings, footerSettings, tagCloud] = await Promise.all([
     withLoggedFallback("layout global settings", () => getGlobalSettings(), null),
     withLoggedFallback("layout site header", () => getSiteHeader(), null),
     withLoggedFallback("layout site footer", () => getSiteFooter(), null),
     withLoggedFallback("layout tag cloud", () => getTagCloud(), []),
   ]);
+  // #region agent log
+  agentDebugLog("H2,H3,H5", "frontend/src/app/layout.tsx:RootLayout:data", "Root layout data loaded", {
+    durationMs: Date.now() - layoutStartedAt,
+    hasSettings: Boolean(settings),
+    hasHeader: Boolean(headerSettings),
+    hasFooter: Boolean(footerSettings),
+    tagCloudCount: tagCloud.length,
+  });
+  // #endregion
 
   const navigationItems = headerSettings?.menuLinks?.length
     ? headerSettings.menuLinks

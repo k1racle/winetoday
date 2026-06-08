@@ -8,6 +8,20 @@ const MEDIA_URL = process.env.MEDIA_URL?.trim() || new URL("/uploads/", SITE_URL
 export const CMS_API_URL = CMS_URL;
 const HAS_REVALIDATE_SECRET = Boolean(process.env.REVALIDATE_SECRET);
 
+// #region agent log
+const AGENT_DEBUG_ENDPOINT = "http://127.0.0.1:7308/ingest/e5b160b2-f1d0-4782-b6e4-70859f118b60";
+const AGENT_DEBUG_SESSION_ID = "38d826";
+const agentDebugCounts = { media: 0, fetch: 0 };
+
+function agentDebugLog(hypothesisId: string, location: string, message: string, data: Record<string, unknown>) {
+  fetch(AGENT_DEBUG_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": AGENT_DEBUG_SESSION_ID },
+    body: JSON.stringify({ sessionId: AGENT_DEBUG_SESSION_ID, runId: "initial", hypothesisId, location, message, data, timestamp: Date.now() }),
+  }).catch(() => {});
+}
+// #endregion
+
 function normalizeSiteOrigin(value?: string | null, fallback = SITE_URL) {
   const candidate = value?.trim() || fallback;
 
@@ -23,7 +37,27 @@ function normalizeSiteOrigin(value?: string | null, fallback = SITE_URL) {
 
 function resolveMediaUrl(path: string) {
   const normalizedPath = path.replace(/^\/+/, "").replace(/^uploads\//, "");
-  return new URL(normalizedPath, `${MEDIA_URL.replace(/\/+$/, "")}/`).toString();
+  const resolvedUrl = new URL(normalizedPath, `${MEDIA_URL.replace(/\/+$/, "")}/`).toString();
+  // #region agent log
+  if (agentDebugCounts.media < 20) {
+    agentDebugCounts.media += 1;
+    agentDebugLog("H1,H4", "frontend/src/lib/strapi.ts:resolveMediaUrl", "Resolved media URL", {
+      inputStartsWithUploads: path.startsWith("/uploads/") || path.startsWith("uploads/"),
+      mediaUrlOrigin: (() => {
+        try {
+          return new URL(MEDIA_URL).origin;
+        } catch {
+          return "invalid";
+        }
+      })(),
+      siteUrl: SITE_URL,
+      normalizedPath,
+      resolvedOrigin: new URL(resolvedUrl).origin,
+      resolvedPath: new URL(resolvedUrl).pathname,
+    });
+  }
+  // #endregion
+  return resolvedUrl;
 }
 
 const DEFAULT_REVALIDATE_SECONDS = 300;
@@ -1819,6 +1853,7 @@ async function fetchStrapi<T>(path: string, options?: { revalidate?: number | fa
   const shouldUseNoStore = options?.status === "draft" || revalidate === false || !HAS_REVALIDATE_SECRET;
   const authToken = options?.status === "draft" ? (await cookies()).get("vino_auth_jwt")?.value ?? null : null;
   const url = `${CMS_URL}${withStatus(path, options?.status)}`;
+  const startedAt = Date.now();
   const requestInit: NextFetchRequestInit = {
     headers: {
       ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
@@ -1832,7 +1867,32 @@ async function fetchStrapi<T>(path: string, options?: { revalidate?: number | fa
     requestInit.next = { revalidate: revalidate ?? DEFAULT_REVALIDATE_SECONDS };
   }
 
+  // #region agent log
+  if (agentDebugCounts.fetch < 80) {
+    agentDebugCounts.fetch += 1;
+    agentDebugLog("H2,H3,H5", "frontend/src/lib/strapi.ts:fetchStrapi:start", "Strapi fetch start", {
+      path,
+      cmsOrigin: (() => {
+        try {
+          return new URL(CMS_URL).origin;
+        } catch {
+          return "invalid";
+        }
+      })(),
+      cacheMode: shouldUseNoStore ? "no-store" : "revalidate",
+      revalidate: shouldUseNoStore ? null : revalidate ?? DEFAULT_REVALIDATE_SECONDS,
+    });
+  }
+  // #endregion
   const response = await fetch(url, requestInit);
+  // #region agent log
+  agentDebugLog("H2,H3,H5", "frontend/src/lib/strapi.ts:fetchStrapi:end", "Strapi fetch end", {
+    path,
+    status: response.status,
+    ok: response.ok,
+    durationMs: Date.now() - startedAt,
+  });
+  // #endregion
 
   if (!response.ok) {
     throw new StrapiRequestError({ status: response.status, statusText: response.statusText, url });
