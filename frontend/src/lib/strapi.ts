@@ -1604,13 +1604,6 @@ async function resolveCategoriesForItems<T extends { slug: string; categories?: 
       const fallbackCategories: CategorySummary[] | null = assignments[kind].get(item.slug) ?? null;
       const resolvedCategories = normalizedCategories ?? fallbackCategories ?? null;
 
-      if (!normalizedCategories && fallbackCategories?.length) {
-        console.warn(
-          `[strapi-debug] restored categories for ${kind}:${item.slug}`,
-          fallbackCategories.map((category: CategorySummary) => category.slug ?? category.name),
-        );
-      }
-
       return {
         ...item,
         categories: resolvedCategories,
