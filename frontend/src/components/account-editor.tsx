@@ -151,7 +151,7 @@ function normalizeRelationIds(value: unknown) {
 
   return value
     .map((item) => getRecordId(item))
-    .filter((item): item is number => Number.isInteger(item) && item > 0);
+    .filter((item): item is number => item !== null && Number.isInteger(item) && item > 0);
 }
 
 function normalizeEditorInfographicCards(cards: unknown, expectedCount: number): EditorInfographicCard[] {
@@ -399,10 +399,14 @@ function normalizeFormState(type: EditorContentType, entry: UnknownRecord): Form
         ? blocksSource.map((blockValue) => {
           const block = isRecord(blockValue) ? blockValue : {};
           if (block.__component === "blocks.html-editor") {
+            const content = typeof block.content === "string" || isRecord(block.content)
+              ? block.content
+              : null;
+
             return {
               __component: "blocks.html-editor" as const,
               title: typeof block.title === "string" ? block.title : "",
-              content: parseTiptapDocument(block.content) ?? createEmptyTiptapDocument(),
+              content: parseTiptapDocument(content) ?? createEmptyTiptapDocument(),
             };
           }
 
