@@ -8,6 +8,7 @@ services:
     command: sh -c "npm run build && npm run start -- --hostname 0.0.0.0 --port 3000"
     environment:
       NODE_ENV: production
+      NODE_OPTIONS: --max-old-space-size=768
       NEXT_TELEMETRY_DISABLED: "1"
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL}
@@ -44,6 +45,7 @@ services:
     command: sh -c "node ./scripts/prepare-rich-text-blocks.js && npm run start:strapi"
     environment:
       NODE_ENV: production
+      NODE_OPTIONS: --max-old-space-size=768
       STRAPI_TELEMETRY_DISABLED: "true"
       HOST: 0.0.0.0
       PORT: 1337
@@ -62,6 +64,8 @@ services:
       WATERMARK_SECRET: ${WATERMARK_SECRET}
       WATERMARK_RESULT_MAX_ATTEMPTS: 30
       WATERMARK_RESULT_POLL_MS: 1000
+      WATERMARK_MAX_CONCURRENT: 1
+      WATERMARK_MAX_QUEUED_JOBS: 20
       SITE_URL: ${SITE_URL:-http://localhost}
       PUBLIC_SERVER_URL: ${PUBLIC_SERVER_URL:-${SITE_URL:-http://localhost}}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
@@ -155,6 +159,7 @@ services:
     command: node /app/worker.js
     environment:
       NODE_ENV: production
+      NODE_OPTIONS: --max-old-space-size=384
       JOBS_DIR: /app/jobs
       INPUT_DIR: /app/input
       OUTPUT_DIR: /app/output

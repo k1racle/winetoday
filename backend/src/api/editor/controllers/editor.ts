@@ -330,6 +330,20 @@ function resolveWatermarkOutputDir() {
   return process.env.WATERMARK_OUTPUT_DIR ?? path.join(process.cwd(), 'watermark', 'output');
 }
 
+const watermarkMaxConcurrent = Math.max(1, Number(process.env.WATERMARK_MAX_CONCURRENT) || 1);
+const watermarkMaxQueuedJobs = Math.max(1, Number(process.env.WATERMARK_MAX_QUEUED_JOBS) || 25);
+let watermarkInFlight = 0;
+
+async function getWatermarkQueuedJobsCount() {
+  const jobDir = resolveWatermarkJobDir();
+  try {
+    const files = await fs.readdir(jobDir);
+    return files.filter((file) => file.endsWith('.json')).length;
+  } catch {
+    return 0;
+  }
+}
+
 function buildWatermarkPosition(blockKind: string, blockWidth?: number | null, blockHeight?: number | null) {
   const width = Number(blockWidth) > 0 ? Number(blockWidth) : 0;
   const height = Number(blockHeight) > 0 ? Number(blockHeight) : 0;
@@ -1651,40 +1665,54 @@ export default factories.createCoreController('api::member-profile.member-profil
       throw new NotFoundError('Файл не найден или недоступен для watermark.');
     }
 
-    const sourcePath = path.join(process.cwd(), 'public', asset.url.replace(/^\//, ''));
-    const jobInputName = `${asset.id}-${path.basename(sourcePath)}`;
-    await cleanupWatermarkArtifactsForFile(jobInputName);
-    const copiedInput = await copyToWatermarkInput(sourcePath, jobInputName);
-    const jobPayload = {
-      assetId: asset.id,
-      inputFile: path.basename(copiedInput),
-      outputFile: path.basename(copiedInput),
-      ...buildWatermarkPosition(blockKind, blockWidth, blockHeight),
-    };
+    if (watermarkInFlight >= watermarkMaxConcurrent) {
+      throw new ValidationError('Сервис watermark перегружен. Повторите попытку через несколько секунд.');
+    }
 
-    let resultPath: string | null = null;
+    const queuedJobs = await getWatermarkQueuedJobsCount();
+    if (queuedJobs >= watermarkMaxQueuedJobs) {
+      throw new ValidationError('Очередь watermark переполнена. Повторите попытку чуть позже.');
+    }
 
+    watermarkInFlight += 1;
     try {
-      await enqueueWatermarkJob(jobPayload);
-      resultPath = await readWatermarkResult(path.basename(copiedInput));
-      const shouldCreateSeparateAsset = blockKind === 'archive-cover' && body?.createAsset !== false;
-      const outputAsset = shouldCreateSeparateAsset
-        ? await createUploadFileFromPath(strapi, resultPath, asset, 'archive-cover')
-        : null;
-
-      if (!shouldCreateSeparateAsset) {
-        await fs.copyFile(resultPath, sourcePath);
-      }
-
-      ctx.body = {
-        ok: true,
-        assetId: outputAsset?.id ?? asset.id,
-        asset: outputAsset ? serializeUploadedAsset(outputAsset) : serializeUploadedAsset(asset),
-        job: jobPayload,
-        outputPath: resultPath,
-      };
-    } finally {
+      const sourcePath = path.join(process.cwd(), 'public', asset.url.replace(/^\//, ''));
+      const jobInputName = `${asset.id}-${path.basename(sourcePath)}`;
       await cleanupWatermarkArtifactsForFile(jobInputName);
+      const copiedInput = await copyToWatermarkInput(sourcePath, jobInputName);
+      const jobPayload = {
+        assetId: asset.id,
+        inputFile: path.basename(copiedInput),
+        outputFile: path.basename(copiedInput),
+        ...buildWatermarkPosition(blockKind, blockWidth, blockHeight),
+      };
+
+      let resultPath: string | null = null;
+
+      try {
+        await enqueueWatermarkJob(jobPayload);
+        resultPath = await readWatermarkResult(path.basename(copiedInput));
+        const shouldCreateSeparateAsset = blockKind === 'archive-cover' && body?.createAsset !== false;
+        const outputAsset = shouldCreateSeparateAsset
+          ? await createUploadFileFromPath(strapi, resultPath, asset, 'archive-cover')
+          : null;
+
+        if (!shouldCreateSeparateAsset) {
+          await fs.copyFile(resultPath, sourcePath);
+        }
+
+        ctx.body = {
+          ok: true,
+          assetId: outputAsset?.id ?? asset.id,
+          asset: outputAsset ? serializeUploadedAsset(outputAsset) : serializeUploadedAsset(asset),
+          job: jobPayload,
+          outputPath: resultPath,
+        };
+      } finally {
+        await cleanupWatermarkArtifactsForFile(jobInputName);
+      }
+    } finally {
+      watermarkInFlight = Math.max(0, watermarkInFlight - 1);
     }
   },
 
