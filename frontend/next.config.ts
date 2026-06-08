@@ -1,8 +1,12 @@
 import type { NextConfig } from "next";
 
+const cmsOrigin = (process.env.CMS_URL ?? "http://localhost:1337").replace(/\/+$/, "");
+
 const nextConfig: NextConfig = {
   images: {
-    dangerouslyAllowLocalIP: true,
+    // Sharp inside the frontend container caused OOM and aborted /_next/image requests.
+    // Media is served from /uploads/ (proxied to Strapi by NPM or the rewrite below).
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "http",
@@ -11,25 +15,12 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "http",
-        hostname: "localhost",
-      },
-      {
-        protocol: "http",
         hostname: "127.0.0.1",
         port: "1337",
-      },
-      {
-        protocol: "http",
-        hostname: "127.0.0.1",
       },
       {
         protocol: "http",
         hostname: "backend",
-        port: "1337",
-      },
-      {
-        protocol: "http",
-        hostname: "185.72.147.187",
         port: "1337",
       },
       {
@@ -41,8 +32,14 @@ const nextConfig: NextConfig = {
         hostname: "www.winemaking-today.ru",
       },
     ],
-    formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 300,
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/uploads/:path*",
+        destination: `${cmsOrigin}/uploads/:path*`,
+      },
+    ];
   },
 };
 

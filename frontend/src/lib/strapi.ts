@@ -4,7 +4,6 @@ import { cache } from "react";
 
 export const SITE_URL = process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://127.0.0.1";
 const CMS_URL = process.env.CMS_URL ?? "http://localhost:1337";
-const MEDIA_URL = process.env.MEDIA_URL ?? new URL("/uploads/", SITE_URL).toString();
 export const CMS_API_URL = CMS_URL;
 const HAS_REVALIDATE_SECRET = Boolean(process.env.REVALIDATE_SECRET);
 
@@ -23,7 +22,7 @@ function normalizeSiteOrigin(value?: string | null, fallback = SITE_URL) {
 
 function resolveMediaUrl(path: string) {
   const normalizedPath = path.replace(/^\/+/, "").replace(/^uploads\//, "");
-  return new URL(normalizedPath, `${MEDIA_URL.replace(/\/+$/, "")}/`).toString();
+  return `/uploads/${normalizedPath}`;
 }
 
 const DEFAULT_REVALIDATE_SECONDS = 300;

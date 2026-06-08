@@ -16,7 +16,6 @@ services:
       NEXTAUTH_URL: ${NEXTAUTH_URL}
       SITE_URL: ${SITE_URL:-http://localhost}
       CMS_URL: http://backend:1337
-      MEDIA_URL: http://backend:1337/uploads
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
       NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
       NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
