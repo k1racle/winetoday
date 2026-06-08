@@ -48,7 +48,6 @@ services:
     command: sh -c "node ./scripts/prepare-rich-text-blocks.js && npm run start:strapi"
     environment:
       NODE_ENV: production
-      NODE_OPTIONS: --max-old-space-size=768
       STRAPI_TELEMETRY_DISABLED: "true"
       HOST: 0.0.0.0
       PORT: 1337
@@ -64,14 +63,6 @@ services:
       STRAPI_ADMIN_PASSWORD: ${STRAPI_ADMIN_PASSWORD}
       FRONTEND_REVALIDATE_URL: http://frontend:3000/api/revalidate
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
-      SITE_URL: ${SITE_URL:-http://localhost}
-      PUBLIC_SERVER_URL: ${PUBLIC_SERVER_URL:-${SITE_URL:-http://localhost}}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
-      VK_CLIENT_ID: ${VK_CLIENT_ID:-}
-      VK_CLIENT_SECRET: ${VK_CLIENT_SECRET:-}
-      YANDEX_CLIENT_ID: ${YANDEX_CLIENT_ID:-}
-      YANDEX_CLIENT_SECRET: ${YANDEX_CLIENT_SECRET:-}
       DATABASE_CLIENT: postgres
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
@@ -99,8 +90,6 @@ services:
       timeout: 10s
       retries: 30
       start_period: 120s
-    mem_limit: 1536m
-    memswap_limit: 1536m
     restart: unless-stopped
 
   postgres:
