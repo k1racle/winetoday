@@ -35,6 +35,8 @@ type SourceItem = {
   url: string;
 };
 
+type UnknownRecord = Record<string, unknown>;
+
 type MaterialLabel = "none" | "exclusive" | "video";
 
 function normalizeMaterialLabel(value: unknown): MaterialLabel {
@@ -130,20 +132,49 @@ function createEmptyInfographicCard(): EditorInfographicCard {
   };
 }
 
-function normalizeEditorInfographicCards(cards: any, expectedCount: number): EditorInfographicCard[] {
+function isRecord(value: unknown): value is UnknownRecord {
+  return typeof value === "object" && value !== null;
+}
+
+function getRecordId(value: unknown) {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  return typeof value.id === "number" ? value.id : null;
+}
+
+function normalizeRelationIds(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [] as number[];
+  }
+
+  return value
+    .map((item) => getRecordId(item))
+    .filter((item): item is number => Number.isInteger(item) && item > 0);
+}
+
+function normalizeEditorInfographicCards(cards: unknown, expectedCount: number): EditorInfographicCard[] {
   const normalized: EditorInfographicCard[] = Array.isArray(cards)
-    ? cards.slice(0, expectedCount).map((card: any) => ({
-        id: typeof card?.id === "number" ? card.id : undefined,
-        shape: card?.shape === "rectangle" || card?.shape === "circle" ? card.shape : "square",
-        title: card?.title ?? "",
-        description: card?.description ?? "",
-        href: card?.href ?? "",
-        backgroundImage: card?.backgroundImage?.id ?? card?.backgroundImage ?? null,
-        backgroundVideo: card?.backgroundVideo?.id ?? card?.backgroundVideo ?? null,
-        cornerIcon: card?.cornerIcon?.id ?? card?.cornerIcon ?? null,
-        accentText: card?.accentText ?? "",
-        theme: card?.theme === "dark" ? "dark" : "light",
-      }))
+    ? cards.slice(0, expectedCount).map((card) => {
+        const cardRecord = isRecord(card) ? card : {};
+        const backgroundImageId = getRecordId(cardRecord.backgroundImage);
+        const backgroundVideoId = getRecordId(cardRecord.backgroundVideo);
+        const cornerIconId = getRecordId(cardRecord.cornerIcon);
+
+        return {
+          id: typeof cardRecord.id === "number" ? cardRecord.id : undefined,
+          shape: cardRecord.shape === "rectangle" || cardRecord.shape === "circle" ? cardRecord.shape : "square",
+          title: typeof cardRecord.title === "string" ? cardRecord.title : "",
+          description: typeof cardRecord.description === "string" ? cardRecord.description : "",
+          href: typeof cardRecord.href === "string" ? cardRecord.href : "",
+          backgroundImage: backgroundImageId ?? (typeof cardRecord.backgroundImage === "number" ? cardRecord.backgroundImage : null),
+          backgroundVideo: backgroundVideoId ?? (typeof cardRecord.backgroundVideo === "number" ? cardRecord.backgroundVideo : null),
+          cornerIcon: cornerIconId ?? (typeof cardRecord.cornerIcon === "number" ? cardRecord.cornerIcon : null),
+          accentText: typeof cardRecord.accentText === "string" ? cardRecord.accentText : "",
+          theme: cardRecord.theme === "dark" ? "dark" : "light",
+        };
+      })
     : [];
 
   while (normalized.length < expectedCount) {
@@ -255,15 +286,29 @@ function legacyTextToTiptapDocument(value: string) {
   } satisfies Record<string, unknown>;
 }
 
-function flattenLegacyNodes(nodes: any[]): string {
+function getTextFromLegacyChildren(value: unknown) {
+  if (!Array.isArray(value)) {
+    return "";
+  }
+
+  return value
+    .map((child) => (isRecord(child) && typeof child.text === "string" ? child.text : ""))
+    .join("");
+}
+
+function flattenLegacyNodes(nodes: unknown[]): string {
   return nodes
     .flatMap((node) => {
-      if (node?.type === "paragraph" && Array.isArray(node.children)) {
-        return [node.children.map((child: any) => (typeof child?.text === "string" ? child.text : "")).join("")];
+      if (!isRecord(node)) {
+        return [];
       }
 
-      if (Array.isArray(node?.children)) {
-        return [node.children.map((child: any) => (typeof child?.text === "string" ? child.text : "")).join("")];
+      if (node.type === "paragraph" && Array.isArray(node.children)) {
+        return [getTextFromLegacyChildren(node.children)];
+      }
+
+      if (Array.isArray(node.children)) {
+        return [getTextFromLegacyChildren(node.children)];
       }
 
       return [];
@@ -278,34 +323,43 @@ function normalizeGalleryPhotoIds(value: unknown) {
   }
 
   return value
-    .map((item: any) => Number(item?.id ?? item))
+    .map((item) => Number(getRecordId(item) ?? item))
     .filter((item) => Number.isInteger(item) && item > 0);
 }
 
-function normalizeFormState(type: EditorContentType, entry: any): FormState {
+function normalizeFormState(type: EditorContentType, entry: UnknownRecord): FormState {
   const state = createInitialState(type);
   const normalizedSources = Array.isArray(entry.sources)
     ? entry.sources
-      .map((item: any) => ({
-        name: item?.name ?? "",
-        url: item?.url ?? "",
-      }))
+      .map((item) => {
+        const source = isRecord(item) ? item : {};
+
+        return {
+          name: typeof source.name === "string" ? source.name : "",
+          url: typeof source.url === "string" ? source.url : "",
+        };
+      })
       .filter((item: SourceItem) => item.name || item.url)
     : [];
+  const cover = isRecord(entry.cover) ? entry.cover : null;
+  const archiveCover = isRecord(entry.archiveCover) ? entry.archiveCover : null;
+  const author = isRecord(entry.author) ? entry.author : null;
+  const seo = isRecord(entry.seo) ? entry.seo : null;
+  const blocksSource = type === "homepage" ? entry.blocks : entry.content;
 
   return {
     ...state,
-    documentId: entry.documentId ?? null,
-    title: entry.title ?? "",
-    slug: entry.slug ?? "",
-    excerpt: entry.excerpt ?? "",
+    documentId: typeof entry.documentId === "string" ? entry.documentId : null,
+    title: typeof entry.title === "string" ? entry.title : "",
+    slug: typeof entry.slug === "string" ? entry.slug : "",
+    excerpt: typeof entry.excerpt === "string" ? entry.excerpt : "",
     materialLabel: normalizeMaterialLabel(entry.materialLabel),
-    cover: entry.cover?.id ?? null,
-    archiveCover: entry.archiveCover?.id ?? null,
-    coverSource: entry.coverSource ?? "",
-    author: entry.author?.id ?? null,
-    categories: Array.isArray(entry.categories) ? entry.categories.map((item: any) => item?.id).filter(Boolean) : [],
-    tags: Array.isArray(entry.tags) ? entry.tags.map((item: any) => item?.id).filter(Boolean) : [],
+    cover: getRecordId(cover),
+    archiveCover: getRecordId(archiveCover),
+    coverSource: typeof entry.coverSource === "string" ? entry.coverSource : "",
+    author: getRecordId(author),
+    categories: normalizeRelationIds(entry.categories),
+    tags: normalizeRelationIds(entry.tags),
     homepageSpecialBlock: entry.homepageSpecialBlock === true,
     status: entry.editorStatus === "published" || entry.publishedAt ? "published" : "draft",
     publishedAtCustom: toDateTimeLocalValue(typeof entry.publishedAtCustom === "string" ? entry.publishedAtCustom : null),
@@ -313,18 +367,18 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
     sources: normalizedSources.length
       ? normalizedSources
       : entry.sourceName || entry.sourceUrl
-        ? [{ name: entry.sourceName ?? "", url: entry.sourceUrl ?? "" }]
+        ? [{ name: typeof entry.sourceName === "string" ? entry.sourceName : "", url: typeof entry.sourceUrl === "string" ? entry.sourceUrl : "" }]
         : state.sources,
     startsAt: typeof entry.startsAt === "string" ? entry.startsAt.slice(0, 16) : "",
     endsAt: typeof entry.endsAt === "string" ? entry.endsAt.slice(0, 16) : "",
-    locationName: entry.locationName ?? "",
-    city: entry.city ?? "",
-    address: entry.address ?? "",
-    ticketUrl: entry.ticketUrl ?? "",
-    videoUrl: entry.videoUrl ?? "",
+    locationName: typeof entry.locationName === "string" ? entry.locationName : "",
+    city: typeof entry.city === "string" ? entry.city : "",
+    address: typeof entry.address === "string" ? entry.address : "",
+    ticketUrl: typeof entry.ticketUrl === "string" ? entry.ticketUrl : "",
+    videoUrl: typeof entry.videoUrl === "string" ? entry.videoUrl : "",
     duration: entry.duration ? String(entry.duration) : state.duration,
-    infographicTitle: entry.infographicTitle ?? "",
-    infographicDescription: entry.infographicDescription ?? "",
+    infographicTitle: typeof entry.infographicTitle === "string" ? entry.infographicTitle : "",
+    infographicDescription: typeof entry.infographicDescription === "string" ? entry.infographicDescription : "",
     infographicCardsDesktop: normalizeEditorInfographicCards(entry.infographicCardsDesktop ?? entry.infographicCards, INFOGRAPHIC_VIEWPORT_CARD_COUNTS.desktop),
     infographicCardsTablet: normalizeEditorInfographicCards(entry.infographicCardsTablet ?? entry.infographicCards, INFOGRAPHIC_VIEWPORT_CARD_COUNTS.tablet),
     infographicCardsMobile: normalizeEditorInfographicCards(entry.infographicCardsMobile ?? entry.infographicCards, INFOGRAPHIC_VIEWPORT_CARD_COUNTS.mobile),
@@ -332,21 +386,22 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
       ? normalizeGalleryPhotoIds(entry.photos)
       : state.photos,
     seo: {
-      metaTitle: entry.seo?.metaTitle ?? "",
-      metaDescription: entry.seo?.metaDescription ?? "",
-      keywords: entry.seo?.keywords ?? "",
-      canonicalUrl: entry.seo?.canonicalUrl ?? "",
-      noIndex: entry.seo?.noIndex === true,
-      noFollow: entry.seo?.noFollow === true,
+      metaTitle: typeof seo?.metaTitle === "string" ? seo.metaTitle : "",
+      metaDescription: typeof seo?.metaDescription === "string" ? seo.metaDescription : "",
+      keywords: typeof seo?.keywords === "string" ? seo.keywords : "",
+      canonicalUrl: typeof seo?.canonicalUrl === "string" ? seo.canonicalUrl : "",
+      noIndex: seo?.noIndex === true,
+      noFollow: seo?.noFollow === true,
     },
     blocks: type === "gallery"
       ? []
-      : Array.isArray(type === "homepage" ? entry.blocks : entry.content)
-        ? (type === "homepage" ? entry.blocks : entry.content).map((block: any) => {
+      : Array.isArray(blocksSource)
+        ? blocksSource.map((blockValue) => {
+          const block = isRecord(blockValue) ? blockValue : {};
           if (block.__component === "blocks.html-editor") {
             return {
               __component: "blocks.html-editor" as const,
-              title: block.title ?? "",
+              title: typeof block.title === "string" ? block.title : "",
               content: parseTiptapDocument(block.content) ?? createEmptyTiptapDocument(),
             };
           }
@@ -354,7 +409,7 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
           if (block.__component === "blocks.embed") {
             return {
               __component: "blocks.embed" as const,
-              title: block.title ?? "",
+              title: typeof block.title === "string" ? block.title : "",
               html: typeof block.html === "string" ? block.html : "",
             };
           }
@@ -368,7 +423,7 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
 
             return {
               __component: "blocks.html-editor" as const,
-              title: block.title ?? "",
+              title: typeof block.title === "string" ? block.title : "",
               content,
             };
           }
@@ -376,27 +431,27 @@ function normalizeFormState(type: EditorContentType, entry: any): FormState {
           if (block.__component === "blocks.image-highlight") {
             return {
               __component: "blocks.image-highlight" as const,
-              caption: block.caption ?? "",
-              credit: block.credit ?? "",
-              image: block.image?.id ?? null,
+              caption: typeof block.caption === "string" ? block.caption : "",
+              credit: typeof block.credit === "string" ? block.credit : "",
+              image: getRecordId(block.image),
             };
           }
 
           if (block.__component === "blocks.image-slider") {
             return {
               __component: "blocks.image-slider" as const,
-              title: block.title ?? "",
-              description: block.description ?? "",
-              photoSource: block.photoSource ?? "",
-              images: Array.isArray(block.images) ? block.images.map((image: any) => image?.id).filter(Boolean) : [],
+              title: typeof block.title === "string" ? block.title : "",
+              description: typeof block.description === "string" ? block.description : "",
+              photoSource: typeof block.photoSource === "string" ? block.photoSource : "",
+              images: normalizeRelationIds(block.images),
             };
           }
 
-            return {
-              __component: block.__component,
-              title: block.title ?? "",
-              description: block.description ?? "",
-              images: Array.isArray(block.images) ? block.images.map((image: any) => image?.id).filter(Boolean) : [],
+          return {
+              __component: "blocks.image-gallery" as const,
+              title: typeof block.title === "string" ? block.title : "",
+              description: typeof block.description === "string" ? block.description : "",
+              images: normalizeRelationIds(block.images),
             };
           })
         : state.blocks,
@@ -932,7 +987,6 @@ function RichTextBlockEditor({
   onChange: (value: Record<string, unknown>) => void;
 }) {
   const [mode, setMode] = useState<"visual" | "code">("visual");
-  const [codeValue, setCodeValue] = useState("");
   const editor = useEditor({
     extensions: tiptapExtensions,
     immediatelyRender: false,
@@ -960,17 +1014,17 @@ function RichTextBlockEditor({
     if (JSON.stringify(currentContent) !== JSON.stringify(nextContent)) {
       editor.commands.setContent(nextContent, { emitUpdate: false });
     }
-
-    try {
-      setCodeValue(generateHTML(nextContent, tiptapExtensions));
-    } catch {
-      setCodeValue("");
-    }
   }, [editor, value]);
 
-  function applyCodeModeValue(nextValue: string) {
-    setCodeValue(nextValue);
+  const codeValue = useMemo(() => {
+    try {
+      return generateHTML(parseTiptapDocument(value) ?? createEmptyTiptapDocument(), tiptapExtensions);
+    } catch {
+      return "";
+    }
+  }, [value]);
 
+  function applyCodeModeValue(nextValue: string) {
     try {
       const json = generateJSON(nextValue, tiptapExtensions);
       onChange(json);
@@ -1217,10 +1271,11 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     return source.filter((item) => item.title.toLowerCase().includes(query));
   }, [items, itemsQuery, selectedType]);
   const totalItemsPages = Math.max(1, Math.ceil(filteredItems.length / itemsPerPage));
+  const visibleItemsPage = Math.min(itemsPage, totalItemsPages);
   const paginatedItems = useMemo(() => {
-    const startIndex = (itemsPage - 1) * itemsPerPage;
+    const startIndex = (visibleItemsPage - 1) * itemsPerPage;
     return filteredItems.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredItems, itemsPage]);
+  }, [filteredItems, visibleItemsPage]);
   const coverAsset = useMemo(() => findAssetById(mediaAssets, form.cover, "image"), [form.cover, mediaAssets]);
   const archiveCoverAsset = useMemo(() => findAssetById(mediaAssets, form.archiveCover, "image"), [form.archiveCover, mediaAssets]);
   const highlightBlock = activeMediaPanel?.kind === "block-highlight" && typeof activeMediaPanel.blockIndex === "number"
@@ -1412,10 +1467,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   }, []);
 
   useEffect(() => {
-    setItemsPage(1);
-  }, [itemsQuery, selectedType]);
-
-  useEffect(() => {
     if (requestedType || requestedDocumentId || selectedType !== "homepage" || form.documentId || items.homepage.length !== 1) {
       return;
     }
@@ -1434,12 +1485,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
     void openEntry(requestedType, requestedDocumentId);
   }, [allowedTypes, form.documentId, loading, requestedDocumentId, requestedType, selectedType]);
-
-  useEffect(() => {
-    if (itemsPage > totalItemsPages) {
-      setItemsPage(totalItemsPages);
-    }
-  }, [itemsPage, totalItemsPages]);
 
   function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -2143,13 +2188,13 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           {filteredItems.length ? (
             <div className="flex items-center justify-between gap-3 text-sm text-zinc-600 dark:text-zinc-400">
               <span>
-                Стр. {itemsPage} из {totalItemsPages}
+                Стр. {visibleItemsPage} из {totalItemsPages}
               </span>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setItemsPage((current) => Math.max(1, current - 1))}
-                  disabled={itemsPage === 1}
+                  disabled={visibleItemsPage === 1}
                   className="inline-flex items-center justify-center border border-black/10 px-3 py-2 transition-colors hover:bg-black/[0.03] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:hover:bg-white/[0.04]"
                 >
                   Назад
@@ -2157,7 +2202,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                 <button
                   type="button"
                   onClick={() => setItemsPage((current) => Math.min(totalItemsPages, current + 1))}
-                  disabled={itemsPage === totalItemsPages}
+                  disabled={visibleItemsPage === totalItemsPages}
                   className="inline-flex items-center justify-center border border-black/10 px-3 py-2 transition-colors hover:bg-black/[0.03] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:hover:bg-white/[0.04]"
                 >
                   Вперёд
