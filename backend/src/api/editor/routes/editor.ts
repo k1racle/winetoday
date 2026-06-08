@@ -77,22 +77,6 @@ export default {
     },
     {
       method: 'POST',
-      path: '/editor/watermark/:id',
-      handler: 'editor.watermark',
-      config: {
-        auth: false,
-      },
-    },
-    {
-      method: 'GET',
-      path: '/editor/watermark/status/:outputFileName',
-      handler: 'editor.watermarkStatus',
-      config: {
-        auth: false,
-      },
-    },
-    {
-      method: 'POST',
       path: '/editor/content/:type',
       handler: 'editor.save',
     },

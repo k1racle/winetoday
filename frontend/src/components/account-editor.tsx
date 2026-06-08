@@ -446,90 +446,6 @@ async function refreshMediaAssets() {
   return mediaPayload;
 }
 
-function sleep(ms: number) {
-  return new Promise<void>((resolve) => {
-    window.setTimeout(resolve, ms);
-  });
-}
-
-type WatermarkApiResponse = EditorApiError | {
-  ok?: boolean;
-  status?: "pending" | "done";
-  assetId?: number;
-  asset?: UploadedAsset;
-  outputFileName?: string;
-};
-
-async function pollWatermarkStatus(outputFileName: string) {
-  const maxAttempts = 45;
-  let pollMs = 3000;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    await sleep(pollMs);
-    pollMs = Math.min(5000, pollMs + 250);
-
-    const statusResponse = await fetch(`/api/editor/watermark/status/${encodeURIComponent(outputFileName)}`, {
-      method: "GET",
-      cache: "no-store",
-    });
-    const statusPayload = await parseJson<WatermarkApiResponse>(statusResponse);
-
-    console.info("[watermark] poll", { attempt: attempt + 1, status: statusResponse.status, payload: statusPayload });
-
-    if (statusResponse.status === 403) {
-      throw new Error("Нет доступа для нанесения watermark.");
-    }
-
-    if (!statusResponse.ok) {
-      throw new Error(getErrorMessage(statusPayload as EditorApiError | null, "Не удалось получить статус watermark."));
-    }
-
-    if (statusPayload && "status" in statusPayload && statusPayload.status === "done" && statusPayload.assetId) {
-      return statusPayload;
-    }
-
-    if (statusPayload && "status" in statusPayload && statusPayload.status !== "pending") {
-      break;
-    }
-  }
-
-  throw new Error("Не дождались результата watermark-обработки.");
-}
-
-async function applyWatermarkAsset(assetId: number, blockKind: string, blockWidth: number, blockHeight: number, options?: { createAsset?: boolean }) {
-  console.info("[watermark] sending request", { assetId, blockKind, blockWidth, blockHeight, createAsset: options?.createAsset });
-  const response = await fetch(`/api/editor/watermark/${assetId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ blockKind, blockWidth, blockHeight, createAsset: options?.createAsset }),
-  });
-
-  const responsePayload = await parseJson<WatermarkApiResponse>(response);
-
-  console.info("[watermark] response", { status: response.status, ok: response.ok, payload: responsePayload });
-
-  if (response.status === 403) {
-    throw new Error("Нет доступа для нанесения watermark.");
-  }
-
-  if (!response.ok) {
-    throw new Error(getErrorMessage(responsePayload as EditorApiError | null, "Не удалось нанести watermark."));
-  }
-
-  if (responsePayload && "status" in responsePayload && responsePayload.status === "done" && responsePayload.assetId) {
-    return responsePayload;
-  }
-
-  const outputFileName = responsePayload && "outputFileName" in responsePayload ? responsePayload.outputFileName : null;
-  if (!outputFileName) {
-    throw new Error("Сервер не вернул идентификатор watermark-задачи.");
-  }
-
-  return pollWatermarkStatus(outputFileName);
-}
-
 type MediaPickerProps = {
   assets: UploadedAsset[];
   accept: "image" | "video";
@@ -1260,7 +1176,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const [itemsQuery, setItemsQuery] = useState("");
   const [itemsPage, setItemsPage] = useState(1);
   const [activeInfographicVersion, setActiveInfographicVersion] = useState<EditorInfographicVersion>("desktop");
-  const [coverWatermarkEnabled, setCoverWatermarkEnabled] = useState(false);
   const [activeMediaPanel, setActiveMediaPanel] = useState<{
     kind: "cover" | "archive-cover" | "block-highlight" | "infographic-image" | "infographic-video" | "infographic-corner-icon";
     blockIndex?: number;
@@ -1746,38 +1661,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     setActiveMediaPanel({ kind: "archive-cover" });
   }
 
-  async function toggleCoverWatermark(enabled: boolean) {
-    setCoverWatermarkEnabled(enabled);
-
-    const assetId = form.cover;
-
-    if (!assetId) {
-      setError("Сначала выберите обложку.");
-      return;
-    }
-
-    setError(null);
-
-    try {
-      if (enabled) {
-        const watermarkedAsset = await applyWatermarkAsset(assetId, "cover-and-archive", 720, 448, { createAsset: true });
-        const mediaPayload = await refreshMediaAssets();
-        if (mediaPayload) {
-          setMediaAssets(mediaPayload);
-        }
-        if (watermarkedAsset?.assetId) {
-          updateForm("archiveCover", watermarkedAsset.assetId);
-        }
-        setSuccess("Watermark включён для обложки карточки.");
-      } else {
-        updateForm("archiveCover", null);
-        setSuccess("Watermark выключен для обложки карточки.");
-      }
-    } catch (watermarkError) {
-      setError(watermarkError instanceof Error ? watermarkError.message : "Не удалось изменить watermark.");
-    }
-  }
-
   function openHighlightMediaPanel(blockIndex: number) {
     setActiveMediaPanel({ kind: "block-highlight", blockIndex });
   }
@@ -1983,29 +1866,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить изображение.");
     } finally {
       event.target.value = "";
-    }
-  }
-
-  async function handleApplyWatermark(assetId: number, blockKind: string, target?: HTMLElement | null) {
-    if (!assetId) {
-      setError("Сначала выберите изображение.");
-      return;
-    }
-
-    setError(null);
-    try {
-      const blockElement = target?.closest(".watermark-target") as HTMLElement | null;
-      const imageFrame = blockElement?.querySelector<HTMLElement>("[data-watermark-frame]") ?? blockElement;
-      const blockWidth = Math.max(0, Math.round(imageFrame?.clientWidth ?? blockElement?.clientWidth ?? 0));
-      const blockHeight = Math.max(0, Math.round(imageFrame?.clientHeight ?? blockElement?.clientHeight ?? 0));
-      await applyWatermarkAsset(assetId, blockKind, blockWidth, blockHeight);
-      const mediaPayload = await refreshMediaAssets();
-      if (mediaPayload) {
-        setMediaAssets(mediaPayload);
-      }
-      setSuccess("Watermark нанесён.");
-    } catch (watermarkError) {
-      setError(watermarkError instanceof Error ? watermarkError.message : "Не удалось нанести watermark.");
     }
   }
 
@@ -2599,14 +2459,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   onClear={() => updateForm("cover", null)}
                   openLabel="Открыть библиотеку"
                 />
-                <label className="inline-flex items-center gap-3 text-sm text-zinc-900 dark:text-zinc-100">
-                  <input
-                    type="checkbox"
-                    checked={coverWatermarkEnabled}
-                    onChange={(event) => void toggleCoverWatermark(event.target.checked)}
-                  />
-                  <span>Добавить водяной знак</span>
-                </label>
               </div>
             </Field>
           </div>
@@ -2769,10 +2621,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                         <input value={block.photoSource ?? ""} onChange={(event) => updateBlock(index, { ...block, photoSource: event.target.value })} className={inputClassName} placeholder="Источник фото" />
                       ) : null}
                       <input type="file" accept="image/*" multiple onChange={(event) => void handleBlockFiles(index, event)} className={fileInputClassName} />
-                      <div className="flex flex-wrap items-center justify-between gap-3">
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">Загружено изображений: {block.images.length}</p>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">Нажмите на нужное фото, чтобы нанести watermark только на него.</p>
-                      </div>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">Загружено изображений: {block.images.length}</p>
                       {block.images.length ? (
                         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                           {block.images.map((imageId, imageIndex) => {
@@ -2780,8 +2629,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                             const previewUrl = asset?.previewUrl || asset?.url || null;
 
                             return (
-                              <div key={`${block.__component}-${block.id ?? index}-${imageId}-${imageIndex}`} className="watermark-target overflow-hidden border border-black/10 p-3 dark:border-white/10">
-                                <div data-watermark-frame className="relative aspect-video overflow-hidden bg-black/[0.04] dark:bg-white/[0.04]">
+                              <div key={`${block.__component}-${block.id ?? index}-${imageId}-${imageIndex}`} className="overflow-hidden border border-black/10 p-3 dark:border-white/10">
+                                <div className="relative aspect-video overflow-hidden bg-black/[0.04] dark:bg-white/[0.04]">
                                   {previewUrl ? (
                                     // eslint-disable-next-line @next/next/no-img-element
                                     <img src={previewUrl} alt={asset?.alternativeText || asset?.name || ""} className="h-full w-full object-cover" />
@@ -2789,18 +2638,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                                     <div className="flex h-full items-center justify-center px-3 text-xs uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">Фото</div>
                                   )}
                                 </div>
-                                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                                  <div className="min-w-0">
-                                    <div className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">{asset?.name || `Файл #${imageId}`}</div>
-                                    <div className="text-xs text-zinc-500 dark:text-zinc-400">ID: {imageId}</div>
-                                  </div>
-                                  <button
-                                    type="button"
-                                    onClick={(event) => void handleApplyWatermark(imageId, block.__component, event.currentTarget as HTMLElement)}
-                                    className="inline-flex items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] dark:border-white/10 dark:hover:bg-white/[0.04]"
-                                  >
-                                    Добавить водяной знак
-                                  </button>
+                                <div className="mt-3 min-w-0">
+                                  <div className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">{asset?.name || `Файл #${imageId}`}</div>
+                                  <div className="text-xs text-zinc-500 dark:text-zinc-400">ID: {imageId}</div>
                                 </div>
                               </div>
                             );
@@ -2813,16 +2653,12 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   ) : null}
 
                   {block.__component === "blocks.image-highlight" ? (
-                    <div className="watermark-target mt-4 grid gap-4">
+                    <div className="mt-4 grid gap-4">
                       <input value={block.caption ?? ""} onChange={(event) => updateBlock(index, { ...block, caption: event.target.value })} className={inputClassName} placeholder="Подпись" />
                       <input value={block.credit ?? ""} onChange={(event) => updateBlock(index, { ...block, credit: event.target.value })} className={inputClassName} placeholder="Авторство / credit" />
                       <input type="file" accept="image/*" onChange={(event) => void handleBlockFiles(index, event)} className={fileInputClassName} />
-                      <button type="button" disabled={!block.image} onClick={(event) => void handleApplyWatermark(block.image ?? 0, block.__component, event.currentTarget as HTMLElement)} className="inline-flex w-fit items-center border border-black/10 px-3 py-2 text-xs font-medium uppercase tracking-[0.18em] transition-colors hover:bg-black/[0.03] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:hover:bg-white/[0.04]">
-                        Добавить водяной знак Виноделие Сегодня
-                      </button>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400">Можно загрузить файл сразу или выбрать уже загруженное изображение в боковой панели.</p>
-                      <div data-watermark-frame>
-                        <MediaSummaryCard
+                      <MediaSummaryCard
                           asset={findAssetById(mediaAssets, block.image, "image")}
                           accept="image"
                           emptyLabel="Изображение не выбрано"
@@ -2830,7 +2666,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                           onClear={() => updateBlock(index, { ...block, image: null })}
                           openLabel="Открыть библиотеку"
                         />
-                      </div>
                     </div>
                   ) : null}
                 </div>

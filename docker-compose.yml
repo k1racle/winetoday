@@ -16,7 +16,6 @@ services:
       CMS_URL: http://backend:1337
       MEDIA_URL: ${MEDIA_URL:-http://localhost/uploads}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
-      WATERMARK_SECRET: ${WATERMARK_SECRET}
       NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
       NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
     ports:
@@ -63,11 +62,6 @@ services:
       STRAPI_ADMIN_PASSWORD: ${STRAPI_ADMIN_PASSWORD}
       FRONTEND_REVALIDATE_URL: http://frontend:3000/api/revalidate
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
-      WATERMARK_SECRET: ${WATERMARK_SECRET}
-      WATERMARK_RESULT_MAX_ATTEMPTS: 30
-      WATERMARK_RESULT_POLL_MS: 1000
-      WATERMARK_MAX_CONCURRENT: 1
-      WATERMARK_MAX_QUEUED_JOBS: 5
       SITE_URL: ${SITE_URL:-http://localhost}
       PUBLIC_SERVER_URL: ${PUBLIC_SERVER_URL:-${SITE_URL:-http://localhost}}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
@@ -90,9 +84,6 @@ services:
       - "1337:1337"
     volumes:
       - backend_uploads:/app/public/uploads
-      - watermark_jobs:/app/watermark/jobs
-      - watermark_input:/app/watermark/input
-      - watermark_output:/app/watermark/output
     depends_on:
       postgres:
         condition: service_healthy
@@ -154,53 +145,8 @@ services:
       retries: 10
     restart: unless-stopped
 
-  watermark:
-    build:
-      context: ./watermark
-      dockerfile: Dockerfile
-    container_name: vino_watermark
-    working_dir: /app
-    command: node /app/worker.js
-    environment:
-      NODE_ENV: production
-      NODE_OPTIONS: --max-old-space-size=256
-      JOBS_DIR: /app/jobs
-      INPUT_DIR: /app/input
-      OUTPUT_DIR: /app/output
-      UPLOADS_DIR: /app/shared/uploads
-      WATERMARK_LOGO_PATH: /app/assets/logo1.png
-      WATERMARK_LOG_LEVEL: warn
-      WATERMARK_FILE_TTL_HOURS: 2
-      WATERMARK_MARKER_TTL_HOURS: 12
-      WATERMARK_MARKER_CLEANUP_INTERVAL_HOURS: 1
-      WATERMARK_POLL_INTERVAL_MS: 3000
-      WATERMARK_IDLE_POLL_INTERVAL_MS: 5000
-      WATERMARK_MAX_DIMENSION: 1600
-      WATERMARK_ARCHIVE_MAX_WIDTH: 720
-      WATERMARK_JPEG_QUALITY: 82
-      WATERMARK_MAX_INPUT_BYTES: 15728640
-      SHARP_CONCURRENCY: 1
-    volumes:
-      - watermark_jobs:/app/jobs
-      - watermark_input:/app/input
-      - watermark_output:/app/output
-      - backend_uploads:/app/shared/uploads:ro
-    cpus: 0.75
-    mem_limit: 384m
-    memswap_limit: 384m
-    healthcheck:
-      test: ["CMD", "node", "-e", "const fs=require('node:fs');const dir=process.env.JOBS_DIR||'/app/jobs';try{fs.accessSync(dir);process.exit(0)}catch{process.exit(1)}"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
-    restart: unless-stopped
-
 volumes:
   backend_uploads:
-  watermark_jobs:
-  watermark_input:
-  watermark_output:
   postgres_data:
   redis_data:
   meili_data:
