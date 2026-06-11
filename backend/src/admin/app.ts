@@ -157,6 +157,20 @@ export default {
     },
   },
   bootstrap(app: any) {
+    if (typeof document !== 'undefined') {
+      const styleId = 'vino-tiptap-link-override';
+      if (!document.getElementById(styleId)) {
+        const style = document.createElement('style');
+        style.id = styleId;
+        style.textContent = `
+          .ProseMirror a {
+            color: lab(83.9203% -48.7124 13.8849) !important;
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+
     const contentManager = app.getPlugin?.('content-manager');
 
     contentManager?.injectComponent('editView', 'right-links', {
