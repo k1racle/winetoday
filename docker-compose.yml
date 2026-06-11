@@ -24,6 +24,10 @@ services:
       NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY}
     ports:
       - "3000:3000"
+    networks:
+      default:
+      winemakingtoday_static:
+        ipv4_address: 192.168.240.10
     depends_on:
       backend:
         condition: service_healthy
@@ -79,6 +83,10 @@ services:
       - "1337:1337"
     volumes:
       - backend_uploads:/app/public/uploads
+    networks:
+      default:
+      winemakingtoday_static:
+        ipv4_address: 192.168.240.11
     depends_on:
       postgres:
         condition: service_healthy
@@ -137,6 +145,13 @@ services:
       timeout: 5s
       retries: 10
     restart: unless-stopped
+
+networks:
+  winemakingtoday_static:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.240.0/24
 
 volumes:
   backend_uploads:
