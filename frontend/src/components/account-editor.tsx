@@ -1209,10 +1209,9 @@ type AccountEditorProps = {
     type?: string;
     documentId?: string;
   };
-  previewSecret?: string;
 };
 
-export function AccountEditor({ initialQuery, previewSecret }: AccountEditorProps) {
+export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const itemsPerPage = 20;
   const [session, setSession] = useState<EditorSession | null>(null);
   const [authors, setAuthors] = useState<EditorAuthorOption[]>([]);
@@ -2205,11 +2204,6 @@ export function AccountEditor({ initialQuery, previewSecret }: AccountEditorProp
             {materialPublicPath && form.status === "published" ? (
               <Link href={materialPublicPath} target="_blank" className="inline-flex w-fit items-center justify-center gap-2 border border-emerald-600 px-4 py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50 hover:text-emerald-900 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-500/10 dark:hover:text-emerald-300">
                 Перейти к материалу
-              </Link>
-            ) : null}
-            {previewSecret && form.documentId && selectedType !== "homepage" ? (
-              <Link href={`/preview/${selectedType}/${form.documentId}?secret=${encodeURIComponent(previewSecret)}`} target="_blank" className="inline-flex w-fit items-center justify-center gap-2 border border-amber-600 px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-50 hover:text-amber-900 dark:border-amber-500 dark:text-amber-400 dark:hover:bg-amber-500/10 dark:hover:text-amber-300">
-                Предпросмотр
               </Link>
             ) : null}
           </div>
