@@ -18,6 +18,8 @@ services:
       CMS_URL: http://backend:1337
       MEDIA_URL: ${MEDIA_URL:-}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+      STRAPI_API_TOKEN: ${STRAPI_API_TOKEN}
+      PREVIEW_SECRET: ${PREVIEW_SECRET}
       NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
       NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
     ports:

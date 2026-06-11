@@ -45,7 +45,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
         <h1 className="type-h1 mt-2">Редактор материалов</h1>
         <p className="type-body mt-2 max-w-4xl text-zinc-600 dark:text-zinc-400">Создание и редактирование материалов во фронте без перехода в админку.</p>
       </div>
-      <AccountEditor initialQuery={query} />
+      <AccountEditor initialQuery={query} previewSecret={process.env.PREVIEW_SECRET} />
     </main>
   );
 }

@@ -7,6 +7,7 @@ const CMS_URL = process.env.CMS_URL ?? "http://localhost:1337";
 const MEDIA_URL = process.env.MEDIA_URL?.trim() || new URL("/uploads/", SITE_URL).toString();
 export const CMS_API_URL = CMS_URL;
 const HAS_REVALIDATE_SECRET = Boolean(process.env.REVALIDATE_SECRET);
+const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN ?? null;
 
 // #region agent log
 const AGENT_DEBUG_ENDPOINT = "http://127.0.0.1:7308/ingest/e5b160b2-f1d0-4782-b6e4-70859f118b60";
@@ -1886,6 +1887,33 @@ async function fetchStrapi<T>(path: string, options?: { revalidate?: number | fa
     durationMs: Date.now() - startedAt,
   });
   // #endregion
+
+  if (!response.ok) {
+    throw new StrapiRequestError({ status: response.status, statusText: response.statusText, url });
+  }
+
+  return (await response.json()) as StrapiResponse<T>;
+}
+
+export async function fetchStrapiPreview<T>(path: string) {
+  const url = `${CMS_URL}${withStatus(path, "draft")}`;
+  const startedAt = Date.now();
+  const requestInit: RequestInit = {
+    headers: {
+      ...(STRAPI_API_TOKEN ? { Authorization: `Bearer ${STRAPI_API_TOKEN}` } : {}),
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
+  };
+
+  const response = await fetch(url, requestInit);
+
+  agentDebugLog("H2,H3,H5", "frontend/src/lib/strapi.ts:fetchStrapiPreview:end", "Strapi preview fetch end", {
+    path,
+    status: response.status,
+    ok: response.ok,
+    durationMs: Date.now() - startedAt,
+  });
 
   if (!response.ok) {
     throw new StrapiRequestError({ status: response.status, statusText: response.statusText, url });
