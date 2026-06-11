@@ -998,7 +998,7 @@ function RichTextBlockEditor({
     editorProps: {
       attributes: {
         class:
-          "min-h-[260px] max-w-none px-4 py-4 text-[15px] leading-8 text-zinc-800 outline-none dark:text-zinc-200 [&_.is-editor-empty:first-child::before]:pointer-events-none [&_.is-editor-empty:first-child::before]:float-left [&_.is-editor-empty:first-child::before]:h-0 [&_.is-editor-empty:first-child::before]:text-zinc-400 [&_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_blockquote]:border-l-2 [&_blockquote]:border-emerald-600 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h1]:text-3xl [&_h1]:font-semibold [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:text-xl [&_h3]:font-semibold [&_ol]:ml-6 [&_ol]:list-decimal [&_p]:my-3 [&_ul]:ml-6 [&_ul]:list-disc",
+          "min-h-[260px] max-w-none px-4 py-4 text-[15px] leading-8 text-zinc-800 outline-none dark:text-zinc-200 [&_.is-editor-empty:first-child::before]:pointer-events-none [&_.is-editor-empty:first-child::before]:float-left [&_.is-editor-empty:first-child::before]:h-0 [&_.is-editor-empty:first-child::before]:text-zinc-400 [&_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_blockquote]:border-l-2 [&_blockquote]:border-emerald-600 [&_blockquote]:pl-4 [&_blockquote]:italic [&_h1]:text-3xl [&_h1]:font-semibold [&_h2]:text-2xl [&_h2]:font-semibold [&_h3]:text-xl [&_h3]:font-semibold [&_ol]:ml-6 [&_ol]:list-decimal [&_p]:my-3 [&_ul]:ml-6 [&_ul]:list-disc [&_a]:text-[lab(83.9203%_-48.7124_13.8849)] [&_a]:underline",
         "data-placeholder": "Введите текст блока",
       },
     },
