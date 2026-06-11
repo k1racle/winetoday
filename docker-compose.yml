@@ -6,6 +6,7 @@ services:
       args:
         NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
         NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
+        NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY}
     container_name: vino_frontend
     working_dir: /app
     environment:
@@ -20,6 +21,7 @@ services:
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
       NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
       NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
+      NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY}
     ports:
       - "3000:3000"
     depends_on:
