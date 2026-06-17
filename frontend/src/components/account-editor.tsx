@@ -1231,6 +1231,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [draftPreviewUrl, setDraftPreviewUrl] = useState<string | null>(null);
   const [itemsQuery, setItemsQuery] = useState("");
   const [itemsPage, setItemsPage] = useState(1);
   const [activeInfographicVersion, setActiveInfographicVersion] = useState<EditorInfographicVersion>("desktop");
@@ -1244,6 +1245,11 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const canEditAll = session?.capabilities.canEditAll === true;
   const currentAccountAuthorId = session?.user?.memberProfile?.author?.id ?? null;
   const materialPublicPath = publicPath(selectedType, form.slug);
+
+  useEffect(() => {
+    const path = publicPath(selectedType, form.slug);
+    setDraftPreviewUrl(form.status === "draft" && form.documentId && path ? `${path}?preview=1` : null);
+  }, [form.documentId, form.status, form.slug, selectedType]);
   const requestedType = useMemo(() => {
     const rawType = initialQuery?.type?.trim() ?? "";
     return isEditorContentType(rawType) ? rawType : null;
@@ -2706,6 +2712,16 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           <button type="button" disabled={saving} onClick={() => void handleSave()} className="inline-flex items-center justify-center border border-black bg-black px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 hover:border-zinc-800 disabled:opacity-60 dark:border-white dark:bg-white dark:text-[#08110b] dark:hover:bg-zinc-200 dark:hover:border-zinc-200">{saving ? "Сохраняем…" : form.documentId ? "Сохранить изменения" : "Создать материал"}</button>
           {form.documentId ? (
             <button type="button" disabled={saving} onClick={() => void handleDelete()} className="inline-flex items-center justify-center border border-red-200 px-5 py-2.5 text-sm font-medium text-red-700 transition-colors hover:bg-red-50 disabled:opacity-60 dark:border-red-500/30 dark:text-red-300 dark:hover:bg-red-950/30">Удалить материал</button>
+          ) : null}
+          {draftPreviewUrl ? (
+            <a
+              href={draftPreviewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center border border-emerald-700 bg-emerald-700 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-800 hover:border-emerald-800 dark:border-emerald-500 dark:bg-emerald-500 dark:text-[#08110b] dark:hover:bg-emerald-400 dark:hover:border-emerald-400"
+            >
+              Предпросмотр в новой вкладке
+            </a>
           ) : null}
         </div>
         ) : null}

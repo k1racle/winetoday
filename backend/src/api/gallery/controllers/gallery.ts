@@ -1,4 +1,3 @@
-import { factories } from '@strapi/strapi';
+import { createPreviewController } from '../../../utils/preview-controller';
 
-export default factories.createCoreController('api::gallery.gallery' as any);
-
+export default createPreviewController('api::gallery.gallery');

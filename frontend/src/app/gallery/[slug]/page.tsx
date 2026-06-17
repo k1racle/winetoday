@@ -7,18 +7,22 @@ import { GalleryPhotoWall } from "@/components/image-collections";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { MaterialEditButton } from "@/components/material-edit-button";
+import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { buildSeoMetadata, formatRussianDateTime, getGalleryBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, withLoggedFallback } from "@/lib/strapi";
 
 export const revalidate = 300;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const { preview } = await searchParams;
+  const isPreview = preview === "1";
   const [gallery, siteSeo] = await Promise.all([
-    withLoggedFallback(`gallery metadata for ${slug}`, () => getGalleryBySlug(slug), null),
+    withLoggedFallback(`gallery metadata for ${slug}`, () => getGalleryBySlug(slug, { preview: isPreview }), null),
     withLoggedFallback(`gallery metadata site seo for ${slug}`, () => getSiteSeo(), null),
   ]);
 
@@ -33,13 +37,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     siteSeo,
     path: `/gallery/${gallery.slug}`,
     image: gallery.cover,
+    robots: isPreview ? { index: false, follow: false } : undefined,
   });
 }
 
-export default async function GalleryDetailPage({ params }: PageProps) {
+export default async function GalleryDetailPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const { preview } = await searchParams;
+  const isPreview = preview === "1";
   const [gallery, sidebar, tagCloud] = await Promise.all([
-    withLoggedFallback(`gallery detail for ${slug}`, () => getGalleryBySlug(slug), null),
+    withLoggedFallback(`gallery detail for ${slug}`, () => getGalleryBySlug(slug, { preview: isPreview }), null),
     withLoggedFallback(
       `gallery sidebar for ${slug}`,
       () => getSidebarForPath(`/gallery/${slug}`),
@@ -57,7 +64,9 @@ export default async function GalleryDetailPage({ params }: PageProps) {
   const photos = gallery.photos ?? [];
 
   return (
-    <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
+    <>
+      {isPreview ? <DraftPreviewBanner type="галереи" /> : null}
+      <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />
@@ -90,5 +99,6 @@ export default async function GalleryDetailPage({ params }: PageProps) {
         </DesktopSidebarSlot>
       </div>
     </main>
+    </>
   );
 }

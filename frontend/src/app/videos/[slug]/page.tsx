@@ -13,12 +13,14 @@ import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { RelatedTags } from "@/components/related-tags";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { VideoEmbedPreview } from "@/components/video-embed-preview";
+import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { buildSeoMetadata, formatRussianDateTime, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, getVideoBySlug, getVideos, type VideoSummary, withLoggedFallback } from "@/lib/strapi";
 
 export const revalidate = 300;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
 };
 
 function getPublishedTimestamp(item: Pick<VideoSummary, "publishedAtCustom" | "publishedAt">) {
@@ -33,10 +35,12 @@ function getPublishedTimestamp(item: Pick<VideoSummary, "publishedAtCustom" | "p
   return Number.isNaN(timestamp) ? Number.NEGATIVE_INFINITY : timestamp;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const { preview } = await searchParams;
+  const isPreview = preview === "1";
   const [video, siteSeo] = await Promise.all([
-    getVideoBySlug(slug),
+    getVideoBySlug(slug, { preview: isPreview }),
     withLoggedFallback(`video metadata site seo for ${slug}`, () => getSiteSeo(), null),
   ]);
 
@@ -51,13 +55,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     siteSeo,
     path: `/videos/${video.slug}`,
     image: video.cover,
+    robots: isPreview ? { index: false, follow: false } : undefined,
   });
 }
 
-export default async function VideoDetailPage({ params }: PageProps) {
+export default async function VideoDetailPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const { preview } = await searchParams;
+  const isPreview = preview === "1";
   const [video, sidebar, tagCloud, videos] = await Promise.all([
-    getVideoBySlug(slug),
+    getVideoBySlug(slug, { preview: isPreview }),
     withLoggedFallback(
       `video sidebar for ${slug}`,
       () => getSidebarForPath(`/videos/${slug}`),
@@ -110,7 +117,9 @@ export default async function VideoDetailPage({ params }: PageProps) {
     .slice(0, 3);
 
   return (
-    <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
+    <>
+      {isPreview ? <DraftPreviewBanner type="видео" /> : null}
+      <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />
@@ -192,5 +201,6 @@ export default async function VideoDetailPage({ params }: PageProps) {
         </DesktopSidebarSlot>
       </div>
     </main>
+    </>
   );
 }

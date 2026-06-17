@@ -6,18 +6,22 @@ import { DesktopSidebarSlot } from "@/components/desktop-sidebar-slot";
 import { RichContent } from "@/components/rich-content";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { SidebarPanel } from "@/components/sidebar-panel";
+import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { buildSeoMetadata, getPageBySlug, getSidebarForPath, getSiteSeo, getTagCloud, withLoggedFallback } from "@/lib/strapi";
 
 export const revalidate = 300;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const { preview } = await searchParams;
+  const isPreview = preview === "1";
   const [page, siteSeo] = await Promise.all([
-    getPageBySlug(slug),
+    getPageBySlug(slug, { preview: isPreview }),
     withLoggedFallback(`page metadata site seo for ${slug}`, () => getSiteSeo(), null),
   ]);
 
@@ -32,13 +36,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     siteSeo,
     path: `/${page.slug}`,
     image: page.seo?.metaImage ?? null,
+    robots: isPreview ? { index: false, follow: false } : undefined,
   });
 }
 
-export default async function GenericPage({ params }: PageProps) {
+export default async function GenericPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const { preview } = await searchParams;
+  const isPreview = preview === "1";
   const [page, sidebar, tagCloud] = await Promise.all([
-    getPageBySlug(slug),
+    getPageBySlug(slug, { preview: isPreview }),
     withLoggedFallback(`page sidebar for ${slug}`, () => getSidebarForPath(`/${slug}`), null),
     withLoggedFallback(`page tag cloud for ${slug}`, () => getTagCloud(), []),
   ]);
@@ -48,7 +55,9 @@ export default async function GenericPage({ params }: PageProps) {
   }
 
   return (
-    <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
+    <>
+      {isPreview ? <DraftPreviewBanner type="страницы" /> : null}
+      <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />
@@ -71,5 +80,6 @@ export default async function GenericPage({ params }: PageProps) {
         </DesktopSidebarSlot>
       </div>
     </main>
+    </>
   );
 }

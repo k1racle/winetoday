@@ -1698,6 +1698,7 @@ export function buildSeoMetadata({
   siteSeo,
   path,
   image,
+  robots,
 }: {
   title: string;
   description: string;
@@ -1705,6 +1706,7 @@ export function buildSeoMetadata({
   siteSeo?: SiteSeoSettings | null;
   path?: string;
   image?: MediaAsset | string | null;
+  robots?: { index: boolean; follow: boolean };
 }): Metadata {
   const siteOrigin = normalizeSiteOrigin(siteSeo?.siteUrl, SITE_URL);
   const mergedSeo: Partial<SeoFields> = {
@@ -1731,10 +1733,10 @@ export function buildSeoMetadata({
         }
       : undefined,
     robots:
-      mergedSeo.noIndex || mergedSeo.noFollow
+      mergedSeo.noIndex || mergedSeo.noFollow || robots
         ? {
-            index: !mergedSeo.noIndex,
-            follow: !mergedSeo.noFollow,
+            index: robots ? robots.index : !mergedSeo.noIndex,
+            follow: robots ? robots.follow : !mergedSeo.noFollow,
           }
         : undefined,
     openGraph: {
@@ -1827,6 +1829,15 @@ function withStatus(path: string, status?: "draft" | "published") {
   return `${path}${separator}status=${status}`;
 }
 
+function withPreview(path: string, preview?: boolean) {
+  if (!preview) {
+    return path;
+  }
+
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}preview=1`;
+}
+
 class StrapiRequestError extends Error {
   status: number;
   statusText: string;
@@ -1841,11 +1852,12 @@ class StrapiRequestError extends Error {
   }
 }
 
-async function fetchStrapi<T>(path: string, options?: { revalidate?: number | false; status?: "draft" | "published" }) {
+async function fetchStrapi<T>(path: string, options?: { revalidate?: number | false; status?: "draft" | "published"; preview?: boolean }) {
   const revalidate = options?.revalidate;
-  const shouldUseNoStore = options?.status === "draft" || revalidate === false || !HAS_REVALIDATE_SECRET;
-  const authToken = options?.status === "draft" ? (await cookies()).get("vino_auth_jwt")?.value ?? null : null;
-  const url = `${CMS_URL}${withStatus(path, options?.status)}`;
+  const isPreview = options?.preview === true;
+  const shouldUseNoStore = isPreview || options?.status === "draft" || revalidate === false || !HAS_REVALIDATE_SECRET;
+  const authToken = !isPreview && options?.status === "draft" ? (await cookies()).get("vino_auth_jwt")?.value ?? null : null;
+  const url = `${CMS_URL}${withPreview(withStatus(path, options?.status), isPreview)}`;
   const startedAt = Date.now();
   const requestInit: NextFetchRequestInit = {
     headers: {
@@ -2210,7 +2222,7 @@ export async function getArticles(): Promise<ArticleSummary[]> {
   return sortPublishedItems(filterVisiblePublishedItems(items));
 }
 
-export const getArticleBySlug = cache(async function getArticleBySlug(slug: string) {
+export const getArticleBySlug = cache(async function getArticleBySlug(slug: string, options?: { preview?: boolean }) {
   const basePathWithMaterialLabel =
     `/api/articles?filters[slug][$eq]=${encodeURIComponent(slug)}`
     + "&fields[0]=title"
@@ -2263,8 +2275,8 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
 
   try {
     [baseResponse, contentResponse] = await Promise.all([
-      fetchStrapi<ArticleDetail[]>(basePathWithMaterialLabel),
-      fetchStrapi<ArticleDetail[]>(contentPath),
+      fetchStrapi<ArticleDetail[]>(basePathWithMaterialLabel, { preview: options?.preview }),
+      fetchStrapi<ArticleDetail[]>(contentPath, { preview: options?.preview }),
     ]);
   } catch (error) {
     if (error instanceof StrapiRequestError && error.status === 400) {
@@ -2272,8 +2284,8 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
         "[strapi] getArticleBySlug: retry without materialLabel due to 400 Bad Request (field may be missing in Strapi schema)",
       );
       [baseResponse, contentResponse] = await Promise.all([
-        fetchStrapi<ArticleDetail[]>(basePathWithoutMaterialLabel),
-        fetchStrapi<ArticleDetail[]>(contentPath),
+        fetchStrapi<ArticleDetail[]>(basePathWithoutMaterialLabel, { preview: options?.preview }),
+        fetchStrapi<ArticleDetail[]>(contentPath, { preview: options?.preview }),
       ]);
     } else {
       throw error;
@@ -2303,7 +2315,7 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
     coverSource: typeof article.coverSource === "string" && article.coverSource.trim() ? article.coverSource.trim() : null,
   });
 
-  if (!isPublishedItemVisible(resolvedArticle)) {
+  if (!options?.preview && !isPublishedItemVisible(resolvedArticle)) {
     return null;
   }
 
@@ -2375,13 +2387,15 @@ export async function getNews(): Promise<NewsSummary[]> {
   return sortPublishedItems(filterVisiblePublishedItems(items));
 }
 
-export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
+export const getNewsBySlug = cache(async function getNewsBySlug(slug: string, options?: { preview?: boolean }) {
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<NewsDetail[]>(
       `/api/news-entries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=sourceName&fields[8]=sourceUrl&fields[9]=publishedAt&fields[10]=publishedAtCustom&fields[11]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      { preview: options?.preview },
     ),
     fetchStrapi<NewsDetail[]>(
       `/api/news-entries?filters[slug][$eq]=${encodeURIComponent(slug)}&${CONTENT_POPULATE_QUERY}`,
+      { preview: options?.preview },
     ),
   ]);
 
@@ -2408,7 +2422,7 @@ export const getNewsBySlug = cache(async function getNewsBySlug(slug: string) {
     coverSource: typeof item.coverSource === "string" && item.coverSource.trim() ? item.coverSource.trim() : null,
   });
 
-  if (!isPublishedItemVisible(resolvedNews)) {
+  if (!options?.preview && !isPublishedItemVisible(resolvedNews)) {
     return null;
   }
 
@@ -2434,13 +2448,15 @@ export async function getVideos(): Promise<VideoSummary[]> {
   return sortPublishedItems(filterVisiblePublishedItems(items));
 }
 
-export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) {
+export const getVideoBySlug = cache(async function getVideoBySlug(slug: string, options?: { preview?: boolean }) {
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<VideoSummary[]>(
       `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=videoUrl&fields[5]=duration&fields[6]=pinned&fields[7]=homepageLead&fields[8]=publishedAt&fields[9]=publishedAtCustom&fields[10]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      { preview: options?.preview },
     ),
     fetchStrapi<VideoSummary[]>(
       `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&${VIDEO_CONTENT_POPULATE_QUERY}`,
+      { preview: options?.preview },
     ),
   ]);
 
@@ -2465,7 +2481,7 @@ export const getVideoBySlug = cache(async function getVideoBySlug(slug: string) 
     coverSource: typeof video.coverSource === "string" && video.coverSource.trim() ? video.coverSource.trim() : null,
   });
 
-  if (!isPublishedItemVisible(resolvedVideo)) {
+  if (!options?.preview && !isPublishedItemVisible(resolvedVideo)) {
     return null;
   }
 
@@ -2490,9 +2506,10 @@ export async function getGalleries(): Promise<GallerySummary[]> {
   return sortPublishedItems(filterVisiblePublishedItems(items));
 }
 
-export const getGalleryBySlug = cache(async function getGalleryBySlug(slug: string) {
+export const getGalleryBySlug = cache(async function getGalleryBySlug(slug: string, options?: { preview?: boolean }) {
   const response = await fetchStrapi<GalleryDetail[]>(
     `/api/galleries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=publishedAt&fields[4]=publishedAtCustom&fields[5]=coverSource&populate[cover]=true&populate[photos]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[seo][populate][metaImage]=true`,
+    { preview: options?.preview },
   );
 
   const gallery = response.data[0] ?? null;
@@ -2742,9 +2759,10 @@ export async function getFooterPages() {
   return response.data;
 }
 
-export async function getPageBySlug(slug: string) {
+export async function getPageBySlug(slug: string, options?: { preview?: boolean }) {
   const baseResponse = await fetchStrapi<PageEntry[]>(
     `/api/pages?filters[slug][$eq]=${encodeURIComponent(slug)}&populate[seo][populate][metaImage]=true`,
+    { preview: options?.preview },
   );
 
   const contentResponse = await withLoggedFallback(
@@ -2752,6 +2770,7 @@ export async function getPageBySlug(slug: string) {
     () =>
       fetchStrapi<PageEntry[]>(
         `/api/pages?filters[slug][$eq]=${encodeURIComponent(slug)}&populate[content][populate]=*`,
+        { preview: options?.preview },
       ),
     null as Awaited<ReturnType<typeof fetchStrapi<PageEntry[]>>> | null,
   );

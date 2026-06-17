@@ -12,12 +12,14 @@ import { MaterialEditButton } from "@/components/material-edit-button";
 import { RelatedTags } from "@/components/related-tags";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { SourceLinks } from "@/components/source-links";
+import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { buildSeoMetadata, formatRussianDateTime, getNews, getNewsBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, type NewsSummary, withLoggedFallback } from "@/lib/strapi";
 
 export const revalidate = 300;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
 };
 
 function getPublishedTimestamp(item: Pick<NewsSummary, "publishedAtCustom" | "publishedAt">) {
@@ -32,10 +34,12 @@ function getPublishedTimestamp(item: Pick<NewsSummary, "publishedAtCustom" | "pu
   return Number.isNaN(timestamp) ? Number.NEGATIVE_INFINITY : timestamp;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const { preview } = await searchParams;
+  const isPreview = preview === "1";
   const [item, siteSeo] = await Promise.all([
-    getNewsBySlug(slug),
+    getNewsBySlug(slug, { preview: isPreview }),
     withLoggedFallback(`news metadata site seo for ${slug}`, () => getSiteSeo(), null),
   ]);
 
@@ -50,13 +54,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     siteSeo,
     path: `/news/${item.slug}`,
     image: item.cover,
+    robots: isPreview ? { index: false, follow: false } : undefined,
   });
 }
 
-export default async function NewsDetailPage({ params }: PageProps) {
+export default async function NewsDetailPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const { preview } = await searchParams;
+  const isPreview = preview === "1";
   const [item, sidebar, tagCloud, news] = await Promise.all([
-    getNewsBySlug(slug),
+    getNewsBySlug(slug, { preview: isPreview }),
     withLoggedFallback(
       `news sidebar for ${slug}`,
       () => getSidebarForPath(`/news/${slug}`),
@@ -109,7 +116,9 @@ export default async function NewsDetailPage({ params }: PageProps) {
   const headerDate = formatRussianDateTime(item.publishedAtCustom ?? item.publishedAt) ?? "Без даты";
 
   return (
-    <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
+    <>
+      {isPreview ? <DraftPreviewBanner type="новости" /> : null}
+      <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />
@@ -190,5 +199,6 @@ export default async function NewsDetailPage({ params }: PageProps) {
         </DesktopSidebarSlot>
       </div>
     </main>
+    </>
   );
 }

@@ -13,18 +13,22 @@ import { MaterialEditButton } from "@/components/material-edit-button";
 import { RelatedTags } from "@/components/related-tags";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { SourceLinks } from "@/components/source-links";
+import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { SITE_URL, buildSeoMetadata, formatRussianDateTime, getArticleBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, withLoggedFallback } from "@/lib/strapi";
 
 export const revalidate = 300;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ preview?: string }>;
 };
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const { preview } = await searchParams;
+  const isPreview = preview === "1";
   const [article, siteSeo] = await Promise.all([
-    getArticleBySlug(slug),
+    getArticleBySlug(slug, { preview: isPreview }),
     withLoggedFallback(`article metadata site seo for ${slug}`, () => getSiteSeo(), null),
   ]);
 
@@ -39,13 +43,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     siteSeo,
     path: `/articles/${article.slug}`,
     image: article.cover,
+    robots: isPreview ? { index: false, follow: false } : undefined,
   });
 }
 
-export default async function ArticleDetailPage({ params }: PageProps) {
+export default async function ArticleDetailPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
+  const { preview } = await searchParams;
+  const isPreview = preview === "1";
   const [article, sidebar, tagCloud] = await Promise.all([
-    getArticleBySlug(slug),
+    getArticleBySlug(slug, { preview: isPreview }),
     withLoggedFallback(
       `article sidebar for ${slug}`,
       () => getSidebarForPath(`/articles/${slug}`),
@@ -84,7 +91,9 @@ export default async function ArticleDetailPage({ params }: PageProps) {
   };
 
   return (
-    <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
+    <>
+      {isPreview ? <DraftPreviewBanner type="статьи" /> : null}
+      <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
       <Script id="article-jsonld" type="application/ld+json">
         {JSON.stringify(articleJsonLd)}
       </Script>
@@ -131,5 +140,6 @@ export default async function ArticleDetailPage({ params }: PageProps) {
         </DesktopSidebarSlot>
       </div>
     </main>
+    </>
   );
 }

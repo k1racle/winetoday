@@ -1,3 +1,3 @@
-import { factories } from '@strapi/strapi';
+import { createPreviewController } from '../../../utils/preview-controller';
 
-export default factories.createCoreController('api::page.page' as any);
+export default createPreviewController('api::page.page');
