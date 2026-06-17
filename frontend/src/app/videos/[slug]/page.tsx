@@ -16,7 +16,7 @@ import { VideoEmbedPreview } from "@/components/video-embed-preview";
 import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { buildSeoMetadata, formatRussianDateTime, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, getVideoBySlug, getVideos, type VideoSummary, withLoggedFallback } from "@/lib/strapi";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 type PageProps = {
   params: Promise<{ slug: string }>;

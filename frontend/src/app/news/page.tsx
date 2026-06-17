@@ -7,7 +7,7 @@ import { SidebarPanel } from "@/components/sidebar-panel";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { buildCategoryDateOverlayMeta, buildSeoMetadata, getNews, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, sortArchiveItems, withLoggedFallback } from "@/lib/strapi";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSeo = await withLoggedFallback("news metadata site seo", () => getSiteSeo(), null);

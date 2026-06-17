@@ -15,7 +15,7 @@ import { SourceLinks } from "@/components/source-links";
 import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { buildSeoMetadata, formatRussianDateTime, getNews, getNewsBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, type NewsSummary, withLoggedFallback } from "@/lib/strapi";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 type PageProps = {
   params: Promise<{ slug: string }>;

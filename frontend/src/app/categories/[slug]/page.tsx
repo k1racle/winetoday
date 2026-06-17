@@ -8,7 +8,7 @@ import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { buildCategoryDateOverlayMeta, buildSeoMetadata, getCategoryPageBySlug, getSidebarForPath, getSiteSeo, getTagCloud, withLoggedFallback } from "@/lib/strapi";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 type PageProps = {
   params: Promise<{ slug: string }>;

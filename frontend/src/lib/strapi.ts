@@ -60,9 +60,9 @@ function resolveMediaUrl(path: string) {
   return resolvedUrl;
 }
 
-const DEFAULT_REVALIDATE_SECONDS = 300;
-const SETTINGS_REVALIDATE_SECONDS = 300;
-const HOMEPAGE_REVALIDATE_SECONDS = 120;
+const DEFAULT_REVALIDATE_SECONDS = 3600;
+const SETTINGS_REVALIDATE_SECONDS = 3600;
+const HOMEPAGE_REVALIDATE_SECONDS = 3600;
 type NextFetchRequestInit = RequestInit & {
   next?: {
     revalidate?: number | false;

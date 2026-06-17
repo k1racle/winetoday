@@ -10,7 +10,7 @@ import { MaterialEditButton } from "@/components/material-edit-button";
 import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { buildSeoMetadata, formatRussianDateTime, getGalleryBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, withLoggedFallback } from "@/lib/strapi";
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 type PageProps = {
   params: Promise<{ slug: string }>;
