@@ -14,7 +14,8 @@ import { RelatedTags } from "@/components/related-tags";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { SourceLinks } from "@/components/source-links";
 import { DraftPreviewBanner } from "@/components/draft-preview-banner";
-import { SITE_URL, buildSeoMetadata, formatRussianDateTime, getArticleBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, withLoggedFallback } from "@/lib/strapi";
+import { buildSeoMetadata, formatRussianDateTime, getArticleBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, withLoggedFallback } from "@/lib/strapi";
+import { buildArticleJsonLd } from "@/lib/json-ld";
 
 export const revalidate = 3600;
 
@@ -73,22 +74,15 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
   const primaryCategory = getPrimaryCategory(article.categories);
   const headerDate = formatRussianDateTime(article.publishedAtCustom ?? article.publishedAt) ?? "Без даты";
 
-  const articleJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: article.title,
+  const articleJsonLd = buildArticleJsonLd({
+    type: "Article",
+    title: article.title,
     description: article.excerpt,
-    datePublished: article.publishedAt ?? undefined,
-    dateModified: article.publishedAt ?? undefined,
-    author: article.author?.name
-      ? {
-          "@type": "Person",
-          name: article.author.name,
-        }
-      : undefined,
-    image: article.cover?.url ? [article.cover.url] : undefined,
-    mainEntityOfPage: `${SITE_URL}/articles/${article.slug}`,
-  };
+    path: `/articles/${article.slug}`,
+    image: article.cover,
+    datePublished: article.publishedAtCustom ?? article.publishedAt,
+    dateModified: article.publishedAtCustom ?? article.publishedAt,
+  });
 
   return (
     <>

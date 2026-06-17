@@ -6,6 +6,8 @@ import { InfiniteArchivePageList } from "@/components/infinite-archive-page-list
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { buildCategoryDateOverlayMeta, buildSeoMetadata, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, getVideos, sortArchiveItems, withLoggedFallback } from "@/lib/strapi";
+import { buildWebPageJsonLd } from "@/lib/json-ld";
+import Script from "next/script";
 
 export const revalidate = 3600;
 
@@ -39,8 +41,17 @@ export default async function VideosPage() {
     );
   };
 
+  const jsonLd = buildWebPageJsonLd({
+    title: "Видео о вине и виноделии",
+    description: "Интервью, репортажи, записи дискуссий и видеоматериалы о современной винной индустрии.",
+    path: "/videos",
+  });
+
   return (
     <main className="mx-auto w-full max-w-[1440px] py-10">
+      <Script id="videos-archive-jsonld" type="application/ld+json">
+        {JSON.stringify(jsonLd)}
+      </Script>
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <section className="min-w-0">
           <MobileSidebarBridge sidebar={sidebar} />

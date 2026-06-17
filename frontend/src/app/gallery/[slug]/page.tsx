@@ -9,6 +9,8 @@ import { SidebarPanel } from "@/components/sidebar-panel";
 import { MaterialEditButton } from "@/components/material-edit-button";
 import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { buildSeoMetadata, formatRussianDateTime, getGalleryBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, withLoggedFallback } from "@/lib/strapi";
+import { buildGalleryJsonLd } from "@/lib/json-ld";
+import Script from "next/script";
 
 export const revalidate = 3600;
 
@@ -62,10 +64,22 @@ export default async function GalleryDetailPage({ params, searchParams }: PagePr
   const primaryCategory = getPrimaryCategory(gallery.categories);
   const headerDate = formatRussianDateTime(gallery.publishedAtCustom ?? gallery.publishedAt) ?? "Без даты";
   const photos = gallery.photos ?? [];
+  const jsonLd = buildGalleryJsonLd({
+    title: gallery.title,
+    description: gallery.excerpt,
+    path: `/gallery/${gallery.slug}`,
+    cover: gallery.cover,
+    photos,
+    datePublished: gallery.publishedAtCustom ?? gallery.publishedAt,
+    dateModified: gallery.publishedAtCustom ?? gallery.publishedAt,
+  });
 
   return (
     <>
       {isPreview ? <DraftPreviewBanner type="галереи" /> : null}
+      <Script id="gallery-jsonld" type="application/ld+json">
+        {JSON.stringify(jsonLd)}
+      </Script>
       <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">

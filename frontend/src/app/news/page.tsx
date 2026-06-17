@@ -6,6 +6,8 @@ import { InfiniteArchivePageList } from "@/components/infinite-archive-page-list
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { buildCategoryDateOverlayMeta, buildSeoMetadata, getNews, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, sortArchiveItems, withLoggedFallback } from "@/lib/strapi";
+import { buildWebPageJsonLd } from "@/lib/json-ld";
+import Script from "next/script";
 
 export const revalidate = 3600;
 
@@ -40,8 +42,17 @@ export default async function NewsPage() {
     );
   };
 
+  const jsonLd = buildWebPageJsonLd({
+    title: "Новости винной индустрии",
+    description: "Оперативная лента новостей, релизов, отраслевых заявлений и важных анонсов из мира вина и виноделия.",
+    path: "/news",
+  });
+
   return (
     <main className="mx-auto w-full max-w-[1440px] py-10">
+      <Script id="news-archive-jsonld" type="application/ld+json">
+        {JSON.stringify(jsonLd)}
+      </Script>
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <section className="min-w-0">
           <MobileSidebarBridge sidebar={sidebar} />

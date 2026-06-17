@@ -18,6 +18,8 @@ import {
   getVideos,
   withLoggedFallback,
 } from "@/lib/strapi";
+import { buildWebPageJsonLd } from "@/lib/json-ld";
+import Script from "next/script";
 
 export const revalidate = 120;
 
@@ -183,8 +185,19 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const safeMatchedVideos = matchedVideos.filter(hasSearchCardIdentity);
 
   const hasResults = Boolean(safeMatchedArticles.length || safeMatchedGalleries.length || safeMatchedNews.length || safeMatchedVideos.length);
+  const jsonLd = buildWebPageJsonLd({
+    title: rawQuery ? `Поиск: ${rawQuery}` : "Поиск по сайту",
+    description: rawQuery
+      ? `Результаты поиска по запросу ${rawQuery} среди статей, новостей и видео.`
+      : "Поиск по статьям, новостям и видео на сайте.",
+    path: rawQuery ? `/search?q=${encodeURIComponent(rawQuery)}` : "/search",
+  });
+
   return (
     <main className="mx-auto w-full max-w-[1440px] py-10">
+      <Script id="search-jsonld" type="application/ld+json">
+        {JSON.stringify(jsonLd)}
+      </Script>
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <section className="min-w-0">
           <MobileSidebarBridge sidebar={sidebar} />

@@ -3,7 +3,6 @@ import Image from "next/image";
 import Script from "next/script";
 import {
   CMS_API_URL,
-  SITE_URL,
   buildCategoryDateOverlayMeta,
   buildSeoMetadata,
   comparePublishedDesc,
@@ -29,6 +28,7 @@ import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { HomepageSpecialVideoCarousel } from "@/components/homepage-special-video-carousel";
 import { HomepageNewsSidebar, type HomepageNewsSidebarItem } from "@/components/homepage-news-sidebar";
 import { SidebarPanel } from "@/components/sidebar-panel";
+import { buildWebPageJsonLd } from "@/lib/json-ld";
 
 export const revalidate = 120;
 
@@ -422,16 +422,15 @@ export default async function Home() {
     tagCloudCount: tagCloud.length,
   });
   // #endregion
-  const organizationJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: settings?.siteName ?? "Виноделие сегодня",
+  const homeJsonLd = buildWebPageJsonLd({
+    title: homepage?.title ?? settings?.siteName ?? "Виноделие сегодня",
     description:
+      homepage?.description ??
       settings?.siteDescription ??
       "Русскоязычный портал о вине, винодельческих регионах, новостях индустрии, событиях и редакционных материалах.",
-    url: SITE_URL,
-    logo: settings?.logo?.url,
-  };
+    path: "/",
+    image: settings?.logo?.url,
+  });
   const desktopInfographicCards = (homepage?.infographicCardsDesktop ?? []).filter((card) => hasInfographicContent(card));
   const tabletInfographicCards = (homepage?.infographicCardsTablet ?? []).filter((card) => hasInfographicContent(card));
   const phoneInfographicCards = (homepage?.infographicCardsMobile ?? []).filter((card) => hasInfographicContent(card));
@@ -508,8 +507,8 @@ export default async function Home() {
 
   return (
     <main className="px-4 py-10 text-foreground max-md:pt-0 sm:px-8 lg:px-12">
-      <Script id="home-organization-jsonld" type="application/ld+json">
-        {JSON.stringify(organizationJsonLd)}
+      <Script id="home-webpage-jsonld" type="application/ld+json">
+        {JSON.stringify(homeJsonLd)}
       </Script>
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-10 max-md:-mx-4 max-md:mt-2 max-md:w-[calc(100%+2rem)]">
         <div className="grid gap-8 px-4 max-md:pt-0 sm:px-0">

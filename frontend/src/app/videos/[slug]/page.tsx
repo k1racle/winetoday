@@ -15,6 +15,8 @@ import { SidebarPanel } from "@/components/sidebar-panel";
 import { VideoEmbedPreview } from "@/components/video-embed-preview";
 import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { buildSeoMetadata, formatRussianDateTime, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, getVideoBySlug, getVideos, type VideoSummary, withLoggedFallback } from "@/lib/strapi";
+import { buildVideoObjectJsonLd } from "@/lib/json-ld";
+import Script from "next/script";
 
 export const revalidate = 3600;
 
@@ -85,6 +87,16 @@ export default async function VideoDetailPage({ params, searchParams }: PageProp
         .map((tag) => ({ slug: tag.slug, name: tag.name }));
   const primaryCategory = getPrimaryCategory(video.categories);
   const headerDate = formatRussianDateTime(video.publishedAtCustom ?? video.publishedAt) ?? "Без даты";
+  const jsonLd = buildVideoObjectJsonLd({
+    title: video.title,
+    description: video.excerpt,
+    path: `/videos/${video.slug}`,
+    videoUrl: video.videoUrl,
+    durationMinutes: video.duration,
+    image: video.cover,
+    datePublished: video.publishedAtCustom ?? video.publishedAt,
+    dateModified: video.publishedAtCustom ?? video.publishedAt,
+  });
   const currentCategorySlugs = new Set(
     (video.categories ?? [])
       .map((category) => category?.slug?.trim())
@@ -119,6 +131,9 @@ export default async function VideoDetailPage({ params, searchParams }: PageProp
   return (
     <>
       {isPreview ? <DraftPreviewBanner type="видео" /> : null}
+      <Script id="video-jsonld" type="application/ld+json">
+        {JSON.stringify(jsonLd)}
+      </Script>
       <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">

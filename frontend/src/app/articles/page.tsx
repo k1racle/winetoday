@@ -6,6 +6,8 @@ import { InfiniteArchivePageList } from "@/components/infinite-archive-page-list
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { buildCategoryDateOverlayMeta, buildSeoMetadata, getArticles, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, sortArchiveItems, withLoggedFallback } from "@/lib/strapi";
+import { buildWebPageJsonLd } from "@/lib/json-ld";
+import Script from "next/script";
 
 export const revalidate = 3600;
 
@@ -39,8 +41,17 @@ export default async function ArticlesPage() {
     );
   };
 
+  const jsonLd = buildWebPageJsonLd({
+    title: "Статьи о вине и виноделии",
+    description: "Аналитика, интервью, обзоры регионов и большие редакционные материалы о российском и мировом виноделии.",
+    path: "/articles",
+  });
+
   return (
     <main className="mx-auto w-full max-w-[1440px] py-10">
+      <Script id="articles-archive-jsonld" type="application/ld+json">
+        {JSON.stringify(jsonLd)}
+      </Script>
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <section className="min-w-0">
           <MobileSidebarBridge sidebar={sidebar} />

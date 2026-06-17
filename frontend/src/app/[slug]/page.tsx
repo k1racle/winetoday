@@ -8,6 +8,8 @@ import { MobileSidebarBridge } from "@/components/mobile-sidebar-bridge";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { buildSeoMetadata, getPageBySlug, getSidebarForPath, getSiteSeo, getTagCloud, withLoggedFallback } from "@/lib/strapi";
+import { buildWebPageJsonLd } from "@/lib/json-ld";
+import Script from "next/script";
 
 export const revalidate = 3600;
 
@@ -54,9 +56,19 @@ export default async function GenericPage({ params, searchParams }: PageProps) {
     notFound();
   }
 
+  const jsonLd = buildWebPageJsonLd({
+    title: page.title,
+    description: page.excerpt ?? page.title,
+    path: `/${page.slug}`,
+    image: page.seo?.metaImage,
+  });
+
   return (
     <>
       {isPreview ? <DraftPreviewBanner type="страницы" /> : null}
+      <Script id="generic-page-jsonld" type="application/ld+json">
+        {JSON.stringify(jsonLd)}
+      </Script>
       <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">

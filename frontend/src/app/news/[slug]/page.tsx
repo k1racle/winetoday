@@ -14,6 +14,8 @@ import { SidebarPanel } from "@/components/sidebar-panel";
 import { SourceLinks } from "@/components/source-links";
 import { DraftPreviewBanner } from "@/components/draft-preview-banner";
 import { buildSeoMetadata, formatRussianDateTime, getNews, getNewsBySlug, getPrimaryCategory, getSidebarForPath, getSiteSeo, getTagCloud, type NewsSummary, withLoggedFallback } from "@/lib/strapi";
+import { buildArticleJsonLd } from "@/lib/json-ld";
+import Script from "next/script";
 
 export const revalidate = 3600;
 
@@ -114,10 +116,22 @@ export default async function NewsDetailPage({ params, searchParams }: PageProps
     .slice(0, 3);
   const primaryCategory = getPrimaryCategory(item.categories);
   const headerDate = formatRussianDateTime(item.publishedAtCustom ?? item.publishedAt) ?? "Без даты";
+  const jsonLd = buildArticleJsonLd({
+    type: "NewsArticle",
+    title: item.title,
+    description: item.excerpt,
+    path: `/news/${item.slug}`,
+    image: item.cover,
+    datePublished: item.publishedAtCustom ?? item.publishedAt,
+    dateModified: item.publishedAtCustom ?? item.publishedAt,
+  });
 
   return (
     <>
       {isPreview ? <DraftPreviewBanner type="новости" /> : null}
+      <Script id="news-jsonld" type="application/ld+json">
+        {JSON.stringify(jsonLd)}
+      </Script>
       <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">

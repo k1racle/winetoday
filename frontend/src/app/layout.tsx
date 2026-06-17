@@ -13,6 +13,7 @@ import { SocialLinks } from "@/components/social-links";
 import { SiteHeader } from "@/components/site-header";
 import { TagCloud } from "@/components/tag-cloud";
 import { buildSeoMetadata, getGlobalSettings, getSiteFooter, getSiteHeader, getSiteSeo, getTagCloud, type FooterItem, withLoggedFallback } from "@/lib/strapi";
+import { buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/lib/json-ld";
 
 import "./globals.css";
 
@@ -296,6 +297,8 @@ export default async function RootLayout({
   }
 
   const mobileBottomMenuLinks = settings?.mobileBottomNav?.length ? settings.mobileBottomNav : navigationItems;
+  const organizationJsonLd = buildOrganizationJsonLd(settings);
+  const webSiteJsonLd = buildWebSiteJsonLd(settings);
 
   return (
     <html
@@ -308,6 +311,12 @@ export default async function RootLayout({
         <MobileWidgetsProvider>
           <Script id="yandex-metrika" strategy="afterInteractive">
             {yandexMetrikaInitScript}
+          </Script>
+          <Script id="organization-jsonld" type="application/ld+json">
+            {JSON.stringify(organizationJsonLd)}
+          </Script>
+          <Script id="website-jsonld" type="application/ld+json">
+            {JSON.stringify(webSiteJsonLd)}
           </Script>
           <script dangerouslySetInnerHTML={{ __html: themeScript }} />
           <noscript>
