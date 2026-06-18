@@ -1,0 +1,1147 @@
+"use client";
+
+import Link from "next/link";
+import { type ChangeEvent, useEffect, useMemo, useState } from "react";
+import { generateHTML, generateJSON } from "@tiptap/html";
+import { serializeTiptapDocument, tiptapExtensions } from "@/lib/tiptap";
+import { typografText } from "@/lib/typograf";
+import { isEditorContentType } from "@/lib/editor-shared";
+import type { EditorContentType, EditorEntrySummary } from "@/lib/editor-shared";
+
+import { EditorTopbar } from "./EditorTopbar";
+import { EditorSidebar } from "./EditorSidebar";
+import { EditorToolbar } from "./EditorToolbar";
+import { BasicInfoPanel } from "./BasicInfoPanel";
+import { PublicationPanel } from "./PublicationPanel";
+import { EventFieldsPanel } from "./EventFieldsPanel";
+import { CoverPanel } from "./CoverPanel";
+import { CategoriesTagsPanel } from "./CategoriesTagsPanel";
+import { SourcesPanel } from "./SourcesPanel";
+import { SeoPanel } from "./SeoPanel";
+import { VideoFieldsPanel } from "./VideoFieldsPanel";
+import { GalleryPhotosPanel } from "./GalleryPhotosPanel";
+import { BlocksPanel } from "./BlocksPanel";
+import { HelpModal } from "./HelpModal";
+import { MediaPicker } from "./media";
+
+import {
+  createInitialState,
+  normalizeFormState,
+  uploadFile,
+  refreshMediaAssets,
+  parseJson,
+  getErrorMessage,
+  sortEditorTypes,
+  publicPath,
+  isMediaCollectionBlock,
+  INFOGRAPHIC_VIEWPORTS,
+  INFOGRAPHIC_VIEWPORT_LABELS,
+  INFOGRAPHIC_VIEWPORT_CARD_COUNTS,
+} from "./utils";
+
+import type {
+  EditorApiError,
+  EditorAuthorOption,
+  EditorBlock,
+  EditorEntryPayload,
+  EditorInfographicCard,
+  EditorInfographicVersion,
+  EditorSeo,
+  EditorSession,
+  EditorTaxonomyOption,
+  FormState,
+  SourceItem,
+  UploadedAsset,
+  ActiveMediaPanel,
+} from "./types";
+
+type AccountEditorProps = {
+  initialQuery?: {
+    type?: string;
+    documentId?: string;
+  };
+};
+
+export function AccountEditor({ initialQuery }: AccountEditorProps) {
+  const itemsPerPage = 20;
+  const [session, setSession] = useState<EditorSession | null>(null);
+  const [authors, setAuthors] = useState<EditorAuthorOption[]>([]);
+  const [categories, setCategories] = useState<EditorTaxonomyOption[]>([]);
+  const [tags, setTags] = useState<EditorTaxonomyOption[]>([]);
+  const [mediaAssets, setMediaAssets] = useState<UploadedAsset[]>([]);
+  const [items, setItems] = useState<Record<EditorContentType, EditorEntrySummary[]>>({
+    article: [],
+    news: [],
+    video: [],
+    gallery: [],
+    homepage: [],
+  });
+  const [selectedType, setSelectedType] = useState<EditorContentType>("article");
+  const [form, setForm] = useState<FormState>(createInitialState("article"));
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [itemsQuery, setItemsQuery] = useState("");
+  const [itemsPage, setItemsPage] = useState(1);
+  const [activeInfographicVersion, setActiveInfographicVersion] = useState<EditorInfographicVersion>("desktop");
+  const [activeMediaPanel, setActiveMediaPanel] = useState<ActiveMediaPanel>(null);
+  const [helpOpen, setHelpOpen] = useState(false);
+
+  const allowedTypes = useMemo(() => sortEditorTypes(session?.capabilities.canCreate ?? []), [session]);
+  const canEditAll = session?.capabilities.canEditAll === true;
+  const currentAccountAuthorId = session?.user?.memberProfile?.author?.id ?? null;
+  const materialPublicPath = publicPath(selectedType, form.slug);
+
+  const requestedType = useMemo(() => {
+    const rawType = initialQuery?.type?.trim() ?? "";
+    return isEditorContentType(rawType) ? rawType : null;
+  }, [initialQuery?.type]);
+  const requestedDocumentId = initialQuery?.documentId?.trim() || null;
+
+  const activeInfographicCards = useMemo(() => {
+    if (activeInfographicVersion === "desktop") return form.infographicCardsDesktop;
+    if (activeInfographicVersion === "tablet") return form.infographicCardsTablet;
+    return form.infographicCardsMobile;
+  }, [activeInfographicVersion, form.infographicCardsDesktop, form.infographicCardsMobile, form.infographicCardsTablet]);
+
+  const filteredItems = useMemo(() => {
+    const query = itemsQuery.trim().toLowerCase();
+    const source = items[selectedType] ?? [];
+    if (!query) return source;
+    return source.filter((item) => item.title.toLowerCase().includes(query));
+  }, [items, itemsQuery, selectedType]);
+
+  const totalItemsPages = Math.max(1, Math.ceil(filteredItems.length / itemsPerPage));
+  const visibleItemsPage = Math.min(itemsPage, totalItemsPages);
+
+  // Load session and initial data
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const sessionResponse = await fetch("/api/editor/session", { cache: "no-store" });
+        const sessionPayload = await parseJson<EditorSession | EditorApiError>(sessionResponse);
+
+        if (!sessionResponse.ok || !sessionPayload || !("capabilities" in sessionPayload)) {
+          throw new Error(getErrorMessage(sessionPayload as EditorApiError | null, "Не удалось открыть кабинет."));
+        }
+
+        if (cancelled) return;
+        setSession(sessionPayload);
+
+        const creatableTypes = sessionPayload.capabilities.canCreate ?? [];
+
+        if (!creatableTypes.length) {
+          setAuthors([]);
+          setCategories([]);
+          setTags([]);
+          setMediaAssets([]);
+          setItems({ article: [], news: [], video: [], gallery: [], homepage: [] });
+          setError("У вашей учетной записи пока нет доступа к созданию или редактированию материалов.");
+          return;
+        }
+
+        try {
+          if (sessionPayload.capabilities.canEditAll) {
+            const authorsResponse = await fetch("/api/editor/authors", { cache: "no-store" });
+            const authorsPayload = await parseJson<EditorAuthorOption[] | EditorApiError>(authorsResponse);
+            if (!cancelled && authorsResponse.ok && Array.isArray(authorsPayload)) {
+              setAuthors(authorsPayload);
+            }
+          } else if (!cancelled) {
+            setAuthors([]);
+          }
+        } catch {
+          if (!cancelled) setAuthors([]);
+        }
+
+        try {
+          const [categoriesResponse, tagsResponse] = await Promise.all([
+            fetch("/api/editor/categories", { cache: "no-store" }),
+            fetch("/api/editor/tags", { cache: "no-store" }),
+          ]);
+          const [categoriesPayload, tagsPayload] = await Promise.all([
+            parseJson<EditorTaxonomyOption[] | EditorApiError>(categoriesResponse),
+            parseJson<EditorTaxonomyOption[] | EditorApiError>(tagsResponse),
+          ]);
+          if (!cancelled && categoriesResponse.ok && Array.isArray(categoriesPayload)) setCategories(categoriesPayload);
+          if (!cancelled && tagsResponse.ok && Array.isArray(tagsPayload)) setTags(tagsPayload);
+        } catch {
+          if (!cancelled) {
+            setCategories([]);
+            setTags([]);
+          }
+        }
+
+        try {
+          const mediaResponse = await fetch("/api/editor/media", { cache: "no-store" });
+          const mediaPayload = await parseJson<UploadedAsset[] | EditorApiError>(mediaResponse);
+          if (!cancelled && mediaResponse.ok && Array.isArray(mediaPayload)) setMediaAssets(mediaPayload);
+        } catch {
+          if (!cancelled) setMediaAssets([]);
+        }
+
+        const orderedCreatableTypes = sortEditorTypes(creatableTypes);
+        const initialType = orderedCreatableTypes[0] ?? "article";
+        const initialAuthorId = sessionPayload.capabilities.canEditAll
+          ? sessionPayload.user?.memberProfile?.author?.id ?? null
+          : null;
+        setSelectedType(initialType);
+        setForm(createInitialState(initialType, { author: initialAuthorId }));
+
+        const loadedEntries = await Promise.all(
+          orderedCreatableTypes.map(async (type) => {
+            const response = await fetch(`/api/editor/content/${type}`, { cache: "no-store" });
+            const payload = await parseJson<EditorEntrySummary[] | EditorApiError>(response);
+            if (!response.ok || !Array.isArray(payload)) {
+              throw new Error(getErrorMessage(payload as EditorApiError | null, `Не удалось загрузить список ${type}.`));
+            }
+            return [type, payload] as const;
+          }),
+        );
+
+        if (cancelled) return;
+
+        setItems((current) => {
+          const next = { ...current };
+          for (const [type, payload] of loadedEntries) {
+            next[type] = payload;
+          }
+          return next;
+        });
+      } catch (loadError) {
+        if (!cancelled) {
+          setError(loadError instanceof Error ? loadError.message : "Не удалось открыть кабинет.");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void load();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Open homepage singleton if no query
+  useEffect(() => {
+    if (requestedType || requestedDocumentId || selectedType !== "homepage" || form.documentId || items.homepage.length !== 1) {
+      return;
+    }
+    void openEntry("homepage", items.homepage[0].documentId);
+  }, [form.documentId, items.homepage, requestedDocumentId, requestedType, selectedType]);
+
+  // Open requested entry from query
+  useEffect(() => {
+    if (loading || !requestedType || !requestedDocumentId || !allowedTypes.includes(requestedType)) return;
+    if (selectedType === requestedType && form.documentId === requestedDocumentId) return;
+    void openEntry(requestedType, requestedDocumentId);
+  }, [allowedTypes, form.documentId, loading, requestedDocumentId, requestedType, selectedType]);
+
+  function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function createBlankForm(type: EditorContentType, authorId = currentAccountAuthorId) {
+    return createInitialState(type, { author: canEditAll ? authorId : null });
+  }
+
+  function selectType(type: EditorContentType) {
+    setSelectedType(type);
+    setItemsQuery("");
+    setItemsPage(1);
+    setForm(createBlankForm(type));
+    setError(null);
+    setSuccess(null);
+  }
+
+  function toggleMultiSelectItem(key: "categories" | "tags", id: number) {
+    setForm((current) => {
+      const selected = current[key].includes(id)
+        ? current[key].filter((itemId) => itemId !== id)
+        : [...current[key], id];
+      return { ...current, [key]: selected };
+    });
+  }
+
+  function updateSource(index: number, key: keyof SourceItem, value: string) {
+    setForm((current) => ({
+      ...current,
+      sources: current.sources.map((item, itemIndex) => (itemIndex === index ? { ...item, [key]: value } : item)),
+    }));
+  }
+
+  function toggleGalleryPhoto(id: number) {
+    setForm((current) => {
+      const selected = current.photos.includes(id)
+        ? current.photos.filter((photoId) => photoId !== id)
+        : [...current.photos, id];
+      return { ...current, photos: selected };
+    });
+  }
+
+  function clearGalleryPhotos() {
+    setForm((current) => ({ ...current, photos: [] }));
+  }
+
+  function addSource() {
+    setForm((current) => ({ ...current, sources: [...current.sources, { name: "", url: "" }] }));
+  }
+
+  function removeSource(index: number) {
+    setForm((current) => ({
+      ...current,
+      sources: current.sources.length > 1 ? current.sources.filter((_, itemIndex) => itemIndex !== index) : [{ name: "", url: "" }],
+    }));
+  }
+
+  function updateSeo<K extends keyof EditorSeo>(key: K, value: EditorSeo[K]) {
+    setForm((current) => ({ ...current, seo: { ...current.seo, [key]: value } }));
+  }
+
+  function updateBlock(index: number, nextBlock: EditorBlock) {
+    setForm((current) => ({
+      ...current,
+      blocks: current.blocks.map((block, currentIndex) => (currentIndex === index ? nextBlock : block)),
+    }));
+  }
+
+  function typografHtmlEditorContent(content: Extract<EditorBlock, { __component: "blocks.html-editor" }>["content"]) {
+    const html = typeof content === "string" ? content : generateHTML(content, []);
+    return generateJSON(typografText(html), tiptapExtensions);
+  }
+
+  function typografBlock(block: EditorBlock): EditorBlock {
+    switch (block.__component) {
+      case "blocks.html-editor":
+        return {
+          ...block,
+          title: typeof block.title === "string" ? typografText(block.title) : block.title,
+          content: typografHtmlEditorContent(block.content),
+        };
+      case "blocks.embed":
+        return {
+          ...block,
+          title: typeof block.title === "string" ? typografText(block.title) : block.title,
+          html: typografText(block.html),
+        };
+      case "blocks.image-gallery":
+        return {
+          ...block,
+          title: typeof block.title === "string" ? typografText(block.title) : block.title,
+          description: typeof block.description === "string" ? typografText(block.description) : block.description,
+        };
+      case "blocks.image-slider":
+        return {
+          ...block,
+          title: typeof block.title === "string" ? typografText(block.title) : block.title,
+          description: typeof block.description === "string" ? typografText(block.description) : block.description,
+          photoSource: typeof block.photoSource === "string" ? typografText(block.photoSource) : block.photoSource,
+        };
+      case "blocks.image-highlight":
+        return {
+          ...block,
+          caption: typeof block.caption === "string" ? typografText(block.caption) : block.caption,
+          credit: typeof block.credit === "string" ? typografText(block.credit) : block.credit,
+        };
+      default:
+        return block;
+    }
+  }
+
+  function handleApplyTypograf() {
+    setError(null);
+    setSuccess(null);
+    try {
+      setForm((current) => ({
+        ...current,
+        title: typografText(current.title),
+        excerpt: typografText(current.excerpt),
+        blocks: current.blocks.map((block) => typografBlock(block)),
+      }));
+      setSuccess("Типограф применён.");
+    } catch (typografError) {
+      setError(typografError instanceof Error ? typografError.message : "Не удалось применить типограф.");
+    }
+  }
+
+  function addBlock(type: EditorBlock["__component"]) {
+    let nextBlock: EditorBlock;
+    if (type === "blocks.html-editor") {
+      nextBlock = { __component: type, title: "", content: { type: "doc", content: [{ type: "paragraph" }] } };
+    } else if (type === "blocks.embed") {
+      nextBlock = { __component: type, title: "", html: "" };
+    } else if (type === "blocks.image-highlight") {
+      nextBlock = { __component: type, caption: "", credit: "", image: null };
+    } else if (type === "blocks.image-slider") {
+      nextBlock = { __component: type, title: "", description: "", photoSource: "", images: [] };
+    } else {
+      nextBlock = { __component: type, title: "", description: "", images: [] };
+    }
+    setForm((current) => ({ ...current, blocks: [...current.blocks, nextBlock] }));
+  }
+
+  function removeBlock(index: number) {
+    setForm((current) => ({ ...current, blocks: current.blocks.filter((_, currentIndex) => currentIndex !== index) }));
+  }
+
+  function moveBlock(index: number, direction: -1 | 1) {
+    setForm((current) => {
+      const nextIndex = index + direction;
+      if (nextIndex < 0 || nextIndex >= current.blocks.length) return current;
+      const nextBlocks = [...current.blocks];
+      const [block] = nextBlocks.splice(index, 1);
+      nextBlocks.splice(nextIndex, 0, block);
+      return { ...current, blocks: nextBlocks };
+    });
+  }
+
+  function openHighlightMediaPanel(blockIndex: number) {
+    setActiveMediaPanel({ kind: "block-highlight", blockIndex });
+  }
+
+  function closeMediaPanel() {
+    setActiveMediaPanel(null);
+  }
+
+  function updateInfographicCard(index: number, nextCard: EditorInfographicCard) {
+    setForm((current) => ({
+      ...current,
+      ...(activeInfographicVersion === "desktop"
+        ? { infographicCardsDesktop: current.infographicCardsDesktop.map((card, currentIndex) => (currentIndex === index ? nextCard : card)) }
+        : activeInfographicVersion === "tablet"
+          ? { infographicCardsTablet: current.infographicCardsTablet.map((card, currentIndex) => (currentIndex === index ? nextCard : card)) }
+          : { infographicCardsMobile: current.infographicCardsMobile.map((card, currentIndex) => (currentIndex === index ? nextCard : card)) }),
+    }));
+  }
+
+  function openInfographicMediaPanel(kind: "infographic-image" | "infographic-video" | "infographic-corner-icon", cardIndex: number) {
+    setActiveMediaPanel({ kind, cardIndex });
+  }
+
+  function selectAssetFromPanel(id: number | null) {
+    if (!activeMediaPanel) return;
+
+    if (activeMediaPanel.kind === "cover") {
+      updateForm("cover", id);
+      return;
+    }
+
+    if (activeMediaPanel.kind === "archive-cover") {
+      updateForm("archiveCover", id);
+      return;
+    }
+
+    if (activeMediaPanel.kind === "block-highlight" && typeof activeMediaPanel.blockIndex === "number") {
+      const block = form.blocks[activeMediaPanel.blockIndex];
+      if (block?.__component === "blocks.image-highlight") {
+        updateBlock(activeMediaPanel.blockIndex, { ...block, image: id });
+      }
+      return;
+    }
+
+    if (typeof activeMediaPanel.cardIndex === "number") {
+      const card = activeInfographicCards[activeMediaPanel.cardIndex];
+      if (!card) return;
+
+      if (activeMediaPanel.kind === "infographic-corner-icon") {
+        updateInfographicCard(activeMediaPanel.cardIndex, { ...card, cornerIcon: id });
+      } else if (activeMediaPanel.kind === "infographic-image") {
+        updateInfographicCard(activeMediaPanel.cardIndex, { ...card, backgroundImage: id, backgroundVideo: null });
+      } else if (activeMediaPanel.kind === "infographic-video") {
+        updateInfographicCard(activeMediaPanel.cardIndex, { ...card, backgroundImage: null, backgroundVideo: id });
+      }
+    }
+  }
+
+  async function refreshType(type: EditorContentType) {
+    const response = await fetch(`/api/editor/content/${type}`, { cache: "no-store" });
+    const payload = await parseJson<EditorEntrySummary[] | EditorApiError>(response);
+    if (!response.ok || !Array.isArray(payload)) {
+      throw new Error(getErrorMessage(payload as EditorApiError | null, "Не удалось обновить список материалов."));
+    }
+    setItems((current) => ({ ...current, [type]: payload }));
+  }
+
+  async function openEntry(type: EditorContentType, documentId: string) {
+    setError(null);
+    setSuccess(null);
+    const response = await fetch(`/api/editor/content/${type}/${documentId}`, { cache: "no-store" });
+    const payload = await parseJson<EditorEntryPayload>(response);
+
+    if (!response.ok || !payload) {
+      setError(getErrorMessage(payload as EditorApiError | null, "Не удалось открыть материал."));
+      return;
+    }
+
+    setSelectedType(type);
+    setForm(normalizeFormState(type, payload));
+  }
+
+  async function handleCoverUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    try {
+      const id = await uploadFile(file);
+      const targetKind = activeMediaPanel?.kind;
+      updateForm(targetKind === "archive-cover" ? "archiveCover" : "cover", id);
+      const mediaPayload = await refreshMediaAssets();
+      if (mediaPayload) setMediaAssets(mediaPayload);
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить обложку.");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  async function handleInfographicUpload(cardIndex: number, kind: "infographic-image" | "infographic-video" | "infographic-corner-icon", event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    try {
+      const id = await uploadFile(file);
+      const card = activeInfographicCards[cardIndex];
+      if (!card) return;
+      updateInfographicCard(cardIndex, kind === "infographic-image"
+        ? { ...card, backgroundImage: id, backgroundVideo: null }
+        : kind === "infographic-corner-icon"
+          ? { ...card, cornerIcon: id }
+          : { ...card, backgroundImage: null, backgroundVideo: id });
+      const mediaPayload = await refreshMediaAssets();
+      if (mediaPayload) setMediaAssets(mediaPayload);
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : kind === "infographic-video" ? "Не удалось загрузить видео." : "Не удалось загрузить изображение.");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  async function handleBlockFiles(index: number, event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    if (!files.length) return;
+    setError(null);
+    try {
+      const uploadedIds = await Promise.all(files.map((file) => uploadFile(file)));
+      const block = form.blocks[index];
+      if (!block) return;
+
+      if (block.__component === "blocks.image-highlight") {
+        updateBlock(index, { ...block, image: uploadedIds[0] ?? null });
+        const mediaPayload = await refreshMediaAssets();
+        if (mediaPayload) setMediaAssets(mediaPayload);
+        openHighlightMediaPanel(index);
+        return;
+      }
+
+      if (isMediaCollectionBlock(block)) {
+        updateBlock(index, { ...block, images: [...block.images, ...uploadedIds] });
+        const mediaPayload = await refreshMediaAssets();
+        if (mediaPayload) setMediaAssets(mediaPayload);
+      }
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить изображение.");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  async function handleGalleryFiles(event: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(event.target.files ?? []);
+    if (!files.length) return;
+    setError(null);
+    try {
+      const uploadedIds = await Promise.all(files.map((file) => uploadFile(file)));
+      setForm((current) => ({ ...current, photos: [...current.photos, ...uploadedIds] }));
+      const mediaPayload = await refreshMediaAssets();
+      if (mediaPayload) setMediaAssets(mediaPayload);
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить изображение.");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  async function handleSave(statusOverride?: "draft" | "published") {
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccess(null);
+
+      const normalizedExcerpt = form.excerpt.trim();
+      const targetStatus = statusOverride ?? form.status;
+
+      if ((selectedType === "article" || selectedType === "news") && targetStatus === "published" && !normalizedExcerpt) {
+        throw new Error("Для публикации нужно заполнить краткое описание.");
+      }
+
+      const payload = {
+        data: selectedType === "homepage"
+          ? {
+              infographicTitle: form.infographicTitle,
+              infographicDescription: form.infographicDescription,
+              infographicCardsDesktop: form.infographicCardsDesktop.map((card) => ({
+                id: card.id,
+                shape: card.shape,
+                title: card.title,
+                description: card.description,
+                href: card.href,
+                backgroundImage: card.backgroundImage,
+                backgroundVideo: card.backgroundVideo,
+                cornerIcon: card.cornerIcon,
+                accentText: card.accentText,
+                theme: card.theme,
+              })),
+              infographicCardsTablet: form.infographicCardsTablet.map((card) => ({
+                id: card.id,
+                shape: card.shape,
+                title: card.title,
+                description: card.description,
+                href: card.href,
+                backgroundImage: card.backgroundImage,
+                backgroundVideo: card.backgroundVideo,
+                cornerIcon: card.cornerIcon,
+                accentText: card.accentText,
+                theme: card.theme,
+              })),
+              infographicCardsMobile: form.infographicCardsMobile.map((card) => ({
+                id: card.id,
+                shape: card.shape,
+                title: card.title,
+                description: card.description,
+                href: card.href,
+                backgroundImage: card.backgroundImage,
+                backgroundVideo: card.backgroundVideo,
+                cornerIcon: card.cornerIcon,
+                accentText: card.accentText,
+                theme: card.theme,
+              })),
+            }
+          : {
+              title: form.title,
+              slug: form.slug,
+              excerpt: form.excerpt,
+              materialLabel: form.materialLabel,
+              cover: form.cover,
+              archiveCover: form.archiveCover,
+              author: form.author,
+              categories: form.categories,
+              tags: form.tags,
+              homepageSpecialBlock: form.homepageSpecialBlock,
+              status: targetStatus,
+              publishedAtCustom: form.publishedAtCustom ? new Date(form.publishedAtCustom).toISOString() : null,
+              readingTime: form.readingTime,
+              coverSource: form.coverSource,
+              ...(selectedType === "video"
+                ? {}
+                : { sources: form.sources.filter((item) => item.name.trim() || item.url.trim()) }),
+              startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : "",
+              endsAt: form.endsAt ? new Date(form.endsAt).toISOString() : "",
+              locationName: form.locationName,
+              city: form.city,
+              address: form.address,
+              ticketUrl: form.ticketUrl,
+              videoUrl: form.videoUrl,
+              duration: form.duration,
+              seo: form.seo,
+              photos: selectedType === "gallery" ? form.photos : undefined,
+              ...(selectedType === "gallery"
+                ? {}
+                : {
+                    blocks: form.blocks.map((block) => {
+                      if (block.__component !== "blocks.html-editor") return block;
+                      return { ...block, content: serializeTiptapDocument(block.content) };
+                    }),
+                  }),
+            },
+      };
+
+      const endpoint = form.documentId
+        ? `/api/editor/content/${selectedType}/${form.documentId}`
+        : `/api/editor/content/${selectedType}`;
+
+      const response = await fetch(endpoint, {
+        method: form.documentId ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const saved = await parseJson<EditorEntryPayload>(response);
+
+      if (!response.ok || !saved?.documentId) {
+        throw new Error(getErrorMessage(saved as EditorApiError | null, "Не удалось сохранить материал."));
+      }
+
+      setForm(normalizeFormState(selectedType, saved));
+      await refreshType(selectedType);
+      setSuccess(selectedType === "homepage" ? "Настройки инфографики обновлены." : form.documentId ? "Материал обновлён." : "Материал создан.");
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Не удалось сохранить материал.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!form.documentId) return;
+    if (!window.confirm("Удалить этот материал?")) return;
+
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccess(null);
+      const response = await fetch(`/api/editor/content/${selectedType}/${form.documentId}`, { method: "DELETE" });
+      const payload = await parseJson<{ ok?: boolean } | EditorApiError>(response);
+
+      if (!response.ok || !payload || ("ok" in payload && payload.ok !== true)) {
+        throw new Error(getErrorMessage(payload as EditorApiError | null, "Не удалось удалить материал."));
+      }
+
+      await refreshType(selectedType);
+      setForm(createBlankForm(selectedType));
+      setSuccess("Материал удалён.");
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : "Не удалось удалить материал.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // Modal media picker helpers
+  const activePanelAsset = useMemo(() => {
+    if (!activeMediaPanel) return null;
+    if (activeMediaPanel.kind === "cover") {
+      return mediaAssets.find((asset) => asset.id === form.cover) ?? null;
+    }
+    if (activeMediaPanel.kind === "archive-cover") {
+      return mediaAssets.find((asset) => asset.id === form.archiveCover) ?? null;
+    }
+    if (activeMediaPanel.kind === "block-highlight" && typeof activeMediaPanel.blockIndex === "number") {
+      const block = form.blocks[activeMediaPanel.blockIndex];
+      if (block?.__component === "blocks.image-highlight") {
+        return mediaAssets.find((asset) => asset.id === block.image) ?? null;
+      }
+    }
+    if (typeof activeMediaPanel.cardIndex === "number") {
+      const card = activeInfographicCards[activeMediaPanel.cardIndex];
+      if (!card) return null;
+      const id = activeMediaPanel.kind === "infographic-corner-icon"
+        ? card.cornerIcon
+        : activeMediaPanel.kind === "infographic-image"
+          ? card.backgroundImage
+          : card.backgroundVideo;
+      return mediaAssets.find((asset) => asset.id === id) ?? null;
+    }
+    return null;
+  }, [activeInfographicCards, activeMediaPanel, form.archiveCover, form.blocks, form.cover, mediaAssets]);
+
+  const activePanelAccept: "image" | "video" = activeMediaPanel?.kind === "infographic-video" ? "video" : "image";
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white pt-14 dark:bg-[#141414]">
+        <div className="text-sm text-zinc-500 dark:text-zinc-400">Загружаем кабинет…</div>
+      </div>
+    );
+  }
+
+  if (error && !session) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-white pt-14 dark:bg-[#141414]">
+        <div className="max-w-md rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-950/30 dark:text-red-200">{error}</div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-[#141414]">
+      <EditorTopbar session={session} documentId={form.documentId} onHelpClick={() => setHelpOpen(true)} />
+
+      <div className="flex pt-14">
+        <EditorSidebar
+          session={session}
+          items={items}
+          selectedType={selectedType}
+          onSelectType={selectType}
+          onCreateNew={selectType}
+          onSelectItem={openEntry}
+          query={itemsQuery}
+          onQueryChange={(value) => {
+            setItemsQuery(value);
+            setItemsPage(1);
+          }}
+          page={visibleItemsPage}
+          totalPages={totalItemsPages}
+          onPageChange={(page) => setItemsPage(page)}
+        />
+
+        <main className="flex-1 p-5 lg:p-6">
+          <div className="mx-auto max-w-6xl">
+            <div className="mb-5">
+              <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+                {selectedType === "homepage" ? "Настройки инфографики" : form.documentId ? "Редактирование материала" : "Создание материала"}
+              </h1>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                {selectedType === "homepage"
+                  ? "Редактирование единственной системной записи главной страницы."
+                  : "Полноценное редактирование контента с блоками и rich text."}
+              </p>
+              {materialPublicPath && form.status === "published" && selectedType !== "homepage" ? (
+                <Link
+                  href={materialPublicPath}
+                  target="_blank"
+                  className="mt-2 inline-flex w-fit items-center gap-1 rounded border border-emerald-600 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-500/10"
+                >
+                  ↗ Перейти к материалу
+                </Link>
+              ) : null}
+            </div>
+
+            {error ? (
+              <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-950/30 dark:text-red-200">{error}</div>
+            ) : null}
+            {success ? (
+              <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:text-emerald-200">{success}</div>
+            ) : null}
+
+            {selectedType !== "homepage" ? (
+              <EditorToolbar
+                type={selectedType}
+                slug={form.slug}
+                status={form.status}
+                documentId={form.documentId}
+                saving={saving}
+                onSaveDraft={() => void handleSave("draft")}
+                onPublish={() => void handleSave("published")}
+              />
+            ) : null}
+
+            {selectedType === "homepage" ? (
+              <HomepageEditor
+                form={form}
+                updateForm={updateForm}
+                activeInfographicVersion={activeInfographicVersion}
+                setActiveInfographicVersion={setActiveInfographicVersion}
+                openInfographicMediaPanel={openInfographicMediaPanel}
+                onSave={() => void handleSave()}
+                saving={saving}
+              />
+            ) : (
+              <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+                <div className="space-y-4">
+                  <BasicInfoPanel
+                    form={form}
+                    onChange={updateForm}
+                    onApplyTypograf={handleApplyTypograf}
+                  />
+                  <PublicationPanel
+                    form={form}
+                    authors={authors}
+                    canEditAll={canEditAll}
+                    onChange={updateForm}
+                  />
+                  <EventFieldsPanel
+                    form={form}
+                    onChange={updateForm}
+                  />
+                  {selectedType === "video" ? (
+                    <VideoFieldsPanel
+                      videoUrl={form.videoUrl}
+                      duration={form.duration}
+                      onChangeVideoUrl={(value) => updateForm("videoUrl", value)}
+                      onChangeDuration={(value) => updateForm("duration", value)}
+                    />
+                  ) : null}
+                  {selectedType === "gallery" ? (
+                    <GalleryPhotosPanel
+                      photos={form.photos}
+                      assets={mediaAssets}
+                      onToggle={toggleGalleryPhoto}
+                      onUpload={handleGalleryFiles}
+                      onClearAll={clearGalleryPhotos}
+                    />
+                  ) : null}
+                  <BlocksPanel
+                    type={selectedType}
+                    blocks={form.blocks}
+                    assets={mediaAssets}
+                    onAdd={addBlock}
+                    onUpdate={updateBlock}
+                    onRemove={removeBlock}
+                    onMove={moveBlock}
+                    onUpload={handleBlockFiles}
+                  />
+                  <SeoPanel seo={form.seo} onChange={updateSeo} />
+                </div>
+
+                <div className="space-y-4">
+                  <CoverPanel
+                    form={form}
+                    assets={mediaAssets}
+                    activePanel={activeMediaPanel}
+                    onOpenPanel={(kind) => setActiveMediaPanel({ kind })}
+                    onClosePanel={closeMediaPanel}
+                    onUpload={handleCoverUpload}
+                    onSelectCover={(id) => updateForm("cover", id)}
+                    onSelectArchiveCover={(id) => updateForm("archiveCover", id)}
+                    onChangeSource={(value) => updateForm("coverSource", value)}
+                  />
+                  <CategoriesTagsPanel
+                    categories={categories}
+                    selectedCategories={form.categories}
+                    tags={tags}
+                    selectedTags={form.tags}
+                    showTags={selectedType !== "gallery"}
+                    onToggleCategory={(id) => toggleMultiSelectItem("categories", id)}
+                    onToggleTag={(id) => toggleMultiSelectItem("tags", id)}
+                  />
+                  {selectedType !== "video" ? (
+                    <SourcesPanel
+                      sources={form.sources}
+                      onChange={updateSource}
+                      onAdd={addSource}
+                      onRemove={removeSource}
+                    />
+                  ) : null}
+                </div>
+              </div>
+            )}
+
+            {selectedType !== "homepage" ? (
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-5 dark:border-white/10">
+                <button
+                  type="button"
+                  onClick={() => void handleDelete()}
+                  disabled={!form.documentId || saving}
+                  className="rounded border border-red-200 px-4 py-2 text-sm text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-red-500/30 dark:text-red-300 dark:hover:bg-red-950/30"
+                >
+                  🗑 Удалить материал
+                </button>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void handleSave("draft")}
+                    disabled={saving}
+                    className="rounded border border-black/10 bg-[#eeeeee] px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-300 disabled:opacity-50 dark:border-white/10 dark:bg-[#2a2a2a] dark:hover:bg-zinc-700"
+                  >
+                    {saving ? "Сохранение..." : "💾 Сохранить"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleSave("published")}
+                    disabled={saving}
+                    className="rounded bg-[#1a4d2e] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2d7a4f] disabled:opacity-50 dark:bg-[#4ade80] dark:text-black dark:hover:bg-[#86efac]"
+                  >
+                    {saving ? "Сохранение..." : "🚀 Опубликовать"}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </main>
+      </div>
+
+      {activeMediaPanel ? (
+        <div className="fixed inset-0 z-[60] flex items-start justify-center overflow-y-auto bg-black/55 p-4">
+          <div className="my-6 w-full max-w-4xl rounded-xl border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-[#141414]">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-base font-semibold">Выбор медиафайла</h3>
+              <button type="button" onClick={closeMediaPanel} className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">✕</button>
+            </div>
+            <MediaPicker
+              assets={mediaAssets}
+              accept={activePanelAccept}
+              selectedId={activePanelAsset?.id ?? null}
+              onSelect={(id) => {
+                selectAssetFromPanel(id);
+                if (id !== null) closeMediaPanel();
+              }}
+              onUpload={async (event) => {
+                if (activeMediaPanel?.kind.startsWith("infographic-")) {
+                  const cardIndex = activeMediaPanel.cardIndex ?? 0;
+                  await handleInfographicUpload(cardIndex, activeMediaPanel.kind as "infographic-image" | "infographic-video" | "infographic-corner-icon", event);
+                } else {
+                  await handleCoverUpload(event);
+                }
+              }}
+              uploadLabel="Загрузить новый файл"
+            />
+          </div>
+        </div>
+      ) : null}
+
+      <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+    </div>
+  );
+}
+
+type HomepageEditorProps = {
+  form: FormState;
+  updateForm: <K extends keyof FormState>(key: K, value: FormState[K]) => void;
+  activeInfographicVersion: EditorInfographicVersion;
+  setActiveInfographicVersion: (version: EditorInfographicVersion) => void;
+  openInfographicMediaPanel: (kind: "infographic-image" | "infographic-video" | "infographic-corner-icon", cardIndex: number) => void;
+  onSave: () => void;
+  saving: boolean;
+};
+
+function HomepageEditor({
+  form,
+  updateForm,
+  activeInfographicVersion,
+  setActiveInfographicVersion,
+  openInfographicMediaPanel,
+  onSave,
+  saving,
+}: HomepageEditorProps) {
+  const inputClassName =
+    "w-full rounded border border-black/10 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:border-emerald-600 dark:border-white/10 dark:bg-[#141414] dark:text-zinc-100";
+  const selectClassName =
+    "w-full cursor-pointer rounded border border-black/10 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-emerald-600 dark:border-white/10 dark:bg-[#141414] dark:text-zinc-100";
+
+  const activeCards = activeInfographicVersion === "desktop"
+    ? form.infographicCardsDesktop
+    : activeInfographicVersion === "tablet"
+      ? form.infographicCardsTablet
+      : form.infographicCardsMobile;
+
+  function updateCard(index: number, next: EditorInfographicCard) {
+    if (activeInfographicVersion === "desktop") {
+      updateForm("infographicCardsDesktop", form.infographicCardsDesktop.map((card, i) => (i === index ? next : card)));
+    } else if (activeInfographicVersion === "tablet") {
+      updateForm("infographicCardsTablet", form.infographicCardsTablet.map((card, i) => (i === index ? next : card)));
+    } else {
+      updateForm("infographicCardsMobile", form.infographicCardsMobile.map((card, i) => (i === index ? next : card)));
+    }
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-200">
+        Раздел работает в режиме singleton: он показывает реальные данные из модели homepage. Создание и удаление отдельных записей инфографики недоступно.
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Заголовок секции инфографики</label>
+          <input value={form.infographicTitle} onChange={(event) => updateForm("infographicTitle", event.target.value)} className={inputClassName} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Описание секции инфографики</label>
+          <input value={form.infographicDescription} onChange={(event) => updateForm("infographicDescription", event.target.value)} className={inputClassName} />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {INFOGRAPHIC_VIEWPORTS.map((version) => (
+          <button
+            key={version}
+            type="button"
+            onClick={() => setActiveInfographicVersion(version)}
+            className={`rounded px-3 py-1.5 text-xs font-medium ${activeInfographicVersion === version ? "bg-[#1a4d2e] text-white dark:bg-[#4ade80] dark:text-black" : "border border-black/10 bg-white text-zinc-600 hover:bg-zinc-100 dark:border-white/10 dark:bg-[#141414] dark:text-zinc-300 dark:hover:bg-zinc-800"}`}
+          >
+            {INFOGRAPHIC_VIEWPORT_LABELS[version]} ({INFOGRAPHIC_VIEWPORT_CARD_COUNTS[version]})
+          </button>
+        ))}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {activeCards.map((card, index) => (
+          <div key={`${activeInfographicVersion}-${index}`} className="rounded-lg border border-black/10 bg-[#f5f5f5] p-3 dark:border-white/10 dark:bg-[#1e1e1e]">
+            <div className="mb-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">Карточка {index + 1}</div>
+            <div className="grid gap-2">
+              <input
+                type="text"
+                value={card.title ?? ""}
+                onChange={(event) => updateCard(index, { ...card, title: event.target.value })}
+                placeholder="Заголовок"
+                className={inputClassName}
+              />
+              <input
+                type="text"
+                value={card.description ?? ""}
+                onChange={(event) => updateCard(index, { ...card, description: event.target.value })}
+                placeholder="Описание"
+                className={inputClassName}
+              />
+              <input
+                type="text"
+                value={card.href ?? ""}
+                onChange={(event) => updateCard(index, { ...card, href: event.target.value })}
+                placeholder="Ссылка"
+                className={inputClassName}
+              />
+              <input
+                type="text"
+                value={card.accentText ?? ""}
+                onChange={(event) => updateCard(index, { ...card, accentText: event.target.value })}
+                placeholder="Акцентный текст"
+                className={inputClassName}
+              />
+              <select
+                value={card.shape ?? "square"}
+                onChange={(event) => updateCard(index, { ...card, shape: event.target.value as EditorInfographicCard["shape"] })}
+                className={selectClassName}
+              >
+                <option value="square">Квадрат</option>
+                <option value="rectangle">Прямоугольник</option>
+                <option value="circle">Круг</option>
+              </select>
+              <select
+                value={card.theme ?? "light"}
+                onChange={(event) => updateCard(index, { ...card, theme: event.target.value as "light" | "dark" })}
+                className={selectClassName}
+              >
+                <option value="light">Светлая</option>
+                <option value="dark">Тёмная</option>
+              </select>
+
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => openInfographicMediaPanel("infographic-image", index)}
+                  className="rounded border border-black/10 px-2 py-1.5 text-[10px] hover:bg-zinc-100 dark:border-white/10 dark:hover:bg-zinc-800"
+                >
+                  Фон: {card.backgroundImage ? `ID ${card.backgroundImage}` : "нет"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openInfographicMediaPanel("infographic-video", index)}
+                  className="rounded border border-black/10 px-2 py-1.5 text-[10px] hover:bg-zinc-100 dark:border-white/10 dark:hover:bg-zinc-800"
+                >
+                  Видео: {card.backgroundVideo ? `ID ${card.backgroundVideo}` : "нет"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openInfographicMediaPanel("infographic-corner-icon", index)}
+                  className="rounded border border-black/10 px-2 py-1.5 text-[10px] hover:bg-zinc-100 dark:border-white/10 dark:hover:bg-zinc-800"
+                >
+                  Иконка: {card.cornerIcon ? `ID ${card.cornerIcon}` : "нет"}
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saving}
+          className="rounded bg-[#1a4d2e] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2d7a4f] disabled:opacity-50 dark:bg-[#4ade80] dark:text-black dark:hover:bg-[#86efac]"
+        >
+          {saving ? "Сохранение..." : "💾 Сохранить настройки"}
+        </button>
+      </div>
+    </div>
+  );
+}
