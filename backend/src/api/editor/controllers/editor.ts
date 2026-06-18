@@ -108,7 +108,15 @@ function buildEditorPopulate(type: EditorType) {
           cornerIcon: true,
         },
       },
-      blocks: { populate: '*' },
+      blocks: {
+        on: {
+          'blocks.html-editor': true,
+          'blocks.embed': true,
+          'blocks.image-highlight': { populate: ['image'] },
+          'blocks.image-gallery': { populate: ['images'] },
+          'blocks.image-slider': { populate: ['images'] },
+        },
+      },
       seo: true,
     };
   }
@@ -126,7 +134,15 @@ function buildEditorPopulate(type: EditorType) {
 
   return {
     cover: true,
-    content: { populate: '*' },
+    content: {
+      on: {
+        'blocks.html-editor': true,
+        'blocks.embed': true,
+        'blocks.image-highlight': { populate: ['image'] },
+        'blocks.image-gallery': { populate: ['images'] },
+        'blocks.image-slider': { populate: ['images'] },
+      },
+    },
     author: true,
     categories: true,
     tags: true,
