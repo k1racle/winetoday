@@ -88,10 +88,10 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
 
       {leadItem ? (
         <article className="group grid overflow-hidden border border-black/10 bg-white text-foreground shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-[#12202d] dark:text-white md:grid-cols-[340px_minmax(0,1fr)]">
-          <div className="relative h-64 overflow-hidden md:h-full">
+          <div className="relative aspect-video overflow-hidden">
             <Link href={leadItem.href} aria-label={leadItem.title} className="block h-full">
               {leadItem.imageUrl ? (
-                <Image src={leadItem.imageUrl} alt={leadItem.imageAlt ?? leadItem.title} width={680} height={512} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]" />
+                <Image src={leadItem.imageUrl} alt={leadItem.imageAlt ?? leadItem.title} width={1920} height={1080} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]" />
               ) : null}
             </Link>
           </div>
@@ -126,10 +126,10 @@ export function InfiniteArchivePageList({ leadItem, items, emptyLabel, pageSize 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visibleItems.map((item) => (
             <article key={item.id} className="group block overflow-hidden border border-black/10 bg-white text-foreground shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 dark:bg-[#12202d] dark:text-white">
-              <div className="relative h-52 overflow-hidden">
+              <div className="relative aspect-video overflow-hidden">
                 <Link href={item.href} aria-label={item.title} className="block h-full">
                   {item.imageUrl ? (
-                    <Image src={item.imageUrl} alt={item.imageAlt ?? item.title} width={720} height={448} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]" />
+                    <Image src={item.imageUrl} alt={item.imageAlt ?? item.title} width={1920} height={1080} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]" />
                   ) : null}
                 </Link>
               </div>
