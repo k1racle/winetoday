@@ -74,23 +74,44 @@ export function getRecordId(value: unknown) {
   return typeof value.id === "number" ? value.id : null;
 }
 
+export function resolveRelationId(value: unknown): number | null {
+  const recordId = getRecordId(value);
+
+  if (recordId !== null) {
+    return recordId;
+  }
+
+  if (typeof value === "number" && Number.isInteger(value) && value > 0) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    if (Number.isInteger(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+
+  return null;
+}
+
 export function normalizeRelationIds(value: unknown) {
   if (!Array.isArray(value)) {
     return [] as number[];
   }
 
   return value
-    .map((item) => getRecordId(item))
-    .filter((item): item is number => item !== null && Number.isInteger(item) && item > 0);
+    .map((item) => resolveRelationId(item))
+    .filter((item): item is number => item !== null);
 }
 
 export function normalizeEditorInfographicCards(cards: unknown, expectedCount: number): EditorInfographicCard[] {
   const normalized: EditorInfographicCard[] = Array.isArray(cards)
     ? cards.slice(0, expectedCount).map((card) => {
         const cardRecord = isRecord(card) ? card : {};
-        const backgroundImageId = getRecordId(cardRecord.backgroundImage);
-        const backgroundVideoId = getRecordId(cardRecord.backgroundVideo);
-        const cornerIconId = getRecordId(cardRecord.cornerIcon);
+        const backgroundImageId = resolveRelationId(cardRecord.backgroundImage);
+        const backgroundVideoId = resolveRelationId(cardRecord.backgroundVideo);
+        const cornerIconId = resolveRelationId(cardRecord.cornerIcon);
 
         return {
           id: typeof cardRecord.id === "number" ? cardRecord.id : undefined,
@@ -98,9 +119,9 @@ export function normalizeEditorInfographicCards(cards: unknown, expectedCount: n
           title: typeof cardRecord.title === "string" ? cardRecord.title : "",
           description: typeof cardRecord.description === "string" ? cardRecord.description : "",
           href: typeof cardRecord.href === "string" ? cardRecord.href : "",
-          backgroundImage: backgroundImageId ?? (typeof cardRecord.backgroundImage === "number" ? cardRecord.backgroundImage : null),
-          backgroundVideo: backgroundVideoId ?? (typeof cardRecord.backgroundVideo === "number" ? cardRecord.backgroundVideo : null),
-          cornerIcon: cornerIconId ?? (typeof cardRecord.cornerIcon === "number" ? cardRecord.cornerIcon : null),
+          backgroundImage: backgroundImageId,
+          backgroundVideo: backgroundVideoId,
+          cornerIcon: cornerIconId,
           accentText: typeof cardRecord.accentText === "string" ? cardRecord.accentText : "",
           theme: cardRecord.theme === "dark" ? "dark" : "light",
         };
@@ -291,6 +312,9 @@ export function normalizeFormState(type: EditorContentType, entry: UnknownRecord
   const cover = isRecord(entry.cover) ? entry.cover : null;
   const archiveCover = isRecord(entry.archiveCover) ? entry.archiveCover : null;
   const author = isRecord(entry.author) ? entry.author : null;
+  const resolvedCoverId = resolveRelationId(entry.cover);
+  const resolvedArchiveCoverId = resolveRelationId(entry.archiveCover);
+  const resolvedAuthorId = resolveRelationId(entry.author);
   const seo = isRecord(entry.seo) ? entry.seo : null;
   const blocksSource = type === "homepage" ? entry.blocks : entry.content;
 
@@ -301,10 +325,10 @@ export function normalizeFormState(type: EditorContentType, entry: UnknownRecord
     slug: typeof entry.slug === "string" ? entry.slug : "",
     excerpt: typeof entry.excerpt === "string" ? entry.excerpt : "",
     materialLabel: normalizeMaterialLabel(entry.materialLabel),
-    cover: getRecordId(cover),
-    archiveCover: getRecordId(archiveCover),
+    cover: getRecordId(cover) ?? resolvedCoverId,
+    archiveCover: getRecordId(archiveCover) ?? resolvedArchiveCoverId,
     coverSource: typeof entry.coverSource === "string" ? entry.coverSource : "",
-    author: getRecordId(author),
+    author: getRecordId(author) ?? resolvedAuthorId,
     categories: normalizeRelationIds(entry.categories),
     tags: normalizeRelationIds(entry.tags),
     homepageSpecialBlock: entry.homepageSpecialBlock === true,
@@ -384,7 +408,7 @@ export function normalizeFormState(type: EditorContentType, entry: UnknownRecord
               __component: "blocks.image-highlight" as const,
               caption: typeof block.caption === "string" ? block.caption : "",
               credit: typeof block.credit === "string" ? block.credit : "",
-              image: getRecordId(block.image),
+              image: resolveRelationId(block.image),
             };
           }
 

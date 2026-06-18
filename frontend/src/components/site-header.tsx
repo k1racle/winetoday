@@ -246,6 +246,10 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
     setDrawerOpen(false);
   };
 
+  if (pathname === "/account") {
+    return null;
+  }
+
   const containerClass = sticky ? "sticky top-0 z-50" : "relative z-50";
 
   return (
