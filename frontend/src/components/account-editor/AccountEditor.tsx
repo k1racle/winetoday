@@ -677,6 +677,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       <div className="flex">
         <EditorSidebar
           session={session}
+          allowedTypes={allowedTypes}
           items={items}
           selectedType={selectedType}
           onSelectType={selectType}

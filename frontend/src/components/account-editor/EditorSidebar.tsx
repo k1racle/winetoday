@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import type { EditorContentType, EditorEntrySummary, EditorSession } from "./types";
-import { sortEditorTypes, timeAgoLabel } from "./utils";
+import { timeAgoLabel } from "./utils";
 
 const TYPE_LABELS: Record<EditorContentType, string> = {
   article: "Статьи",
@@ -22,6 +22,7 @@ const TYPE_ICONS: Record<EditorContentType, string> = {
 
 type EditorSidebarProps = {
   session: EditorSession | null;
+  allowedTypes: EditorContentType[];
   items: Record<EditorContentType, EditorEntrySummary[]>;
   selectedType: EditorContentType;
   onSelectType: (type: EditorContentType) => void;
@@ -36,6 +37,7 @@ type EditorSidebarProps = {
 
 export function EditorSidebar({
   session,
+  allowedTypes,
   items,
   selectedType,
   onSelectType,
@@ -47,7 +49,6 @@ export function EditorSidebar({
   totalPages,
   onPageChange,
 }: EditorSidebarProps) {
-  const allowedTypes = useMemo(() => sortEditorTypes(session?.capabilities.canCreate ?? []), [session]);
   const normalizedQuery = query.trim().toLowerCase();
   const currentItems = useMemo(() => items[selectedType] ?? [], [items, selectedType]);
   const filteredItems = useMemo(() => {
