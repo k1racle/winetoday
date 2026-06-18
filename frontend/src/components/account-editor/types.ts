@@ -67,7 +67,7 @@ export type FormState = {
 };
 
 export type ActiveMediaPanel = {
-  kind: "cover" | "archive-cover" | "block-highlight" | "infographic-image" | "infographic-video" | "infographic-corner-icon";
+  kind: "cover" | "block-highlight" | "infographic-image" | "infographic-video" | "infographic-corner-icon";
   blockIndex?: number;
   cardIndex?: number;
 } | null;

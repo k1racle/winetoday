@@ -408,11 +408,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       return;
     }
 
-    if (activeMediaPanel.kind === "archive-cover") {
-      updateForm("archiveCover", id);
-      return;
-    }
-
     if (activeMediaPanel.kind === "block-highlight" && typeof activeMediaPanel.blockIndex === "number") {
       const block = form.blocks[activeMediaPanel.blockIndex];
       if (block?.__component === "blocks.image-highlight") {
@@ -472,8 +467,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     setError(null);
     try {
       const id = await uploadFile(file);
-      const targetKind = activeMediaPanel?.kind;
-      updateForm(targetKind === "archive-cover" ? "archiveCover" : "cover", id);
+      updateForm("cover", id);
       const mediaPayload = await refreshMediaAssets();
       if (mediaPayload) setMediaAssets((current) => mergeMediaAssets(current, mediaPayload));
     } catch (uploadError) {
@@ -659,9 +653,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     if (activeMediaPanel.kind === "cover") {
       return mediaAssets.find((asset) => asset.id === form.cover) ?? null;
     }
-    if (activeMediaPanel.kind === "archive-cover") {
-      return mediaAssets.find((asset) => asset.id === form.archiveCover) ?? null;
-    }
     if (activeMediaPanel.kind === "block-highlight" && typeof activeMediaPanel.blockIndex === "number") {
       const block = form.blocks[activeMediaPanel.blockIndex];
       if (block?.__component === "blocks.image-highlight") {
@@ -669,7 +660,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       }
     }
     return null;
-  }, [activeMediaPanel, form.archiveCover, form.blocks, form.cover, mediaAssets]);
+  }, [activeMediaPanel, form.blocks, form.cover, mediaAssets]);
 
   const activePanelAccept = "image" as const;
 
@@ -795,11 +786,10 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                     form={form}
                     assets={mediaAssets}
                     activePanel={activeMediaPanel}
-                    onOpenPanel={(kind) => setActiveMediaPanel({ kind })}
+                    onOpenPanel={() => setActiveMediaPanel({ kind: "cover" })}
                     onClosePanel={closeMediaPanel}
                     onUpload={handleCoverUpload}
                     onSelectCover={(id) => updateForm("cover", id)}
-                    onSelectArchiveCover={(id) => updateForm("archiveCover", id)}
                     onChangeSource={(value) => updateForm("coverSource", value)}
                   />
                   <CategoriesTagsPanel
