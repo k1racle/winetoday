@@ -1268,12 +1268,35 @@ export default factories.createCoreController('api::member-profile.member-profil
   async media(ctx: any) {
     await resolveAccess(strapi, ctx.state.user ?? null);
 
-    const assets = await strapi.db.query('plugin::upload.file').findMany({
-      orderBy: { createdAt: 'desc' },
-      limit: 10000,
-    });
+    const idsParam = typeof ctx.query.ids === 'string' ? ctx.query.ids : '';
+    const requestedIds = idsParam
+      .split(',')
+      .map((id) => Number(id.trim()))
+      .filter((id) => Number.isInteger(id) && id > 0);
 
-    ctx.body = assets.map((asset: Record<string, any>) => serializeUploadedAsset(asset));
+    const [recentAssets, requestedAssets] = await Promise.all([
+      strapi.db.query('plugin::upload.file').findMany({
+        orderBy: { createdAt: 'desc' },
+        limit: 100,
+      }),
+      requestedIds.length
+        ? strapi.db.query('plugin::upload.file').findMany({
+            where: { id: { $in: requestedIds } },
+          })
+        : Promise.resolve([]),
+    ]);
+
+    const merged = new Map<number, Record<string, any>>();
+    for (const asset of requestedAssets) {
+      merged.set(asset.id, asset);
+    }
+    for (const asset of recentAssets) {
+      if (!merged.has(asset.id)) {
+        merged.set(asset.id, asset);
+      }
+    }
+
+    ctx.body = [...merged.values()].map((asset: Record<string, any>) => serializeUploadedAsset(asset));
   },
 
   async authorStats(ctx: any) {

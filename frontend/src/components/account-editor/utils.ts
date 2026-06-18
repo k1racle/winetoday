@@ -465,8 +465,9 @@ export async function uploadFile(file: File) {
   return responsePayload[0].id;
 }
 
-export async function refreshMediaAssets() {
-  const mediaResponse = await fetch("/api/editor/media", { cache: "no-store" });
+export async function refreshMediaAssets(extraIds?: number[]) {
+  const query = extraIds?.length ? `?ids=${extraIds.join(",")}` : "";
+  const mediaResponse = await fetch(`/api/editor/media${query}`, { cache: "no-store" });
   const mediaPayload = await parseJson<UploadedAsset[] | { error?: { message?: string }; message?: string }>(mediaResponse);
 
   if (!mediaResponse.ok || !Array.isArray(mediaPayload)) {
@@ -480,6 +481,29 @@ export function filterAssetsByAccept(assets: UploadedAsset[], accept: "image" | 
   return assets.filter((asset) => accept === "image"
     ? asset.mime?.startsWith("image/")
     : asset.mime?.startsWith("video/"));
+}
+
+export function collectFormMediaIds(form: FormState): number[] {
+  const ids = new Set<number>();
+
+  if (form.cover !== null) ids.add(form.cover);
+  if (form.archiveCover !== null) ids.add(form.archiveCover);
+
+  for (const photoId of form.photos) {
+    ids.add(photoId);
+  }
+
+  for (const block of form.blocks) {
+    if (block.__component === "blocks.image-highlight" && block.image !== null) {
+      ids.add(block.image);
+    } else if (block.__component === "blocks.image-gallery" || block.__component === "blocks.image-slider") {
+      for (const imageId of block.images) {
+        ids.add(imageId);
+      }
+    }
+  }
+
+  return [...ids];
 }
 
 export function findAssetById(assets: UploadedAsset[], selectedId: number | null, accept?: "image" | "video") {

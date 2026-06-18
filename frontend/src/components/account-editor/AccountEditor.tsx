@@ -34,9 +34,7 @@ import {
   sortEditorTypes,
   publicPath,
   isMediaCollectionBlock,
-  INFOGRAPHIC_VIEWPORTS,
-  INFOGRAPHIC_VIEWPORT_LABELS,
-  INFOGRAPHIC_VIEWPORT_CARD_COUNTS,
+  collectFormMediaIds,
 } from "./utils";
 
 import type {
@@ -44,8 +42,6 @@ import type {
   EditorAuthorOption,
   EditorBlock,
   EditorEntryPayload,
-  EditorInfographicCard,
-  EditorInfographicVersion,
   EditorSeo,
   EditorSession,
   EditorTaxonomyOption,
@@ -84,11 +80,10 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const [success, setSuccess] = useState<string | null>(null);
   const [itemsQuery, setItemsQuery] = useState("");
   const [itemsPage, setItemsPage] = useState(1);
-  const [activeInfographicVersion, setActiveInfographicVersion] = useState<EditorInfographicVersion>("desktop");
   const [activeMediaPanel, setActiveMediaPanel] = useState<ActiveMediaPanel>(null);
   const [helpOpen, setHelpOpen] = useState(false);
 
-  const allowedTypes = useMemo(() => sortEditorTypes(session?.capabilities.canCreate ?? []), [session]);
+  const allowedTypes = useMemo(() => sortEditorTypes(session?.capabilities.canCreate ?? []).filter((type) => type !== "homepage"), [session]);
   const canEditAll = session?.capabilities.canEditAll === true;
   const currentAccountAuthorId = session?.user?.memberProfile?.author?.id ?? null;
   const materialPublicPath = publicPath(selectedType, form.slug);
@@ -98,12 +93,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     return isEditorContentType(rawType) ? rawType : null;
   }, [initialQuery?.type]);
   const requestedDocumentId = initialQuery?.documentId?.trim() || null;
-
-  const activeInfographicCards = useMemo(() => {
-    if (activeInfographicVersion === "desktop") return form.infographicCardsDesktop;
-    if (activeInfographicVersion === "tablet") return form.infographicCardsTablet;
-    return form.infographicCardsMobile;
-  }, [activeInfographicVersion, form.infographicCardsDesktop, form.infographicCardsMobile, form.infographicCardsTablet]);
 
   const filteredItems = useMemo(() => {
     const query = itemsQuery.trim().toLowerCase();
@@ -227,20 +216,14 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     return () => { cancelled = true; };
   }, []);
 
-  // Open homepage singleton if no query
-  useEffect(() => {
-    if (requestedType || requestedDocumentId || selectedType !== "homepage" || form.documentId || items.homepage.length !== 1) {
-      return;
-    }
-    void openEntry("homepage", items.homepage[0].documentId);
-  }, [form.documentId, items.homepage, requestedDocumentId, requestedType, selectedType]);
-
   // Open requested entry from query
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
-    if (loading || !requestedType || !requestedDocumentId || !allowedTypes.includes(requestedType)) return;
+    if (loading || !requestedType || !requestedDocumentId || requestedType === "homepage" || !allowedTypes.includes(requestedType)) return;
     if (selectedType === requestedType && form.documentId === requestedDocumentId) return;
     void openEntry(requestedType, requestedDocumentId);
   }, [allowedTypes, form.documentId, loading, requestedDocumentId, requestedType, selectedType]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -408,21 +391,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     setActiveMediaPanel(null);
   }
 
-  function updateInfographicCard(index: number, nextCard: EditorInfographicCard) {
-    setForm((current) => ({
-      ...current,
-      ...(activeInfographicVersion === "desktop"
-        ? { infographicCardsDesktop: current.infographicCardsDesktop.map((card, currentIndex) => (currentIndex === index ? nextCard : card)) }
-        : activeInfographicVersion === "tablet"
-          ? { infographicCardsTablet: current.infographicCardsTablet.map((card, currentIndex) => (currentIndex === index ? nextCard : card)) }
-          : { infographicCardsMobile: current.infographicCardsMobile.map((card, currentIndex) => (currentIndex === index ? nextCard : card)) }),
-    }));
-  }
-
-  function openInfographicMediaPanel(kind: "infographic-image" | "infographic-video" | "infographic-corner-icon", cardIndex: number) {
-    setActiveMediaPanel({ kind, cardIndex });
-  }
-
   function selectAssetFromPanel(id: number | null) {
     if (!activeMediaPanel) return;
 
@@ -440,20 +408,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       const block = form.blocks[activeMediaPanel.blockIndex];
       if (block?.__component === "blocks.image-highlight") {
         updateBlock(activeMediaPanel.blockIndex, { ...block, image: id });
-      }
-      return;
-    }
-
-    if (typeof activeMediaPanel.cardIndex === "number") {
-      const card = activeInfographicCards[activeMediaPanel.cardIndex];
-      if (!card) return;
-
-      if (activeMediaPanel.kind === "infographic-corner-icon") {
-        updateInfographicCard(activeMediaPanel.cardIndex, { ...card, cornerIcon: id });
-      } else if (activeMediaPanel.kind === "infographic-image") {
-        updateInfographicCard(activeMediaPanel.cardIndex, { ...card, backgroundImage: id, backgroundVideo: null });
-      } else if (activeMediaPanel.kind === "infographic-video") {
-        updateInfographicCard(activeMediaPanel.cardIndex, { ...card, backgroundImage: null, backgroundVideo: id });
       }
     }
   }
@@ -478,8 +432,29 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       return;
     }
 
+    const nextForm = normalizeFormState(type, payload);
     setSelectedType(type);
-    setForm(normalizeFormState(type, payload));
+    setForm(nextForm);
+    await ensureMediaAssetsForForm(nextForm);
+  }
+
+  async function ensureMediaAssetsForForm(nextForm: FormState) {
+    const neededIds = collectFormMediaIds(nextForm).filter((id) => !mediaAssets.some((asset) => asset.id === id));
+    if (!neededIds.length) return;
+
+    const mediaPayload = await refreshMediaAssets(neededIds);
+    if (!mediaPayload) return;
+
+    setMediaAssets((current) => {
+      const existingIds = new Set(current.map((asset) => asset.id));
+      const merged = [...current];
+      for (const asset of mediaPayload) {
+        if (!existingIds.has(asset.id)) {
+          merged.push(asset);
+        }
+      }
+      return merged;
+    });
   }
 
   async function handleCoverUpload(event: ChangeEvent<HTMLInputElement>) {
@@ -494,28 +469,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       if (mediaPayload) setMediaAssets(mediaPayload);
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить обложку.");
-    } finally {
-      event.target.value = "";
-    }
-  }
-
-  async function handleInfographicUpload(cardIndex: number, kind: "infographic-image" | "infographic-video" | "infographic-corner-icon", event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setError(null);
-    try {
-      const id = await uploadFile(file);
-      const card = activeInfographicCards[cardIndex];
-      if (!card) return;
-      updateInfographicCard(cardIndex, kind === "infographic-image"
-        ? { ...card, backgroundImage: id, backgroundVideo: null }
-        : kind === "infographic-corner-icon"
-          ? { ...card, cornerIcon: id }
-          : { ...card, backgroundImage: null, backgroundVideo: id });
-      const mediaPayload = await refreshMediaAssets();
-      if (mediaPayload) setMediaAssets(mediaPayload);
-    } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : kind === "infographic-video" ? "Не удалось загрузить видео." : "Не удалось загрузить изображение.");
     } finally {
       event.target.value = "";
     }
@@ -580,49 +533,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       }
 
       const payload = {
-        data: selectedType === "homepage"
-          ? {
-              infographicTitle: form.infographicTitle,
-              infographicDescription: form.infographicDescription,
-              infographicCardsDesktop: form.infographicCardsDesktop.map((card) => ({
-                id: card.id,
-                shape: card.shape,
-                title: card.title,
-                description: card.description,
-                href: card.href,
-                backgroundImage: card.backgroundImage,
-                backgroundVideo: card.backgroundVideo,
-                cornerIcon: card.cornerIcon,
-                accentText: card.accentText,
-                theme: card.theme,
-              })),
-              infographicCardsTablet: form.infographicCardsTablet.map((card) => ({
-                id: card.id,
-                shape: card.shape,
-                title: card.title,
-                description: card.description,
-                href: card.href,
-                backgroundImage: card.backgroundImage,
-                backgroundVideo: card.backgroundVideo,
-                cornerIcon: card.cornerIcon,
-                accentText: card.accentText,
-                theme: card.theme,
-              })),
-              infographicCardsMobile: form.infographicCardsMobile.map((card) => ({
-                id: card.id,
-                shape: card.shape,
-                title: card.title,
-                description: card.description,
-                href: card.href,
-                backgroundImage: card.backgroundImage,
-                backgroundVideo: card.backgroundVideo,
-                cornerIcon: card.cornerIcon,
-                accentText: card.accentText,
-                theme: card.theme,
-              })),
-            }
-          : {
-              title: form.title,
+        data: {
+          title: form.title,
               slug: form.slug,
               excerpt: form.excerpt,
               materialLabel: form.materialLabel,
@@ -657,7 +569,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                       return { ...block, content: serializeTiptapDocument(block.content) };
                     }),
                   }),
-            },
+        },
       };
 
       const endpoint = form.documentId
@@ -678,7 +590,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
       setForm(normalizeFormState(selectedType, saved));
       await refreshType(selectedType);
-      setSuccess(selectedType === "homepage" ? "Настройки инфографики обновлены." : form.documentId ? "Материал обновлён." : "Материал создан.");
+      setSuccess(form.documentId ? "Материал обновлён." : "Материал создан.");
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "Не удалось сохранить материал.");
     } finally {
@@ -726,20 +638,10 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
         return mediaAssets.find((asset) => asset.id === block.image) ?? null;
       }
     }
-    if (typeof activeMediaPanel.cardIndex === "number") {
-      const card = activeInfographicCards[activeMediaPanel.cardIndex];
-      if (!card) return null;
-      const id = activeMediaPanel.kind === "infographic-corner-icon"
-        ? card.cornerIcon
-        : activeMediaPanel.kind === "infographic-image"
-          ? card.backgroundImage
-          : card.backgroundVideo;
-      return mediaAssets.find((asset) => asset.id === id) ?? null;
-    }
     return null;
-  }, [activeInfographicCards, activeMediaPanel, form.archiveCover, form.blocks, form.cover, mediaAssets]);
+  }, [activeMediaPanel, form.archiveCover, form.blocks, form.cover, mediaAssets]);
 
-  const activePanelAccept: "image" | "video" = activeMediaPanel?.kind === "infographic-video" ? "video" : "image";
+  const activePanelAccept = "image" as const;
 
   if (loading) {
     return (
@@ -810,19 +712,8 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
               />
             ) : null}
 
-            {selectedType === "homepage" ? (
-              <HomepageEditor
-                form={form}
-                updateForm={updateForm}
-                activeInfographicVersion={activeInfographicVersion}
-                setActiveInfographicVersion={setActiveInfographicVersion}
-                openInfographicMediaPanel={openInfographicMediaPanel}
-                onSave={() => void handleSave()}
-                saving={saving}
-              />
-            ) : (
-              <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
-                <div className="space-y-4">
+            <div className="grid gap-5 lg:grid-cols-[1fr_410px]">
+              <div className="space-y-4">
                   <BasicInfoPanel
                     form={form}
                     onChange={updateForm}
@@ -899,38 +790,35 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                   ) : null}
                 </div>
               </div>
-            )}
 
-            {selectedType !== "homepage" ? (
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-5 dark:border-white/10">
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-black/10 pt-5 dark:border-white/10">
+              <button
+                type="button"
+                onClick={() => void handleDelete()}
+                disabled={!form.documentId || saving}
+                className="rounded border border-red-200 px-4 py-2 text-sm text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-red-500/30 dark:text-red-300 dark:hover:bg-red-950/30"
+              >
+                🗑 Удалить материал
+              </button>
+              <div className="flex gap-2">
                 <button
                   type="button"
-                  onClick={() => void handleDelete()}
-                  disabled={!form.documentId || saving}
-                  className="rounded border border-red-200 px-4 py-2 text-sm text-red-700 transition-colors hover:bg-red-50 disabled:opacity-50 dark:border-red-500/30 dark:text-red-300 dark:hover:bg-red-950/30"
+                  onClick={() => void handleSave("draft")}
+                  disabled={saving}
+                  className="rounded border border-black/10 bg-[#eeeeee] px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-300 disabled:opacity-50 dark:border-white/10 dark:bg-[#2a2a2a] dark:hover:bg-zinc-700"
                 >
-                  🗑 Удалить материал
+                  {saving ? "Сохранение..." : "💾 Сохранить"}
                 </button>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => void handleSave("draft")}
-                    disabled={saving}
-                    className="rounded border border-black/10 bg-[#eeeeee] px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-300 disabled:opacity-50 dark:border-white/10 dark:bg-[#2a2a2a] dark:hover:bg-zinc-700"
-                  >
-                    {saving ? "Сохранение..." : "💾 Сохранить"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleSave("published")}
-                    disabled={saving}
-                    className="rounded bg-[#1a4d2e] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2d7a4f] disabled:opacity-50 dark:bg-[#4ade80] dark:text-black dark:hover:bg-[#86efac]"
-                  >
-                    {saving ? "Сохранение..." : "🚀 Опубликовать"}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => void handleSave("published")}
+                  disabled={saving}
+                  className="rounded bg-[#1a4d2e] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2d7a4f] disabled:opacity-50 dark:bg-[#4ade80] dark:text-black dark:hover:bg-[#86efac]"
+                >
+                  {saving ? "Сохранение..." : "🚀 Опубликовать"}
+                </button>
               </div>
-            ) : null}
+            </div>
         </main>
       </div>
 
@@ -949,14 +837,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                 selectAssetFromPanel(id);
                 if (id !== null) closeMediaPanel();
               }}
-              onUpload={async (event) => {
-                if (activeMediaPanel?.kind.startsWith("infographic-")) {
-                  const cardIndex = activeMediaPanel.cardIndex ?? 0;
-                  await handleInfographicUpload(cardIndex, activeMediaPanel.kind as "infographic-image" | "infographic-video" | "infographic-corner-icon", event);
-                } else {
-                  await handleCoverUpload(event);
-                }
-              }}
+              onUpload={handleCoverUpload}
               uploadLabel="Загрузить новый файл"
             />
           </div>
@@ -968,165 +849,3 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   );
 }
 
-type HomepageEditorProps = {
-  form: FormState;
-  updateForm: <K extends keyof FormState>(key: K, value: FormState[K]) => void;
-  activeInfographicVersion: EditorInfographicVersion;
-  setActiveInfographicVersion: (version: EditorInfographicVersion) => void;
-  openInfographicMediaPanel: (kind: "infographic-image" | "infographic-video" | "infographic-corner-icon", cardIndex: number) => void;
-  onSave: () => void;
-  saving: boolean;
-};
-
-function HomepageEditor({
-  form,
-  updateForm,
-  activeInfographicVersion,
-  setActiveInfographicVersion,
-  openInfographicMediaPanel,
-  onSave,
-  saving,
-}: HomepageEditorProps) {
-  const inputClassName =
-    "w-full rounded border border-black/10 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:border-emerald-600 dark:border-white/10 dark:bg-[#141414] dark:text-zinc-100";
-  const selectClassName =
-    "w-full cursor-pointer rounded border border-black/10 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-emerald-600 dark:border-white/10 dark:bg-[#141414] dark:text-zinc-100";
-
-  const activeCards = activeInfographicVersion === "desktop"
-    ? form.infographicCardsDesktop
-    : activeInfographicVersion === "tablet"
-      ? form.infographicCardsTablet
-      : form.infographicCardsMobile;
-
-  function updateCard(index: number, next: EditorInfographicCard) {
-    if (activeInfographicVersion === "desktop") {
-      updateForm("infographicCardsDesktop", form.infographicCardsDesktop.map((card, i) => (i === index ? next : card)));
-    } else if (activeInfographicVersion === "tablet") {
-      updateForm("infographicCardsTablet", form.infographicCardsTablet.map((card, i) => (i === index ? next : card)));
-    } else {
-      updateForm("infographicCardsMobile", form.infographicCardsMobile.map((card, i) => (i === index ? next : card)));
-    }
-  }
-
-  return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-950/20 dark:text-amber-200">
-        Раздел работает в режиме singleton: он показывает реальные данные из модели homepage. Создание и удаление отдельных записей инфографики недоступно.
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Заголовок секции инфографики</label>
-          <input value={form.infographicTitle} onChange={(event) => updateForm("infographicTitle", event.target.value)} className={inputClassName} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-300">Описание секции инфографики</label>
-          <input value={form.infographicDescription} onChange={(event) => updateForm("infographicDescription", event.target.value)} className={inputClassName} />
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {INFOGRAPHIC_VIEWPORTS.map((version) => (
-          <button
-            key={version}
-            type="button"
-            onClick={() => setActiveInfographicVersion(version)}
-            className={`rounded px-3 py-1.5 text-xs font-medium ${activeInfographicVersion === version ? "bg-[#1a4d2e] text-white dark:bg-[#4ade80] dark:text-black" : "border border-black/10 bg-white text-zinc-600 hover:bg-zinc-100 dark:border-white/10 dark:bg-[#141414] dark:text-zinc-300 dark:hover:bg-zinc-800"}`}
-          >
-            {INFOGRAPHIC_VIEWPORT_LABELS[version]} ({INFOGRAPHIC_VIEWPORT_CARD_COUNTS[version]})
-          </button>
-        ))}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {activeCards.map((card, index) => (
-          <div key={`${activeInfographicVersion}-${index}`} className="rounded-lg border border-black/10 bg-[#f5f5f5] p-3 dark:border-white/10 dark:bg-[#1e1e1e]">
-            <div className="mb-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">Карточка {index + 1}</div>
-            <div className="grid gap-2">
-              <input
-                type="text"
-                value={card.title ?? ""}
-                onChange={(event) => updateCard(index, { ...card, title: event.target.value })}
-                placeholder="Заголовок"
-                className={inputClassName}
-              />
-              <input
-                type="text"
-                value={card.description ?? ""}
-                onChange={(event) => updateCard(index, { ...card, description: event.target.value })}
-                placeholder="Описание"
-                className={inputClassName}
-              />
-              <input
-                type="text"
-                value={card.href ?? ""}
-                onChange={(event) => updateCard(index, { ...card, href: event.target.value })}
-                placeholder="Ссылка"
-                className={inputClassName}
-              />
-              <input
-                type="text"
-                value={card.accentText ?? ""}
-                onChange={(event) => updateCard(index, { ...card, accentText: event.target.value })}
-                placeholder="Акцентный текст"
-                className={inputClassName}
-              />
-              <select
-                value={card.shape ?? "square"}
-                onChange={(event) => updateCard(index, { ...card, shape: event.target.value as EditorInfographicCard["shape"] })}
-                className={selectClassName}
-              >
-                <option value="square">Квадрат</option>
-                <option value="rectangle">Прямоугольник</option>
-                <option value="circle">Круг</option>
-              </select>
-              <select
-                value={card.theme ?? "light"}
-                onChange={(event) => updateCard(index, { ...card, theme: event.target.value as "light" | "dark" })}
-                className={selectClassName}
-              >
-                <option value="light">Светлая</option>
-                <option value="dark">Тёмная</option>
-              </select>
-
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => openInfographicMediaPanel("infographic-image", index)}
-                  className="rounded border border-black/10 px-2 py-1.5 text-[10px] hover:bg-zinc-100 dark:border-white/10 dark:hover:bg-zinc-800"
-                >
-                  Фон: {card.backgroundImage ? `ID ${card.backgroundImage}` : "нет"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openInfographicMediaPanel("infographic-video", index)}
-                  className="rounded border border-black/10 px-2 py-1.5 text-[10px] hover:bg-zinc-100 dark:border-white/10 dark:hover:bg-zinc-800"
-                >
-                  Видео: {card.backgroundVideo ? `ID ${card.backgroundVideo}` : "нет"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => openInfographicMediaPanel("infographic-corner-icon", index)}
-                  className="rounded border border-black/10 px-2 py-1.5 text-[10px] hover:bg-zinc-100 dark:border-white/10 dark:hover:bg-zinc-800"
-                >
-                  Иконка: {card.cornerIcon ? `ID ${card.cornerIcon}` : "нет"}
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={saving}
-          className="rounded bg-[#1a4d2e] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2d7a4f] disabled:opacity-50 dark:bg-[#4ade80] dark:text-black dark:hover:bg-[#86efac]"
-        >
-          {saving ? "Сохранение..." : "💾 Сохранить настройки"}
-        </button>
-      </div>
-    </div>
-  );
-}
