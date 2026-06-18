@@ -483,6 +483,19 @@ export function filterAssetsByAccept(assets: UploadedAsset[], accept: "image" | 
     : asset.mime?.startsWith("video/"));
 }
 
+export function mergeMediaAssets(current: UploadedAsset[], incoming: UploadedAsset[]): UploadedAsset[] {
+  const incomingIds = new Set(incoming.map((asset) => asset.id));
+  const merged = [...incoming];
+
+  for (const asset of current) {
+    if (!incomingIds.has(asset.id)) {
+      merged.push(asset);
+    }
+  }
+
+  return merged;
+}
+
 export function collectFormMediaIds(form: FormState): number[] {
   const ids = new Set<number>();
 

@@ -35,6 +35,7 @@ import {
   publicPath,
   isMediaCollectionBlock,
   collectFormMediaIds,
+  mergeMediaAssets,
 } from "./utils";
 
 import type {
@@ -466,7 +467,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       const targetKind = activeMediaPanel?.kind;
       updateForm(targetKind === "archive-cover" ? "archiveCover" : "cover", id);
       const mediaPayload = await refreshMediaAssets();
-      if (mediaPayload) setMediaAssets(mediaPayload);
+      if (mediaPayload) setMediaAssets((current) => mergeMediaAssets(current, mediaPayload));
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить обложку.");
     } finally {
@@ -480,21 +481,40 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     setError(null);
     try {
       const uploadedIds = await Promise.all(files.map((file) => uploadFile(file)));
-      const block = form.blocks[index];
-      if (!block) return;
 
-      if (block.__component === "blocks.image-highlight") {
-        updateBlock(index, { ...block, image: uploadedIds[0] ?? null });
-        const mediaPayload = await refreshMediaAssets();
-        if (mediaPayload) setMediaAssets(mediaPayload);
+      setForm((current) => {
+        const block = current.blocks[index];
+        if (!block) return current;
+
+        if (block.__component === "blocks.image-highlight") {
+          return {
+            ...current,
+            blocks: current.blocks.map((b, i) =>
+              i === index ? { ...b, image: uploadedIds[0] ?? null } : b
+            ),
+          };
+        }
+
+        if (isMediaCollectionBlock(block)) {
+          return {
+            ...current,
+            blocks: current.blocks.map((b, i) =>
+              i === index && (b.__component === "blocks.image-gallery" || b.__component === "blocks.image-slider")
+                ? { ...b, images: [...b.images, ...uploadedIds] }
+                : b
+            ),
+          };
+        }
+
+        return current;
+      });
+
+      const mediaPayload = await refreshMediaAssets();
+      if (mediaPayload) setMediaAssets((current) => mergeMediaAssets(current, mediaPayload));
+
+      const targetBlock = form.blocks[index];
+      if (targetBlock?.__component === "blocks.image-highlight") {
         openHighlightMediaPanel(index);
-        return;
-      }
-
-      if (isMediaCollectionBlock(block)) {
-        updateBlock(index, { ...block, images: [...block.images, ...uploadedIds] });
-        const mediaPayload = await refreshMediaAssets();
-        if (mediaPayload) setMediaAssets(mediaPayload);
       }
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить изображение.");
@@ -511,7 +531,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
       const uploadedIds = await Promise.all(files.map((file) => uploadFile(file)));
       setForm((current) => ({ ...current, photos: [...current.photos, ...uploadedIds] }));
       const mediaPayload = await refreshMediaAssets();
-      if (mediaPayload) setMediaAssets(mediaPayload);
+      if (mediaPayload) setMediaAssets((current) => mergeMediaAssets(current, mediaPayload));
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Не удалось загрузить изображение.");
     } finally {
