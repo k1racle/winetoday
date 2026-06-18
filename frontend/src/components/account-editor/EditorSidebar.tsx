@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { EditorContentType, EditorEntrySummary, EditorSession } from "./types";
 import { timeAgoLabel } from "./utils";
 
@@ -49,6 +49,7 @@ export function EditorSidebar({
   totalPages,
   onPageChange,
 }: EditorSidebarProps) {
+  const [mobileOpen, setMobileOpen] = useState(false);
   const normalizedQuery = query.trim().toLowerCase();
   const currentItems = useMemo(() => items[selectedType] ?? [], [items, selectedType]);
   const filteredItems = useMemo(() => {
@@ -61,8 +62,18 @@ export function EditorSidebar({
   const startIndex = (page - 1) * itemsPerPage;
   const visibleItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
 
-  return (
-    <aside className="sticky top-14 h-[calc(100vh-3.5rem)] w-60 min-w-[15rem] overflow-y-auto border-r border-black/10 bg-[#f5f5f5] dark:border-white/10 dark:bg-[#1e1e1e]">
+  function handleSelectType(type: EditorContentType) {
+    onSelectType(type);
+    setMobileOpen(false);
+  }
+
+  function handleSelectItem(type: EditorContentType, documentId: string) {
+    onSelectItem(type, documentId);
+    setMobileOpen(false);
+  }
+
+  const sidebarContent = (
+    <>
       <div className="flex items-center gap-3 border-b border-black/10 p-4 dark:border-white/10">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#1a4d2e] to-[#2d7a4f] text-sm font-semibold text-white dark:from-[#4ade80] dark:to-[#86efac] dark:text-black">
           {session?.user?.memberProfile?.displayName?.[0]?.toUpperCase() || session?.user?.username?.[0]?.toUpperCase() || "?"}
@@ -85,7 +96,7 @@ export function EditorSidebar({
             <button
               key={type}
               type="button"
-              onClick={() => onSelectType(type)}
+              onClick={() => handleSelectType(type)}
               className={`mb-1 flex w-full items-center gap-2 rounded px-3 py-2 text-sm transition-colors ${
                 isActive
                   ? "bg-emerald-100 font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200"
@@ -125,7 +136,7 @@ export function EditorSidebar({
             <button
               key={item.documentId}
               type="button"
-              onClick={() => onSelectItem(selectedType, item.documentId)}
+              onClick={() => handleSelectItem(selectedType, item.documentId)}
               className="w-full rounded p-2 text-left transition-colors hover:bg-zinc-200 dark:hover:bg-zinc-800"
             >
               <div className="truncate text-xs font-medium text-zinc-900 dark:text-zinc-100">{item.title}</div>
@@ -166,6 +177,55 @@ export function EditorSidebar({
           </div>
         ) : null}
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setMobileOpen(true)}
+        className="fixed left-4 top-36 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-[#1a4d2e] text-white shadow-lg transition-colors hover:bg-[#2d7a4f] dark:bg-[#4ade80] dark:text-black dark:hover:bg-[#86efac] lg:hidden"
+        aria-label="Открыть боковую панель"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      <aside className="hidden lg:sticky lg:top-14 lg:block lg:h-[calc(100vh-3.5rem)] lg:w-60 lg:min-w-[15rem] lg:overflow-y-auto lg:border-r lg:border-black/10 lg:bg-[#f5f5f5] lg:dark:border-white/10 lg:dark:bg-[#1e1e1e]">
+        {sidebarContent}
+      </aside>
+
+      <div
+        className={`fixed inset-0 z-50 lg:hidden ${mobileOpen ? "pointer-events-auto visible" : "pointer-events-none invisible"}`}
+        aria-hidden={!mobileOpen}
+      >
+        <div
+          className={`absolute inset-0 bg-black/50 transition-opacity ${mobileOpen ? "opacity-100" : "opacity-0"}`}
+          onClick={() => setMobileOpen(false)}
+        />
+        <aside
+          className={`absolute left-0 top-0 h-full w-72 overflow-y-auto border-r border-black/10 bg-[#f5f5f5] transition-transform dark:border-white/10 dark:bg-[#1e1e1e] ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+        >
+          <div className="flex items-center justify-end border-b border-black/10 p-3 dark:border-white/10">
+            <button
+              type="button"
+              onClick={() => setMobileOpen(false)}
+              className="flex h-8 w-8 items-center justify-center rounded text-zinc-500 transition-colors hover:bg-zinc-200 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              aria-label="Закрыть боковую панель"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+          {sidebarContent}
+        </aside>
+      </div>
+    </>
   );
 }
