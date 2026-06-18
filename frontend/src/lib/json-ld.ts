@@ -68,6 +68,30 @@ export function buildOrganizationJsonLd(settings?: GlobalSettings | null) {
   };
 }
 
+type FaqItem = {
+  question: string;
+  answer: string;
+};
+
+export function buildFaqPageJsonLd(items: FaqItem[], path?: string) {
+  const siteUrl = toAbsoluteSiteUrl("/", SITE_URL) ?? SITE_URL;
+  const pageUrl = path ? toAbsoluteSiteUrl(path, SITE_URL) : siteUrl;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    url: pageUrl,
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+}
+
 export function buildWebSiteJsonLd(settings?: GlobalSettings | null) {
   const siteUrl = toAbsoluteSiteUrl("/", SITE_URL) ?? SITE_URL;
 

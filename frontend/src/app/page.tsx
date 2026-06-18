@@ -29,6 +29,7 @@ import { HomepageSpecialVideoCarousel } from "@/components/homepage-special-vide
 import { HomepageNewsSidebar, type HomepageNewsSidebarItem } from "@/components/homepage-news-sidebar";
 import { SidebarPanel } from "@/components/sidebar-panel";
 import { buildWebPageJsonLd } from "@/lib/json-ld";
+import { homeFaqJsonLd } from "@/lib/faq-data";
 
 export const revalidate = 120;
 
@@ -509,6 +510,9 @@ export default async function Home() {
     <main className="px-4 py-10 text-foreground max-md:pt-0 sm:px-8 lg:px-12">
       <Script id="home-webpage-jsonld" type="application/ld+json">
         {JSON.stringify(homeJsonLd)}
+      </Script>
+      <Script id="home-faq-jsonld" type="application/ld+json">
+        {JSON.stringify(homeFaqJsonLd)}
       </Script>
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-10 max-md:-mx-4 max-md:mt-2 max-md:w-[calc(100%+2rem)]">
         <div className="grid gap-8 px-4 max-md:pt-0 sm:px-0">
