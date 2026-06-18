@@ -71,7 +71,18 @@ export function getRecordId(value: unknown) {
     return null;
   }
 
-  return typeof value.id === "number" ? value.id : null;
+  if (typeof value.id === "number") {
+    return value.id;
+  }
+
+  if (typeof value.id === "string") {
+    const parsed = Number(value.id);
+    if (Number.isInteger(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+
+  return null;
 }
 
 export function resolveRelationId(value: unknown): number | null {

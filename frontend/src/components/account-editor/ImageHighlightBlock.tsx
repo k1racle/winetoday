@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MediaPicker, MediaSummaryCard } from "./media";
 import type { EditorHighlightBlock, UploadedAsset } from "./types";
 
@@ -17,6 +17,18 @@ type ImageHighlightBlockProps = {
 export function ImageHighlightBlock({ block, assets, onChange, onUpload }: ImageHighlightBlockProps) {
   const [isOpen, setIsOpen] = useState(false);
   const selectedAsset = assets.find((asset) => asset.id === block.image) ?? null;
+
+  useEffect(() => {
+    if (block.image !== null && selectedAsset === null) {
+      // eslint-disable-next-line no-console
+      console.warn('[ImageHighlightBlock] image id set but asset not found', {
+        imageId: block.image,
+        imageIdType: typeof block.image,
+        assetsCount: assets.length,
+        assetIds: assets.map((asset) => ({ id: asset.id, type: typeof asset.id, name: asset.name })),
+      });
+    }
+  }, [block.image, selectedAsset, assets]);
 
   return (
     <div className="grid gap-3">
