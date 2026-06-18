@@ -112,9 +112,9 @@ function buildEditorPopulate(type: EditorType) {
         on: {
           'blocks.html-editor': true,
           'blocks.embed': true,
-          'blocks.image-highlight': { populate: ['image'] },
-          'blocks.image-gallery': { populate: ['images'] },
-          'blocks.image-slider': { populate: ['images'] },
+          'blocks.image-highlight': { populate: { image: true } },
+          'blocks.image-gallery': { populate: { images: true } },
+          'blocks.image-slider': { populate: { images: true } },
         },
       },
       seo: true,
@@ -138,9 +138,9 @@ function buildEditorPopulate(type: EditorType) {
       on: {
         'blocks.html-editor': true,
         'blocks.embed': true,
-        'blocks.image-highlight': { populate: ['image'] },
-        'blocks.image-gallery': { populate: ['images'] },
-        'blocks.image-slider': { populate: ['images'] },
+        'blocks.image-highlight': { populate: { image: true } },
+        'blocks.image-gallery': { populate: { images: true } },
+        'blocks.image-slider': { populate: { images: true } },
       },
     },
     author: true,
@@ -1203,6 +1203,14 @@ export default factories.createCoreController('api::member-profile.member-profil
 
     if (!resolvedItem) {
       throw new NotFoundError('Материал не найден.');
+    }
+
+    const contentBlocks = Array.isArray(resolvedItem.content) ? resolvedItem.content : [];
+    const highlightBlocks = contentBlocks.filter((block: any) => block?.__component === 'blocks.image-highlight');
+    if (highlightBlocks.length) {
+      strapi.log.info(
+        `[editor.content] type=${rawType} documentId=${documentId} highlightBlocks=${highlightBlocks.length} imageShapes=${highlightBlocks.map((block: any) => (block.image == null ? 'null' : typeof block.image === 'object' ? `obj(id=${block.image?.id ?? '?'})` : `raw(${block.image})`)).join(', ')}`,
+      );
     }
 
     ctx.body = mergeEditorStatus(resolvedItem, publishedItem ?? null);

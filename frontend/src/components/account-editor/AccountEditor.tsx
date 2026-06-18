@@ -226,6 +226,14 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   }, [allowedTypes, form.documentId, loading, requestedDocumentId, requestedType, selectedType]);
   /* eslint-enable react-hooks/exhaustive-deps */
 
+  // Ensure media assets are loaded for the current form (covers save responses and edge cases)
+  /* eslint-disable react-hooks/exhaustive-deps */
+  useEffect(() => {
+    if (loading || !form.documentId) return;
+    void ensureMediaAssetsForForm(form);
+  }, [form.documentId]);
+  /* eslint-enable react-hooks/exhaustive-deps */
+
   function updateForm<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
   }
@@ -608,7 +616,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
         throw new Error(getErrorMessage(saved as EditorApiError | null, "Не удалось сохранить материал."));
       }
 
-      setForm(normalizeFormState(selectedType, saved));
+      const nextForm = normalizeFormState(selectedType, saved);
+      setForm(nextForm);
+      await ensureMediaAssetsForForm(nextForm);
       await refreshType(selectedType);
       setSuccess(form.documentId ? "Материал обновлён." : "Материал создан.");
     } catch (saveError) {
