@@ -762,7 +762,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#141414]">
+    <div className="min-h-screen bg-white pt-14 dark:bg-[#141414]">
       <EditorTopbar session={session} onHelpClick={() => setHelpOpen(true)} />
 
       <EditorBreadcrumb
@@ -772,7 +772,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
         status={form.status}
       />
 
-      <div className="flex pt-5">
+      <div className="flex">
         <EditorSidebar
           session={session}
           items={items}
@@ -821,7 +821,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                 saving={saving}
               />
             ) : (
-              <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+              <div className="grid gap-5 lg:grid-cols-[1fr_360px]">
                 <div className="space-y-4">
                   <BasicInfoPanel
                     form={form}

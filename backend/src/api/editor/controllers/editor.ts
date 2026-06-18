@@ -1270,7 +1270,7 @@ export default factories.createCoreController('api::member-profile.member-profil
 
     const assets = await strapi.db.query('plugin::upload.file').findMany({
       orderBy: { createdAt: 'desc' },
-      limit: 100,
+      limit: 10000,
     });
 
     ctx.body = assets.map((asset: Record<string, any>) => serializeUploadedAsset(asset));
