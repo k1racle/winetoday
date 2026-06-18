@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { generateHTML, generateJSON } from "@tiptap/html";
 import { serializeTiptapDocument, tiptapExtensions } from "@/lib/tiptap";
@@ -9,6 +8,7 @@ import { isEditorContentType } from "@/lib/editor-shared";
 import type { EditorContentType, EditorEntrySummary } from "@/lib/editor-shared";
 
 import { EditorTopbar } from "./EditorTopbar";
+import { EditorBreadcrumb } from "./EditorBreadcrumb";
 import { EditorSidebar } from "./EditorSidebar";
 import { EditorToolbar } from "./EditorToolbar";
 import { BasicInfoPanel } from "./BasicInfoPanel";
@@ -763,9 +763,16 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#141414]">
-      <EditorTopbar session={session} documentId={form.documentId} onHelpClick={() => setHelpOpen(true)} />
+      <EditorTopbar session={session} onHelpClick={() => setHelpOpen(true)} />
 
-      <div className="flex pt-14">
+      <EditorBreadcrumb
+        type={selectedType}
+        documentId={form.documentId}
+        publicPath={materialPublicPath}
+        status={form.status}
+      />
+
+      <div className="flex pt-5">
         <EditorSidebar
           session={session}
           items={items}
@@ -784,28 +791,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
         />
 
         <main className="flex-1 p-5 lg:p-6">
-          <div className="mx-auto max-w-6xl">
-            <div className="mb-5">
-              <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
-                {selectedType === "homepage" ? "Настройки инфографики" : form.documentId ? "Редактирование материала" : "Создание материала"}
-              </h1>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {selectedType === "homepage"
-                  ? "Редактирование единственной системной записи главной страницы."
-                  : "Полноценное редактирование контента с блоками и rich text."}
-              </p>
-              {materialPublicPath && form.status === "published" && selectedType !== "homepage" ? (
-                <Link
-                  href={materialPublicPath}
-                  target="_blank"
-                  className="mt-2 inline-flex w-fit items-center gap-1 rounded border border-emerald-600 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:hover:bg-emerald-500/10"
-                >
-                  ↗ Перейти к материалу
-                </Link>
-              ) : null}
-            </div>
-
-            {error ? (
+          {error ? (
               <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-950/30 dark:text-red-200">{error}</div>
             ) : null}
             {success ? (
@@ -945,7 +931,6 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
                 </div>
               </div>
             ) : null}
-          </div>
         </main>
       </div>
 

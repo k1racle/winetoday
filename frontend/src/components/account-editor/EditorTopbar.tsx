@@ -7,11 +7,10 @@ import { getAuthModeLabel, resolveAuthMode } from "@/lib/auth-shared";
 
 type EditorTopbarProps = {
   session: EditorSession | null;
-  documentId: string | null;
   onHelpClick?: (event: MouseEvent<HTMLButtonElement>) => void;
 };
 
-export function EditorTopbar({ session, documentId, onHelpClick }: EditorTopbarProps) {
+export function EditorTopbar({ session, onHelpClick }: EditorTopbarProps) {
   const [isDark, setIsDark] = useState(() => {
     if (typeof document === "undefined") {
       return false;
@@ -46,18 +45,9 @@ export function EditorTopbar({ session, documentId, onHelpClick }: EditorTopbarP
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center justify-between border-b border-black/10 bg-[#f5f5f5] px-5 dark:border-white/10 dark:bg-[#1e1e1e]">
-      <div className="flex items-center gap-4">
-        <Link href="/" className="text-base font-bold text-[#1a4d2e] dark:text-[#4ade80]">
-          ВИНОДЕЛИЕ <span className="text-zinc-900 dark:text-zinc-100">СЕГОДНЯ</span>
-        </Link>
-        <nav className="hidden items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-400 sm:flex">
-          <Link href="/" className="hover:text-zinc-700 dark:hover:text-zinc-300">Главная</Link>
-          <span>/</span>
-          <Link href="/account" className="hover:text-zinc-700 dark:hover:text-zinc-300">Редактор</Link>
-          <span>/</span>
-          <span className="text-zinc-900 dark:text-zinc-200">{documentId ? "Редактирование" : "Создание"}</span>
-        </nav>
-      </div>
+      <Link href="/" className="text-base font-bold text-[#1a4d2e] dark:text-[#4ade80]">
+        ВИНОДЕЛИЕ <span className="text-zinc-900 dark:text-zinc-100">СЕГОДНЯ</span>
+      </Link>
 
       <div className="flex items-center gap-2">
         <button

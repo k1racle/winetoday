@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
-import { tiptapExtensions } from "@/lib/tiptap";
+import { createEmptyTiptapDocument, parseTiptapDocument, tiptapExtensions } from "@/lib/tiptap";
 import type { EditorHtmlEditorBlock } from "./types";
 
 const toolbarButtonClass =
@@ -9,6 +10,9 @@ const toolbarButtonClass =
 
 const toolbarSelectClass =
   "h-7 rounded border border-black/10 bg-white px-1.5 text-xs text-zinc-700 outline-none dark:border-white/10 dark:bg-[#141414] dark:text-zinc-200";
+
+const inputClassName =
+  "w-full rounded border-0 bg-transparent px-2 py-1.5 text-sm font-medium text-zinc-900 outline-none placeholder:text-zinc-400 focus:ring-0 dark:text-zinc-100";
 
 type HtmlEditorBlockProps = {
   block: EditorHtmlEditorBlock;
@@ -18,11 +22,24 @@ type HtmlEditorBlockProps = {
 export function HtmlEditorBlock({ block, onChange }: HtmlEditorBlockProps) {
   const editor = useEditor({
     extensions: tiptapExtensions,
-    content: block.content,
+    content: typeof block.content === "string" ? parseTiptapDocument(block.content) ?? createEmptyTiptapDocument() : block.content,
     onUpdate: ({ editor: updatedEditor }) => {
       onChange({ ...block, content: updatedEditor.getJSON() });
     },
   });
+
+  useEffect(() => {
+    if (!editor || editor.isDestroyed) {
+      return;
+    }
+
+    const nextContent = typeof block.content === "string" ? parseTiptapDocument(block.content) ?? createEmptyTiptapDocument() : block.content;
+    const currentContent = editor.getJSON();
+
+    if (JSON.stringify(currentContent) !== JSON.stringify(nextContent)) {
+      editor.commands.setContent(nextContent, { emitUpdate: false });
+    }
+  }, [block.content, editor]);
 
   if (!editor) {
     return <div className="min-h-[140px] rounded border border-black/10 bg-white p-3 dark:border-white/10 dark:bg-[#141414]">Загрузка редактора...</div>;
@@ -30,6 +47,15 @@ export function HtmlEditorBlock({ block, onChange }: HtmlEditorBlockProps) {
 
   return (
     <div className="rounded border border-black/10 bg-white dark:border-white/10 dark:bg-[#141414]">
+      <div className="border-b border-black/10 bg-[#f5f5f5] p-2 dark:border-white/10 dark:bg-[#1e1e1e]">
+        <input
+          type="text"
+          value={block.title ?? ""}
+          onChange={(event) => onChange({ ...block, title: event.target.value })}
+          placeholder="Заголовок блока (необязательно)"
+          className={inputClassName}
+        />
+      </div>
       <div className="flex flex-wrap items-center gap-1 border-b border-black/10 bg-[#eeeeee] p-1.5 dark:border-white/10 dark:bg-[#2a2a2a]">
         <select
           value={editor.isActive("heading", { level: 2 }) ? "h2" : editor.isActive("heading", { level: 3 }) ? "h3" : "p"}
