@@ -8,9 +8,10 @@ import { getAuthModeLabel, resolveAuthMode } from "@/lib/auth-shared";
 type EditorTopbarProps = {
   session: EditorSession | null;
   onHelpClick?: (event: MouseEvent<HTMLButtonElement>) => void;
+  onMenuClick?: () => void;
 };
 
-export function EditorTopbar({ session, onHelpClick }: EditorTopbarProps) {
+export function EditorTopbar({ session, onHelpClick, onMenuClick }: EditorTopbarProps) {
   const [isDark, setIsDark] = useState(() => {
     if (typeof document === "undefined") {
       return false;
@@ -45,9 +46,23 @@ export function EditorTopbar({ session, onHelpClick }: EditorTopbarProps) {
 
   return (
     <header className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center justify-between border-b border-black/10 bg-[#f5f5f5] px-5 dark:border-white/10 dark:bg-[#1e1e1e]">
-      <Link href="/" className="text-base font-bold text-[#1a4d2e] dark:text-[#4ade80]">
-        ВИНОДЕЛИЕ <span className="text-zinc-900 dark:text-zinc-100">СЕГОДНЯ</span>
-      </Link>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          className="flex h-8 w-8 items-center justify-center rounded border border-black/10 bg-[#eeeeee] text-base text-zinc-600 transition-colors hover:border-[#1a4d2e] hover:text-[#1a4d2e] dark:border-white/10 dark:bg-[#2a2a2a] dark:text-zinc-300 dark:hover:border-[#4ade80] dark:hover:text-[#4ade80] lg:hidden"
+          aria-label="Открыть меню"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <Link href="/" className="text-base font-bold text-[#1a4d2e] dark:text-[#4ade80]">
+          ВИНОДЕЛИЕ <span className="text-zinc-900 dark:text-zinc-100">СЕГОДНЯ</span>
+        </Link>
+      </div>
 
       <div className="flex items-center gap-2">
         <button

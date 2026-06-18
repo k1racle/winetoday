@@ -33,6 +33,9 @@ type EditorSidebarProps = {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  mobileOpen?: boolean;
+  onMobileOpenChange?: (open: boolean) => void;
+  onHelpClick?: () => void;
 };
 
 export function EditorSidebar({
@@ -48,8 +51,16 @@ export function EditorSidebar({
   page,
   totalPages,
   onPageChange,
+  mobileOpen: mobileOpenProp,
+  onMobileOpenChange,
+  onHelpClick,
 }: EditorSidebarProps) {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [internalMobileOpen, setInternalMobileOpen] = useState(false);
+  const mobileOpen = mobileOpenProp ?? internalMobileOpen;
+  const setMobileOpen = (open: boolean) => {
+    setInternalMobileOpen(open);
+    onMobileOpenChange?.(open);
+  };
   const normalizedQuery = query.trim().toLowerCase();
   const currentItems = useMemo(() => items[selectedType] ?? [], [items, selectedType]);
   const filteredItems = useMemo(() => {
@@ -70,6 +81,11 @@ export function EditorSidebar({
   function handleSelectItem(type: EditorContentType, documentId: string) {
     onSelectItem(type, documentId);
     setMobileOpen(false);
+  }
+
+  function handleHelpClick() {
+    setMobileOpen(false);
+    onHelpClick?.();
   }
 
   const sidebarContent = (
@@ -182,19 +198,6 @@ export function EditorSidebar({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setMobileOpen(true)}
-        className="fixed left-4 top-36 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-[#1a4d2e] text-white shadow-lg transition-colors hover:bg-[#2d7a4f] dark:bg-[#4ade80] dark:text-black dark:hover:bg-[#86efac] lg:hidden"
-        aria-label="Открыть боковую панель"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="3" y1="12" x2="21" y2="12" />
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <line x1="3" y1="18" x2="21" y2="18" />
-        </svg>
-      </button>
-
       <aside className="hidden lg:sticky lg:top-14 lg:block lg:h-[calc(100vh-3.5rem)] lg:w-60 lg:min-w-[15rem] lg:overflow-y-auto lg:border-r lg:border-black/10 lg:bg-[#f5f5f5] lg:dark:border-white/10 lg:dark:bg-[#1e1e1e]">
         {sidebarContent}
       </aside>
@@ -208,7 +211,7 @@ export function EditorSidebar({
           onClick={() => setMobileOpen(false)}
         />
         <aside
-          className={`absolute left-0 top-0 h-full w-72 overflow-y-auto border-r border-black/10 bg-[#f5f5f5] transition-transform dark:border-white/10 dark:bg-[#1e1e1e] ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
+          className={`absolute left-0 top-0 flex h-full w-72 flex-col border-r border-black/10 bg-[#f5f5f5] transition-transform dark:border-white/10 dark:bg-[#1e1e1e] ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}
         >
           <div className="flex items-center justify-end border-b border-black/10 p-3 dark:border-white/10">
             <button
@@ -223,7 +226,21 @@ export function EditorSidebar({
               </svg>
             </button>
           </div>
-          {sidebarContent}
+          <div className="flex-1 overflow-y-auto">
+            {sidebarContent}
+          </div>
+          {onHelpClick ? (
+            <div className="sticky bottom-0 border-t border-black/10 bg-[#f5f5f5] p-3 dark:border-white/10 dark:bg-[#1e1e1e] lg:hidden">
+              <button
+                type="button"
+                onClick={handleHelpClick}
+                className="flex w-full items-center justify-center gap-2 rounded border border-[#1a4d2e] bg-[#1a4d2e] px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#2d7a4f] dark:border-[#4ade80] dark:bg-[#4ade80] dark:text-black dark:hover:bg-[#86efac]"
+              >
+                <span>?</span>
+                Помощь
+              </button>
+            </div>
+          ) : null}
         </aside>
       </div>
     </>

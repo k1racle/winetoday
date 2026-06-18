@@ -83,6 +83,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   const [itemsPage, setItemsPage] = useState(1);
   const [activeMediaPanel, setActiveMediaPanel] = useState<ActiveMediaPanel>(null);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const allowedTypes = useMemo(() => sortEditorTypes(session?.capabilities.canCreate ?? []).filter((type) => type !== "homepage"), [session]);
   const canEditAll = session?.capabilities.canEditAll === true;
@@ -686,7 +687,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
 
   return (
     <div className="min-h-screen bg-white pt-14 dark:bg-[#141414]">
-      <EditorTopbar session={session} onHelpClick={() => setHelpOpen(true)} />
+      <EditorTopbar session={session} onHelpClick={() => setHelpOpen(true)} onMenuClick={() => setMobileMenuOpen(true)} />
 
       <EditorBreadcrumb
         type={selectedType}
@@ -712,6 +713,9 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
           page={visibleItemsPage}
           totalPages={totalItemsPages}
           onPageChange={(page) => setItemsPage(page)}
+          mobileOpen={mobileMenuOpen}
+          onMobileOpenChange={setMobileMenuOpen}
+          onHelpClick={() => setHelpOpen(true)}
         />
 
         <main className="flex-1 p-5 lg:p-6">
