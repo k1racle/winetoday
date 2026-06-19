@@ -189,7 +189,7 @@ export function HtmlEditorBlock({ block, onChange }: HtmlEditorBlockProps) {
       </div>
       <EditorContent
         editor={editor}
-        className="min-h-[140px] p-3 text-sm leading-relaxed outline-none prose prose-sm max-w-none dark:prose-invert"
+        className="min-h-[140px] cursor-text p-3 text-sm leading-relaxed outline-none prose prose-sm max-w-none dark:prose-invert [&_.ProseMirror]:min-h-[140px] [&_.ProseMirror]:outline-none"
       />
     </div>
   );
