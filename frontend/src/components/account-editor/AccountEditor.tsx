@@ -304,7 +304,7 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
   }
 
   function typografHtmlEditorContent(content: Extract<EditorBlock, { __component: "blocks.html-editor" }>["content"]) {
-    const html = typeof content === "string" ? content : generateHTML(content, []);
+    const html = typeof content === "string" ? content : generateHTML(content, tiptapExtensions);
     return generateJSON(typografText(html), tiptapExtensions);
   }
 
@@ -350,12 +350,13 @@ export function AccountEditor({ initialQuery }: AccountEditorProps) {
     setError(null);
     setSuccess(null);
     try {
-      setForm((current) => ({
-        ...current,
-        title: typografText(current.title),
-        excerpt: typografText(current.excerpt),
-        blocks: current.blocks.map((block) => typografBlock(block)),
-      }));
+      const nextForm = {
+        ...form,
+        title: typografText(form.title),
+        excerpt: typografText(form.excerpt),
+        blocks: form.blocks.map((block) => typografBlock(block)),
+      };
+      setForm(nextForm);
       setSuccess("Типограф применён.");
     } catch (typografError) {
       setError(typografError instanceof Error ? typografError.message : "Не удалось применить типограф.");
