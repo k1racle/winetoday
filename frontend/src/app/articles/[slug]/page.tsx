@@ -87,7 +87,7 @@ export default async function ArticleDetailPage({ params, searchParams }: PagePr
   return (
     <>
       {isPreview ? <DraftPreviewBanner type="статьи" /> : null}
-      <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
+      <main className="mx-auto w-full max-w-[1440px] py-10 sm:px-8 lg:px-10">
       <Script id="article-jsonld" type="application/ld+json">
         {JSON.stringify(articleJsonLd)}
       </Script>

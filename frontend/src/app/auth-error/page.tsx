@@ -19,7 +19,7 @@ export default async function AuthErrorPage({ searchParams }: AuthErrorPageProps
   const status = query.status?.trim();
 
   return (
-    <main className="mx-auto grid min-h-[60vh] w-full max-w-3xl place-items-center px-4 py-12 sm:px-6 lg:px-8">
+    <main className="mx-auto grid min-h-[60vh] w-full max-w-3xl place-items-center py-12 sm:px-6 lg:px-8">
       <section className="w-full border border-black/10 bg-white p-6 shadow-[0_18px_44px_-34px_rgba(15,23,42,0.35)] dark:border-white/10 dark:bg-[#12202d]">
         <p className="type-caption text-zinc-500 dark:text-zinc-400">Ошибка входа</p>
         <h1 className="type-h2 mt-2">Не удалось завершить вход</h1>

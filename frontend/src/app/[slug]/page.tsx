@@ -69,7 +69,7 @@ export default async function GenericPage({ params, searchParams }: PageProps) {
       <Script id="generic-page-jsonld" type="application/ld+json">
         {JSON.stringify(jsonLd)}
       </Script>
-      <main className="mx-auto w-full max-w-[1440px] px-4 py-10 sm:px-8 lg:px-10">
+      <main className="mx-auto w-full max-w-[1440px] py-10 sm:px-8 lg:px-10">
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <article className="min-w-0 w-full space-y-8 xl:px-[150px]">
           <MobileSidebarBridge sidebar={sidebar} />

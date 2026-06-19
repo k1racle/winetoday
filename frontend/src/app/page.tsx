@@ -507,7 +507,7 @@ export default async function Home() {
   const hasSpecialLeadMeta = Boolean(specialLeadDate || specialLeadTime || specialLeadCategory?.name);
 
   return (
-    <main className="px-4 py-10 text-foreground max-md:pt-0 sm:px-8 lg:px-12">
+    <main className="py-10 text-foreground max-md:pt-0 sm:px-8 lg:px-12">
       <Script id="home-webpage-jsonld" type="application/ld+json">
         {JSON.stringify(homeJsonLd)}
       </Script>

@@ -339,7 +339,7 @@ export default async function RootLayout({
 
             <AuthWidget label="Открыть вход" listenOnly />
 
-          <main className="flex-1 pb-3 md:pb-0">{children}</main>
+          <main className="flex-1 px-4 pb-3 md:px-0 md:pb-0">{children}</main>
 
           <footer
             className="mt-12 border-t border-black/5 dark:border-white/10"
