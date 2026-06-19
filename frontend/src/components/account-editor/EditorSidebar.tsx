@@ -1,27 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { EditorContentType, EditorEntrySummary, EditorSession } from "./types";
 import { timeAgoLabel } from "./utils";
-
-const TYPE_VIEW_LABELS: Record<string, string> = {
-  "api::article.article": "Статьи",
-  "api::news.news": "Новости",
-  "api::video.video": "Видео",
-  "api::gallery.gallery": "Галереи",
-};
-
-function formatViewsCount(value: number) {
-  if (value >= 1_000_000) {
-    return `${(value / 1_000_000).toFixed(1)}M`;
-  }
-
-  if (value >= 1_000) {
-    return `${(value / 1_000).toFixed(1)}K`;
-  }
-
-  return value.toString();
-}
 
 const TYPE_LABELS: Record<EditorContentType, string> = {
   article: "Статьи",
@@ -75,50 +56,7 @@ export function EditorSidebar({
   onHelpClick,
 }: EditorSidebarProps) {
   const [internalMobileOpen, setInternalMobileOpen] = useState(false);
-  const [authorStats, setAuthorStats] = useState<{ totalViews: number; byType: Record<string, number> } | null>(null);
-  const [loadingAuthorStats, setLoadingAuthorStats] = useState(false);
   const mobileOpen = mobileOpenProp ?? internalMobileOpen;
-
-  const authorId = session?.user?.memberProfile?.author?.id ?? null;
-
-  useEffect(() => {
-    if (!authorId) {
-      setAuthorStats(null);
-      return;
-    }
-
-    let cancelled = false;
-    setLoadingAuthorStats(true);
-
-    fetch(`/api/views/author-stats/${encodeURIComponent(String(authorId))}`, { cache: "no-store" })
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error("Failed to load stats");
-        }
-        const data = (await response.json()) as { totalViews?: number; byType?: Record<string, number> };
-        if (!cancelled) {
-          setAuthorStats({
-            totalViews: typeof data.totalViews === "number" ? data.totalViews : 0,
-            byType: data.byType && typeof data.byType === "object" ? data.byType : {},
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("[author-stats]", error);
-        if (!cancelled) {
-          setAuthorStats(null);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoadingAuthorStats(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [authorId]);
   const setMobileOpen = (open: boolean) => {
     setInternalMobileOpen(open);
     onMobileOpenChange?.(open);
@@ -163,30 +101,6 @@ export function EditorSidebar({
           </div>
         </div>
       </div>
-
-      {authorId ? (
-        <div className="border-b border-black/10 px-4 py-3 dark:border-white/10">
-          <div className="mb-1 px-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Статистика просмотров</div>
-          {loadingAuthorStats ? (
-            <div className="px-2 py-1 text-xs text-zinc-500 dark:text-zinc-400">Загрузка…</div>
-          ) : authorStats ? (
-            <div className="space-y-1">
-              <div className="flex items-center justify-between px-2">
-                <span className="text-xs font-medium text-zinc-800 dark:text-zinc-200">Всего</span>
-                <span className="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200">
-                  {formatViewsCount(authorStats.totalViews)}
-                </span>
-              </div>
-              {Object.entries(authorStats.byType).map(([uid, views]) => (
-                <div key={uid} className="flex items-center justify-between px-2">
-                  <span className="text-xs text-zinc-600 dark:text-zinc-400">{TYPE_VIEW_LABELS[uid] ?? uid}</span>
-                  <span className="text-[10px] text-zinc-500 dark:text-zinc-400">{formatViewsCount(views)}</span>
-                </div>
-              ))}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
 
       <div className="px-3 pt-3">
         <div className="mb-2 px-2 text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Тип материала</div>
