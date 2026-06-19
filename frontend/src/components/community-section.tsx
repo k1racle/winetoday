@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import type { AuthMode } from "@/lib/auth-shared";
+import { ViewTracker } from "@/components/view-tracker";
 
 type CommunitySettings = {
   allowGuestComments?: boolean | null;
@@ -65,6 +66,22 @@ type ReactionSummary = {
   liked: boolean;
   disliked?: boolean;
 };
+
+type ViewsSummary = {
+  count: number;
+};
+
+function formatViewsCount(value: number) {
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(1)}M`;
+  }
+
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(1)}K`;
+  }
+
+  return value.toString();
+}
 
 function formatCommunityDate(value?: string | null) {
   if (!value) {
@@ -178,8 +195,10 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
   const [session, setSession] = useState<SessionResponse>({ authenticated: false, user: null });
   const [comments, setComments] = useState<CommunityComment[]>([]);
   const [reactions, setReactions] = useState<ReactionSummary>({ count: 0, liked: false, disliked: false });
+  const [views, setViews] = useState<ViewsSummary>({ count: 0 });
   const [loadingComments, setLoadingComments] = useState(true);
   const [loadingReactions, setLoadingReactions] = useState(true);
+  const [loadingViews, setLoadingViews] = useState(true);
   const [body, setBody] = useState("");
   const [replyingToId, setReplyingToId] = useState<number | null>(null);
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
@@ -299,7 +318,31 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
       }
     }
 
-    void Promise.all([loadSettings(), loadComments(), loadReactions(), loadSession()]);
+    async function loadViews() {
+      try {
+        setLoadingViews(true);
+        const query = new URLSearchParams({ contentTypeUid, targetDocumentId });
+        const response = await fetch(`/api/views/summary?${query.toString()}`, { cache: "no-store" });
+        const data = (await response.json()) as ViewsSummary;
+
+        if (!cancelled) {
+          setViews({
+            count: typeof data?.count === "number" ? data.count : 0,
+          });
+        }
+      } catch (error) {
+        console.error("[community] views", error);
+        if (!cancelled) {
+          setViews({ count: 0 });
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingViews(false);
+        }
+      }
+    }
+
+    void Promise.all([loadSettings(), loadComments(), loadReactions(), loadViews(), loadSession()]);
 
     return () => {
       cancelled = true;
@@ -467,7 +510,9 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
   }
 
   return (
-    <section className="mt-10 space-y-8 border-t border-black/10 pt-8 dark:border-white/10">
+    <>
+      <ViewTracker contentTypeUid={contentTypeUid} documentId={targetDocumentId} slug={targetSlug} />
+      <section className="mt-10 space-y-8 border-t border-black/10 pt-8 dark:border-white/10">
       <div className="relative flex items-center justify-between gap-4 border-b border-black/10 pb-5 dark:border-white/10">
         <div className="flex items-center gap-5 text-zinc-600 dark:text-zinc-300">
           <button
@@ -491,6 +536,14 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
             </svg>
             {commentsCount > 0 ? <span>{commentsCount}</span> : null}
           </button>
+
+          <span className="inline-flex items-center gap-2 text-zinc-500 dark:text-zinc-400" aria-label={loadingViews ? "Просмотры загружаются" : `Просмотры: ${views.count}`}>
+            <svg viewBox="0 0 24 24" className="h-6 w-6 fill-none stroke-current" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M2.1 12S5.5 4.5 12 4.5 21.9 12 21.9 12 18.5 19.5 12 19.5 2.1 12 2.1 12Z" />
+              <circle cx="12" cy="12" r="3.5" />
+            </svg>
+            {!loadingViews && views.count > 0 ? <span>{formatViewsCount(views.count)}</span> : null}
+          </span>
         </div>
 
         <div className="flex items-center gap-5 text-zinc-600 dark:text-zinc-300">
@@ -612,5 +665,6 @@ export function CommunitySection({ contentTypeUid, targetDocumentId, targetSlug,
         ) : null}
       </div>
     </section>
+    </>
   );
 }

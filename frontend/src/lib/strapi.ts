@@ -572,6 +572,7 @@ export type ArticleSummary = {
   preview?: boolean | null;
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
+  views?: number | null;
   cover?: StrapiMedia | null;
   archiveCover?: StrapiMedia | null;
   author?: AuthorSummary | null;
@@ -599,6 +600,7 @@ export type NewsSummary = {
   preview?: boolean | null;
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
+  views?: number | null;
   cover?: StrapiMedia | null;
   archiveCover?: StrapiMedia | null;
   author?: AuthorSummary | null;
@@ -629,6 +631,7 @@ export type VideoSummary = {
   homepageLead?: boolean | null;
   homepageSpecialBlock?: boolean | null;
   preview?: boolean | null;
+  views?: number | null;
   author?: AuthorSummary | null;
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
@@ -651,6 +654,7 @@ export type GallerySummary = {
   preview?: boolean | null;
   publishedAt?: string | null;
   publishedAtCustom?: string | null;
+  views?: number | null;
   author?: AuthorSummary | null;
   categories?: CategorySummaryList | null;
 };
@@ -2237,6 +2241,7 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
     + "&fields[9]=publishedAt"
     + "&fields[10]=publishedAtCustom"
     + "&fields[11]=coverSource"
+    + "&fields[12]=views"
     + "&populate[cover]=true"
     + "&populate[author][fields][0]=name"
     + "&populate[author][fields][1]=slug"
@@ -2259,6 +2264,7 @@ export const getArticleBySlug = cache(async function getArticleBySlug(slug: stri
     + "&fields[8]=publishedAt"
     + "&fields[9]=publishedAtCustom"
     + "&fields[10]=coverSource"
+    + "&fields[11]=views"
     + "&populate[cover]=true"
     + "&populate[author][fields][0]=name"
     + "&populate[author][fields][1]=slug"
@@ -2390,7 +2396,7 @@ export async function getNews(): Promise<NewsSummary[]> {
 export const getNewsBySlug = cache(async function getNewsBySlug(slug: string, options?: { preview?: boolean }) {
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<NewsDetail[]>(
-      `/api/news-entries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=sourceName&fields[8]=sourceUrl&fields[9]=publishedAt&fields[10]=publishedAtCustom&fields[11]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      `/api/news-entries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=featured&fields[5]=pinned&fields[6]=homepageLead&fields[7]=sourceName&fields[8]=sourceUrl&fields[9]=publishedAt&fields[10]=publishedAtCustom&fields[11]=coverSource&fields[12]=views&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
       { preview: options?.preview },
     ),
     fetchStrapi<NewsDetail[]>(
@@ -2451,7 +2457,7 @@ export async function getVideos(): Promise<VideoSummary[]> {
 export const getVideoBySlug = cache(async function getVideoBySlug(slug: string, options?: { preview?: boolean }) {
   const [baseResponse, contentResponse] = await Promise.all([
     fetchStrapi<VideoSummary[]>(
-      `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=videoUrl&fields[5]=duration&fields[6]=pinned&fields[7]=homepageLead&fields[8]=publishedAt&fields[9]=publishedAtCustom&fields[10]=coverSource&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
+      `/api/videos?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=materialLabel&fields[4]=videoUrl&fields[5]=duration&fields[6]=pinned&fields[7]=homepageLead&fields[8]=publishedAt&fields[9]=publishedAtCustom&fields[10]=coverSource&fields[11]=views&populate[cover]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[tags][fields][0]=name&populate[tags][fields][1]=slug&populate[seo][populate][metaImage]=true`,
       { preview: options?.preview },
     ),
     fetchStrapi<VideoSummary[]>(
@@ -2508,7 +2514,7 @@ export async function getGalleries(): Promise<GallerySummary[]> {
 
 export const getGalleryBySlug = cache(async function getGalleryBySlug(slug: string, options?: { preview?: boolean }) {
   const response = await fetchStrapi<GalleryDetail[]>(
-    `/api/galleries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=publishedAt&fields[4]=publishedAtCustom&fields[5]=coverSource&populate[cover]=true&populate[photos]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[seo][populate][metaImage]=true`,
+    `/api/galleries?filters[slug][$eq]=${encodeURIComponent(slug)}&fields[0]=title&fields[1]=slug&fields[2]=excerpt&fields[3]=publishedAt&fields[4]=publishedAtCustom&fields[5]=coverSource&fields[6]=views&populate[cover]=true&populate[photos]=true&populate[author][fields][0]=name&populate[author][fields][1]=slug&populate[author][fields][2]=position&${CATEGORY_FIELDS_QUERY}&populate[seo][populate][metaImage]=true`,
     { preview: options?.preview },
   );
 
