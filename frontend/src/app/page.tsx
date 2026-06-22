@@ -31,7 +31,7 @@ import { SidebarPanel } from "@/components/sidebar-panel";
 import { buildWebPageJsonLd } from "@/lib/json-ld";
 import { homeFaqJsonLd } from "@/lib/faq-data";
 
-export const revalidate = 120;
+export const revalidate = 3600;
 
 // #region agent log
 const AGENT_DEBUG_ENDPOINT = "http://127.0.0.1:7308/ingest/e5b160b2-f1d0-4782-b6e4-70859f118b60";
