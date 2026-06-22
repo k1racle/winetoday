@@ -7,13 +7,6 @@ const CMS_URL = process.env.CMS_URL ?? "http://localhost:1337";
 const MEDIA_URL = process.env.MEDIA_URL?.trim() || new URL("/uploads/", SITE_URL).toString();
 export const CMS_API_URL = CMS_URL;
 
-export const DEFAULT_OG_IMAGE: MediaAsset = {
-  url: "/og-image.jpg?v=2",
-  alternativeText: "Виноделие сегодня",
-  width: 1200,
-  height: 630,
-  mime: "image/jpeg",
-};
 const HAS_REVALIDATE_SECRET = Boolean(process.env.REVALIDATE_SECRET);
 
 // #region agent log

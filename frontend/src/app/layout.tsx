@@ -12,7 +12,7 @@ import { MobileWidgetsProvider } from "@/components/mobile-widgets-provider";
 import { SocialLinks } from "@/components/social-links";
 import { SiteHeader } from "@/components/site-header";
 import { TagCloud } from "@/components/tag-cloud";
-import { buildSeoMetadata, DEFAULT_OG_IMAGE, getGlobalSettings, getSiteFooter, getSiteHeader, getSiteSeo, getTagCloud, type FooterItem, withLoggedFallback } from "@/lib/strapi";
+import { buildSeoMetadata, getGlobalSettings, getSiteFooter, getSiteHeader, getSiteSeo, getTagCloud, type FooterItem, withLoggedFallback } from "@/lib/strapi";
 import { buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/lib/json-ld";
 
 import "./globals.css";
