@@ -1859,7 +1859,7 @@ class StrapiRequestError extends Error {
 async function fetchStrapi<T>(path: string, options?: { revalidate?: number | false; status?: "draft" | "published"; preview?: boolean }) {
   const revalidate = options?.revalidate;
   const isPreview = options?.preview === true;
-  const shouldUseNoStore = isPreview || options?.status === "draft" || revalidate === false;
+  const shouldUseNoStore = isPreview || options?.status === "draft" || revalidate === false || !HAS_REVALIDATE_SECRET;
   const authToken = !isPreview && options?.status === "draft" ? (await cookies()).get("vino_auth_jwt")?.value ?? null : null;
   const url = `${CMS_URL}${withPreview(withStatus(path, options?.status), isPreview)}`;
   const startedAt = Date.now();
