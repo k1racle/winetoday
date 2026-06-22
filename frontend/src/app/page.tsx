@@ -5,6 +5,7 @@ import {
   CMS_API_URL,
   buildCategoryDateOverlayMeta,
   buildSeoMetadata,
+  DEFAULT_OG_IMAGE,
   comparePublishedDesc,
   formatRussianDateTime,
   formatRussianTime,
@@ -31,7 +32,7 @@ import { SidebarPanel } from "@/components/sidebar-panel";
 import { buildWebPageJsonLd } from "@/lib/json-ld";
 import { homeFaqJsonLd } from "@/lib/faq-data";
 
-export const revalidate = 120;
+export const revalidate = 3600;
 
 // #region agent log
 const AGENT_DEBUG_ENDPOINT = "http://127.0.0.1:7308/ingest/e5b160b2-f1d0-4782-b6e4-70859f118b60";
@@ -89,7 +90,8 @@ export async function generateMetadata(): Promise<Metadata> {
     seo: homepage?.seo ?? null,
     siteSeo,
     path: "/",
-    image: settings?.logo?.url,
+    image: settings?.logo?.url ?? DEFAULT_OG_IMAGE,
+    type: "website",
   });
 }
 
@@ -430,7 +432,7 @@ export default async function Home() {
       settings?.siteDescription ??
       "Русскоязычный портал о вине, винодельческих регионах, новостях индустрии, событиях и редакционных материалах.",
     path: "/",
-    image: settings?.logo?.url,
+    image: settings?.logo?.url ?? DEFAULT_OG_IMAGE.url,
   });
   const desktopInfographicCards = (homepage?.infographicCardsDesktop ?? []).filter((card) => hasInfographicContent(card));
   const tabletInfographicCards = (homepage?.infographicCardsTablet ?? []).filter((card) => hasInfographicContent(card));

@@ -6,6 +6,14 @@ export const SITE_URL = process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL
 const CMS_URL = process.env.CMS_URL ?? "http://localhost:1337";
 const MEDIA_URL = process.env.MEDIA_URL?.trim() || new URL("/uploads/", SITE_URL).toString();
 export const CMS_API_URL = CMS_URL;
+
+export const DEFAULT_OG_IMAGE: MediaAsset = {
+  url: "/og-image.jpg?v=2",
+  alternativeText: "Виноделие сегодня",
+  width: 1200,
+  height: 630,
+  mime: "image/jpeg",
+};
 const HAS_REVALIDATE_SECRET = Boolean(process.env.REVALIDATE_SECRET);
 
 // #region agent log
@@ -1703,6 +1711,7 @@ export function buildSeoMetadata({
   path,
   image,
   robots,
+  type,
 }: {
   title: string;
   description: string;
@@ -1711,6 +1720,7 @@ export function buildSeoMetadata({
   path?: string;
   image?: MediaAsset | string | null;
   robots?: { index: boolean; follow: boolean };
+  type?: "website" | "article";
 }): Metadata {
   const siteOrigin = normalizeSiteOrigin(siteSeo?.siteUrl, SITE_URL);
   const mergedSeo: Partial<SeoFields> = {
@@ -1723,7 +1733,8 @@ export function buildSeoMetadata({
   const selectedImage = getPreferredSeoImage(mergedSeo.metaImage)
     ?? (typeof image === "string" ? { url: image } : getPreferredSeoImage(image))
     ?? getPreferredSeoImage(siteSeo?.openGraphImage)
-    ?? getPreferredSeoImage(siteSeo?.twitterImage);
+    ?? getPreferredSeoImage(siteSeo?.twitterImage)
+    ?? DEFAULT_OG_IMAGE;
   const absoluteImage = toAbsoluteMetadataUrl(selectedImage?.url, siteOrigin);
 
   return {
@@ -1749,7 +1760,7 @@ export function buildSeoMetadata({
       url: canonical,
       siteName: "Виноделие сегодня",
       locale: "ru_RU",
-      type: "article",
+      type: type ?? "article",
       images: absoluteImage
         ? [
             {

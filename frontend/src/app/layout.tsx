@@ -12,7 +12,7 @@ import { MobileWidgetsProvider } from "@/components/mobile-widgets-provider";
 import { SocialLinks } from "@/components/social-links";
 import { SiteHeader } from "@/components/site-header";
 import { TagCloud } from "@/components/tag-cloud";
-import { buildSeoMetadata, getGlobalSettings, getSiteFooter, getSiteHeader, getSiteSeo, getTagCloud, type FooterItem, withLoggedFallback } from "@/lib/strapi";
+import { buildSeoMetadata, DEFAULT_OG_IMAGE, getGlobalSettings, getSiteFooter, getSiteHeader, getSiteSeo, getTagCloud, type FooterItem, withLoggedFallback } from "@/lib/strapi";
 import { buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/lib/json-ld";
 
 import "./globals.css";
@@ -57,7 +57,7 @@ export async function generateMetadata(): Promise<Metadata> {
       settings?.siteDescription ?? "Современный русскоязычный портал о виноделии: новости, статьи, видео и аналитика.",
     siteSeo,
     path: "/",
-    image: settings?.logo?.url ?? siteSeo?.openGraphImage?.url ?? siteSeo?.twitterImage?.url ?? null,
+    image: settings?.logo?.url ?? siteSeo?.openGraphImage?.url ?? siteSeo?.twitterImage?.url ?? DEFAULT_OG_IMAGE,
   });
 
   return {
