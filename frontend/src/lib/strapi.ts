@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
+import { OG_IMAGE_HEIGHT, OG_IMAGE_MIME, OG_IMAGE_WIDTH, toOgImage } from "@/lib/og-image";
+
 export const SITE_URL = process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://127.0.0.1";
 const CMS_URL = process.env.CMS_URL ?? "http://localhost:1337";
 const MEDIA_URL = process.env.MEDIA_URL?.trim() || new URL("/uploads/", SITE_URL).toString();
@@ -1756,6 +1758,7 @@ export function buildSeoMetadata({
     ?? getPreferredSeoImage(siteSeo?.twitterImage)
     ?? DEFAULT_OG_IMAGE;
   const absoluteImage = toAbsoluteMetadataUrl(selectedImage?.url, siteOrigin);
+  const ogImageUrl = absoluteImage ? toOgImage(absoluteImage, siteOrigin) : undefined;
 
   return {
     metadataBase: new URL(siteOrigin),
@@ -1781,22 +1784,22 @@ export function buildSeoMetadata({
       siteName: "Виноделие сегодня",
       locale: "ru_RU",
       type: type ?? "article",
-      images: absoluteImage
+      images: ogImageUrl
         ? [
             {
-              url: absoluteImage,
-              width: selectedImage?.width ?? undefined,
-              height: selectedImage?.height ?? undefined,
-              type: selectedImage?.mime ?? undefined,
+              url: ogImageUrl,
+              width: OG_IMAGE_WIDTH,
+              height: OG_IMAGE_HEIGHT,
+              type: OG_IMAGE_MIME,
             },
           ]
         : undefined,
     },
     twitter: {
-      card: absoluteImage ? "summary_large_image" : "summary",
+      card: ogImageUrl ? "summary_large_image" : "summary",
       title: finalTitle,
       description: finalDescription,
-      images: absoluteImage ? [absoluteImage] : undefined,
+      images: ogImageUrl ? [ogImageUrl] : undefined,
     },
   };
 }
