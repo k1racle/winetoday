@@ -696,7 +696,7 @@ export default async function Home() {
 
                     <div className="hidden gap-4 xl:grid xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.85fr)] xl:items-stretch">
                       {specialLead ? (
-                        <article className="group relative aspect-square overflow-hidden border border-emerald-950/10 bg-black shadow-[0_20px_60px_-36px_rgba(6,78,59,0.45)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 lg:h-full lg:aspect-auto">
+                        <article className="group relative aspect-square overflow-hidden border border-emerald-950/10 shadow-[0_20px_60px_-36px_rgba(6,78,59,0.45)] transition-transform duration-200 hover:-translate-y-1 dark:border-white/10 lg:h-full lg:aspect-auto">
                           <div className="absolute inset-0 overflow-hidden">
                             <Link href={specialLead.href} aria-label={specialLead.title} className="block h-full">
                               {specialLead.cover?.url ? (
