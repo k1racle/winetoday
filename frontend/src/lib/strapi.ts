@@ -1730,7 +1730,26 @@ export function buildSeoMetadata({
   };
   const finalTitle = mergedSeo.metaTitle || title;
   const finalDescription = mergedSeo.metaDescription || description;
-  const canonical = mergedSeo.canonicalUrl ? toAbsoluteSiteUrl(mergedSeo.canonicalUrl, siteOrigin) : path ? new URL(path, siteOrigin).toString() : undefined;
+  const canonicalFromPath = path ? new URL(path, siteOrigin).toString() : undefined;
+  const canonicalFromSeo = mergedSeo.canonicalUrl ? toAbsoluteSiteUrl(mergedSeo.canonicalUrl, siteOrigin) : undefined;
+  const canonical = (() => {
+    if (!canonicalFromSeo) {
+      return canonicalFromPath;
+    }
+
+    if (!canonicalFromPath) {
+      return canonicalFromSeo;
+    }
+
+    // Do not let a site-wide root canonical override the page-specific path.
+    try {
+      const parsedCanonicalFromSeo = new URL(canonicalFromSeo);
+      const isRootOnlyCanonical = parsedCanonicalFromSeo.pathname === "/" && !parsedCanonicalFromSeo.search && !parsedCanonicalFromSeo.hash;
+      return isRootOnlyCanonical ? canonicalFromPath : canonicalFromSeo;
+    } catch {
+      return canonicalFromPath;
+    }
+  })();
   const selectedImage = getPreferredSeoImage(mergedSeo.metaImage)
     ?? (typeof image === "string" ? { url: image } : getPreferredSeoImage(image))
     ?? getPreferredSeoImage(siteSeo?.openGraphImage)
