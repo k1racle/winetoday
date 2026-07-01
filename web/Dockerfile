@@ -1,5 +1,7 @@
 FROM node:22-alpine
 
+RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
 
 COPY web/package.json web/package-lock.json* ./

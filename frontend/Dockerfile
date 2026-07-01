@@ -1,13 +1,13 @@
 FROM node:22-alpine
 
+RUN apk add --no-cache libc6-compat
+
 WORKDIR /app
 
-COPY frontend/package.json frontend/package-lock.json ./
-
+COPY package.json package-lock.json* ./
 RUN npm ci
 
-COPY frontend/ .
-COPY icons/ ./public/icons/
+COPY . .
 
 ARG NEXT_PUBLIC_SITE_URL=http://localhost
 ARG NEXT_PUBLIC_MEILISEARCH_URL=http://localhost/search
