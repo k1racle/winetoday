@@ -1,8 +1,8 @@
 services:
   frontend:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: frontend/Dockerfile
       args:
         NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
         NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
@@ -102,6 +102,80 @@ services:
       start_period: 120s
     restart: unless-stopped
 
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    container_name: vino_web
+    environment:
+      NODE_ENV: production
+      NUXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
+      NUXT_PUBLIC_API_URL: http://localhost:4000/api
+      NUXT_PUBLIC_MEDIA_BASE_URL: http://localhost:4000
+      NUXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
+      NUXT_PUBLIC_EDITOR_URL: http://localhost:3000/account
+      NUXT_PUBLIC_UPLOADS_URL: http://localhost:4000/uploads
+      API_URL: http://api:4000/api
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+    ports:
+      - "3001:3000"
+    networks:
+      default:
+      winemakingtoday_static:
+        ipv4_address: 192.168.240.13
+    depends_on:
+      api:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: vino_api
+    working_dir: /app
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${API_POSTGRES_DB:-winetoday_api}
+      SITE_URL: ${SITE_URL:-http://localhost}
+      MEDIA_URL: ${MEDIA_URL:-http://localhost/uploads}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+      MEILISEARCH_URL: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+      FRONTEND_REVALIDATE_URL: http://frontend:3000/api/revalidate
+      CORS_ORIGIN: ${SITE_URL:-http://localhost},http://localhost:3001
+    ports:
+      - "4000:4000"
+    volumes:
+      - backend_uploads:/app/public/uploads:ro
+      - media_uploads:/app/uploads
+    networks:
+      default:
+      winemakingtoday_static:
+        ipv4_address: 192.168.240.12
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      meilisearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
   postgres:
     image: postgres:17-alpine
     container_name: vino_postgres
@@ -109,8 +183,10 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      API_POSTGRES_DB: ${API_POSTGRES_DB:-winetoday_api}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./api/prisma/init-db.sh:/docker-entrypoint-initdb.d/10-init-api-db.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -155,6 +231,7 @@ networks:
 
 volumes:
   backend_uploads:
+  media_uploads:
   postgres_data:
   redis_data:
   meili_data:

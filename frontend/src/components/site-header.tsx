@@ -7,6 +7,7 @@ import { type FormEvent, useEffect, useMemo, useState, useSyncExternalStore } fr
 
 import { AuthWidget } from "@/components/auth-widget";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { getSocialIconUrl } from "@/lib/social-icons";
 import type { MediaAsset, NavigationLink, SocialLinksBlock } from "@/lib/strapi";
 
 type NavigationItem = {
@@ -78,38 +79,7 @@ function CloseIcon() {
   );
 }
 
-function resolveSocialIconName(label?: string | null, href?: string | null) {
-  const normalizedLabel = label?.trim().toLowerCase() ?? "";
-  const normalizedHref = href?.trim().toLowerCase() ?? "";
-
-  if (normalizedHref.includes("t.me") || normalizedLabel.includes("telegram") || normalizedLabel.includes("телеграм")) {
-    return "telegram";
-  }
-
-  if (normalizedHref.includes("vk.com") || normalizedLabel.includes("vkontakte") || normalizedLabel.includes("вконтакте") || normalizedLabel === "vk" || normalizedLabel === "вк") {
-    return "vkontakte";
-  }
-
-  if (normalizedHref.includes("youtube.com") || normalizedHref.includes("youtu.be") || normalizedLabel.includes("youtube") || normalizedLabel.includes("ютуб")) {
-    return "youtube";
-  }
-
-  if (normalizedHref.includes("rutube.ru") || normalizedLabel.includes("rutube") || normalizedLabel.includes("рутуб")) {
-    return "rutube";
-  }
-
-  if (normalizedHref.includes("dzen.ru") || normalizedHref.includes("zen.yandex") || normalizedLabel.includes("dzen") || normalizedLabel.includes("дзен")) {
-    return "dzen";
-  }
-
-  if (normalizedHref.includes("max.ru") || normalizedLabel.includes("max") || normalizedLabel.includes("мах")) {
-    return "max";
-  }
-
-  return null;
-}
-
-function MobileDrawerSocialLinks({ widget, theme }: { widget?: SocialLinksBlock | null; theme: ThemeMode }) {
+function MobileDrawerSocialLinks({ widget }: { widget?: SocialLinksBlock | null }) {
   if (!widget?.links?.length) {
     return null;
   }
@@ -123,10 +93,7 @@ function MobileDrawerSocialLinks({ widget, theme }: { widget?: SocialLinksBlock 
           }
 
           const isExternal = /^https?:\/\//i.test(item.href);
-          const iconName = resolveSocialIconName(item.label, item.href);
-          const iconSrc = theme === "dark"
-            ? item.icon?.url ?? (iconName ? `/social-icons-dark/${iconName}.svg` : null)
-            : (iconName ? `/social-icons-dark/${iconName}.svg` : item.icon?.url ?? null);
+          const iconSrc = getSocialIconUrl(null, item.label, item.href) ?? item.icon?.url ?? null;
 
           return (
             <Link
@@ -413,7 +380,7 @@ export function SiteHeader({ siteName, lightLogo, darkLogo, stickyDesktop = true
                     ))}
                   </nav>
 
-                  {socialLinks?.links?.length ? <MobileDrawerSocialLinks widget={socialLinks} theme={theme} /> : null}
+                  {socialLinks?.links?.length ? <MobileDrawerSocialLinks widget={socialLinks} /> : null}
                 </div>
               </div>
             </div>

@@ -1,0 +1,230 @@
+<script setup lang="ts">
+const props = defineProps<{
+  modelValue: boolean;
+}>();
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: boolean): void;
+}>();
+
+const isOpen = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
+});
+
+const { signIn, signUp } = useAuth();
+
+const activeTab = ref<'login' | 'register'>('login');
+const username = ref('');
+const displayName = ref('');
+const email = ref('');
+const password = ref('');
+const error = ref('');
+const loading = ref(false);
+
+function close() {
+  isOpen.value = false;
+  error.value = '';
+}
+
+function onBackdropClick(event: MouseEvent) {
+  if (event.target === event.currentTarget) {
+    close();
+  }
+}
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+async function submit() {
+  error.value = '';
+
+  if (activeTab.value === 'register') {
+    if (!username.value.trim() || username.value.trim().length < 3) {
+      error.value = 'Логин должен содержать не менее 3 символов';
+      return;
+    }
+    if (displayName.value.trim() && displayName.value.trim().length < 2) {
+      error.value = 'Отображаемое имя должно содержать не менее 2 символов';
+      return;
+    }
+  }
+
+  if (!email.value.trim()) {
+    error.value = activeTab.value === 'login'
+      ? 'Введите логин или email'
+      : 'Введите email';
+    return;
+  }
+  if (activeTab.value === 'register' && !emailRegex.test(email.value.trim())) {
+    error.value = 'Введите корректный email';
+    return;
+  }
+  if (!password.value) {
+    error.value = 'Введите пароль';
+    return;
+  }
+  if (activeTab.value === 'register' && password.value.length < 6) {
+    error.value = 'Пароль должен содержать не менее 6 символов';
+    return;
+  }
+
+  loading.value = true;
+  try {
+    if (activeTab.value === 'login') {
+      await signIn(email.value.trim(), password.value);
+    } else {
+      await signUp({
+        username: username.value.trim(),
+        displayName: displayName.value.trim() || undefined,
+        email: email.value.trim(),
+        password: password.value,
+      });
+      await signIn(email.value.trim(), password.value);
+    }
+    username.value = '';
+    displayName.value = '';
+    email.value = '';
+    password.value = '';
+    close();
+    navigateTo('/account');
+  } catch (err: any) {
+    const backendMessage = err?.data?.message || err?.message || '';
+    if (backendMessage.includes('Invalid credentials')) {
+      error.value = 'Неверный email или пароль';
+    } else if (backendMessage.includes('Email already registered')) {
+      error.value = 'Этот email уже зарегистрирован';
+    } else if (backendMessage.includes('Username already taken')) {
+      error.value = 'Этот логин уже занят';
+    } else {
+      error.value = backendMessage || 'Ошибка входа. Проверьте данные.';
+    }
+  } finally {
+    loading.value = false;
+  }
+}
+</script>
+
+<template>
+  <Teleport to="body">
+    <Transition name="auth-backdrop">
+      <div
+        v-if="isOpen"
+        class="fixed inset-0 z-50 bg-black/50"
+        @click="onBackdropClick"
+      >
+        <Transition name="auth-drawer">
+          <div
+            v-if="isOpen"
+            class="absolute right-0 top-0 h-full w-full max-w-md bg-card p-6 shadow-xl"
+          >
+            <div class="mb-6 flex items-start justify-between">
+              <div>
+                <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Аккаунт</p>
+                <h2 class="mt-1 font-heading text-xl font-bold">Личный кабинет</h2>
+              </div>
+              <button
+                type="button"
+                class="text-foreground/50 transition hover:text-foreground"
+                aria-label="Закрыть"
+                @click="close"
+              >
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="mb-6 inline-flex border border-foreground/10">
+              <button
+                type="button"
+                class="px-4 py-2 text-sm font-medium transition"
+                :class="activeTab === 'login' ? 'bg-accent text-white' : 'bg-card text-foreground hover:bg-foreground/5'"
+                @click="activeTab = 'login'"
+              >
+                Вход
+              </button>
+              <button
+                type="button"
+                class="px-4 py-2 text-sm font-medium transition"
+                :class="activeTab === 'register' ? 'bg-accent text-white' : 'bg-card text-foreground hover:bg-foreground/5'"
+                @click="activeTab = 'register'"
+              >
+                Регистрация
+              </button>
+            </div>
+
+            <form class="space-y-4" @submit.prevent="submit">
+              <template v-if="activeTab === 'register'">
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium">Логин</label>
+                  <input
+                    v-model="username"
+                    type="text"
+                    placeholder="username"
+                    class="w-full border border-foreground/10 bg-card px-4 py-2.5 text-sm outline-none transition focus:border-accent"
+                  >
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium">Отображаемое имя</label>
+                  <input
+                    v-model="displayName"
+                    type="text"
+                    placeholder="Как вас показывать на сайте"
+                    class="w-full border border-foreground/10 bg-card px-4 py-2.5 text-sm outline-none transition focus:border-accent"
+                  >
+                </div>
+              </template>
+              <div>
+                <label class="mb-1.5 block text-sm font-medium">{{ activeTab === 'login' ? 'Логин или email' : 'Email' }}</label>
+                <input
+                  v-model="email"
+                  type="text"
+                  :placeholder="activeTab === 'login' ? 'admin или you@example.com' : 'you@example.com'"
+                  class="w-full border border-foreground/10 bg-card px-4 py-2.5 text-sm outline-none transition focus:border-accent"
+                >
+              </div>
+              <div>
+                <label class="mb-1.5 block text-sm font-medium">Пароль</label>
+                <input
+                  v-model="password"
+                  type="password"
+                  :placeholder="activeTab === 'register' ? 'Минимум 6 символов' : '•••••••'"
+                  class="w-full border border-foreground/10 bg-card px-4 py-2.5 text-sm outline-none transition focus:border-accent"
+                >
+              </div>
+              <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+              <button
+                type="submit"
+                :disabled="loading"
+                class="w-full bg-accent px-4 py-2.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-60"
+              >
+                {{ activeTab === 'login' ? (loading ? 'Вход...' : 'Войти') : (loading ? 'Регистрация...' : 'Зарегистрироваться') }}
+              </button>
+            </form>
+          </div>
+        </Transition>
+      </div>
+    </Transition>
+  </Teleport>
+</template>
+
+<style scoped>
+.auth-backdrop-enter-active,
+.auth-backdrop-leave-active {
+  transition: opacity 0.2s ease;
+}
+.auth-backdrop-enter-from,
+.auth-backdrop-leave-to {
+  opacity: 0;
+}
+
+.auth-drawer-enter-active,
+.auth-drawer-leave-active {
+  transition: transform 0.25s ease;
+}
+.auth-drawer-enter-from,
+.auth-drawer-leave-to {
+  transform: translateX(100%);
+}
+</style>

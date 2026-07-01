@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import type { SocialLinksBlock } from "@/lib/strapi";
+import { getSocialIconUrl } from "@/lib/social-icons";
 
 type SocialLinksProps = {
   widget?: SocialLinksBlock | null;
@@ -14,6 +15,7 @@ type SocialLinksProps = {
   labelClassName?: string;
   showLabels?: boolean;
   external?: boolean;
+  inverted?: boolean;
 };
 
 function joinClasses(...values: Array<string | false | null | undefined>) {
@@ -42,6 +44,7 @@ export function SocialLinks({
   labelClassName,
   showLabels = false,
   external = true,
+  inverted = false,
 }: SocialLinksProps) {
   const resolvedWidget = widget?.links?.length ? widget : fallbackWidget?.links?.length ? fallbackWidget : null;
 
@@ -60,6 +63,12 @@ export function SocialLinks({
 
           const isExternal = external && /^https?:\/\//i.test(item.href);
 
+          const iconFromFile = getSocialIconUrl(
+            typeof item.icon === "string" ? item.icon : null,
+            item.label,
+            item.href,
+          );
+
           return (
             <Link
               key={`${item.label}-${item.href}-${index}`}
@@ -75,13 +84,21 @@ export function SocialLinks({
               )}
             >
               <span className={joinClasses("relative inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden", iconClassName)}>
-                {item.icon?.url ? (
+                {iconFromFile ? (
+                  <Image
+                    src={iconFromFile}
+                    alt={item.label}
+                    fill
+                    sizes="40px"
+                    className={joinClasses("object-contain", inverted && "brightness-0 invert")}
+                  />
+                ) : item.icon?.url ? (
                   <Image
                     src={item.icon.url}
                     alt={item.icon.alternativeText ?? item.label}
                     fill
                     sizes="40px"
-                    className="object-contain"
+                    className={joinClasses("object-contain", inverted && "brightness-0 invert")}
                   />
                 ) : (
                   <DefaultSocialIcon label={item.label} />

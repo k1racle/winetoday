@@ -1,0 +1,93 @@
+export function isTiptapJson(content: unknown): boolean {
+  if (typeof content !== 'string') return false;
+  const trimmed = content.trim();
+  return trimmed.startsWith('{"type":"doc"') || trimmed.startsWith('{"type":"doc"');
+}
+
+export function tiptapToHtml(json: string | object): string {
+  let doc: any;
+  try {
+    doc = typeof json === 'string' ? JSON.parse(json) : json;
+  } catch {
+    return escapeHtml(String(json || ''));
+  }
+  if (!doc || !Array.isArray(doc.content)) return '';
+  return doc.content.map(renderNode).join('');
+}
+
+function renderNode(node: any): string {
+  if (!node) return '';
+  if (node.type === 'text') return renderText(node);
+
+  const children = Array.isArray(node.content) ? node.content.map(renderNode).join('') : '';
+  const style = node.attrs?.textAlign && node.attrs.textAlign !== 'left'
+    ? ` style="text-align:${escapeHtml(node.attrs.textAlign)}"`
+    : '';
+
+  switch (node.type) {
+    case 'paragraph':
+      return `<p${style}>${children}</p>`;
+    case 'heading': {
+      const level = Math.min(Math.max(Number(node.attrs?.level) || 1, 1), 6);
+      return `<h${level}${style}>${children}</h${level}>`;
+    }
+    case 'blockquote':
+      return `<blockquote>${children}</blockquote>`;
+    case 'bulletList':
+      return `<ul>${children}</ul>`;
+    case 'orderedList':
+      return `<ol>${children}</ol>`;
+    case 'listItem':
+      return `<li>${children}</li>`;
+    case 'hardBreak':
+      return '<br>';
+    case 'horizontalRule':
+      return '<hr>';
+    case 'image': {
+      const src = node.attrs?.src || '';
+      const alt = node.attrs?.alt || '';
+      return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" />`;
+    }
+    default:
+      return children;
+  }
+}
+
+function renderText(node: any): string {
+  let text = escapeHtml(node.text || '');
+  const marks = node.marks || [];
+  for (const mark of marks) {
+    switch (mark.type) {
+      case 'bold':
+        text = `<strong>${text}</strong>`;
+        break;
+      case 'italic':
+        text = `<em>${text}</em>`;
+        break;
+      case 'strike':
+        text = `<s>${text}</s>`;
+        break;
+      case 'underline':
+        text = `<u>${text}</u>`;
+        break;
+      case 'code':
+        text = `<code>${text}</code>`;
+        break;
+      case 'link': {
+        const href = mark.attrs?.href || '';
+        text = `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+        break;
+      }
+    }
+  }
+  return text;
+}
+
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}

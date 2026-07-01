@@ -1,0 +1,122 @@
+import { _ as __nuxt_component_0 } from "./nuxt-link-M1kxXMe5.js";
+import { _ as __nuxt_component_1 } from "./AdminTabs-Dtsr-Vu5.js";
+import { defineComponent, ref, reactive, mergeProps, withCtx, createTextVNode, unref, useSSRContext } from "vue";
+import { ssrRenderAttrs, ssrRenderComponent, ssrInterpolate, ssrRenderList, ssrRenderTeleport, ssrRenderAttr, ssrIncludeBooleanAttr, ssrLooseContain, ssrLooseEqual } from "vue/server-renderer";
+import { u as useAuth } from "./useAuth-By8wIj1o.js";
+import { u as useApi } from "./useApi-DkRD3FHh.js";
+import "C:/Project/winemaking/winetoday/web/node_modules/hookable/dist/index.mjs";
+import "../server.mjs";
+import { _ as _export_sfc } from "./_plugin-vue_export-helper-1tPrXgE0.js";
+import "C:/Project/winemaking/winetoday/web/node_modules/ufo/dist/index.mjs";
+import "C:/Project/winemaking/winetoday/web/node_modules/defu/dist/defu.mjs";
+import "C:/Project/winemaking/winetoday/web/node_modules/ofetch/dist/node.mjs";
+import "#internal/nuxt/paths";
+import "C:/Project/winemaking/winetoday/web/node_modules/unctx/dist/index.mjs";
+import "C:/Project/winemaking/winetoday/web/node_modules/h3/dist/index.mjs";
+import "vue-router";
+import "C:/Project/winemaking/winetoday/web/node_modules/klona/dist/index.mjs";
+import "C:/Project/winemaking/winetoday/web/node_modules/@unhead/vue/dist/index.mjs";
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  __name: "categories",
+  __ssrInlineRender: true,
+  setup(__props) {
+    useAuth();
+    useApi();
+    const categories2 = ref([]);
+    const loading = ref(false);
+    const error = ref("");
+    const message = ref("");
+    const showModal = ref(false);
+    const editing = ref(null);
+    const form = reactive({
+      name: "",
+      slug: "",
+      parentId: ""
+    });
+    function parentName(id) {
+      if (!id) return "—";
+      const parent = categories2.value.find((c) => c.id === id);
+      return parent ? parent.name : "—";
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_NuxtLink = __nuxt_component_0;
+      const _component_AdminTabs = __nuxt_component_1;
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "mx-auto max-w-6xl px-4 py-8" }, _attrs))} data-v-d3bcfb03><div class="mb-6 border-b border-foreground/10 pb-4" data-v-d3bcfb03><p class="text-xs font-medium uppercase tracking-wider text-foreground/50" data-v-d3bcfb03>Администрирование</p><h1 class="mt-2 font-heading text-2xl font-bold" data-v-d3bcfb03>Рубрики</h1></div>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: "/account",
+        class: "text-sm text-accent hover:underline"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`← Назад в кабинет`);
+          } else {
+            return [
+              createTextVNode("← Назад в кабинет")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(ssrRenderComponent(_component_AdminTabs, { class: "mt-6" }, null, _parent));
+      _push(`<div class="mt-6 flex items-center justify-between" data-v-d3bcfb03><button class="btn-primary" data-v-d3bcfb03>＋ Добавить рубрику</button><button class="text-sm text-accent hover:underline" data-v-d3bcfb03>Обновить</button></div>`);
+      if (unref(loading)) {
+        _push(`<p class="mt-6 text-sm text-foreground/60" data-v-d3bcfb03>Загрузка...</p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (unref(error)) {
+        _push(`<p class="mt-6 text-sm text-red-600" data-v-d3bcfb03>${ssrInterpolate(unref(error))}</p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (unref(message)) {
+        _push(`<p class="mt-6 text-sm text-green-600" data-v-d3bcfb03>${ssrInterpolate(unref(message))}</p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (!unref(loading) && unref(categories2).length) {
+        _push(`<div class="mt-6 overflow-x-auto" data-v-d3bcfb03><table class="w-full border-collapse border border-foreground/10 text-sm" data-v-d3bcfb03><thead class="bg-foreground/10" data-v-d3bcfb03><tr data-v-d3bcfb03><th class="border border-foreground/10 px-4 py-2 text-left" data-v-d3bcfb03>Название</th><th class="border border-foreground/10 px-4 py-2 text-left" data-v-d3bcfb03>Slug</th><th class="border border-foreground/10 px-4 py-2 text-left" data-v-d3bcfb03>Родитель</th><th class="border border-foreground/10 px-4 py-2 text-left" data-v-d3bcfb03>Действия</th></tr></thead><tbody data-v-d3bcfb03><!--[-->`);
+        ssrRenderList(unref(categories2), (item) => {
+          _push(`<tr class="bg-foreground/5" data-v-d3bcfb03><td class="border border-foreground/10 px-4 py-2" data-v-d3bcfb03>${ssrInterpolate(item.name)}</td><td class="border border-foreground/10 px-4 py-2" data-v-d3bcfb03>${ssrInterpolate(item.slug)}</td><td class="border border-foreground/10 px-4 py-2" data-v-d3bcfb03>${ssrInterpolate(parentName(item.parentId))}</td><td class="border border-foreground/10 px-4 py-2" data-v-d3bcfb03><div class="flex flex-wrap gap-2" data-v-d3bcfb03><button class="text-xs text-foreground/70 hover:underline" data-v-d3bcfb03>Изменить</button><button class="text-xs text-red-600 hover:underline" data-v-d3bcfb03>Удалить</button></div></td></tr>`);
+        });
+        _push(`<!--]--></tbody></table></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (!unref(loading) && !unref(categories2).length) {
+        _push(`<p class="mt-6 text-sm text-foreground/60" data-v-d3bcfb03>Нет рубрик</p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      ssrRenderTeleport(_push, (_push2) => {
+        if (unref(showModal)) {
+          _push2(`<div class="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4" data-v-d3bcfb03>`);
+          if (unref(showModal)) {
+            _push2(`<div class="relative mt-8 w-full max-w-md overflow-hidden rounded-lg border border-foreground/10 bg-foreground/5 shadow-2xl" data-v-d3bcfb03><div class="flex items-center justify-between border-b border-foreground/10 px-6 py-4" data-v-d3bcfb03><h2 class="text-lg font-bold" data-v-d3bcfb03>${ssrInterpolate(unref(editing) ? "Редактировать рубрику" : "Добавить рубрику")}</h2><button class="flex h-8 w-8 items-center justify-center rounded text-foreground/60 transition hover:bg-foreground/10 hover:text-red-600" data-v-d3bcfb03>✕</button></div><div class="space-y-4 p-6" data-v-d3bcfb03><div data-v-d3bcfb03><label class="mb-1 block text-xs font-medium text-foreground/70" data-v-d3bcfb03>Название <span class="text-red-600" data-v-d3bcfb03>*</span></label><input${ssrRenderAttr("value", unref(form).name)} type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Например, Российское виноделие" data-v-d3bcfb03></div><div data-v-d3bcfb03><label class="mb-1 block text-xs font-medium text-foreground/70" data-v-d3bcfb03>Slug <span class="text-red-600" data-v-d3bcfb03>*</span></label><input${ssrRenderAttr("value", unref(form).slug)} type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="rossiyskoe-vinodelie" data-v-d3bcfb03></div><div data-v-d3bcfb03><label class="mb-1 block text-xs font-medium text-foreground/70" data-v-d3bcfb03>Родительская рубрика</label><select class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" data-v-d3bcfb03><option value="" data-v-d3bcfb03${ssrIncludeBooleanAttr(Array.isArray(unref(form).parentId) ? ssrLooseContain(unref(form).parentId, "") : ssrLooseEqual(unref(form).parentId, "")) ? " selected" : ""}>— нет —</option><!--[-->`);
+            ssrRenderList(unref(categories2), (c) => {
+              _push2(`<option${ssrRenderAttr("value", c.id)}${ssrIncludeBooleanAttr(unref(editing) && c.id === unref(editing).id) ? " disabled" : ""} data-v-d3bcfb03${ssrIncludeBooleanAttr(Array.isArray(unref(form).parentId) ? ssrLooseContain(unref(form).parentId, c.id) : ssrLooseEqual(unref(form).parentId, c.id)) ? " selected" : ""}>${ssrInterpolate(c.name)}</option>`);
+            });
+            _push2(`<!--]--></select></div><div class="flex justify-end gap-2 pt-2" data-v-d3bcfb03><button class="btn-secondary" data-v-d3bcfb03>Отмена</button><button class="btn-primary" data-v-d3bcfb03>Сохранить</button></div></div></div>`);
+          } else {
+            _push2(`<!---->`);
+          }
+          _push2(`</div>`);
+        } else {
+          _push2(`<!---->`);
+        }
+      }, "body", false, _parent);
+      _push(`</div>`);
+    };
+  }
+});
+const _sfc_setup = _sfc_main.setup;
+_sfc_main.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/account/admin/categories.vue");
+  return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
+};
+const categories = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-d3bcfb03"]]);
+export {
+  categories as default
+};
+//# sourceMappingURL=categories-MY4-QFuc.js.map

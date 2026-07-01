@@ -2,11 +2,12 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./
 
 RUN npm ci
 
-COPY . .
+COPY frontend/ .
+COPY icons/ ./public/icons/
 
 ARG NEXT_PUBLIC_SITE_URL=http://localhost
 ARG NEXT_PUBLIC_MEILISEARCH_URL=http://localhost/search

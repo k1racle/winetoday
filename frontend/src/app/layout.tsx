@@ -241,6 +241,7 @@ export default async function RootLayout({
           titleClassName="opacity-80"
           itemClassName="opacity-85 hover:opacity-100"
           iconClassName="h-9 w-9"
+          inverted
         />
       );
     }
