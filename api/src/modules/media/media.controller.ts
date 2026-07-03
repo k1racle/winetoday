@@ -51,4 +51,27 @@ export class MediaController {
   upload(@UploadedFile() file: Express.Multer.File) {
     return this.mediaService.createFromUpload(file);
   }
+
+  @Post('cover')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.admin, Role.editor, Role.author)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (_req, file, cb) => {
+          const ext = path.extname(file.originalname);
+          const name = crypto.randomUUID();
+          cb(null, `${name}${ext}`);
+        },
+      }),
+      limits: { fileSize: 20 * 1024 * 1024 },
+    }),
+  )
+  uploadCover(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('watermark') watermark?: string,
+  ) {
+    return this.mediaService.createCoverFromUpload(file, watermark === 'true');
+  }
 }

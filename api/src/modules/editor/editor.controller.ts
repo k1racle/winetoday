@@ -38,16 +38,22 @@ export class EditorController {
     @Query('status') status?: string,
     @Query('search') search?: string,
     @Query('authorId') authorId?: string,
+    @Query('authorName') authorName?: string,
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
+    @Query('sort') sort?: string,
+    @Query('order') order?: 'asc' | 'desc',
   ) {
     return this.editorService.listMaterials(req.user as RequestUser, {
       type,
       status,
       search,
       authorId,
+      authorName,
       limit: limit ? parseInt(limit, 10) : undefined,
       offset: offset ? parseInt(offset, 10) : undefined,
+      sort,
+      order,
     });
   }
 

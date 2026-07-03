@@ -5,11 +5,13 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY web/package.json web/package-lock.json* ./
-RUN npm ci
+RUN npm ci --include=dev
 
 COPY web/ .
 COPY icons/ ./public/icons/
-RUN npm run build
+
+ENV NODE_ENV=production
+RUN npx nuxt build
 
 EXPOSE 3000
 

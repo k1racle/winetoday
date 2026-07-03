@@ -66,6 +66,9 @@ export class CreateDraftDto {
   videoUrl?: string;
 
   @IsOptional()
+  duration?: number;
+
+  @IsOptional()
   @IsUUID()
   authorId?: string;
 

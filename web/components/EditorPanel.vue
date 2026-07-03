@@ -8,7 +8,7 @@ const props = defineProps<{
 const emit = defineEmits<{ (e: 'saved', id: string): void }>();
 
 const config = useRuntimeConfig();
-const { getCategories, getTags, uploadMedia, saveDraft, getDraft, getAuthors } = useApi();
+const { getCategories, getTags, uploadMedia, uploadCoverMedia, saveDraft, getDraft, getAuthors } = useApi();
 const coverBaseUrl = config.public.uploadsUrl || (config.public.apiUrl as string).replace('/api', '') || 'http://localhost:4000';
 
 const typeLabels: Record<string, string> = {
@@ -49,6 +49,7 @@ function emptyForm() {
     coverPath: '',
     coverShowWatermark: false,
     videoUrl: '',
+    duration: 0,
     authorId: '',
     categoryIds: [] as string[],
     tagIds: [] as string[],
@@ -62,26 +63,90 @@ function emptyForm() {
 
 const form = reactive(emptyForm());
 
+function formatDurationInput(seconds: number): string {
+  const total = Math.max(0, Math.floor(Number(seconds) || 0));
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+function parseDurationInput(value: string): number {
+  const parts = value
+    .split(':')
+    .map((p) => parseInt(p.trim(), 10))
+    .filter((n) => !isNaN(n));
+  if (parts.length === 0) return 0;
+  if (parts.length === 1) return Math.max(0, parts[0] || 0);
+  if (parts.length === 2) return Math.max(0, (parts[0] || 0) * 60 + (parts[1] || 0));
+  return Math.max(0, (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0));
+}
+
+const durationInput = computed({
+  get: () => formatDurationInput(form.duration),
+  set: (value: string) => { form.duration = parseDurationInput(value); },
+});
+
 const categories = ref<Array<{ id: string; name: string; slug: string }>>([]);
 const tags = ref<Array<{ id: string; name: string; slug: string }>>([]);
 const authors = ref<Array<{ id: string; name: string; slug: string }>>([]);
-const sortedAuthors = computed(() =>
-  [...authors.value].sort((a, b) =>
+const dedupedAuthors = computed(() => {
+  const map = new Map<string, { id: string; name: string; slug: string }>();
+  for (const author of authors.value) {
+    const key = author.name.trim().toLowerCase();
+    const existing = map.get(key);
+    if (!existing) {
+      map.set(key, author);
+      continue;
+    }
+    const existingNumbered = /-\d+$/.test(existing.slug);
+    const authorNumbered = /-\d+$/.test(author.slug);
+    if (existingNumbered && !authorNumbered) {
+      map.set(key, author);
+    }
+  }
+  return Array.from(map.values()).sort((a, b) =>
     a.name.localeCompare(b.name, 'ru') || a.slug.localeCompare(b.slug, 'ru'),
-  ),
-);
-function authorLabel(a: { name: string; slug: string }) {
-  const duplicates = authors.value.filter(
-    (x) => x.name.toLowerCase() === a.name.toLowerCase(),
   );
-  return duplicates.length > 1 ? `${a.name} (${a.slug})` : a.name;
-}
+});
+
+const selectedAuthorId = computed({
+  get() {
+    if (!form.authorId) return '';
+    const current = authors.value.find((a) => a.id === form.authorId);
+    if (!current) return form.authorId;
+    const rep = dedupedAuthors.value.find(
+      (a) => a.name.toLowerCase() === current.name.toLowerCase(),
+    );
+    return rep?.id ?? form.authorId;
+  },
+  set(id: string) {
+    form.authorId = id;
+  },
+});
 const loading = ref(false);
 const saving = ref(false);
 const message = ref('');
 const error = ref('');
 const coverInput = ref<HTMLInputElement | null>(null);
 const helpOpen = ref(false);
+
+const typeRouteMap: Record<string, string> = {
+  article: 'articles',
+  news: 'news',
+  video: 'videos',
+  gallery: 'gallery',
+};
+
+const publicUrl = computed(() => {
+  if (form.status !== 'published' || !form.slug) return '';
+  return `/${typeRouteMap[form.type]}/${form.slug}`;
+});
+
+const previewUrl = computed(() => {
+  if (form.status === 'published' || !form.slug) return '';
+  return `/${typeRouteMap[form.type]}/${form.slug}?preview=1`;
+});
 
 const editorEls = new Map<string, HTMLElement>();
 
@@ -106,6 +171,7 @@ async function loadDraft(id: string) {
       coverPath: res.coverMedia?.path || '',
       coverShowWatermark: res.coverShowWatermark,
       videoUrl: res.videoUrl || '',
+      duration: res.duration || 0,
       authorId: res.authorId || '',
       categoryIds: (res.categories || []).map((c: any) => c.id),
       tagIds: (res.tags || []).map((t: any) => t.id),
@@ -118,8 +184,15 @@ async function loadDraft(id: string) {
             const data = b.data || {};
             if (b.type === 'image') {
               data.source = data.source || '';
+              data.showWatermark = data.showWatermark ?? false;
             } else if ((b.type === 'slider' || b.type === 'gallery') && Array.isArray(data.items)) {
-              data.items.forEach((it: any) => { it.source = it.source || ''; });
+              // Migrate old block-level watermark toggle to per-item flags.
+              const legacyBlockWatermark = data.showWatermark === true;
+              data.items.forEach((it: any) => {
+                it.source = it.source || '';
+                it.showWatermark = legacyBlockWatermark || (it.showWatermark ?? false);
+              });
+              data.showWatermark = false;
             }
             return { id, type: b.type, title: b.title, data };
           })
@@ -208,7 +281,7 @@ function addBlock(type: string) {
   if (type === 'text') {
     block.content = '<p></p>';
   } else if (type === 'image') {
-    block.data = { mediaId: '', path: '', caption: '', source: '' };
+    block.data = { mediaId: '', path: '', caption: '', source: '', showWatermark: false };
   } else if (type === 'slider' || type === 'gallery') {
     block.data = { items: [] };
   } else if (type === 'embed') {
@@ -282,7 +355,7 @@ async function onCoverSelected(e: Event) {
   const file = input.files?.[0];
   if (!file) return;
   try {
-    const res: any = await uploadMedia(file);
+    const res: any = await uploadCoverMedia(file, form.coverShowWatermark);
     form.coverMediaId = res.id;
     form.coverPath = res.path;
   } catch (e: any) {
@@ -320,7 +393,7 @@ async function addMediaItems(e: Event, block: typeof form.contentBlocks[0]) {
       const res: any = await uploadMedia(file);
       if (!block.data) block.data = { items: [] };
       if (!Array.isArray(block.data.items)) block.data.items = [];
-      block.data.items.push({ mediaId: res.id, path: res.path, source: '' });
+      block.data.items.push({ mediaId: res.id, path: res.path, source: '', showWatermark: false });
     } catch (e: any) {
       error.value = e?.data?.message || 'Ошибка загрузки изображения';
     }
@@ -402,7 +475,8 @@ function buildBody(status?: 'draft' | 'published'): Record<string, unknown> {
     categoryIds: form.categoryIds,
     tagIds: form.tagIds,
     authorId: form.authorId || undefined,
-    videoUrl: form.videoUrl || undefined,
+    videoUrl: form.type === 'video' ? form.videoUrl || undefined : undefined,
+    duration: form.type === 'video' ? form.duration || undefined : undefined,
     contentBlocks: blocks,
     sources: form.sources.filter((s) => s.name.trim() || s.url.trim()),
     seo: {
@@ -455,6 +529,22 @@ async function submit(status?: 'draft' | 'published') {
         <button class="btn-primary" @click="submit('published')" :disabled="saving">
           🚀 Опубликовать
         </button>
+        <NuxtLink
+          v-if="publicUrl"
+          :to="publicUrl"
+          target="_blank"
+          class="btn-secondary"
+        >
+          🔗 На сайте
+        </NuxtLink>
+        <NuxtLink
+          v-else-if="previewUrl"
+          :to="previewUrl"
+          target="_blank"
+          class="btn-secondary"
+        >
+          👁 Предпросмотр
+        </NuxtLink>
       </div>
     </div>
 
@@ -530,9 +620,9 @@ async function submit(status?: 'draft' | 'published') {
             </div>
             <div>
               <label class="mb-1 block text-xs font-medium text-foreground/70">Автор</label>
-              <select v-model="form.authorId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
+              <select v-model="selectedAuthorId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                 <option value="">— Автоматически —</option>
-                <option v-for="a in sortedAuthors" :key="a.id" :value="a.id">{{ authorLabel(a) }}</option>
+                <option v-for="a in dedupedAuthors" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
             </div>
             <div class="sm:col-span-2">
@@ -618,6 +708,12 @@ async function submit(status?: 'draft' | 'published') {
                     </label>
                     <input v-model="block.data.caption" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-xs outline-none focus:border-accent" placeholder="Подпись к изображению">
                     <input v-model="block.data.source" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-xs outline-none focus:border-accent" placeholder="Источник фото">
+                    <label class="flex cursor-pointer items-center gap-2 text-xs text-foreground/70">
+                      <div class="relative h-4 w-8 cursor-pointer rounded-full bg-foreground/10 transition" :class="block.data.showWatermark ? 'bg-accent' : ''" @click="block.data.showWatermark = !block.data.showWatermark">
+                        <span class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-card transition" :class="block.data.showWatermark ? 'translate-x-4' : ''" />
+                      </div>
+                      Водяной знак
+                    </label>
                   </div>
 
                   <!-- Slider / Gallery block -->
@@ -629,6 +725,12 @@ async function submit(status?: 'draft' | 'published') {
                           <button class="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] text-white" @click="removeMediaItem(block, i)">✕</button>
                         </div>
                         <input v-model="item.source" type="text" class="w-full border border-foreground/10 bg-card px-2 py-1.5 text-[11px] outline-none focus:border-accent" placeholder="Источник фото">
+                        <label class="flex cursor-pointer items-center gap-2 text-[11px] text-foreground/70">
+                          <div class="relative h-4 w-8 cursor-pointer rounded-full bg-foreground/10 transition" :class="item.showWatermark ? 'bg-accent' : ''" @click="item.showWatermark = !item.showWatermark">
+                            <span class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-card transition" :class="item.showWatermark ? 'translate-x-4' : ''" />
+                          </div>
+                          Водяной знак
+                        </label>
                       </div>
                     </div>
                     <label class="flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-foreground/10 px-4 py-6 text-xs text-foreground/50 transition hover:border-accent hover:text-foreground">
@@ -714,9 +816,15 @@ async function submit(status?: 'draft' | 'published') {
                 </label>
               </div>
             </div>
-            <div class="mt-3">
-              <label class="mb-1 block text-xs font-medium text-foreground/70">Источник видео</label>
-              <input v-model="form.videoUrl" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="https://youtube.com/...">
+            <div v-if="form.type === 'video'" class="mt-3 space-y-3">
+              <div>
+                <label class="mb-1 block text-xs font-medium text-foreground/70">Источник видео</label>
+                <input v-model="form.videoUrl" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="https://youtube.com/...">
+              </div>
+              <div>
+                <label class="mb-1 block text-xs font-medium text-foreground/70">Продолжительность (чч:мм:сс)</label>
+                <input v-model="durationInput" type="text" inputmode="numeric" pattern="[0-9:]+" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="0:05:30">
+              </div>
             </div>
           </div>
         </div>

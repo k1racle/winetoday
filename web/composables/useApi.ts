@@ -18,12 +18,14 @@ export function useApi() {
       api(`/articles/${slug}`, { query: preview ? { preview: true } : undefined }),
     getNews: (query?: Record<string, unknown>) =>
       api('/news', { query }),
-    getNewsItem: (slug: string) =>
-      api(`/news/${slug}`),
+    getNewsItem: (slug: string, preview?: boolean) =>
+      api(`/news/${slug}`, { query: preview ? { preview: true } : undefined }),
     getVideos: (query?: Record<string, unknown>) =>
       api('/videos', { query }),
-    getVideo: (slug: string) =>
-      api(`/videos/${slug}`),
+    getVideo: (slug: string, preview?: boolean) =>
+      api(`/videos/${slug}`, { query: preview ? { preview: true } : undefined }),
+    getGallery: (slug: string, preview?: boolean) =>
+      api(`/galleries/${slug}`, { query: preview ? { preview: true } : undefined }),
     getHomepage: () =>
       api('/homepage'),
     getCategories: () =>
@@ -54,6 +56,10 @@ export function useApi() {
       api('/site-settings/social-links', { credentials: 'include' }),
     updateSocialLinks: (body: { title?: string; links: { label: string; href: string; icon?: string }[] }) =>
       api('/admin/site-settings/social-links', { method: 'PATCH', body, credentials: 'include' }),
+    getWatermarkSettings: () =>
+      api('/settings/watermark', { credentials: 'include' }),
+    updateWatermarkSettings: (body: Record<string, unknown>) =>
+      api('/admin/settings/watermark', { method: 'PATCH', body, credentials: 'include' }),
     getSiteSettings: () =>
       api('/site-settings'),
     getSiteSeo: () =>
@@ -89,6 +95,16 @@ export function useApi() {
         credentials: 'include',
       });
     },
+    uploadCoverMedia: (file: File, watermark = false) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return api('/media/cover', {
+        method: 'POST',
+        query: watermark ? { watermark: 'true' } : undefined,
+        body: formData,
+        credentials: 'include',
+      });
+    },
     saveDraft: (body: Record<string, unknown>) =>
       api('/editor/drafts', { method: 'POST', body, credentials: 'include' }),
     getDraft: (id: string) =>
@@ -99,5 +115,7 @@ export function useApi() {
       api('/editor/authors', { credentials: 'include' }),
     getAdminAuthors: () =>
       api('/admin/authors', { credentials: 'include' }),
+    getAuthorAnalytics: (id: string) =>
+      api(`/admin/authors/${id}/analytics`, { credentials: 'include' }),
   };
 }

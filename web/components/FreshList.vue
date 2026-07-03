@@ -49,7 +49,7 @@ const displayedItems = computed<ContentItem[]>(() => {
 </script>
 
 <template>
-  <div class="flex h-full flex-col border border-foreground/5 bg-card p-5 shadow-sm md:p-6">
+  <div class="flex flex-col border border-foreground/5 bg-card p-5 shadow-sm md:p-6">
     <!-- Tabs -->
     <div class="mb-4 flex items-center justify-between">
       <button
@@ -70,7 +70,7 @@ const displayedItems = computed<ContentItem[]>(() => {
       </button>
     </div>
 
-    <ul class="flex-1 divide-y divide-foreground/10">
+    <ul class="divide-y divide-foreground/10">
       <li v-for="item in displayedItems" :key="item.id" class="py-3 first:pt-0 last:pb-0">
         <NuxtLink :to="link(item)" class="group flex min-w-0 items-start gap-3 transition-transform duration-200 hover:scale-[1.01]">
           <span class="shrink-0 pt-0.5 text-sm font-bold text-accent">

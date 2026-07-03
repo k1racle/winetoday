@@ -5,13 +5,15 @@ RUN apk add --no-cache openssl libc6-compat
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci
+RUN npm ci --include=dev
 
 COPY prisma ./prisma/
 RUN npx prisma generate
 
 COPY . .
-RUN npm run build
+
+ENV NODE_ENV=production
+RUN npx nest build
 
 EXPOSE 4000
 

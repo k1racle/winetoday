@@ -17,14 +17,16 @@ const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
 const { date, category } = useContentMeta(props.item);
 const duration = computed(() => {
   const block = props.item.contentBlocks?.find((b: any) => b.type === 'video-player');
-  return block?.duration;
+  return block?.duration || props.item.duration;
 });
 
 function formatDuration(seconds?: number) {
   if (!seconds) return '';
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, '0')}`;
+  const total = Math.floor(seconds);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 </script>
 
@@ -55,7 +57,6 @@ function formatDuration(seconds?: number) {
 
       <div v-if="showTitle" class="relative z-10 p-5 text-white md:p-8">
         <div class="mb-2 flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wider text-white/80">
-          <span>Видео</span>
           <span v-if="category">{{ category }}</span>
           <span v-if="date">{{ date }}</span>
           <span v-if="duration">{{ formatDuration(duration) }}</span>

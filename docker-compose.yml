@@ -152,6 +152,7 @@ services:
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
       FRONTEND_REVALIDATE_URL: http://frontend:3000/api/revalidate
       CORS_ORIGIN: ${SITE_URL:-http://localhost},http://localhost:3001
+      WATERMARK_SERVICE_URL: http://watermark:4001
     ports:
       - "4000:4000"
     volumes:
@@ -170,6 +171,34 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+
+  watermark:
+    build:
+      context: ./watermark
+      dockerfile: Dockerfile
+    container_name: vino_watermark
+    environment:
+      NODE_ENV: production
+      PORT: 4001
+      UPLOADS_DIR: /app/uploads
+      CONCURRENCY: 1
+      MAX_QUEUE_SIZE: 10
+    volumes:
+      - media_uploads:/app/uploads
+    networks:
+      default:
+      winemakingtoday_static:
+        ipv4_address: 192.168.240.14
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4001/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 12

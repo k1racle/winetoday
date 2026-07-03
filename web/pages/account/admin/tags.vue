@@ -19,6 +19,24 @@ const form = reactive({
   slug: '',
 });
 
+const uniqueTags = computed(() => {
+  const map = new Map<string, Tag>();
+  for (const tag of tags.value) {
+    const key = tag.name.trim().toLowerCase();
+    const existing = map.get(key);
+    if (!existing) {
+      map.set(key, tag);
+      continue;
+    }
+    const existingNumbered = /-\d+$/.test(existing.slug);
+    const tagNumbered = /-\d+$/.test(tag.slug);
+    if (existingNumbered && !tagNumbered) {
+      map.set(key, tag);
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+});
+
 async function fetchTags() {
   loading.value = true;
   error.value = '';
@@ -136,7 +154,7 @@ onMounted(() => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in tags" :key="item.id" class="bg-foreground/5">
+          <tr v-for="item in uniqueTags" :key="item.id" class="bg-foreground/5">
             <td class="border border-foreground/10 px-4 py-2">{{ item.name }}</td>
             <td class="border border-foreground/10 px-4 py-2">{{ item.slug }}</td>
             <td class="border border-foreground/10 px-4 py-2">

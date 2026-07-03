@@ -43,6 +43,42 @@ function getEmbedUrl(url?: string) {
         </figcaption>
       </figure>
 
+      <figure v-else-if="block.type === 'image'" class="my-6">
+        <NuxtImg
+          v-if="block.data?.path"
+          :src="useMediaUrl(block.data.path)"
+          :alt="block.data.caption || ''"
+          class="w-full"
+        />
+        <figcaption v-if="block.data?.caption || block.data?.source" class="mt-2 text-sm text-foreground/60">
+          {{ block.data.caption }}
+          <span v-if="block.data.caption && block.data.source"> / </span>
+          <span v-if="block.data.source">{{ block.data.source }}</span>
+        </figcaption>
+      </figure>
+
+      <BlockSlider
+        v-else-if="block.type === 'slider'"
+        :items="block.data?.items || []"
+        class="my-6"
+      />
+
+      <div v-else-if="block.type === 'gallery'" class="my-6">
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <figure v-for="(item, i) in block.data?.items" :key="i">
+            <NuxtImg
+              v-if="item.path"
+              :src="useMediaUrl(item.path)"
+              :alt="item.source || ''"
+              class="w-full"
+            />
+            <figcaption v-if="item.source" class="mt-1 text-xs text-foreground/60">
+              {{ item.source }}
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
       <blockquote
         v-else-if="block.type === 'quote'"
         class="border-l-4 border-accent bg-accent/5 p-6 italic"

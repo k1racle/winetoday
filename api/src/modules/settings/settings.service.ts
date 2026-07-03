@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
+import { UpdateWatermarkDto } from './dto/update-watermark.dto';
 
 const singletonInclude = {
   logoMedia: true,
@@ -55,8 +56,10 @@ export class SettingsService {
         watermarkOpacity: true,
         watermarkSizePercent: true,
         watermarkPosition: true,
-        watermarkOffsetXPercent: true,
-        watermarkOffsetYPercent: true,
+        watermarkOffsetTopPercent: true,
+        watermarkOffsetRightPercent: true,
+        watermarkOffsetBottomPercent: true,
+        watermarkOffsetLeftPercent: true,
         watermarkMinSizePx: true,
         watermarkMaxSizePx: true,
         watermarkMedia: true,
@@ -74,8 +77,10 @@ export class SettingsService {
       opacity: settings.watermarkOpacity,
       sizePercent: settings.watermarkSizePercent,
       position: settings.watermarkPosition,
-      offsetXPercent: settings.watermarkOffsetXPercent,
-      offsetYPercent: settings.watermarkOffsetYPercent,
+      offsetTopPercent: settings.watermarkOffsetTopPercent,
+      offsetRightPercent: settings.watermarkOffsetRightPercent,
+      offsetBottomPercent: settings.watermarkOffsetBottomPercent,
+      offsetLeftPercent: settings.watermarkOffsetLeftPercent,
       minSizePx: settings.watermarkMinSizePx,
       maxSizePx: settings.watermarkMaxSizePx,
     };
@@ -110,6 +115,36 @@ export class SettingsService {
       where: { id: existing.id },
       data: { socialLinks: data as any },
       select: { socialLinks: true },
+    });
+  }
+
+  async updateWatermark(dto: UpdateWatermarkDto) {
+    const existing = await this.prisma.siteSettings.findFirst();
+    const data = {
+      watermarkEnabled: dto.enabled,
+      watermarkMediaId: dto.mediaId,
+      watermarkOpacity: dto.opacity,
+      watermarkSizePercent: dto.sizePercent,
+      watermarkPosition: dto.position,
+      watermarkOffsetTopPercent: dto.offsetTopPercent,
+      watermarkOffsetRightPercent: dto.offsetRightPercent,
+      watermarkOffsetBottomPercent: dto.offsetBottomPercent,
+      watermarkOffsetLeftPercent: dto.offsetLeftPercent,
+      watermarkMinSizePx: dto.minSizePx,
+      watermarkMaxSizePx: dto.maxSizePx,
+    };
+
+    if (!existing) {
+      return this.prisma.siteSettings.create({
+        data,
+        include: { watermarkMedia: true },
+      });
+    }
+
+    return this.prisma.siteSettings.update({
+      where: { id: existing.id },
+      data,
+      include: { watermarkMedia: true },
     });
   }
 }

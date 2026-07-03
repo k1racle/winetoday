@@ -67,8 +67,8 @@ useSeoMeta({
     <section v-if="topItems.length" class="mx-auto max-w-7xl px-4 py-4">
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
         <!-- Fresh / popular news: first on mobile, right column on desktop -->
-        <aside class="order-first w-full lg:order-none lg:col-start-4 lg:row-start-1 lg:row-span-3">
-          <FreshList :items="freshItems" class="h-full" />
+        <aside class="order-first w-full self-start lg:order-none lg:col-start-4 lg:row-start-1 lg:row-span-3">
+          <FreshList :items="freshItems" />
         </aside>
 
         <!-- Mobile: top 3 items look the same (photo on top, text below) -->

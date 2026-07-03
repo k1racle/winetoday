@@ -11,7 +11,7 @@ const props = withDefaults(
 );
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
-const { date, category, typeLabel } = useContentMeta(props.item);
+const { date, category } = useContentMeta(props.item);
 
 const link = computed(() => {
   switch (props.item.type) {
@@ -48,12 +48,6 @@ const link = computed(() => {
         :alt="item.coverMedia.altText || item.title"
         class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
       />
-      <span
-        v-if="typeLabel"
-        class="absolute left-2 top-2 rounded bg-accent px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-background"
-      >
-        {{ typeLabel }}
-      </span>
       <span
         v-if="item.materialLabel === 'exclusive'"
         class="absolute bottom-2 right-2 rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"

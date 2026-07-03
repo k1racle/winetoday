@@ -30,6 +30,7 @@ export type ContentItem = {
   categories?: { name: string; slug: string }[];
   tags?: { name: string; slug: string }[];
   videoUrl?: string | null;
+  duration?: number | null;
   viewsTotal: number;
   homepageSpecialBlock?: boolean;
   homepageLead?: boolean;

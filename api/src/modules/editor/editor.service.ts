@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ContentStatus, ContentType, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { MediaService } from '../media/media.service';
 import { CreateDraftDto } from './dto/create-draft.dto';
 
 const CYRILLIC_MAP: Record<string, string> = {
@@ -30,6 +31,10 @@ function slugify(text: string): string {
     .slice(0, 100);
 }
 
+function stripWatermarkSuffix(filePath: string): string {
+  return filePath.replace(/_wm(\.[^.]+)$/, '$1');
+}
+
 export type RequestUser = {
   userId: string;
   email: string;
@@ -38,7 +43,10 @@ export type RequestUser = {
 
 @Injectable()
 export class EditorService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mediaService: MediaService,
+  ) {}
 
   async saveDraft(user: RequestUser, dto: CreateDraftDto) {
     let authorId = await this.ensureAuthorId(user);
@@ -56,6 +64,37 @@ export class EditorService {
     slug = slug.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-|-$/g, '').slice(0, 100);
 
     await this.ensureUniqueSlug(type, slug, dto.id);
+
+    if (dto.coverShowWatermark && dto.coverMediaId) {
+      await this.mediaService.ensureWatermark(dto.coverMediaId);
+    }
+
+    const contentBlocks = Array.isArray(dto.contentBlocks) ? dto.contentBlocks : [];
+    for (const block of contentBlocks) {
+      if (block.type === 'image' && block.data?.mediaId) {
+        if (block.data.showWatermark) {
+          const newPath = await this.mediaService.ensureWatermark(block.data.mediaId);
+          if (newPath) block.data.path = newPath;
+        } else if (block.data.path?.includes('_wm')) {
+          block.data.path = stripWatermarkSuffix(block.data.path);
+        }
+        continue;
+      }
+
+      if ((block.type === 'slider' || block.type === 'gallery') && Array.isArray(block.data?.items)) {
+        // Legacy block-level toggle: treat it as enabled for every item.
+        const legacyBlockWatermark = block.data.showWatermark === true;
+        for (const item of block.data.items) {
+          if (!item.mediaId) continue;
+          if (legacyBlockWatermark || item.showWatermark) {
+            const newPath = await this.mediaService.ensureWatermark(item.mediaId);
+            if (newPath) item.path = newPath;
+          } else if (item.path?.includes('_wm')) {
+            item.path = stripWatermarkSuffix(item.path);
+          }
+        }
+      }
+    }
 
     const isPublishing = dto.status === ContentStatus.published;
     const publishedAt = dto.publishedAt
@@ -77,8 +116,9 @@ export class EditorService {
       coverMediaId: dto.coverMediaId || null,
       coverShowWatermark: dto.coverShowWatermark ?? false,
       videoUrl: dto.videoUrl || null,
+      duration: dto.duration ?? null,
       authorId,
-      contentBlocks: Array.isArray(dto.contentBlocks) ? (dto.contentBlocks as any) : [],
+      contentBlocks: contentBlocks as any,
       sources: Array.isArray(dto.sources) ? (dto.sources as any) : [],
       seo: dto.seo && typeof dto.seo === 'object' ? (dto.seo as any) : {},
     };
@@ -144,14 +184,23 @@ export class EditorService {
       status?: string;
       search?: string;
       authorId?: string;
+      authorName?: string;
       limit?: number;
       offset?: number;
+      sort?: string;
+      order?: 'asc' | 'desc';
     } = {},
   ) {
     const where: Prisma.ContentItemWhereInput = {};
     if (user.role !== Role.admin && user.role !== Role.editor) {
       const authorId = await this.ensureAuthorId(user);
       where.authorId = authorId;
+    } else if (options.authorName?.trim()) {
+      const authors = await this.prisma.author.findMany({
+        where: { name: { equals: options.authorName.trim(), mode: 'insensitive' } },
+        select: { id: true },
+      });
+      where.authorId = { in: authors.map((a) => a.id) };
     } else if (options.authorId) {
       where.authorId = options.authorId;
     }
@@ -166,10 +215,27 @@ export class EditorService {
       where.title = { contains: options.search.trim(), mode: 'insensitive' };
     }
 
+    const sortField = options.sort || 'updatedAt';
+    const sortOrder = options.order === 'asc' ? 'asc' : 'desc';
+
+    const allowedSortFields: Record<string, any> = {
+      title: { title: sortOrder },
+      type: { type: sortOrder },
+      status: { status: sortOrder },
+      publishedAt: { publishedAt: sortOrder },
+      updatedAt: { updatedAt: sortOrder },
+      viewsTotal: { viewsTotal: sortOrder },
+      author: { author: { name: sortOrder } },
+    };
+
+    const orderBy = allowedSortFields[sortField]
+      ? [allowedSortFields[sortField], { pinned: 'desc' }]
+      : [{ pinned: 'desc' }, { updatedAt: 'desc' }];
+
     const [items, total] = await Promise.all([
       this.prisma.contentItem.findMany({
         where,
-        orderBy: [{ pinned: 'desc' }, { updatedAt: 'desc' }],
+        orderBy,
         take: options.limit || 30,
         skip: options.offset || 0,
         select: {
@@ -181,7 +247,8 @@ export class EditorService {
           publishedAt: true,
           updatedAt: true,
           coverMedia: { select: { path: true } },
-          author: { select: { name: true } },
+          author: { select: { id: true, name: true } },
+          authorId: true,
           viewsTotal: true,
         },
       }),
@@ -217,21 +284,141 @@ export class EditorService {
       },
     });
 
-    return authors.map((a) => ({
-      id: a.id,
-      name: a.name,
-      slug: a.slug,
-      position: a.position,
-      materialsCount: a._count.contentItems,
-      user: a.memberProfile?.user
-        ? {
-            id: a.memberProfile.user.id,
-            email: a.memberProfile.user.email,
-            username: a.memberProfile.user.username,
-            role: a.memberProfile.user.role,
-          }
-        : null,
-    }));
+    const groups = new Map<
+      string,
+      {
+        representatives: typeof authors;
+        totalMaterials: number;
+      }
+    >();
+
+    for (const author of authors) {
+      const key = author.name.trim().toLowerCase();
+      const existing = groups.get(key);
+      const count = author._count.contentItems;
+      if (!existing) {
+        groups.set(key, { representatives: [author], totalMaterials: count });
+      } else {
+        existing.representatives.push(author);
+        existing.totalMaterials += count;
+      }
+    }
+
+    const result = Array.from(groups.values()).map((group) => {
+      const representative = group.representatives.sort((a, b) => {
+        const aHasUser = a.memberProfile?.user ? 1 : 0;
+        const bHasUser = b.memberProfile?.user ? 1 : 0;
+        if (aHasUser !== bHasUser) return bHasUser - aHasUser;
+        const aCount = a._count.contentItems;
+        const bCount = b._count.contentItems;
+        if (aCount !== bCount) return bCount - aCount;
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      })[0];
+
+      return {
+        id: representative.id,
+        name: representative.name,
+        slug: representative.slug,
+        position: representative.position,
+        materialsCount: group.totalMaterials,
+        user: representative.memberProfile?.user
+          ? {
+              id: representative.memberProfile.user.id,
+              email: representative.memberProfile.user.email,
+              username: representative.memberProfile.user.username,
+              role: representative.memberProfile.user.role,
+            }
+          : null,
+      };
+    });
+
+    return result.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  }
+
+  async getAuthorAnalytics(authorId: string) {
+    const author = await this.prisma.author.findUnique({
+      where: { id: authorId },
+      select: { id: true, name: true, slug: true, position: true, bio: true },
+    });
+
+    if (!author) {
+      throw new NotFoundException('Author not found');
+    }
+
+    // Aggregate all author duplicates by name (case-insensitive) so the cabinet
+    // shows the combined stats regardless of which duplicate was picked in the list.
+    const allAuthors = await this.prisma.author.findMany({
+      where: { name: { equals: author.name, mode: 'insensitive' } },
+      select: { id: true },
+    });
+    const authorIds = allAuthors.map((a) => a.id);
+
+    const materials = await this.prisma.contentItem.findMany({
+      where: { authorId: { in: authorIds } },
+      orderBy: [{ publishedAt: 'desc' }, { updatedAt: 'desc' }],
+      select: {
+        id: true,
+        type: true,
+        title: true,
+        slug: true,
+        status: true,
+        publishedAt: true,
+        updatedAt: true,
+        viewsTotal: true,
+      },
+    });
+
+    const dailyRaw = await this.prisma.authorViewDaily.findMany({
+      where: { authorId: { in: authorIds } },
+      select: {
+        date: true,
+        articleViews: true,
+        newsViews: true,
+        videoViews: true,
+        galleryViews: true,
+        totalViews: true,
+      },
+    });
+
+    const dailyMap = new Map<string, {
+      date: string;
+      articleViews: number;
+      newsViews: number;
+      videoViews: number;
+      galleryViews: number;
+      totalViews: number;
+    }>();
+
+    for (const day of dailyRaw) {
+      const key = day.date.toISOString().slice(0, 10);
+      const existing = dailyMap.get(key);
+      if (!existing) {
+        dailyMap.set(key, {
+          date: key,
+          articleViews: day.articleViews || 0,
+          newsViews: day.newsViews || 0,
+          videoViews: day.videoViews || 0,
+          galleryViews: day.galleryViews || 0,
+          totalViews: day.totalViews || 0,
+        });
+      } else {
+        existing.articleViews += day.articleViews || 0;
+        existing.newsViews += day.newsViews || 0;
+        existing.videoViews += day.videoViews || 0;
+        existing.galleryViews += day.galleryViews || 0;
+        existing.totalViews += day.totalViews || 0;
+      }
+    }
+
+    const dailyViews = Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
+    const totalViews = dailyViews.reduce((sum, day) => sum + day.totalViews, 0);
+
+    return {
+      author,
+      materials,
+      totalViews,
+      dailyViews,
+    };
   }
 
   private async ensureAuthorId(user: RequestUser): Promise<string> {

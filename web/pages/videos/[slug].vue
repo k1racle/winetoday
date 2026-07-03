@@ -6,7 +6,7 @@ const { getVideo, incrementView } = useApi();
 
 const { data: video, error } = await useAsyncData(
   `video-${route.params.slug}`,
-  () => getVideo(route.params.slug as string),
+  () => getVideo(route.params.slug as string, route.query.preview === '1'),
 );
 
 if (!video.value && error.value) {

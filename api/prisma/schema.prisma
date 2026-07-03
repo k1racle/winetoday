@@ -172,6 +172,7 @@ model ContentItem {
   sources               Json?
   tastingNote           Json?         @map("tasting_note")
   videoUrl              String?       @map("video_url")
+  duration              Int?
   seo                   Json?
 
   viewsTotal            Int           @default(0) @map("views_total")
@@ -310,8 +311,10 @@ model SiteSettings {
   watermarkOpacity          Float    @default(0.85) @map("watermark_opacity")
   watermarkSizePercent      Float    @default(18) @map("watermark_size_percent")
   watermarkPosition         String   @default("bottom-right") @map("watermark_position")
-  watermarkOffsetXPercent   Float    @default(4) @map("watermark_offset_x_percent")
-  watermarkOffsetYPercent   Float    @default(4) @map("watermark_offset_y_percent")
+  watermarkOffsetTopPercent    Float    @default(4) @map("watermark_offset_top_percent")
+  watermarkOffsetRightPercent  Float    @default(4) @map("watermark_offset_right_percent")
+  watermarkOffsetBottomPercent Float    @default(4) @map("watermark_offset_bottom_percent")
+  watermarkOffsetLeftPercent   Float    @default(4) @map("watermark_offset_left_percent")
   watermarkMinSizePx        Int      @default(48) @map("watermark_min_size_px")
   watermarkMaxSizePx        Int      @default(220) @map("watermark_max_size_px")
 

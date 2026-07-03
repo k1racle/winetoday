@@ -22,7 +22,7 @@ const link = computed(() => {
 });
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
-const { shortDate, category, typeLabel } = useContentMeta(props.item);
+const { shortDate, category } = useContentMeta(props.item);
 </script>
 
 <template>
@@ -44,7 +44,6 @@ const { shortDate, category, typeLabel } = useContentMeta(props.item);
     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
     <div class="relative z-10 p-3 text-white md:p-6">
       <div class="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-wider text-white/80 md:text-xs">
-        <span v-if="typeLabel">{{ typeLabel }}</span>
         <span v-if="category">{{ category }}</span>
         <span v-if="shortDate">{{ shortDate }}</span>
       </div>

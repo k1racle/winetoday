@@ -6,7 +6,7 @@ const { getNewsItem, incrementView } = useApi();
 
 const { data: newsItem, error } = await useAsyncData(
   `news-${route.params.slug}`,
-  () => getNewsItem(route.params.slug as string),
+  () => getNewsItem(route.params.slug as string, route.query.preview === '1'),
 );
 
 if (!newsItem.value && error.value) {

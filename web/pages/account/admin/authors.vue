@@ -20,12 +20,35 @@ const authors = ref<AdminAuthor[]>([]);
 const loading = ref(false);
 const error = ref('');
 
+function dedupeAuthors(list: AdminAuthor[]): AdminAuthor[] {
+  const map = new Map<string, AdminAuthor>();
+  for (const author of list) {
+    const name = author.name.trim();
+    const existing = map.get(name);
+    if (!existing) {
+      map.set(name, author);
+      continue;
+    }
+    // Prefer the author linked to a user. If both have (or lack) a user,
+    // keep the one with more materials.
+    const authorHasUser = !!author.user;
+    const existingHasUser = !!existing.user;
+    if (
+      (authorHasUser && !existingHasUser) ||
+      (authorHasUser === existingHasUser && author.materialsCount > existing.materialsCount)
+    ) {
+      map.set(name, author);
+    }
+  }
+  return Array.from(map.values());
+}
+
 async function fetchAuthors() {
   loading.value = true;
   error.value = '';
   try {
     const res = await getAdminAuthors() as AdminAuthor[];
-    authors.value = Array.isArray(res) ? res : [];
+    authors.value = dedupeAuthors(Array.isArray(res) ? res : []);
   } catch (err: any) {
     error.value = err?.data?.message || err?.message || 'Ошибка загрузки авторов';
   } finally {
@@ -77,7 +100,11 @@ onMounted(() => {
         </thead>
         <tbody>
           <tr v-for="a in authors" :key="a.id" class="bg-foreground/5">
-            <td class="border border-foreground/10 px-4 py-2">{{ a.name }}</td>
+            <td class="border border-foreground/10 px-4 py-2">
+              <NuxtLink :to="`/account/admin/authors/${a.id}`" class="text-accent hover:underline">
+                {{ a.name }}
+              </NuxtLink>
+            </td>
             <td class="border border-foreground/10 px-4 py-2 font-mono text-xs">{{ a.slug }}</td>
             <td class="border border-foreground/10 px-4 py-2">{{ a.position || '—' }}</td>
             <td class="border border-foreground/10 px-4 py-2">{{ a.materialsCount }}</td>

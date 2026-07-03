@@ -8,7 +8,8 @@ interface Material {
   updatedAt: string;
   publishedAt?: string | null;
   viewsTotal: number;
-  author?: { name: string } | null;
+  authorId?: string | null;
+  author?: { id: string; name: string } | null;
 }
 
 const { user, isAuthenticated } = useAuth();
@@ -23,6 +24,11 @@ const error = ref('');
 const typeFilter = ref('');
 const statusFilter = ref('');
 const search = ref('');
+
+const limit = 20;
+const offset = ref(0);
+const sortField = ref('updatedAt');
+const sortOrder = ref<'asc' | 'desc'>('desc');
 
 const typeOptions = [
   { value: '', label: 'Все типы' },
@@ -61,11 +67,28 @@ const statusColors: Record<string, string> = {
   rejected: 'bg-red-600',
 };
 
+const sortableColumns = [
+  { field: 'status', label: 'Статус' },
+  { field: 'type', label: 'Тип' },
+  { field: 'title', label: 'Заголовок' },
+  { field: 'author', label: 'Автор' },
+  { field: 'viewsTotal', label: 'Просмотры' },
+  { field: 'updatedAt', label: 'Обновлено' },
+];
+
+const currentPage = computed(() => Math.floor(offset.value / limit) + 1);
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / limit)));
+
 async function fetchMaterials() {
   loading.value = true;
   error.value = '';
   try {
-    const query: Record<string, string> = {};
+    const query: Record<string, string> = {
+      limit: String(limit),
+      offset: String(offset.value),
+      sort: sortField.value,
+      order: sortOrder.value,
+    };
     if (typeFilter.value) query.type = typeFilter.value;
     if (statusFilter.value) query.status = statusFilter.value;
     if (search.value.trim()) query.search = search.value.trim();
@@ -80,6 +103,33 @@ async function fetchMaterials() {
   }
 }
 
+function toggleSort(field: string) {
+  if (sortField.value === field) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    sortField.value = field;
+    sortOrder.value = 'asc';
+  }
+  offset.value = 0;
+  fetchMaterials();
+}
+
+function goToPage(page: number) {
+  const target = Math.max(1, Math.min(totalPages.value, page));
+  offset.value = (target - 1) * limit;
+  fetchMaterials();
+}
+
+function resetFilters() {
+  typeFilter.value = '';
+  statusFilter.value = '';
+  search.value = '';
+  sortField.value = 'updatedAt';
+  sortOrder.value = 'desc';
+  offset.value = 0;
+  fetchMaterials();
+}
+
 function countForType(type: string) {
   return counts.value.find((c) => c.type === type)?._count?.type || 0;
 }
@@ -87,6 +137,11 @@ function countForType(type: string) {
 function formatDate(date?: string | null) {
   if (!date) return '—';
   return new Date(date).toLocaleDateString('ru-RU');
+}
+
+function sortIcon(field: string) {
+  if (sortField.value !== field) return '↕';
+  return sortOrder.value === 'asc' ? '↑' : '↓';
 }
 
 onMounted(() => {
@@ -136,24 +191,32 @@ onMounted(() => {
         <input v-model="search" type="text" class="border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Введите заголовок..." @keyup.enter="fetchMaterials">
       </div>
       <button class="btn-primary" @click="fetchMaterials">Найти</button>
-      <button class="btn-secondary" @click="typeFilter = ''; statusFilter = ''; search = ''; fetchMaterials()">Сбросить</button>
+      <button class="btn-secondary" @click="resetFilters">Сбросить</button>
     </div>
 
     <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
     <p v-if="error" class="mt-6 text-sm text-red-600">{{ error }}</p>
 
-    <p class="mt-4 text-xs text-foreground/60">Всего: {{ total }}</p>
+    <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-foreground/60">
+      <p>Всего: {{ total }}</p>
+      <p>Страница {{ currentPage }} из {{ totalPages }}</p>
+    </div>
 
     <div v-if="!loading && materials.length" class="mt-4 overflow-x-auto">
       <table class="w-full border-collapse border border-foreground/10 text-sm">
         <thead class="bg-foreground/10">
           <tr>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Статус</th>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Тип</th>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Заголовок</th>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Автор</th>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Просмотры</th>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Обновлено</th>
+            <th
+              v-for="col in sortableColumns"
+              :key="col.field"
+              class="cursor-pointer select-none border border-foreground/10 px-4 py-2 text-left hover:bg-foreground/10"
+              @click="toggleSort(col.field)"
+            >
+              <span class="inline-flex items-center gap-1">
+                {{ col.label }}
+                <span class="text-xs text-foreground/40">{{ sortIcon(col.field) }}</span>
+              </span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -170,12 +233,50 @@ onMounted(() => {
                 {{ m.title }}
               </NuxtLink>
             </td>
-            <td class="border border-foreground/10 px-4 py-2">{{ m.author?.name || '—' }}</td>
+            <td class="border border-foreground/10 px-4 py-2">
+              <NuxtLink
+                v-if="m.authorId && m.author"
+                :to="`/account/admin/authors/${m.authorId}`"
+                class="text-accent hover:underline"
+              >
+                {{ m.author.name }}
+              </NuxtLink>
+              <span v-else>{{ m.author?.name || '—' }}</span>
+            </td>
             <td class="border border-foreground/10 px-4 py-2">{{ m.viewsTotal || 0 }}</td>
             <td class="border border-foreground/10 px-4 py-2">{{ formatDate(m.updatedAt) }}</td>
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="!loading && totalPages > 1" class="mt-4 flex flex-wrap items-center justify-between gap-3">
+      <button
+        class="btn-secondary"
+        :disabled="currentPage <= 1"
+        @click="goToPage(currentPage - 1)"
+      >
+        ← Назад
+      </button>
+      <div class="flex flex-wrap items-center gap-1">
+        <button
+          v-for="page in totalPages"
+          :key="page"
+          class="h-8 min-w-[2rem] px-2 text-xs transition"
+          :class="page === currentPage ? 'bg-accent text-black' : 'border border-foreground/10 bg-foreground/5 hover:bg-foreground/10'"
+          @click="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+      </div>
+      <button
+        class="btn-secondary"
+        :disabled="currentPage >= totalPages"
+        @click="goToPage(currentPage + 1)"
+      >
+        Вперёд →
+      </button>
     </div>
 
     <p v-if="!loading && !materials.length" class="mt-6 text-sm text-foreground/60">Материалы не найдены</p>

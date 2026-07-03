@@ -16,6 +16,7 @@ export type AdminUserOutput = {
   createdAt: Date;
   displayName: string | null;
   authorId: string | null;
+  authorName: string | null;
 };
 
 @Injectable()
@@ -35,6 +36,9 @@ export class UsersService {
           select: {
             displayName: true,
             authorId: true,
+            author: {
+              select: { name: true },
+            },
           },
         },
       },
@@ -43,6 +47,7 @@ export class UsersService {
       ...u,
       displayName: u.memberProfile?.displayName ?? null,
       authorId: u.memberProfile?.authorId ?? null,
+      authorName: u.memberProfile?.author?.name ?? null,
     }));
   }
 
@@ -59,6 +64,9 @@ export class UsersService {
           select: {
             displayName: true,
             authorId: true,
+            author: {
+              select: { name: true },
+            },
           },
         },
       },
@@ -70,6 +78,7 @@ export class UsersService {
       ...user,
       displayName: user.memberProfile?.displayName ?? null,
       authorId: user.memberProfile?.authorId ?? null,
+      authorName: user.memberProfile?.author?.name ?? null,
     };
   }
 
@@ -129,6 +138,7 @@ export class UsersService {
       ...user,
       displayName: user.memberProfile?.displayName ?? null,
       authorId: user.memberProfile?.authorId ?? null,
+      authorName: null,
     };
   }
 
@@ -210,6 +220,7 @@ export class UsersService {
       ...updated,
       displayName: updated.memberProfile?.displayName ?? null,
       authorId: updated.memberProfile?.authorId ?? null,
+      authorName: null,
     };
   }
 
@@ -247,6 +258,7 @@ export class UsersService {
       ...updated,
       displayName: updated.memberProfile?.displayName ?? null,
       authorId: updated.memberProfile?.authorId ?? null,
+      authorName: null,
     };
   }
 }

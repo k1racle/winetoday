@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -14,5 +14,10 @@ export class AdminAuthorsController {
   @Get()
   listAuthors() {
     return this.editorService.listAuthorsAdmin();
+  }
+
+  @Get(':id/analytics')
+  getAuthorAnalytics(@Param('id') id: string) {
+    return this.editorService.getAuthorAnalytics(id);
   }
 }
