@@ -1,106 +1,4 @@
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
-        NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
-        NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY}
-    container_name: vino_frontend
-    working_dir: /app
-    environment:
-      NODE_ENV: production
-      NODE_OPTIONS: --max-old-space-size=512
-      NEXT_TELEMETRY_DISABLED: "1"
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      NEXTAUTH_URL: ${NEXTAUTH_URL}
-      SITE_URL: ${SITE_URL:-http://localhost}
-      CMS_URL: http://backend:1337
-      MEDIA_URL: ${MEDIA_URL:-}
-      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
-      NEXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
-      NEXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
-      NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY}
-    ports:
-      - "3000:3000"
-    networks:
-      default:
-      winemakingtoday_static:
-        ipv4_address: 192.168.240.10
-    depends_on:
-      backend:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      meilisearch:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 30s
-    mem_limit: 768m
-    memswap_limit: 1536m
-    restart: unless-stopped
-
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: vino_backend
-    working_dir: /app
-    command: sh -c "node ./scripts/prepare-rich-text-blocks.js && npm run start:strapi"
-    environment:
-      NODE_ENV: production
-      STRAPI_TELEMETRY_DISABLED: "true"
-      HOST: 0.0.0.0
-      PORT: 1337
-      APP_KEYS: ${STRAPI_APP_KEYS}
-      API_TOKEN_SALT: ${STRAPI_API_TOKEN_SALT}
-      ADMIN_JWT_SECRET: ${STRAPI_ADMIN_JWT_SECRET}
-      TRANSFER_TOKEN_SALT: ${STRAPI_TRANSFER_TOKEN_SALT}
-      JWT_SECRET: ${STRAPI_JWT_SECRET}
-      ENCRYPTION_KEY: ${STRAPI_ENCRYPTION_KEY}
-      STRAPI_ADMIN_FIRSTNAME: ${STRAPI_ADMIN_FIRSTNAME}
-      STRAPI_ADMIN_LASTNAME: ${STRAPI_ADMIN_LASTNAME}
-      STRAPI_ADMIN_EMAIL: ${STRAPI_ADMIN_EMAIL}
-      STRAPI_ADMIN_PASSWORD: ${STRAPI_ADMIN_PASSWORD}
-      FRONTEND_REVALIDATE_URL: http://frontend:3000/api/revalidate
-      REVALIDATE_SECRET: ${REVALIDATE_SECRET}
-      DATABASE_CLIENT: postgres
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_NAME: ${POSTGRES_DB}
-      DATABASE_USERNAME: ${POSTGRES_USER}
-      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
-      DATABASE_SSL: "false"
-      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
-      MEILISEARCH_URL: http://meilisearch:7700
-      MEILISEARCH_API_KEY: ${MEILI_MASTER_KEY}
-    ports:
-      - "1337:1337"
-    volumes:
-      - backend_uploads:/app/public/uploads
-    networks:
-      default:
-      winemakingtoday_static:
-        ipv4_address: 192.168.240.11
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      meilisearch:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:1337/admin').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 10s
-      timeout: 10s
-      retries: 30
-      start_period: 120s
-    restart: unless-stopped
 
   web:
     build:
@@ -110,11 +8,11 @@ services:
     environment:
       NODE_ENV: production
       NUXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
-      NUXT_PUBLIC_API_URL: http://localhost:4000/api
-      NUXT_PUBLIC_MEDIA_BASE_URL: http://localhost:4000
-      NUXT_PUBLIC_MEILISEARCH_URL: http://localhost/search
-      NUXT_PUBLIC_EDITOR_URL: http://localhost:3000/account
-      NUXT_PUBLIC_UPLOADS_URL: http://localhost:4000/uploads
+      NUXT_PUBLIC_API_URL: ${NUXT_PUBLIC_API_URL:-http://localhost:4000/api}
+      NUXT_PUBLIC_MEDIA_BASE_URL: ${NUXT_PUBLIC_MEDIA_BASE_URL:-http://localhost:4000}
+      NUXT_PUBLIC_MEILISEARCH_URL: ${NUXT_PUBLIC_MEILISEARCH_URL:-http://localhost/search}
+      NUXT_PUBLIC_EDITOR_URL: ${NUXT_PUBLIC_EDITOR_URL:-http://localhost:3000/account}
+      NUXT_PUBLIC_UPLOADS_URL: ${NUXT_PUBLIC_UPLOADS_URL:-http://localhost:4000/uploads}
       API_URL: http://api:4000/api
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
     ports:
@@ -150,8 +48,7 @@ services:
       COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
-      FRONTEND_REVALIDATE_URL: http://frontend:3000/api/revalidate
-      CORS_ORIGIN: ${SITE_URL:-http://localhost},http://localhost:3001
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,http://localhost:3001}
       WATERMARK_SERVICE_URL: http://watermark:4001
     ports:
       - "4000:4000"
