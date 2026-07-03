@@ -5,7 +5,7 @@ RUN apk add --no-cache openssl libc6-compat
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci --include=dev
+RUN npm ci --include=dev --no-audit --no-fund --maxsockets=1
 
 COPY prisma ./prisma/
 RUN npx prisma generate

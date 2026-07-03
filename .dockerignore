@@ -1,0 +1,14 @@
+.git
+.gitignore
+.github
+node_modules
+*/node_modules
+.env
+.env.*
+*.md
+.cursor
+.gigacode
+.vscode
+.idea
+*.log
+.DS_Store

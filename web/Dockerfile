@@ -5,7 +5,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 COPY web/package.json web/package-lock.json* ./
-RUN npm ci --include=dev
+RUN npm ci --include=dev --no-audit --no-fund --maxsockets=1
 
 COPY web/ .
 COPY icons/ ./public/icons/
