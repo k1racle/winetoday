@@ -101,12 +101,23 @@ export class ContentService {
   }
 
   private async getCategoryAndDescendantIds(slug: string): Promise<string[]> {
-    const category = await this.prisma.category.findUnique({
-      where: { slug },
-      select: { id: true },
+    // Find the canonical category plus any duplicates with suffixes like -2, -3, etc.
+    const candidates = await this.prisma.category.findMany({
+      where: {
+        OR: [
+          { slug },
+          { slug: { startsWith: `${slug}-` } },
+        ],
+      },
+      select: { id: true, slug: true, parentId: true },
     });
 
-    if (!category) {
+    const duplicateSuffixPattern = new RegExp(`^${this.escapeRegex(slug)}-(\\d+)$`);
+    const matchingIds = candidates
+      .filter((c) => c.slug === slug || duplicateSuffixPattern.test(c.slug))
+      .map((c) => c.id);
+
+    if (matchingIds.length === 0) {
       return [];
     }
 
@@ -114,24 +125,32 @@ export class ContentService {
       select: { id: true, parentId: true },
     });
 
-    const descendants: string[] = [];
-    const queue = [category.id];
     const categoryMap = new Map<string, string | null>();
     for (const c of allCategories) {
       categoryMap.set(c.id, c.parentId);
     }
 
+    const descendantIds: string[] = [];
+    const queue = [...matchingIds];
+
     while (queue.length > 0) {
       const currentId = queue.shift()!;
-      descendants.push(currentId);
+      if (descendantIds.includes(currentId)) {
+        continue;
+      }
+      descendantIds.push(currentId);
       for (const [id, parentId] of categoryMap.entries()) {
-        if (parentId === currentId && !descendants.includes(id)) {
+        if (parentId === currentId) {
           queue.push(id);
         }
       }
     }
 
-    return descendants;
+    return descendantIds;
+  }
+
+  private escapeRegex(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   async findTags() {

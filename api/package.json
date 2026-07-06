@@ -18,7 +18,8 @@
     "db:seed": "ts-node src/migration/seed.ts",
     "db:etl": "ts-node src/migration/etl.ts",
     "db:migrate-users": "ts-node src/migration/migrate-users.ts",
-    "convert-images-to-avif": "ts-node scripts/convert-existing-images-to-avif.ts"
+    "convert-images-to-avif": "ts-node scripts/convert-existing-images-to-avif.ts",
+    "deduplicate-categories": "ts-node scripts/deduplicate-categories.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.0",
