@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE "content_items" ADD COLUMN "duration" INTEGER;
+ALTER TABLE "content_items" ADD COLUMN IF NOT EXISTS "duration" INTEGER;
