@@ -48,7 +48,7 @@ const { shortDate, category } = useContentMeta(props.item);
         <span v-if="category">{{ category }}</span>
         <span v-if="shortDate">{{ shortDate }}</span>
       </div>
-      <h3 class="font-heading text-sm font-bold leading-snug text-foreground group-hover:text-foreground line-clamp-2 break-words md:text-base md:line-clamp-3">
+      <h3 class="font-heading text-sm font-bold leading-snug text-foreground group-hover:text-foreground line-clamp-2 break-words md:text-[17px] md:line-clamp-3">
         {{ item.title }}
       </h3>
     </div>

@@ -65,7 +65,7 @@ const link = computed(() => {
       </div>
       <h3
         class="font-heading font-bold leading-snug group-hover:text-foreground"
-        :class="variant === 'compact' ? 'break-words text-sm line-clamp-3' : 'break-words text-lg'"
+        :class="variant === 'compact' ? 'break-words text-[17px] leading-snug line-clamp-3' : 'break-words text-lg'"
       >
         {{ item.title }}
       </h3>
