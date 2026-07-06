@@ -53,7 +53,7 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - backend_uploads:/app/public/uploads:ro
+      - backend_uploads:/app/public/uploads
       - media_uploads:/app/uploads
     networks:
       default:

@@ -5,22 +5,27 @@ import cookieParser from 'cookie-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { AppModule } from './app.module';
+import { createMediaAvifMiddleware } from './modules/media/media-avif.middleware';
 
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
 };
 
+const UPLOADS_DIR = '/app/uploads';
+const BACKEND_UPLOADS_DIR = '/app/public/uploads';
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.use(cookieParser());
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  app.use('/uploads', createMediaAvifMiddleware([UPLOADS_DIR, BACKEND_UPLOADS_DIR]));
+  app.useStaticAssets(UPLOADS_DIR, {
     prefix: '/uploads',
-    setHeaders: (res, filePath) => {
-      if (filePath.endsWith('.avif')) {
-        res.setHeader('Content-Type', 'image/avif');
-      }
-    },
+    setHeaders: avifContentTypeHeader,
+  });
+  app.useStaticAssets(BACKEND_UPLOADS_DIR, {
+    prefix: '/uploads',
+    setHeaders: avifContentTypeHeader,
   });
   app.useGlobalPipes(
     new ValidationPipe({
@@ -48,4 +53,11 @@ async function bootstrap() {
   await app.listen(port);
   console.log(`API listening on http://localhost:${port}`);
 }
+
+function avifContentTypeHeader(res: any, filePath: string) {
+  if (filePath.toLowerCase().endsWith('.avif')) {
+    res.setHeader('Content-Type', 'image/avif');
+  }
+}
+
 bootstrap();

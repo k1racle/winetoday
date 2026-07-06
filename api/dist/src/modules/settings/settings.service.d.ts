@@ -1,0 +1,195 @@
+import { PrismaService } from '../prisma/prisma.service';
+import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
+import { UpdateWatermarkDto } from './dto/update-watermark.dto';
+export declare class SettingsService {
+    private readonly prisma;
+    constructor(prisma: PrismaService);
+    siteSettings(): Promise<{
+        logoMedia: {
+            id: string;
+            path: string;
+            mime: string | null;
+            width: number | null;
+            height: number | null;
+            altText: string | null;
+            sizeBytes: bigint | null;
+            createdAt: Date;
+        };
+        watermarkMedia: {
+            id: string;
+            path: string;
+            mime: string | null;
+            width: number | null;
+            height: number | null;
+            altText: string | null;
+            sizeBytes: bigint | null;
+            createdAt: Date;
+        };
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        siteName: string | null;
+        siteDescription: string | null;
+        logoMediaId: string | null;
+        typography: import("@prisma/client/runtime/library").JsonValue | null;
+        socialLinks: import("@prisma/client/runtime/library").JsonValue | null;
+        watermarkEnabled: boolean;
+        watermarkMediaId: string | null;
+        watermarkOpacity: number;
+        watermarkSizePercent: number;
+        watermarkPosition: string;
+        watermarkOffsetTopPercent: number;
+        watermarkOffsetRightPercent: number;
+        watermarkOffsetBottomPercent: number;
+        watermarkOffsetLeftPercent: number;
+        watermarkMinSizePx: number;
+        watermarkMaxSizePx: number;
+    }>;
+    homepage(): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        title: string | null;
+        description: string | null;
+        infographicCards: import("@prisma/client/runtime/library").JsonValue | null;
+        blocks: import("@prisma/client/runtime/library").JsonValue | null;
+    }>;
+    siteHeader(): Promise<{
+        lightLogo: {
+            id: string;
+            path: string;
+            mime: string | null;
+            width: number | null;
+            height: number | null;
+            altText: string | null;
+            sizeBytes: bigint | null;
+            createdAt: Date;
+        };
+        darkLogo: {
+            id: string;
+            path: string;
+            mime: string | null;
+            width: number | null;
+            height: number | null;
+            altText: string | null;
+            sizeBytes: bigint | null;
+            createdAt: Date;
+        };
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        menu: import("@prisma/client/runtime/library").JsonValue | null;
+        lightLogoMediaId: string | null;
+        darkLogoMediaId: string | null;
+        stickyDesktop: boolean;
+        stickyTablet: boolean;
+        stickyMobile: boolean;
+    }>;
+    siteFooter(): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        columns: import("@prisma/client/runtime/library").JsonValue | null;
+    }>;
+    siteSeo(): Promise<{
+        openGraphImage: {
+            id: string;
+            path: string;
+            mime: string | null;
+            width: number | null;
+            height: number | null;
+            altText: string | null;
+            sizeBytes: bigint | null;
+            createdAt: Date;
+        };
+        twitterImage: {
+            id: string;
+            path: string;
+            mime: string | null;
+            width: number | null;
+            height: number | null;
+            altText: string | null;
+            sizeBytes: bigint | null;
+            createdAt: Date;
+        };
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        defaultSeo: import("@prisma/client/runtime/library").JsonValue | null;
+        openGraphImageMediaId: string | null;
+        twitterImageMediaId: string | null;
+        robotsEnabled: boolean;
+        robotsRules: import("@prisma/client/runtime/library").JsonValue | null;
+        robotsHost: string | null;
+        robotsAdditionalSitemaps: string | null;
+        sitemapEnabled: boolean;
+        sitemapExcludePaths: string | null;
+        sitemapIncludeArticles: boolean;
+        sitemapIncludeNews: boolean;
+        sitemapIncludeVideos: boolean;
+        sitemapIncludePages: boolean;
+        sitemapIncludeGalleries: boolean;
+    }>;
+    watermark(): Promise<{
+        enabled: boolean;
+        mediaId: string;
+        media: {
+            id: string;
+            path: string;
+            mime: string | null;
+            width: number | null;
+            height: number | null;
+            altText: string | null;
+            sizeBytes: bigint | null;
+            createdAt: Date;
+        };
+        opacity: number;
+        sizePercent: number;
+        position: string;
+        offsetTopPercent: number;
+        offsetRightPercent: number;
+        offsetBottomPercent: number;
+        offsetLeftPercent: number;
+        minSizePx: number;
+        maxSizePx: number;
+    }>;
+    socialLinks(): Promise<import("@prisma/client/runtime/library").JsonValue>;
+    updateSocialLinks(dto: UpdateSocialLinksDto): Promise<{
+        socialLinks: import("@prisma/client/runtime/library").JsonValue;
+    }>;
+    updateWatermark(dto: UpdateWatermarkDto): Promise<{
+        watermarkMedia: {
+            id: string;
+            path: string;
+            mime: string | null;
+            width: number | null;
+            height: number | null;
+            altText: string | null;
+            sizeBytes: bigint | null;
+            createdAt: Date;
+        };
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        siteName: string | null;
+        siteDescription: string | null;
+        logoMediaId: string | null;
+        typography: import("@prisma/client/runtime/library").JsonValue | null;
+        socialLinks: import("@prisma/client/runtime/library").JsonValue | null;
+        watermarkEnabled: boolean;
+        watermarkMediaId: string | null;
+        watermarkOpacity: number;
+        watermarkSizePercent: number;
+        watermarkPosition: string;
+        watermarkOffsetTopPercent: number;
+        watermarkOffsetRightPercent: number;
+        watermarkOffsetBottomPercent: number;
+        watermarkOffsetLeftPercent: number;
+        watermarkMinSizePx: number;
+        watermarkMaxSizePx: number;
+    }>;
+}
