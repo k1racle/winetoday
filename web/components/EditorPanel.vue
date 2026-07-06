@@ -9,7 +9,7 @@ const emit = defineEmits<{ (e: 'saved', id: string): void }>();
 
 const config = useRuntimeConfig();
 const { getCategories, getTags, uploadMedia, uploadCoverMedia, saveDraft, getDraft, getAuthors, getMediaById } = useApi();
-const coverBaseUrl = config.public.uploadsUrl || (config.public.apiUrl as string).replace('/api', '') || 'http://localhost:4000';
+const coverBaseUrl = (config.public.mediaBaseUrl || (config.public.apiUrl as string).replace('/api', '') || 'http://localhost:4000').replace(/\/$/, '');
 
 const typeLabels: Record<string, string> = {
   article: 'Статья',
