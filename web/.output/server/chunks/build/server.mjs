@@ -509,7 +509,7 @@ const _routes = [
   {
     name: "category-slug",
     path: "/category/:slug()",
-    component: () => import('./_slug_-C3rEyKTw.mjs')
+    component: () => import('./_slug_-Dqc6P8Cj.mjs')
   },
   {
     name: "account-admin-tags",
