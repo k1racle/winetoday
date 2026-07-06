@@ -37,8 +37,10 @@ export declare class SettingsController {
         watermarkOpacity: number;
         watermarkSizePercent: number;
         watermarkPosition: string;
-        watermarkOffsetXPercent: number;
-        watermarkOffsetYPercent: number;
+        watermarkOffsetTopPercent: number;
+        watermarkOffsetRightPercent: number;
+        watermarkOffsetBottomPercent: number;
+        watermarkOffsetLeftPercent: number;
         watermarkMinSizePx: number;
         watermarkMaxSizePx: number;
     }>;
@@ -145,8 +147,10 @@ export declare class SettingsController {
         opacity: number;
         sizePercent: number;
         position: string;
-        offsetXPercent: number;
-        offsetYPercent: number;
+        offsetTopPercent: number;
+        offsetRightPercent: number;
+        offsetBottomPercent: number;
+        offsetLeftPercent: number;
         minSizePx: number;
         maxSizePx: number;
     }>;

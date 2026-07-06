@@ -27,4 +27,14 @@ export declare class MediaController {
         altText: string | null;
         sizeBytes: bigint | null;
     }>;
+    uploadCover(file: Express.Multer.File, watermark?: string): Promise<{
+        id: string;
+        createdAt: Date;
+        path: string;
+        mime: string | null;
+        width: number | null;
+        height: number | null;
+        altText: string | null;
+        sizeBytes: bigint | null;
+    }>;
 }

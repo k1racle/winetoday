@@ -30,14 +30,17 @@ let EditorController = class EditorController {
     getDraft(id, req) {
         return this.editorService.findDraft(req.user, id);
     }
-    listMaterials(req, type, status, search, authorId, limit, offset) {
+    listMaterials(req, type, status, search, authorId, authorName, limit, offset, sort, order) {
         return this.editorService.listMaterials(req.user, {
             type,
             status,
             search,
             authorId,
+            authorName,
             limit: limit ? parseInt(limit, 10) : undefined,
             offset: offset ? parseInt(offset, 10) : undefined,
+            sort,
+            order,
         });
     }
     listAuthors() {
@@ -68,10 +71,13 @@ __decorate([
     __param(2, (0, common_1.Query)('status')),
     __param(3, (0, common_1.Query)('search')),
     __param(4, (0, common_1.Query)('authorId')),
-    __param(5, (0, common_1.Query)('limit')),
-    __param(6, (0, common_1.Query)('offset')),
+    __param(5, (0, common_1.Query)('authorName')),
+    __param(6, (0, common_1.Query)('limit')),
+    __param(7, (0, common_1.Query)('offset')),
+    __param(8, (0, common_1.Query)('sort')),
+    __param(9, (0, common_1.Query)('order')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, String, String, String, String, String, String]),
+    __metadata("design:paramtypes", [Object, String, String, String, String, String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], EditorController.prototype, "listMaterials", null);
 __decorate([

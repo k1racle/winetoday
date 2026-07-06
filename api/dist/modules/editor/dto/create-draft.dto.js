@@ -87,6 +87,10 @@ __decorate([
 ], CreateDraftDto.prototype, "videoUrl", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateDraftDto.prototype, "duration", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsUUID)(),
     __metadata("design:type", String)
 ], CreateDraftDto.prototype, "authorId", void 0);

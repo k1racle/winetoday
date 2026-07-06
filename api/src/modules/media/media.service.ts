@@ -1,11 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import sharp from 'sharp';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class MediaService {
   private readonly logger = new Logger(MediaService.name);
   private readonly BLOCK_WIDTH_PX = 1200;
+  private readonly AVIF_QUALITY = 80;
+  private readonly AVIF_EFFORT = 4;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -13,11 +18,13 @@ export class MediaService {
   ) {}
 
   async createFromUpload(file: Express.Multer.File) {
+    const compressed = await this.tryCompressToAvif(file);
+
     return this.prisma.mediaAsset.create({
       data: {
-        path: `/uploads/${file.filename}`,
-        mime: file.mimetype,
-        sizeBytes: BigInt(file.size),
+        path: `/uploads/${path.basename(compressed.path)}`,
+        mime: compressed.mime,
+        sizeBytes: BigInt(compressed.sizeBytes),
       },
     });
   }
@@ -108,6 +115,44 @@ export class MediaService {
     } catch (err: any) {
       this.logger.error('Failed to apply watermark:', err?.message || err);
       return null;
+    }
+  }
+
+  private async tryCompressToAvif(
+    file: Express.Multer.File,
+  ): Promise<{ path: string; mime: string; sizeBytes: number }> {
+    const isRasterImage =
+      file.mimetype.startsWith('image/') &&
+      !file.mimetype.includes('svg') &&
+      !file.mimetype.includes('gif');
+
+    if (!isRasterImage) {
+      return { path: file.path, mime: file.mimetype, sizeBytes: file.size };
+    }
+
+    try {
+      const ext = path.extname(file.path);
+      const base = ext ? file.path.slice(0, -ext.length) : file.path;
+      const outputPath = `${base}.avif`;
+
+      const transformer = sharp(file.path, { animated: false });
+      const metadata = await transformer.metadata();
+
+      if (!metadata.width || !metadata.height) {
+        return { path: file.path, mime: file.mimetype, sizeBytes: file.size };
+      }
+
+      await transformer
+        .avif({ quality: this.AVIF_QUALITY, effort: this.AVIF_EFFORT })
+        .toFile(outputPath);
+
+      const stats = await fs.stat(outputPath);
+      await fs.unlink(file.path);
+
+      return { path: outputPath, mime: 'image/avif', sizeBytes: stats.size };
+    } catch (err: any) {
+      this.logger.warn(`AVIF compression failed for ${file.path}: ${err?.message || err}`);
+      return { path: file.path, mime: file.mimetype, sizeBytes: file.size };
     }
   }
 

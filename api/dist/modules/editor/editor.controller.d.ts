@@ -66,6 +66,7 @@ export declare class EditorController {
         sources: import("@prisma/client/runtime/library").JsonValue | null;
         tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
         videoUrl: string | null;
+        duration: number | null;
         seo: import("@prisma/client/runtime/library").JsonValue | null;
         viewsTotal: number;
         submittedAt: Date | null;
@@ -135,19 +136,22 @@ export declare class EditorController {
         sources: import("@prisma/client/runtime/library").JsonValue | null;
         tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
         videoUrl: string | null;
+        duration: number | null;
         seo: import("@prisma/client/runtime/library").JsonValue | null;
         viewsTotal: number;
         submittedAt: Date | null;
         reviewedAt: Date | null;
         reviewComment: string | null;
     }>;
-    listMaterials(req: any, type?: string, status?: string, search?: string, authorId?: string, limit?: string, offset?: string): Promise<{
+    listMaterials(req: any, type?: string, status?: string, search?: string, authorId?: string, authorName?: string, limit?: string, offset?: string, sort?: string, order?: 'asc' | 'desc'): Promise<{
         items: {
             author: {
+                id: string;
                 name: string;
             };
             id: string;
             updatedAt: Date;
+            authorId: string;
             type: import(".prisma/client").$Enums.ContentType;
             status: import(".prisma/client").$Enums.ContentStatus;
             slug: string;

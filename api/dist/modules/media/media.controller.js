@@ -66,6 +66,9 @@ let MediaController = class MediaController {
     upload(file) {
         return this.mediaService.createFromUpload(file);
     }
+    uploadCover(file, watermark) {
+        return this.mediaService.createCoverFromUpload(file, watermark === 'true');
+    }
 };
 exports.MediaController = MediaController;
 __decorate([
@@ -96,6 +99,27 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], MediaController.prototype, "upload", null);
+__decorate([
+    (0, common_1.Post)('cover'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.admin, client_1.Role.editor, client_1.Role.author),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
+        storage: (0, multer_1.diskStorage)({
+            destination: './uploads',
+            filename: (_req, file, cb) => {
+                const ext = path.extname(file.originalname);
+                const name = crypto.randomUUID();
+                cb(null, `${name}${ext}`);
+            },
+        }),
+        limits: { fileSize: 20 * 1024 * 1024 },
+    })),
+    __param(0, (0, common_1.UploadedFile)()),
+    __param(1, (0, common_1.Query)('watermark')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", void 0)
+], MediaController.prototype, "uploadCover", null);
 exports.MediaController = MediaController = __decorate([
     (0, common_1.Controller)('media'),
     __metadata("design:paramtypes", [media_service_1.MediaService])

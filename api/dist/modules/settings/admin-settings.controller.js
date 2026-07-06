@@ -20,6 +20,7 @@ const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 const roles_guard_1 = require("../auth/guards/roles.guard");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 const update_social_links_dto_1 = require("./dto/update-social-links.dto");
+const update_watermark_dto_1 = require("./dto/update-watermark.dto");
 let AdminSettingsController = class AdminSettingsController {
     constructor(settingsService) {
         this.settingsService = settingsService;
@@ -29,6 +30,9 @@ let AdminSettingsController = class AdminSettingsController {
     }
     updateSocialLinks(dto) {
         return this.settingsService.updateSocialLinks(dto);
+    }
+    updateWatermark(dto) {
+        return this.settingsService.updateWatermark(dto);
     }
 };
 exports.AdminSettingsController = AdminSettingsController;
@@ -47,6 +51,15 @@ __decorate([
     __metadata("design:paramtypes", [update_social_links_dto_1.UpdateSocialLinksDto]),
     __metadata("design:returntype", void 0)
 ], AdminSettingsController.prototype, "updateSocialLinks", null);
+__decorate([
+    (0, common_1.Patch)('admin/settings/watermark'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(client_1.Role.admin),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [update_watermark_dto_1.UpdateWatermarkDto]),
+    __metadata("design:returntype", void 0)
+], AdminSettingsController.prototype, "updateWatermark", null);
 exports.AdminSettingsController = AdminSettingsController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [settings_service_1.SettingsService])

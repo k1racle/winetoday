@@ -1,5 +1,6 @@
 import { Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { MediaService } from '../media/media.service';
 import { CreateDraftDto } from './dto/create-draft.dto';
 export type RequestUser = {
     userId: string;
@@ -8,7 +9,8 @@ export type RequestUser = {
 };
 export declare class EditorService {
     private readonly prisma;
-    constructor(prisma: PrismaService);
+    private readonly mediaService;
+    constructor(prisma: PrismaService, mediaService: MediaService);
     saveDraft(user: RequestUser, dto: CreateDraftDto): Promise<{
         author: {
             id: string;
@@ -72,6 +74,7 @@ export declare class EditorService {
         sources: Prisma.JsonValue | null;
         tastingNote: Prisma.JsonValue | null;
         videoUrl: string | null;
+        duration: number | null;
         seo: Prisma.JsonValue | null;
         viewsTotal: number;
         submittedAt: Date | null;
@@ -141,6 +144,7 @@ export declare class EditorService {
         sources: Prisma.JsonValue | null;
         tastingNote: Prisma.JsonValue | null;
         videoUrl: string | null;
+        duration: number | null;
         seo: Prisma.JsonValue | null;
         viewsTotal: number;
         submittedAt: Date | null;
@@ -152,15 +156,20 @@ export declare class EditorService {
         status?: string;
         search?: string;
         authorId?: string;
+        authorName?: string;
         limit?: number;
         offset?: number;
+        sort?: string;
+        order?: 'asc' | 'desc';
     }): Promise<{
         items: {
             author: {
+                id: string;
                 name: string;
             };
             id: string;
             updatedAt: Date;
+            authorId: string;
             type: import(".prisma/client").$Enums.ContentType;
             status: import(".prisma/client").$Enums.ContentStatus;
             slug: string;
@@ -183,6 +192,47 @@ export declare class EditorService {
         name: string;
         slug: string;
     }[]>;
+    listAuthorsAdmin(): Promise<{
+        id: string;
+        name: string;
+        slug: string;
+        position: string;
+        materialsCount: number;
+        user: {
+            id: string;
+            email: string;
+            username: string;
+            role: import(".prisma/client").$Enums.Role;
+        };
+    }[]>;
+    getAuthorAnalytics(authorId: string): Promise<{
+        author: {
+            id: string;
+            name: string;
+            slug: string;
+            position: string;
+            bio: string;
+        };
+        materials: {
+            id: string;
+            updatedAt: Date;
+            type: import(".prisma/client").$Enums.ContentType;
+            status: import(".prisma/client").$Enums.ContentStatus;
+            slug: string;
+            title: string;
+            publishedAt: Date;
+            viewsTotal: number;
+        }[];
+        totalViews: number;
+        dailyViews: {
+            date: string;
+            articleViews: number;
+            newsViews: number;
+            videoViews: number;
+            galleryViews: number;
+            totalViews: number;
+        }[];
+    }>;
     private ensureAuthorId;
     private ensureUniqueSlug;
     private canEdit;

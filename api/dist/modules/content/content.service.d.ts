@@ -92,6 +92,7 @@ export declare class ContentService {
             sources: Prisma.JsonValue | null;
             tastingNote: Prisma.JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: Prisma.JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -194,6 +195,7 @@ export declare class ContentService {
             sources: Prisma.JsonValue | null;
             tastingNote: Prisma.JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: Prisma.JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -275,6 +277,7 @@ export declare class ContentService {
             sources: Prisma.JsonValue | null;
             tastingNote: Prisma.JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: Prisma.JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -354,6 +357,7 @@ export declare class ContentService {
             sources: Prisma.JsonValue | null;
             tastingNote: Prisma.JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: Prisma.JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -433,6 +437,7 @@ export declare class ContentService {
             sources: Prisma.JsonValue | null;
             tastingNote: Prisma.JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: Prisma.JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -512,6 +517,7 @@ export declare class ContentService {
             sources: Prisma.JsonValue | null;
             tastingNote: Prisma.JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: Prisma.JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -591,6 +597,7 @@ export declare class ContentService {
             sources: Prisma.JsonValue | null;
             tastingNote: Prisma.JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: Prisma.JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;

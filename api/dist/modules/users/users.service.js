@@ -64,6 +64,9 @@ let UsersService = class UsersService {
                     select: {
                         displayName: true,
                         authorId: true,
+                        author: {
+                            select: { name: true },
+                        },
                     },
                 },
             },
@@ -72,6 +75,7 @@ let UsersService = class UsersService {
             ...u,
             displayName: u.memberProfile?.displayName ?? null,
             authorId: u.memberProfile?.authorId ?? null,
+            authorName: u.memberProfile?.author?.name ?? null,
         }));
     }
     async findById(id) {
@@ -87,6 +91,9 @@ let UsersService = class UsersService {
                     select: {
                         displayName: true,
                         authorId: true,
+                        author: {
+                            select: { name: true },
+                        },
                     },
                 },
             },
@@ -98,6 +105,7 @@ let UsersService = class UsersService {
             ...user,
             displayName: user.memberProfile?.displayName ?? null,
             authorId: user.memberProfile?.authorId ?? null,
+            authorName: user.memberProfile?.author?.name ?? null,
         };
     }
     async create(data) {
@@ -146,6 +154,7 @@ let UsersService = class UsersService {
             ...user,
             displayName: user.memberProfile?.displayName ?? null,
             authorId: user.memberProfile?.authorId ?? null,
+            authorName: null,
         };
     }
     async update(id, data) {
@@ -210,6 +219,7 @@ let UsersService = class UsersService {
             ...updated,
             displayName: updated.memberProfile?.displayName ?? null,
             authorId: updated.memberProfile?.authorId ?? null,
+            authorName: null,
         };
     }
     async delete(id) {
@@ -245,6 +255,7 @@ let UsersService = class UsersService {
             ...updated,
             displayName: updated.memberProfile?.displayName ?? null,
             authorId: updated.memberProfile?.authorId ?? null,
+            authorName: null,
         };
     }
 };

@@ -8,6 +8,7 @@ export type AdminUserOutput = {
     createdAt: Date;
     displayName: string | null;
     authorId: string | null;
+    authorName: string | null;
 };
 export declare class UsersService {
     private readonly prisma;

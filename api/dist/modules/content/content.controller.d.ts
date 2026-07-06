@@ -77,6 +77,7 @@ export declare class ContentController {
             sources: import("@prisma/client/runtime/library").JsonValue | null;
             tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: import("@prisma/client/runtime/library").JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -161,6 +162,7 @@ export declare class ContentController {
             sources: import("@prisma/client/runtime/library").JsonValue | null;
             tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: import("@prisma/client/runtime/library").JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -244,6 +246,7 @@ export declare class ContentController {
         sources: import("@prisma/client/runtime/library").JsonValue | null;
         tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
         videoUrl: string | null;
+        duration: number | null;
         seo: import("@prisma/client/runtime/library").JsonValue | null;
         viewsTotal: number;
         submittedAt: Date | null;
@@ -324,6 +327,7 @@ export declare class ContentController {
             sources: import("@prisma/client/runtime/library").JsonValue | null;
             tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: import("@prisma/client/runtime/library").JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -407,6 +411,7 @@ export declare class ContentController {
         sources: import("@prisma/client/runtime/library").JsonValue | null;
         tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
         videoUrl: string | null;
+        duration: number | null;
         seo: import("@prisma/client/runtime/library").JsonValue | null;
         viewsTotal: number;
         submittedAt: Date | null;
@@ -487,6 +492,7 @@ export declare class ContentController {
             sources: import("@prisma/client/runtime/library").JsonValue | null;
             tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: import("@prisma/client/runtime/library").JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -570,6 +576,7 @@ export declare class ContentController {
         sources: import("@prisma/client/runtime/library").JsonValue | null;
         tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
         videoUrl: string | null;
+        duration: number | null;
         seo: import("@prisma/client/runtime/library").JsonValue | null;
         viewsTotal: number;
         submittedAt: Date | null;
@@ -650,6 +657,7 @@ export declare class ContentController {
             sources: import("@prisma/client/runtime/library").JsonValue | null;
             tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: import("@prisma/client/runtime/library").JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -733,6 +741,7 @@ export declare class ContentController {
         sources: import("@prisma/client/runtime/library").JsonValue | null;
         tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
         videoUrl: string | null;
+        duration: number | null;
         seo: import("@prisma/client/runtime/library").JsonValue | null;
         viewsTotal: number;
         submittedAt: Date | null;
@@ -828,6 +837,7 @@ export declare class ContentController {
             sources: import("@prisma/client/runtime/library").JsonValue | null;
             tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: import("@prisma/client/runtime/library").JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -909,6 +919,7 @@ export declare class ContentController {
             sources: import("@prisma/client/runtime/library").JsonValue | null;
             tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: import("@prisma/client/runtime/library").JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -988,6 +999,7 @@ export declare class ContentController {
             sources: import("@prisma/client/runtime/library").JsonValue | null;
             tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: import("@prisma/client/runtime/library").JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -1067,6 +1079,7 @@ export declare class ContentController {
             sources: import("@prisma/client/runtime/library").JsonValue | null;
             tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: import("@prisma/client/runtime/library").JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -1146,6 +1159,7 @@ export declare class ContentController {
             sources: import("@prisma/client/runtime/library").JsonValue | null;
             tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: import("@prisma/client/runtime/library").JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;
@@ -1225,6 +1239,7 @@ export declare class ContentController {
             sources: import("@prisma/client/runtime/library").JsonValue | null;
             tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
             videoUrl: string | null;
+            duration: number | null;
             seo: import("@prisma/client/runtime/library").JsonValue | null;
             viewsTotal: number;
             submittedAt: Date | null;

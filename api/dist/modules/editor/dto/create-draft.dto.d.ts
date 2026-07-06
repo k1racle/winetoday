@@ -13,6 +13,7 @@ export declare class CreateDraftDto {
     coverMediaId?: string;
     coverShowWatermark?: boolean;
     videoUrl?: string;
+    duration?: number;
     authorId?: string;
     categoryIds?: string[];
     tagIds?: string[];

@@ -1,5 +1,6 @@
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
+import { UpdateWatermarkDto } from './dto/update-watermark.dto';
 export declare class SettingsService {
     private readonly prisma;
     constructor(prisma: PrismaService);
@@ -38,8 +39,10 @@ export declare class SettingsService {
         watermarkOpacity: number;
         watermarkSizePercent: number;
         watermarkPosition: string;
-        watermarkOffsetXPercent: number;
-        watermarkOffsetYPercent: number;
+        watermarkOffsetTopPercent: number;
+        watermarkOffsetRightPercent: number;
+        watermarkOffsetBottomPercent: number;
+        watermarkOffsetLeftPercent: number;
         watermarkMinSizePx: number;
         watermarkMaxSizePx: number;
     }>;
@@ -146,13 +149,47 @@ export declare class SettingsService {
         opacity: number;
         sizePercent: number;
         position: string;
-        offsetXPercent: number;
-        offsetYPercent: number;
+        offsetTopPercent: number;
+        offsetRightPercent: number;
+        offsetBottomPercent: number;
+        offsetLeftPercent: number;
         minSizePx: number;
         maxSizePx: number;
     }>;
     socialLinks(): Promise<import("@prisma/client/runtime/library").JsonValue>;
     updateSocialLinks(dto: UpdateSocialLinksDto): Promise<{
         socialLinks: import("@prisma/client/runtime/library").JsonValue;
+    }>;
+    updateWatermark(dto: UpdateWatermarkDto): Promise<{
+        watermarkMedia: {
+            id: string;
+            createdAt: Date;
+            path: string;
+            mime: string | null;
+            width: number | null;
+            height: number | null;
+            altText: string | null;
+            sizeBytes: bigint | null;
+        };
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        siteName: string | null;
+        siteDescription: string | null;
+        logoMediaId: string | null;
+        typography: import("@prisma/client/runtime/library").JsonValue | null;
+        socialLinks: import("@prisma/client/runtime/library").JsonValue | null;
+        watermarkEnabled: boolean;
+        watermarkMediaId: string | null;
+        watermarkOpacity: number;
+        watermarkSizePercent: number;
+        watermarkPosition: string;
+        watermarkOffsetTopPercent: number;
+        watermarkOffsetRightPercent: number;
+        watermarkOffsetBottomPercent: number;
+        watermarkOffsetLeftPercent: number;
+        watermarkMinSizePx: number;
+        watermarkMaxSizePx: number;
     }>;
 }
