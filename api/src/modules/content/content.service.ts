@@ -44,7 +44,10 @@ export class ContentService {
     }
 
     if (dto.categorySlug) {
-      where.categories = { some: { slug: dto.categorySlug } };
+      const categoryIds = await this.getCategoryAndDescendantIds(dto.categorySlug);
+      where.categories = categoryIds.length
+        ? { some: { id: { in: categoryIds } } }
+        : { some: { slug: dto.categorySlug } };
     }
 
     if (dto.tagSlug) {
@@ -93,8 +96,42 @@ export class ContentService {
   async findCategories() {
     return this.prisma.category.findMany({
       orderBy: { name: 'asc' },
-      select: { id: true, name: true, slug: true },
+      select: { id: true, name: true, slug: true, parentId: true },
     });
+  }
+
+  private async getCategoryAndDescendantIds(slug: string): Promise<string[]> {
+    const category = await this.prisma.category.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+
+    if (!category) {
+      return [];
+    }
+
+    const allCategories = await this.prisma.category.findMany({
+      select: { id: true, parentId: true },
+    });
+
+    const descendants: string[] = [];
+    const queue = [category.id];
+    const categoryMap = new Map<string, string | null>();
+    for (const c of allCategories) {
+      categoryMap.set(c.id, c.parentId);
+    }
+
+    while (queue.length > 0) {
+      const currentId = queue.shift()!;
+      descendants.push(currentId);
+      for (const [id, parentId] of categoryMap.entries()) {
+        if (parentId === currentId && !descendants.includes(id)) {
+          queue.push(id);
+        }
+      }
+    }
+
+    return descendants;
   }
 
   async findTags() {
@@ -112,10 +149,13 @@ export class ContentService {
 
     const result = await Promise.all(
       categories.map(async (category) => {
+        const categoryIds = await this.getCategoryAndDescendantIds(category.slug);
         const items = await this.prisma.contentItem.findMany({
           where: {
             status: ContentStatus.published,
-            categories: { some: { id: category.id } },
+            categories: categoryIds.length
+              ? { some: { id: { in: categoryIds } } }
+              : { some: { id: category.id } },
             publishedAt: { lte: new Date() },
           },
           include: contentInclude,
