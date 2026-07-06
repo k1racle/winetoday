@@ -166,8 +166,32 @@ export class ContentService {
       select: { id: true, name: true, slug: true },
     });
 
+    const EXCLUDED_CATEGORY_SLUGS = new Set(['afisha']);
+    const duplicateSuffixPattern = /^(.*)-(\d+)$/;
+
+    // Group duplicate categories (e.g. slug-2) under their canonical slug.
+    const groups = new Map<
+      string,
+      { id: string; name: string; slug: string }
+    >();
+
+    for (const category of categories) {
+      const baseSlug = category.slug.replace(duplicateSuffixPattern, '$1');
+      if (EXCLUDED_CATEGORY_SLUGS.has(baseSlug)) {
+        continue;
+      }
+
+      const existing = groups.get(baseSlug);
+      if (!existing) {
+        groups.set(baseSlug, category);
+      } else if (!duplicateSuffixPattern.test(category.slug)) {
+        // Prefer the canonical category (no numeric suffix) for name/slug.
+        groups.set(baseSlug, category);
+      }
+    }
+
     const result = await Promise.all(
-      categories.map(async (category) => {
+      Array.from(groups.values()).map(async (category) => {
         const categoryIds = await this.getCategoryAndDescendantIds(category.slug);
         const items = await this.prisma.contentItem.findMany({
           where: {
