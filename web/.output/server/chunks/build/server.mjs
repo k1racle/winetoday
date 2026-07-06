@@ -459,37 +459,37 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import('./index-_qgtCEwl.mjs')
+    component: () => import('./index-Ba0D98iF.mjs')
   },
   {
     name: "news",
     path: "/news",
-    component: () => import('./index-Bvzi6sje.mjs')
+    component: () => import('./index-CbktgWz-.mjs')
   },
   {
     name: "news-slug",
     path: "/news/:slug()",
-    component: () => import('./_slug_-65Gjg25X.mjs')
+    component: () => import('./_slug_-3AWE_Rva.mjs')
   },
   {
     name: "videos",
     path: "/videos",
-    component: () => import('./index-Dn3ADzjg.mjs')
+    component: () => import('./index-Cv8m65oK.mjs')
   },
   {
     name: "account",
     path: "/account",
-    component: () => import('./index-rIsFt_Lz.mjs')
+    component: () => import('./index-DcbVnA7n.mjs')
   },
   {
     name: "videos-slug",
     path: "/videos/:slug()",
-    component: () => import('./_slug_-DErq3xNU.mjs')
+    component: () => import('./_slug_-ChYNDufg.mjs')
   },
   {
     name: "articles",
     path: "/articles",
-    component: () => import('./index-DQ7HjTGM.mjs')
+    component: () => import('./index-Uc8lfuP-.mjs')
   },
   {
     name: "contacts",
@@ -499,59 +499,59 @@ const _routes = [
   {
     name: "gallery-slug",
     path: "/gallery/:slug()",
-    component: () => import('./_slug_-37cfINeG.mjs')
+    component: () => import('./_slug_-D55SqM-c.mjs')
   },
   {
     name: "articles-slug",
     path: "/articles/:slug()",
-    component: () => import('./_slug_-DElv6S9y.mjs')
+    component: () => import('./_slug_-CxeMcFuG.mjs')
   },
   {
     name: "category-slug",
     path: "/category/:slug()",
-    component: () => import('./_slug_-BNZ9qco_.mjs')
+    component: () => import('./_slug_-C3rEyKTw.mjs')
   },
   {
     name: "account-admin-tags",
     path: "/account/admin/tags",
-    component: () => import('./tags-_TYOK06s.mjs')
+    component: () => import('./tags-SX4ci1a8.mjs')
   },
   {
     name: "account-admin",
     path: "/account/admin",
-    component: () => import('./index-CHp6K6Eh.mjs')
+    component: () => import('./index-DDLgdJui.mjs')
   },
   {
     name: "account-admin-authors",
     path: "/account/admin/authors",
-    component: () => import('./authors-CcNwuuRg.mjs'),
+    component: () => import('./authors-DR17TtTh.mjs'),
     children: [
       {
         name: "account-admin-authors-id",
         path: ":id()",
-        component: () => import('./_id_-DgeyPKse.mjs')
+        component: () => import('./_id_-DsS0Ucs_.mjs')
       }
     ]
   },
   {
     name: "account-admin-content",
     path: "/account/admin/content",
-    component: () => import('./content-DkmuWVC3.mjs')
+    component: () => import('./content-CzLk6xqR.mjs')
   },
   {
     name: "account-admin-socials",
     path: "/account/admin/socials",
-    component: () => import('./socials-CdDKjBjw.mjs')
+    component: () => import('./socials-CRG5zLKN.mjs')
   },
   {
     name: "account-admin-categories",
     path: "/account/admin/categories",
-    component: () => import('./categories-p6CvyxUo.mjs')
+    component: () => import('./categories-Ck-qavPg.mjs')
   },
   {
     name: "account-admin-users-id",
     path: "/account/admin/users/:id()",
-    component: () => import('./_id_-Cp0x4BnA.mjs')
+    component: () => import('./_id_-eRH0OfxS.mjs')
   }
 ];
 const _wrapInTransition = (props, children) => {
@@ -1064,7 +1064,7 @@ const plugins = [
   components_plugin_4kY4pyzJIYX99vmMAAIorFf3CnAaptHitJgf7JxiED8
 ];
 const layouts = {
-  default: defineAsyncComponent(() => import('./default-HDQdrB2L.mjs').then((m) => m.default || m))
+  default: defineAsyncComponent(() => import('./default-BB1VY9-k.mjs').then((m) => m.default || m))
 };
 const routeRulesMatcher = _routeRulesMatcher;
 const LayoutLoader = defineComponent({

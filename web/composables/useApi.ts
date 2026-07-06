@@ -86,6 +86,8 @@ export function useApi() {
       api(`/admin/users/${id}`, { method: 'DELETE', credentials: 'include' }),
     updateUserRole: (id: string, role: string) =>
       api(`/admin/users/${id}/role`, { method: 'PATCH', body: { role }, credentials: 'include' }),
+    getMediaById: (id: string) =>
+      api(`/media/${id}`, { credentials: 'include' }),
     uploadMedia: (file: File) => {
       const formData = new FormData();
       formData.append('file', file);

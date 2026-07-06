@@ -1,8 +1,11 @@
 import {
   Controller,
   Get,
+  NotFoundException,
+  Param,
   Post,
   Query,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -30,6 +33,20 @@ export class MediaController {
       limit ? parseInt(limit, 10) : 50,
       offset ? parseInt(offset, 10) : 0,
     );
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    return this.mediaService.findById(id);
+  }
+
+  @Get(':id/file')
+  async findOneFile(@Param('id') id: string, @Res() res: any) {
+    const media = await this.mediaService.findById(id);
+    if (!media?.path) {
+      throw new NotFoundException('Media not found');
+    }
+    return res.redirect(media.path);
   }
 
   @Post('upload')

@@ -15,7 +15,14 @@ BigInt.prototype.toJSON = function () {
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.use((0, cookie_parser_1.default)());
-    app.useStaticAssets((0, path_1.join)(__dirname, '..', 'uploads'), { prefix: '/uploads' });
+    app.useStaticAssets((0, path_1.join)(__dirname, '..', 'uploads'), {
+        prefix: '/uploads',
+        setHeaders: (res, filePath) => {
+            if (filePath.endsWith('.avif')) {
+                res.setHeader('Content-Type', 'image/avif');
+            }
+        },
+    });
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
         transform: true,

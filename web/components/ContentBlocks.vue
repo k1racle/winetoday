@@ -33,7 +33,7 @@ function getEmbedUrl(url?: string) {
       <figure v-else-if="block.type === 'image-highlight'" class="my-6">
         <NuxtImg
           v-if="block.imageId"
-          :src="`/api/media/${block.imageId}`"
+          :src="`/api/media/${block.imageId}/file`"
           :alt="block.caption || ''"
           class="w-full"
         />

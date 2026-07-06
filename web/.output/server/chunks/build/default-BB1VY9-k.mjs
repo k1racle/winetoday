@@ -1,0 +1,545 @@
+import { _ as __nuxt_component_0$1 } from './nuxt-link-D9D3wLLz.mjs';
+import { u as useAsyncData, _ as __nuxt_component_1$1 } from './NuxtImg-DCUDb8v0.mjs';
+import { _ as __nuxt_component_1$2 } from './SocialIcon-Bi41QAfm.mjs';
+import { useSSRContext, defineComponent, computed, ref, unref, withAsyncContext, watch, nextTick, withCtx, createVNode, createTextVNode, toDisplayString, openBlock, createBlock, mergeProps } from 'vue';
+import { ssrRenderTeleport, ssrRenderClass, ssrRenderAttr, ssrInterpolate, ssrIncludeBooleanAttr, ssrRenderComponent, ssrRenderList, ssrRenderAttrs, ssrRenderSlot } from 'vue/server-renderer';
+import { u as useAuth } from './useAuth-CCtjg5A5.mjs';
+import { _ as _export_sfc } from './_plugin-vue_export-helper-1tPrXgE0.mjs';
+import { u as useApi } from './useApi-Bz4iiPAp.mjs';
+import '../_/nitro.mjs';
+import 'node:http';
+import 'node:https';
+import 'node:events';
+import 'node:buffer';
+import 'node:fs';
+import 'node:path';
+import 'node:crypto';
+import 'node:url';
+import './server.mjs';
+import '../routes/renderer.mjs';
+import 'vue-bundle-renderer/runtime';
+import 'unhead/server';
+import 'devalue';
+import 'unhead/plugins';
+import 'unhead/utils';
+import 'vue-router';
+
+const _sfc_main$3 = /* @__PURE__ */ defineComponent({
+  __name: "AuthDrawer",
+  __ssrInlineRender: true,
+  props: {
+    modelValue: { type: Boolean }
+  },
+  emits: ["update:modelValue"],
+  setup(__props, { emit: __emit }) {
+    const props = __props;
+    const emit = __emit;
+    const isOpen = computed({
+      get: () => props.modelValue,
+      set: (value) => emit("update:modelValue", value)
+    });
+    useAuth();
+    const activeTab = ref("login");
+    const username = ref("");
+    const displayName = ref("");
+    const email = ref("");
+    const password = ref("");
+    const error = ref("");
+    const loading = ref(false);
+    return (_ctx, _push, _parent, _attrs) => {
+      ssrRenderTeleport(_push, (_push2) => {
+        if (unref(isOpen)) {
+          _push2(`<div class="fixed inset-0 z-50 bg-black/50" data-v-a9a5650f>`);
+          if (unref(isOpen)) {
+            _push2(`<div class="absolute right-0 top-0 h-full w-full max-w-md bg-card p-6 shadow-xl" data-v-a9a5650f><div class="mb-6 flex items-start justify-between" data-v-a9a5650f><div data-v-a9a5650f><p class="text-xs font-medium uppercase tracking-wider text-foreground/50" data-v-a9a5650f>Аккаунт</p><h2 class="mt-1 font-heading text-xl font-bold" data-v-a9a5650f>Личный кабинет</h2></div><button type="button" class="text-foreground/50 transition hover:text-foreground" aria-label="Закрыть" data-v-a9a5650f><svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" data-v-a9a5650f><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" data-v-a9a5650f></path></svg></button></div><div class="mb-6 inline-flex border border-foreground/10" data-v-a9a5650f><button type="button" class="${ssrRenderClass([unref(activeTab) === "login" ? "bg-accent text-white" : "bg-card text-foreground hover:bg-foreground/5", "px-4 py-2 text-sm font-medium transition"])}" data-v-a9a5650f> Вход </button><button type="button" class="${ssrRenderClass([unref(activeTab) === "register" ? "bg-accent text-white" : "bg-card text-foreground hover:bg-foreground/5", "px-4 py-2 text-sm font-medium transition"])}" data-v-a9a5650f> Регистрация </button></div><form class="space-y-4" data-v-a9a5650f>`);
+            if (unref(activeTab) === "register") {
+              _push2(`<!--[--><div data-v-a9a5650f><label class="mb-1.5 block text-sm font-medium" data-v-a9a5650f>Логин</label><input${ssrRenderAttr("value", unref(username))} type="text" placeholder="username" class="w-full border border-foreground/10 bg-card px-4 py-2.5 text-sm outline-none transition focus:border-accent" data-v-a9a5650f></div><div data-v-a9a5650f><label class="mb-1.5 block text-sm font-medium" data-v-a9a5650f>Отображаемое имя</label><input${ssrRenderAttr("value", unref(displayName))} type="text" placeholder="Как вас показывать на сайте" class="w-full border border-foreground/10 bg-card px-4 py-2.5 text-sm outline-none transition focus:border-accent" data-v-a9a5650f></div><!--]-->`);
+            } else {
+              _push2(`<!---->`);
+            }
+            _push2(`<div data-v-a9a5650f><label class="mb-1.5 block text-sm font-medium" data-v-a9a5650f>${ssrInterpolate(unref(activeTab) === "login" ? "Логин или email" : "Email")}</label><input${ssrRenderAttr("value", unref(email))} type="text"${ssrRenderAttr("placeholder", unref(activeTab) === "login" ? "admin или you@example.com" : "you@example.com")} class="w-full border border-foreground/10 bg-card px-4 py-2.5 text-sm outline-none transition focus:border-accent" data-v-a9a5650f></div><div data-v-a9a5650f><label class="mb-1.5 block text-sm font-medium" data-v-a9a5650f>Пароль</label><input${ssrRenderAttr("value", unref(password))} type="password"${ssrRenderAttr("placeholder", unref(activeTab) === "register" ? "Минимум 6 символов" : "•••••••")} class="w-full border border-foreground/10 bg-card px-4 py-2.5 text-sm outline-none transition focus:border-accent" data-v-a9a5650f></div>`);
+            if (unref(error)) {
+              _push2(`<p class="text-sm text-red-600" data-v-a9a5650f>${ssrInterpolate(unref(error))}</p>`);
+            } else {
+              _push2(`<!---->`);
+            }
+            _push2(`<button type="submit"${ssrIncludeBooleanAttr(unref(loading)) ? " disabled" : ""} class="w-full bg-accent px-4 py-2.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-60" data-v-a9a5650f>${ssrInterpolate(unref(activeTab) === "login" ? unref(loading) ? "Вход..." : "Войти" : unref(loading) ? "Регистрация..." : "Зарегистрироваться")}</button></form></div>`);
+          } else {
+            _push2(`<!---->`);
+          }
+          _push2(`</div>`);
+        } else {
+          _push2(`<!---->`);
+        }
+      }, "body", false, _parent);
+    };
+  }
+});
+const _sfc_setup$3 = _sfc_main$3.setup;
+_sfc_main$3.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/AuthDrawer.vue");
+  return _sfc_setup$3 ? _sfc_setup$3(props, ctx) : void 0;
+};
+const __nuxt_component_3 = /* @__PURE__ */ Object.assign(_export_sfc(_sfc_main$3, [["__scopeId", "data-v-a9a5650f"]]), { __name: "AuthDrawer" });
+const headerCategoryOrder = [
+  "Российское виноделие",
+  "Зарубежное виноделие",
+  "Алкогольный рынок",
+  "Розничный бизнес",
+  "Ресторанный бизнес",
+  "Туризм"
+];
+function useHeaderCategories() {
+  const { getCategories } = useApi();
+  const { data: categories } = useAsyncData(
+    "categories",
+    () => getCategories().catch(() => [])
+  );
+  const headerCategories = computed(() => {
+    if (!categories.value) return [];
+    const map = new Map(
+      categories.value.map((c) => [
+        String(c.name || "").trim().toLowerCase(),
+        c
+      ])
+    );
+    return headerCategoryOrder.map((name) => map.get(name.toLowerCase())).filter(Boolean);
+  });
+  return { categories, headerCategories };
+}
+const _sfc_main$2 = /* @__PURE__ */ defineComponent({
+  __name: "SiteHeader",
+  __ssrInlineRender: true,
+  async setup(__props) {
+    let __temp, __restore;
+    const { getSiteSettings } = useApi();
+    const { data: siteSettings } = ([__temp, __restore] = withAsyncContext(() => useAsyncData(
+      "site-settings",
+      () => getSiteSettings().catch(() => null)
+    )), __temp = await __temp, __restore(), __temp);
+    const socialLinks = computed(() => {
+      const links = siteSettings.value?.socialLinks?.links;
+      return Array.isArray(links) ? links : [];
+    });
+    const { user, isAuthenticated } = useAuth();
+    const { headerCategories } = useHeaderCategories();
+    const searchQuery = ref("");
+    const searchOpen = ref(false);
+    const searchInput = ref(null);
+    const authOpen = ref(false);
+    const mobileMenuOpen = ref(false);
+    function closeMobileMenu() {
+      mobileMenuOpen.value = false;
+    }
+    watch(mobileMenuOpen, (open) => {
+    });
+    ref(false);
+    watch(searchOpen, (open) => {
+      if (open) {
+        nextTick(() => searchInput.value?.focus());
+      }
+    });
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_NuxtLink = __nuxt_component_0$1;
+      const _component_NuxtImg = __nuxt_component_1$1;
+      const _component_SocialIcon = __nuxt_component_1$2;
+      const _component_AuthDrawer = __nuxt_component_3;
+      _push(`<!--[--><header class="border-b border-foreground/10 bg-background" data-v-4e5d99b7><div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4" data-v-4e5d99b7>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: "/",
+        class: "flex max-w-[60%] flex-col md:max-w-none"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(ssrRenderComponent(_component_NuxtImg, {
+              src: "/logo-light.png",
+              alt: "Виноделие Сегодня",
+              class: "block h-8 w-auto dark:hidden md:h-10"
+            }, null, _parent2, _scopeId));
+            _push2(ssrRenderComponent(_component_NuxtImg, {
+              src: "/logo-dark.png",
+              alt: "Виноделие Сегодня",
+              class: "hidden h-8 w-auto dark:block md:h-10"
+            }, null, _parent2, _scopeId));
+          } else {
+            return [
+              createVNode(_component_NuxtImg, {
+                src: "/logo-light.png",
+                alt: "Виноделие Сегодня",
+                class: "block h-8 w-auto dark:hidden md:h-10"
+              }),
+              createVNode(_component_NuxtImg, {
+                src: "/logo-dark.png",
+                alt: "Виноделие Сегодня",
+                class: "hidden h-8 w-auto dark:block md:h-10"
+              })
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`<div class="hidden items-center gap-3 md:gap-5 lg:flex" data-v-4e5d99b7><div class="relative flex items-center" data-v-4e5d99b7>`);
+      if (searchOpen.value) {
+        _push(`<form class="absolute right-10 top-0 w-48 lg:w-56" data-v-4e5d99b7><input${ssrRenderAttr("value", searchQuery.value)} type="text" placeholder="Поиск" class="w-full border border-foreground/10 bg-card py-2 pl-3 pr-4 text-sm outline-none transition focus:border-accent" data-v-4e5d99b7></form>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`<button type="button" class="flex h-9 w-9 items-center justify-center rounded-full border border-foreground/10 bg-card text-foreground/60 transition hover:text-foreground" aria-label="Поиск" data-v-4e5d99b7><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-v-4e5d99b7><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" data-v-4e5d99b7></path></svg></button></div>`);
+      if (unref(isAuthenticated) && unref(user)) {
+        _push(`<!--[-->`);
+        _push(ssrRenderComponent(_component_NuxtLink, {
+          to: "/account",
+          class: "max-w-[160px] truncate text-sm text-foreground/80 hover:text-foreground"
+        }, {
+          default: withCtx((_, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(`${ssrInterpolate(unref(user).displayName || unref(user).username || unref(user).email)}`);
+            } else {
+              return [
+                createTextVNode(toDisplayString(unref(user).displayName || unref(user).username || unref(user).email), 1)
+              ];
+            }
+          }),
+          _: 1
+        }, _parent));
+        _push(`<button type="button" class="flex items-center gap-1.5 text-sm text-foreground/80 hover:text-foreground" data-v-4e5d99b7><svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" data-v-4e5d99b7><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M18 12h3m0 0-3-3m3 3-3 3" data-v-4e5d99b7></path></svg><span data-v-4e5d99b7>Выйти</span></button><!--]-->`);
+      } else {
+        _push(`<button type="button" class="flex items-center gap-1.5 text-sm text-foreground/80 hover:text-foreground" data-v-4e5d99b7><svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" data-v-4e5d99b7><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" data-v-4e5d99b7></path></svg><span data-v-4e5d99b7>Войти</span></button>`);
+      }
+      _push(`<button type="button" class="text-foreground/70 hover:text-foreground" aria-label="Переключить тему" data-v-4e5d99b7><svg class="h-5 w-5 dark:hidden" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" data-v-4e5d99b7><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" data-v-4e5d99b7></path></svg><svg class="hidden h-5 w-5 dark:block" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" data-v-4e5d99b7><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" data-v-4e5d99b7></path></svg></button></div><button type="button" class="flex h-10 w-10 items-center justify-center text-foreground/80 hover:text-foreground lg:hidden" aria-label="Меню" data-v-4e5d99b7><svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-v-4e5d99b7><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" data-v-4e5d99b7></path></svg></button></div><nav class="hidden border-t border-foreground/10 lg:block" data-v-4e5d99b7><div class="mx-auto max-w-7xl px-4" data-v-4e5d99b7><ul class="flex items-center justify-between overflow-x-auto py-3 text-xs font-medium uppercase tracking-wider text-foreground/80 md:text-sm" data-v-4e5d99b7><li class="shrink-0" data-v-4e5d99b7>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: "/news",
+        class: "whitespace-nowrap px-2 py-1 transition hover:text-foreground"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(` Новости `);
+          } else {
+            return [
+              createTextVNode(" Новости ")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</li><!--[-->`);
+      ssrRenderList(unref(headerCategories), (cat) => {
+        _push(`<li class="shrink-0" data-v-4e5d99b7>`);
+        _push(ssrRenderComponent(_component_NuxtLink, {
+          to: `/category/${cat.slug}`,
+          class: "whitespace-nowrap px-2 py-1 transition hover:text-foreground"
+        }, {
+          default: withCtx((_, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(`${ssrInterpolate(cat.name)}`);
+            } else {
+              return [
+                createTextVNode(toDisplayString(cat.name), 1)
+              ];
+            }
+          }),
+          _: 2
+        }, _parent));
+        _push(`</li>`);
+      });
+      _push(`<!--]--></ul></div></nav></header>`);
+      if (mobileMenuOpen.value) {
+        _push(`<div class="fixed inset-0 z-50 flex flex-col bg-background px-4 py-4" data-v-4e5d99b7><div class="mb-6 flex items-center justify-between border-b border-foreground/10 pb-4" data-v-4e5d99b7><div class="flex items-center gap-4" data-v-4e5d99b7><button type="button" class="text-foreground/70 hover:text-foreground" aria-label="Поиск" data-v-4e5d99b7><svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-v-4e5d99b7><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" data-v-4e5d99b7></path></svg></button><button type="button" class="text-foreground/70 hover:text-foreground" aria-label="Переключить тему" data-v-4e5d99b7><svg class="h-5 w-5 dark:hidden" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" data-v-4e5d99b7><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" data-v-4e5d99b7></path></svg><svg class="hidden h-5 w-5 dark:block" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" data-v-4e5d99b7><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" data-v-4e5d99b7></path></svg></button>`);
+        if (unref(isAuthenticated) && unref(user)) {
+          _push(ssrRenderComponent(_component_NuxtLink, {
+            to: "/account",
+            class: "text-foreground/70 hover:text-foreground",
+            onClick: closeMobileMenu
+          }, {
+            default: withCtx((_, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`<svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" data-v-4e5d99b7${_scopeId}><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" data-v-4e5d99b7${_scopeId}></path></svg>`);
+              } else {
+                return [
+                  (openBlock(), createBlock("svg", {
+                    class: "h-5 w-5",
+                    fill: "none",
+                    stroke: "currentColor",
+                    "stroke-width": "1.5",
+                    viewBox: "0 0 24 24"
+                  }, [
+                    createVNode("path", {
+                      "stroke-linecap": "round",
+                      "stroke-linejoin": "round",
+                      d: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+                    })
+                  ]))
+                ];
+              }
+            }),
+            _: 1
+          }, _parent));
+        } else {
+          _push(`<button type="button" class="text-foreground/70 hover:text-foreground" aria-label="Войти" data-v-4e5d99b7><svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" data-v-4e5d99b7><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" data-v-4e5d99b7></path></svg></button>`);
+        }
+        _push(`</div><button type="button" class="text-foreground/70 hover:text-foreground" aria-label="Закрыть" data-v-4e5d99b7><svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-v-4e5d99b7><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" data-v-4e5d99b7></path></svg></button></div>`);
+        if (searchOpen.value) {
+          _push(`<form class="mb-6" data-v-4e5d99b7><input${ssrRenderAttr("value", searchQuery.value)} type="text" placeholder="Поиск" class="w-full border border-foreground/10 bg-card py-3 px-4 text-sm outline-none transition focus:border-accent" data-v-4e5d99b7></form>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`<nav class="flex-1 overflow-y-auto" data-v-4e5d99b7><ul class="space-y-10" data-v-4e5d99b7><li data-v-4e5d99b7>`);
+        _push(ssrRenderComponent(_component_NuxtLink, {
+          to: "/",
+          class: "block py-2 text-left font-heading text-base font-bold uppercase tracking-wider text-foreground transition hover:text-accent",
+          onClick: closeMobileMenu
+        }, {
+          default: withCtx((_, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(` Главная `);
+            } else {
+              return [
+                createTextVNode(" Главная ")
+              ];
+            }
+          }),
+          _: 1
+        }, _parent));
+        _push(`</li><li data-v-4e5d99b7>`);
+        _push(ssrRenderComponent(_component_NuxtLink, {
+          to: "/news",
+          class: "block py-2 text-left font-heading text-base font-bold uppercase tracking-wider text-foreground transition hover:text-accent",
+          onClick: closeMobileMenu
+        }, {
+          default: withCtx((_, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(` Новости `);
+            } else {
+              return [
+                createTextVNode(" Новости ")
+              ];
+            }
+          }),
+          _: 1
+        }, _parent));
+        _push(`</li><!--[-->`);
+        ssrRenderList(unref(headerCategories), (cat) => {
+          _push(`<li data-v-4e5d99b7>`);
+          _push(ssrRenderComponent(_component_NuxtLink, {
+            to: `/category/${cat.slug}`,
+            class: "block py-2 text-left font-heading text-base font-bold uppercase tracking-wider text-foreground transition hover:text-accent",
+            onClick: closeMobileMenu
+          }, {
+            default: withCtx((_, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`${ssrInterpolate(cat.name)}`);
+              } else {
+                return [
+                  createTextVNode(toDisplayString(cat.name), 1)
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+          _push(`</li>`);
+        });
+        _push(`<!--]--></ul></nav>`);
+        if (socialLinks.value.length) {
+          _push(`<div class="mt-auto border-t border-foreground/10 pt-6" data-v-4e5d99b7><div class="flex items-center justify-between" data-v-4e5d99b7><!--[-->`);
+          ssrRenderList(socialLinks.value, (link) => {
+            _push(`<a${ssrRenderAttr("href", link.href)} target="_blank" rel="noopener" class="text-foreground/70 transition hover:text-accent"${ssrRenderAttr("aria-label", link.label)} data-v-4e5d99b7>`);
+            _push(ssrRenderComponent(_component_SocialIcon, {
+              name: link.icon,
+              label: link.label,
+              href: link.href,
+              class: "h-6 w-6"
+            }, null, _parent));
+            _push(`</a>`);
+          });
+          _push(`<!--]--></div></div>`);
+        } else {
+          _push(`<!---->`);
+        }
+        _push(`</div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(ssrRenderComponent(_component_AuthDrawer, {
+        modelValue: authOpen.value,
+        "onUpdate:modelValue": ($event) => authOpen.value = $event
+      }, null, _parent));
+      _push(`<!--]-->`);
+    };
+  }
+});
+const _sfc_setup$2 = _sfc_main$2.setup;
+_sfc_main$2.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/SiteHeader.vue");
+  return _sfc_setup$2 ? _sfc_setup$2(props, ctx) : void 0;
+};
+const __nuxt_component_0 = /* @__PURE__ */ Object.assign(_export_sfc(_sfc_main$2, [["__scopeId", "data-v-4e5d99b7"]]), { __name: "SiteHeader" });
+const _sfc_main$1 = /* @__PURE__ */ defineComponent({
+  __name: "SiteFooter",
+  __ssrInlineRender: true,
+  async setup(__props) {
+    let __temp, __restore;
+    const { getSiteSettings } = useApi();
+    const { data: siteSettings } = ([__temp, __restore] = withAsyncContext(() => useAsyncData(
+      "footer-site-settings",
+      () => getSiteSettings().catch(() => null)
+    )), __temp = await __temp, __restore(), __temp);
+    const { headerCategories } = useHeaderCategories();
+    const socialLinks = computed(() => {
+      const links = siteSettings.value?.socialLinks?.links;
+      return Array.isArray(links) ? links : [];
+    });
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_NuxtLink = __nuxt_component_0$1;
+      const _component_SocialIcon = __nuxt_component_1$2;
+      _push(`<footer${ssrRenderAttrs(mergeProps({ class: "bg-[#0B3D2E] text-white" }, _attrs))}><div class="mx-auto max-w-7xl px-4 py-12 md:py-16"><div class="grid gap-10 md:grid-cols-3 md:gap-8"><div class="space-y-6">`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: "/",
+        class: "font-heading text-xl font-bold uppercase tracking-wider"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(` Виноделие сегодня `);
+          } else {
+            return [
+              createTextVNode(" Виноделие сегодня ")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      if (unref(socialLinks).length) {
+        _push(`<div class="flex flex-wrap gap-4"><!--[-->`);
+        ssrRenderList(unref(socialLinks), (link) => {
+          _push(`<a${ssrRenderAttr("href", link.href)} target="_blank" rel="noopener" class="text-white/80 transition hover:text-white"${ssrRenderAttr("aria-label", link.label)}>`);
+          _push(ssrRenderComponent(_component_SocialIcon, {
+            name: link.icon,
+            label: link.label,
+            href: link.href,
+            inverted: "",
+            class: "h-6 w-6"
+          }, null, _parent));
+          _push(`</a>`);
+        });
+        _push(`<!--]--></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div><div><h4 class="mb-5 text-xs font-semibold uppercase tracking-wider text-white/60"> Рубрики </h4><ul class="space-y-3 text-sm font-medium uppercase tracking-wide"><li>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: "/news",
+        class: "text-white/90 transition hover:text-white"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(` Новости `);
+          } else {
+            return [
+              createTextVNode(" Новости ")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</li><!--[-->`);
+      ssrRenderList(unref(headerCategories), (cat) => {
+        _push(`<li>`);
+        _push(ssrRenderComponent(_component_NuxtLink, {
+          to: `/category/${cat.slug}`,
+          class: "text-white/90 transition hover:text-white"
+        }, {
+          default: withCtx((_, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(`${ssrInterpolate(cat.name)}`);
+            } else {
+              return [
+                createTextVNode(toDisplayString(cat.name), 1)
+              ];
+            }
+          }),
+          _: 2
+        }, _parent));
+        _push(`</li>`);
+      });
+      _push(`<!--]--><li>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: "/events",
+        class: "text-white/90 transition hover:text-white"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(` Афиша `);
+          } else {
+            return [
+              createTextVNode(" Афиша ")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</li></ul></div><div><h4 class="mb-5 text-xs font-semibold uppercase tracking-wider text-white/60"> О нас </h4><ul class="space-y-3 text-sm font-medium uppercase tracking-wide"><li>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: "/legal",
+        class: "text-white/90 transition hover:text-white"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(` Правовая информация `);
+          } else {
+            return [
+              createTextVNode(" Правовая информация ")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</li><li>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: "/privacy",
+        class: "text-white/90 transition hover:text-white"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(` Политика в отношении обработки персональных данных `);
+          } else {
+            return [
+              createTextVNode(" Политика в отношении обработки персональных данных ")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`</li></ul></div></div></div><div class="border-t border-white/10"><div class="mx-auto max-w-7xl px-4 py-5"><p class="text-center text-xs text-white/60"> Все права защищены. Копирование и иное использование материалов возможны только с письменного согласия правообладателя и с обязательным указанием источника. </p></div></div></footer>`);
+    };
+  }
+});
+const _sfc_setup$1 = _sfc_main$1.setup;
+_sfc_main$1.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/SiteFooter.vue");
+  return _sfc_setup$1 ? _sfc_setup$1(props, ctx) : void 0;
+};
+const __nuxt_component_1 = Object.assign(_sfc_main$1, { __name: "SiteFooter" });
+const _sfc_main = {};
+function _sfc_ssrRender(_ctx, _push, _parent, _attrs) {
+  const _component_SiteHeader = __nuxt_component_0;
+  const _component_SiteFooter = __nuxt_component_1;
+  _push(`<div${ssrRenderAttrs(mergeProps({ class: "flex min-h-screen flex-col overflow-x-hidden" }, _attrs))}>`);
+  _push(ssrRenderComponent(_component_SiteHeader, null, null, _parent));
+  _push(`<main class="flex-1">`);
+  ssrRenderSlot(_ctx.$slots, "default", {}, null, _push, _parent);
+  _push(`</main>`);
+  _push(ssrRenderComponent(_component_SiteFooter, null, null, _parent));
+  _push(`</div>`);
+}
+const _sfc_setup = _sfc_main.setup;
+_sfc_main.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("layouts/default.vue");
+  return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
+};
+const _default = /* @__PURE__ */ _export_sfc(_sfc_main, [["ssrRender", _sfc_ssrRender]]);
+
+export { _default as default };
+//# sourceMappingURL=default-BB1VY9-k.mjs.map

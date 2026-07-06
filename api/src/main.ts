@@ -14,7 +14,14 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.use(cookieParser());
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads' });
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads',
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.avif')) {
+        res.setHeader('Content-Type', 'image/avif');
+      }
+    },
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

@@ -8,7 +8,7 @@ const props = defineProps<{
 const emit = defineEmits<{ (e: 'saved', id: string): void }>();
 
 const config = useRuntimeConfig();
-const { getCategories, getTags, uploadMedia, uploadCoverMedia, saveDraft, getDraft, getAuthors } = useApi();
+const { getCategories, getTags, uploadMedia, uploadCoverMedia, saveDraft, getDraft, getAuthors, getMediaById } = useApi();
 const coverBaseUrl = config.public.uploadsUrl || (config.public.apiUrl as string).replace('/api', '') || 'http://localhost:4000';
 
 const typeLabels: Record<string, string> = {
@@ -150,11 +150,99 @@ const previewUrl = computed(() => {
 
 const editorEls = new Map<string, HTMLElement>();
 
+async function resolveMediaPaths(blocks: any[]): Promise<Map<string, string>> {
+  const ids = new Set<string>();
+  blocks.forEach((b) => {
+    if (b.type === 'image-highlight' && b.imageId) ids.add(b.imageId);
+    if ((b.type === 'image-gallery' || b.type === 'image-slider') && Array.isArray(b.imageIds)) {
+      b.imageIds.forEach((id: string) => ids.add(id));
+    }
+  });
+
+  const map = new Map<string, string>();
+  await Promise.all(
+    Array.from(ids).map(async (id) => {
+      try {
+        const media: any = await getMediaById(id);
+        if (media?.path) map.set(id, media.path);
+      } catch (e) {
+        console.warn(`Failed to resolve media ${id}`, e);
+      }
+    }),
+  );
+  return map;
+}
+
+function normalizeBlock(b: any, mediaMap: Map<string, string>) {
+  const id = b.id || crypto.randomUUID();
+
+  // Legacy Strapi block types -> new editor block types
+  if (b.type === 'html-editor' || b.type === 'rich-text') {
+    return { id, type: 'text', title: b.title, content: b.content || '' };
+  }
+
+  if (b.type === 'image-highlight') {
+    const path = b.imageId ? mediaMap.get(b.imageId) : '';
+    return {
+      id,
+      type: 'image',
+      title: b.title,
+      data: {
+        mediaId: b.imageId || '',
+        path: path || '',
+        caption: b.caption || '',
+        source: b.credit || '',
+        showWatermark: false,
+      },
+    };
+  }
+
+  if (b.type === 'image-gallery' || b.type === 'image-slider') {
+    const items = (b.imageIds || [])
+      .map((imageId: string) => ({
+        mediaId: imageId,
+        path: mediaMap.get(imageId) || '',
+        source: b.photoSource || '',
+        showWatermark: false,
+      }))
+      .filter((it: any) => it.path);
+    return {
+      id,
+      type: b.type === 'image-gallery' ? 'gallery' : 'slider',
+      title: b.title,
+      data: { items },
+    };
+  }
+
+  // New-format blocks
+  if (b.type === 'text') {
+    return { id, type: b.type, title: b.title, content: b.content || '' };
+  }
+
+  const data = b.data || {};
+  if (b.type === 'image') {
+    data.source = data.source || '';
+    data.showWatermark = data.showWatermark ?? false;
+  } else if ((b.type === 'slider' || b.type === 'gallery') && Array.isArray(data.items)) {
+    const legacyBlockWatermark = data.showWatermark === true;
+    data.items.forEach((it: any) => {
+      it.source = it.source || '';
+      it.showWatermark = legacyBlockWatermark || (it.showWatermark ?? false);
+    });
+    data.showWatermark = false;
+  }
+
+  return { id, type: b.type, title: b.title, data };
+}
+
 async function loadDraft(id: string) {
   loading.value = true;
   error.value = '';
   try {
     const res: any = await getDraft(id);
+    const rawBlocks = Array.isArray(res.contentBlocks) ? res.contentBlocks : [];
+    const mediaMap = await resolveMediaPaths(rawBlocks);
+
     Object.assign(form, {
       id: res.id,
       type: res.type,
@@ -175,28 +263,7 @@ async function loadDraft(id: string) {
       authorId: res.authorId || '',
       categoryIds: (res.categories || []).map((c: any) => c.id),
       tagIds: (res.tags || []).map((t: any) => t.id),
-      contentBlocks: Array.isArray(res.contentBlocks) && res.contentBlocks.length
-        ? res.contentBlocks.map((b: any) => {
-            const id = b.id || crypto.randomUUID();
-            if (b.type === 'text') {
-              return { id, type: b.type, title: b.title, content: b.content || '' };
-            }
-            const data = b.data || {};
-            if (b.type === 'image') {
-              data.source = data.source || '';
-              data.showWatermark = data.showWatermark ?? false;
-            } else if ((b.type === 'slider' || b.type === 'gallery') && Array.isArray(data.items)) {
-              // Migrate old block-level watermark toggle to per-item flags.
-              const legacyBlockWatermark = data.showWatermark === true;
-              data.items.forEach((it: any) => {
-                it.source = it.source || '';
-                it.showWatermark = legacyBlockWatermark || (it.showWatermark ?? false);
-              });
-              data.showWatermark = false;
-            }
-            return { id, type: b.type, title: b.title, data };
-          })
-        : [],
+      contentBlocks: rawBlocks.length ? rawBlocks.map((b: any) => normalizeBlock(b, mediaMap)) : [],
       sources: Array.isArray(res.sources) && res.sources.length ? res.sources : [{ name: '', url: '' }],
       seoTitle: res.seo?.title || '',
       seoDescription: res.seo?.description || '',

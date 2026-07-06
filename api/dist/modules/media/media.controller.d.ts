@@ -17,6 +17,17 @@ export declare class MediaController {
         limit: number;
         offset: number;
     }>;
+    findOne(id: string): Promise<{
+        id: string;
+        createdAt: Date;
+        path: string;
+        mime: string | null;
+        width: number | null;
+        height: number | null;
+        altText: string | null;
+        sizeBytes: bigint | null;
+    }>;
+    findOneFile(id: string, res: any): Promise<any>;
     upload(file: Express.Multer.File): Promise<{
         id: string;
         createdAt: Date;
