@@ -1,0 +1,66 @@
+import { computed, toRef, isRef } from 'vue';
+import { g as useNuxtApp } from './server.mjs';
+import { u as useApi } from './useApi-DaYJsQyz.mjs';
+
+const useStateKeyPrefix = "$s";
+function useState(...args) {
+  const autoKey = typeof args[args.length - 1] === "string" ? args.pop() : void 0;
+  if (typeof args[0] !== "string") {
+    args.unshift(autoKey);
+  }
+  const [_key, init] = args;
+  if (!_key || typeof _key !== "string") {
+    throw new TypeError("[nuxt] [useState] key must be a string: " + _key);
+  }
+  if (init !== void 0 && typeof init !== "function") {
+    throw new Error("[nuxt] [useState] init must be a function: " + init);
+  }
+  const key = useStateKeyPrefix + _key;
+  const nuxtApp = useNuxtApp();
+  const state = toRef(nuxtApp.payload.state, key);
+  if (state.value === void 0 && init) {
+    const initialValue = init();
+    if (isRef(initialValue)) {
+      nuxtApp.payload.state[key] = initialValue;
+      return initialValue;
+    }
+    state.value = initialValue;
+  }
+  return state;
+}
+function useAuth() {
+  const user = useState("auth-user", () => null);
+  const { login, register, logout, me } = useApi();
+  async function fetchUser() {
+    try {
+      const data = await me();
+      user.value = data;
+      return data;
+    } catch {
+      user.value = null;
+      return null;
+    }
+  }
+  async function signIn(loginValue, password) {
+    await login({ login: loginValue, password });
+    return fetchUser();
+  }
+  async function signUp(body) {
+    await register(body);
+  }
+  async function signOut() {
+    await logout();
+    user.value = null;
+  }
+  return {
+    user,
+    fetchUser,
+    signIn,
+    signUp,
+    signOut,
+    isAuthenticated: computed(() => !!user.value)
+  };
+}
+
+export { useAuth as u };
+//# sourceMappingURL=useAuth-BPhhjFhA.mjs.map

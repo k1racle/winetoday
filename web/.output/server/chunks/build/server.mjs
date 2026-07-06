@@ -459,37 +459,37 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import('./index-D1-ASE3y.mjs')
+    component: () => import('./index-_qgtCEwl.mjs')
   },
   {
     name: "news",
     path: "/news",
-    component: () => import('./index-DS3Y27pn.mjs')
+    component: () => import('./index-Bvzi6sje.mjs')
   },
   {
     name: "news-slug",
     path: "/news/:slug()",
-    component: () => import('./_slug_-CWXvHrRr.mjs')
+    component: () => import('./_slug_-65Gjg25X.mjs')
   },
   {
     name: "videos",
     path: "/videos",
-    component: () => import('./index-v3HorwQU.mjs')
+    component: () => import('./index-Dn3ADzjg.mjs')
   },
   {
     name: "account",
     path: "/account",
-    component: () => import('./index-BBZAO6ps.mjs')
+    component: () => import('./index-rIsFt_Lz.mjs')
   },
   {
     name: "videos-slug",
     path: "/videos/:slug()",
-    component: () => import('./_slug_-C8FVqES4.mjs')
+    component: () => import('./_slug_-DErq3xNU.mjs')
   },
   {
     name: "articles",
     path: "/articles",
-    component: () => import('./index-PmhuvRdm.mjs')
+    component: () => import('./index-DQ7HjTGM.mjs')
   },
   {
     name: "contacts",
@@ -497,44 +497,61 @@ const _routes = [
     component: () => import('./index-CB20nfJQ.mjs')
   },
   {
+    name: "gallery-slug",
+    path: "/gallery/:slug()",
+    component: () => import('./_slug_-37cfINeG.mjs')
+  },
+  {
     name: "articles-slug",
     path: "/articles/:slug()",
-    component: () => import('./_slug_-BSRdbji0.mjs')
+    component: () => import('./_slug_-DElv6S9y.mjs')
   },
   {
     name: "category-slug",
     path: "/category/:slug()",
-    component: () => import('./_slug_-D6v_cjEo.mjs')
+    component: () => import('./_slug_-BNZ9qco_.mjs')
   },
   {
     name: "account-admin-tags",
     path: "/account/admin/tags",
-    component: () => import('./tags-R9T2xeDM.mjs')
+    component: () => import('./tags-_TYOK06s.mjs')
   },
   {
     name: "account-admin",
     path: "/account/admin",
-    component: () => import('./index-DZl2T3OC.mjs')
+    component: () => import('./index-CHp6K6Eh.mjs')
+  },
+  {
+    name: "account-admin-authors",
+    path: "/account/admin/authors",
+    component: () => import('./authors-CcNwuuRg.mjs'),
+    children: [
+      {
+        name: "account-admin-authors-id",
+        path: ":id()",
+        component: () => import('./_id_-DgeyPKse.mjs')
+      }
+    ]
   },
   {
     name: "account-admin-content",
     path: "/account/admin/content",
-    component: () => import('./content-Cy_31dRE.mjs')
+    component: () => import('./content-DkmuWVC3.mjs')
   },
   {
     name: "account-admin-socials",
     path: "/account/admin/socials",
-    component: () => import('./socials-Bz0TDQuC.mjs')
+    component: () => import('./socials-CdDKjBjw.mjs')
   },
   {
     name: "account-admin-categories",
     path: "/account/admin/categories",
-    component: () => import('./categories-MY4-QFuc.mjs')
+    component: () => import('./categories-p6CvyxUo.mjs')
   },
   {
     name: "account-admin-users-id",
     path: "/account/admin/users/:id()",
-    component: () => import('./_id_-Bh0w3gVS.mjs')
+    component: () => import('./_id_-Cp0x4BnA.mjs')
   }
 ];
 const _wrapInTransition = (props, children) => {
@@ -1047,7 +1064,7 @@ const plugins = [
   components_plugin_4kY4pyzJIYX99vmMAAIorFf3CnAaptHitJgf7JxiED8
 ];
 const layouts = {
-  default: defineAsyncComponent(() => import('./default-qt7BtjPE.mjs').then((m) => m.default || m))
+  default: defineAsyncComponent(() => import('./default-HDQdrB2L.mjs').then((m) => m.default || m))
 };
 const routeRulesMatcher = _routeRulesMatcher;
 const LayoutLoader = defineComponent({
@@ -1333,7 +1350,7 @@ const _sfc_main$1 = {
     const statusText = _error.statusMessage ?? (is404 ? "Page Not Found" : "Internal Server Error");
     const description = _error.message || _error.toString();
     const stack = void 0;
-    const _Error404 = defineAsyncComponent(() => import('./error-404-B2mvZDDq.mjs'));
+    const _Error404 = defineAsyncComponent(() => import('./error-404-ClsZIQD-.mjs'));
     const _Error = defineAsyncComponent(() => import('./error-500-PMTSYGth.mjs'));
     const ErrorTemplate = is404 ? _Error404 : _Error;
     return (_ctx, _push, _parent, _attrs) => {
@@ -1426,5 +1443,5 @@ let entry;
 }
 const entry_default = ((ssrContext) => entry(ssrContext));
 
-export { useSeoMeta as a, useRoute as b, createError as c, useRuntimeConfig as d, entry_default as default, useNuxtApp as e, asyncDataDefaults as f, useRouter as g, encodeRoutePath as h, nuxtLinkDefaults as i, navigateTo as n, resolveRouteObject as r, useHead as u };
+export { useSeoMeta as a, useRoute as b, createError as c, useRuntimeConfig as d, entry_default as default, useRouter as e, encodeRoutePath as f, useNuxtApp as g, nuxtLinkDefaults as h, asyncDataDefaults as i, navigateTo as n, resolveRouteObject as r, useHead as u };
 //# sourceMappingURL=server.mjs.map

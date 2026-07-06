@@ -6,6 +6,7 @@ const props = defineProps<{
 }>();
 
 const activeTab = ref<'fresh' | 'popular'>('fresh');
+const isExpanded = ref(false);
 
 function link(item: ContentItem) {
   switch (item.type) {
@@ -46,6 +47,8 @@ const displayedItems = computed<ContentItem[]>(() => {
   }
   return list.slice(0, 17);
 });
+
+const hasMobileMore = computed(() => displayedItems.value.length > 4);
 </script>
 
 <template>
@@ -71,7 +74,12 @@ const displayedItems = computed<ContentItem[]>(() => {
     </div>
 
     <ul class="divide-y divide-foreground/10">
-      <li v-for="item in displayedItems" :key="item.id" class="py-3 first:pt-0 last:pb-0">
+      <li
+        v-for="(item, index) in displayedItems"
+        :key="item.id"
+        class="py-3 first:pt-0 last:pb-0"
+        :class="{ 'hidden md:block': !isExpanded && index >= 4 }"
+      >
         <NuxtLink :to="link(item)" class="group flex min-w-0 items-start gap-3 transition-transform duration-200 hover:scale-[1.01]">
           <span class="shrink-0 pt-0.5 text-sm font-bold text-accent">
             {{ formatDayMonth(item.publishedAt || item.createdAt) }}
@@ -90,6 +98,15 @@ const displayedItems = computed<ContentItem[]>(() => {
         </NuxtLink>
       </li>
     </ul>
+
+    <button
+      v-if="hasMobileMore && !isExpanded"
+      type="button"
+      class="mt-3 w-full text-center text-sm font-medium text-foreground/70 transition hover:text-foreground md:hidden"
+      @click="isExpanded = true"
+    >
+      Ещё
+    </button>
 
     <NuxtLink
       to="/news"
