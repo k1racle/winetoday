@@ -1,4 +1,4 @@
-import { ContentType, Prisma } from '@prisma/client';
+import { ContentType, Prisma, ReactionType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListContentDto } from './dto/list-content.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -647,5 +647,28 @@ export declare class ContentService {
         updatedAt: Date;
     }>;
     private findTagOrThrow;
+    getReactions(contentItemId: string, userId?: string): Promise<{
+        likes: number;
+        dislikes: number;
+        userReaction: import(".prisma/client").$Enums.ReactionType;
+    }>;
+    react(contentItemId: string, userId: string, type: ReactionType): Promise<{
+        likes: number;
+        dislikes: number;
+        userReaction: import(".prisma/client").$Enums.ReactionType;
+    }>;
+    getComments(contentItemId: string): Promise<{
+        id: string;
+        body: string;
+        createdAt: Date;
+        author: string;
+    }[]>;
+    createComment(contentItemId: string, userId: string, body: string): Promise<{
+        id: string;
+        body: string;
+        createdAt: Date;
+        status: string;
+        author: string;
+    }>;
 }
 export {};

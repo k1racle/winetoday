@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ContentStatus, ContentType, Prisma } from '@prisma/client';
+import { ContentStatus, ContentType, Prisma, ReactionType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListContentDto } from './dto/list-content.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -318,5 +318,81 @@ export class ContentService {
       throw new NotFoundException('Tag not found');
     }
     return tag;
+  }
+
+  async getReactions(contentItemId: string, userId?: string) {
+    const [likes, dislikes, userReaction] = await Promise.all([
+      this.prisma.reaction.count({ where: { contentItemId, type: ReactionType.like } }),
+      this.prisma.reaction.count({ where: { contentItemId, type: ReactionType.dislike } }),
+      userId
+        ? this.prisma.reaction.findUnique({
+            where: { contentItemId_userId: { contentItemId, userId } },
+            select: { type: true },
+          })
+        : null,
+    ]);
+    return {
+      likes,
+      dislikes,
+      userReaction: userReaction?.type || null,
+    };
+  }
+
+  async react(contentItemId: string, userId: string, type: ReactionType) {
+    await this.prisma.reaction.upsert({
+      where: { contentItemId_userId: { contentItemId, userId } },
+      update: { type },
+      create: { contentItemId, userId, type },
+    });
+    return this.getReactions(contentItemId, userId);
+  }
+
+  async getComments(contentItemId: string) {
+    const comments = await this.prisma.comment.findMany({
+      where: { contentItemId, status: 'approved' },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            memberProfile: { select: { displayName: true } },
+          },
+        },
+      },
+    });
+    return comments.map((c) => ({
+      id: c.id,
+      body: c.body,
+      createdAt: c.createdAt,
+      author: c.user?.memberProfile?.displayName || c.user?.username || 'Аноним',
+    }));
+  }
+
+  async createComment(contentItemId: string, userId: string, body: string) {
+    const comment = await this.prisma.comment.create({
+      data: {
+        contentItemId,
+        userId,
+        body: body.trim(),
+        status: 'approved',
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            memberProfile: { select: { displayName: true } },
+          },
+        },
+      },
+    });
+    return {
+      id: comment.id,
+      body: comment.body,
+      createdAt: comment.createdAt,
+      status: comment.status,
+      author: comment.user?.memberProfile?.displayName || comment.user?.username || 'Аноним',
+    };
   }
 }

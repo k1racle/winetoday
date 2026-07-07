@@ -13,10 +13,7 @@ if (!video.value && error.value) {
   throw createError({ statusCode: 404, statusMessage: 'Видео не найдено' });
 }
 
-useSeoMeta({
-  title: video.value?.seo?.metaTitle || video.value?.title,
-  description: video.value?.seo?.metaDescription || video.value?.excerpt,
-});
+useContentSeo(video.value);
 
 onMounted(() => {
   if (video.value?.id) {

@@ -1,7 +1,21 @@
-import { Controller, Get, Param, ParseBoolPipe, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseBoolPipe,
+  Post,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ContentType } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { ContentService } from './content.service';
 import { ListContentDto } from './dto/list-content.dto';
+import { ReactDto } from './dto/react.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
 @Controller()
 export class ContentController {
@@ -86,5 +100,28 @@ export class ContentController {
   @Get('homepage')
   homepage() {
     return this.contentService.findHomepageContent();
+  }
+
+  @Get('content/:id/reactions')
+  @UseGuards(OptionalJwtAuthGuard)
+  reactions(@Param('id') id: string, @Request() req) {
+    return this.contentService.getReactions(id, req.user?.userId);
+  }
+
+  @Post('content/:id/react')
+  @UseGuards(JwtAuthGuard)
+  react(@Param('id') id: string, @Request() req, @Body() dto: ReactDto) {
+    return this.contentService.react(id, req.user.userId, dto.type);
+  }
+
+  @Get('content/:id/comments')
+  comments(@Param('id') id: string) {
+    return this.contentService.getComments(id);
+  }
+
+  @Post('content/:id/comments')
+  @UseGuards(JwtAuthGuard)
+  createComment(@Param('id') id: string, @Request() req, @Body() dto: CreateCommentDto) {
+    return this.contentService.createComment(id, req.user.userId, dto.body);
   }
 }

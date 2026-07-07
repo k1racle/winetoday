@@ -268,6 +268,78 @@ let ContentService = class ContentService {
         }
         return tag;
     }
+    async getReactions(contentItemId, userId) {
+        const [likes, dislikes, userReaction] = await Promise.all([
+            this.prisma.reaction.count({ where: { contentItemId, type: client_1.ReactionType.like } }),
+            this.prisma.reaction.count({ where: { contentItemId, type: client_1.ReactionType.dislike } }),
+            userId
+                ? this.prisma.reaction.findUnique({
+                    where: { contentItemId_userId: { contentItemId, userId } },
+                    select: { type: true },
+                })
+                : null,
+        ]);
+        return {
+            likes,
+            dislikes,
+            userReaction: userReaction?.type || null,
+        };
+    }
+    async react(contentItemId, userId, type) {
+        await this.prisma.reaction.upsert({
+            where: { contentItemId_userId: { contentItemId, userId } },
+            update: { type },
+            create: { contentItemId, userId, type },
+        });
+        return this.getReactions(contentItemId, userId);
+    }
+    async getComments(contentItemId) {
+        const comments = await this.prisma.comment.findMany({
+            where: { contentItemId, status: 'approved' },
+            orderBy: { createdAt: 'desc' },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        username: true,
+                        memberProfile: { select: { displayName: true } },
+                    },
+                },
+            },
+        });
+        return comments.map((c) => ({
+            id: c.id,
+            body: c.body,
+            createdAt: c.createdAt,
+            author: c.user?.memberProfile?.displayName || c.user?.username || 'Аноним',
+        }));
+    }
+    async createComment(contentItemId, userId, body) {
+        const comment = await this.prisma.comment.create({
+            data: {
+                contentItemId,
+                userId,
+                body: body.trim(),
+                status: 'pending',
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        username: true,
+                        memberProfile: { select: { displayName: true } },
+                    },
+                },
+            },
+        });
+        return {
+            id: comment.id,
+            body: comment.body,
+            createdAt: comment.createdAt,
+            status: comment.status,
+            author: comment.user?.memberProfile?.displayName || comment.user?.username || 'Аноним',
+        };
+    }
 };
 exports.ContentService = ContentService;
 exports.ContentService = ContentService = __decorate([

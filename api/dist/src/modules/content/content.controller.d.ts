@@ -1,5 +1,7 @@
 import { ContentService } from './content.service';
 import { ListContentDto } from './dto/list-content.dto';
+import { ReactDto } from './dto/react.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
 export declare class ContentController {
     private readonly contentService;
     constructor(contentService: ContentService);
@@ -1247,5 +1249,28 @@ export declare class ContentController {
             reviewedAt: Date | null;
             reviewComment: string | null;
         })[];
+    }>;
+    reactions(id: string, req: any): Promise<{
+        likes: number;
+        dislikes: number;
+        userReaction: import(".prisma/client").$Enums.ReactionType;
+    }>;
+    react(id: string, req: any, dto: ReactDto): Promise<{
+        likes: number;
+        dislikes: number;
+        userReaction: import(".prisma/client").$Enums.ReactionType;
+    }>;
+    comments(id: string): Promise<{
+        id: string;
+        body: string;
+        createdAt: Date;
+        author: string;
+    }[]>;
+    createComment(id: string, req: any, dto: CreateCommentDto): Promise<{
+        id: string;
+        body: string;
+        createdAt: Date;
+        status: string;
+        author: string;
     }>;
 }

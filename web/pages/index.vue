@@ -52,12 +52,20 @@ function scrollThumbs(direction: number) {
   thumbScroll.value?.scrollBy({ left: direction * 320, behavior: 'smooth' });
 }
 
+const siteUrl = (useRuntimeConfig().public.siteUrl as string)?.replace(/\/$/, '') || '';
+const firstCoverPath = topItems.value?.[0]?.coverMedia?.path;
+const homeOgImage = firstCoverPath ? useOgImageUrl(useMediaUrl(firstCoverPath)) : '';
+
 useSeoMeta({
-  title: 'Виноделие сегодня',
-  description: 'Русскоязычный портал о вине, виноградарстве и виноделии.',
-  ogTitle: 'Виноделие сегодня',
-  ogDescription: 'Русскоязычный портал о вине, виноградарстве и виноделии.',
-  ogImage: '/og-image.jpg',
+  title: 'Главная',
+  description: 'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.',
+  ogTitle: 'ВИНОДЕЛИЕ СЕГОДНЯ - Федеральное отраслевое медиа',
+  ogDescription: 'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.',
+  ogType: 'website',
+  ogUrl: `${siteUrl}/`,
+  ogImage: homeOgImage,
+  twitterCard: 'summary_large_image',
+  twitterImage: homeOgImage,
 });
 </script>
 

@@ -13,10 +13,7 @@ if (!gallery.value && error.value) {
   throw createError({ statusCode: 404, statusMessage: 'Галерея не найдена' });
 }
 
-useSeoMeta({
-  title: gallery.value?.seo?.metaTitle || gallery.value?.title,
-  description: gallery.value?.seo?.metaDescription || gallery.value?.excerpt,
-});
+useContentSeo(gallery.value);
 
 onMounted(() => {
   if (gallery.value?.id) {

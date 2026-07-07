@@ -13,10 +13,7 @@ if (!newsItem.value && error.value) {
   throw createError({ statusCode: 404, statusMessage: 'Новость не найдена' });
 }
 
-useSeoMeta({
-  title: newsItem.value?.seo?.metaTitle || newsItem.value?.title,
-  description: newsItem.value?.seo?.metaDescription || newsItem.value?.excerpt,
-});
+useContentSeo(newsItem.value);
 
 onMounted(() => {
   if (newsItem.value?.id) {

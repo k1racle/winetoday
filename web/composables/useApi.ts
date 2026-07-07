@@ -66,6 +66,14 @@ export function useApi() {
       api('/site-seo'),
     incrementView: (body: Record<string, unknown>) =>
       api('/views/increment', { method: 'POST', body }),
+    getReactions: (contentItemId: string) =>
+      api(`/content/${contentItemId}/reactions`),
+    react: (contentItemId: string, type: 'like' | 'dislike') =>
+      api(`/content/${contentItemId}/react`, { method: 'POST', body: { type }, credentials: 'include' }),
+    getComments: (contentItemId: string) =>
+      api(`/content/${contentItemId}/comments`),
+    createComment: (contentItemId: string, body: string) =>
+      api(`/content/${contentItemId}/comments`, { method: 'POST', body: { body }, credentials: 'include' }),
     login: (body: { login: string; password: string }) =>
       api('/auth/login', { method: 'POST', body }),
     register: (body: { username: string; displayName?: string; email: string; password: string }) =>

@@ -15,8 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContentController = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
+const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const optional_jwt_auth_guard_1 = require("../auth/guards/optional-jwt-auth.guard");
 const content_service_1 = require("./content.service");
 const list_content_dto_1 = require("./dto/list-content.dto");
+const react_dto_1 = require("./dto/react.dto");
+const create_comment_dto_1 = require("./dto/create-comment.dto");
 let ContentController = class ContentController {
     constructor(contentService) {
         this.contentService = contentService;
@@ -63,6 +67,18 @@ let ContentController = class ContentController {
     }
     homepage() {
         return this.contentService.findHomepageContent();
+    }
+    reactions(id, req) {
+        return this.contentService.getReactions(id, req.user?.userId);
+    }
+    react(id, req, dto) {
+        return this.contentService.react(id, req.user.userId, dto.type);
+    }
+    comments(id) {
+        return this.contentService.getComments(id);
+    }
+    createComment(id, req, dto) {
+        return this.contentService.createComment(id, req.user.userId, dto.body);
     }
 };
 exports.ContentController = ContentController;
@@ -158,6 +174,42 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ContentController.prototype, "homepage", null);
+__decorate([
+    (0, common_1.Get)('content/:id/reactions'),
+    (0, common_1.UseGuards)(optional_jwt_auth_guard_1.OptionalJwtAuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ContentController.prototype, "reactions", null);
+__decorate([
+    (0, common_1.Post)('content/:id/react'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, react_dto_1.ReactDto]),
+    __metadata("design:returntype", void 0)
+], ContentController.prototype, "react", null);
+__decorate([
+    (0, common_1.Get)('content/:id/comments'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ContentController.prototype, "comments", null);
+__decorate([
+    (0, common_1.Post)('content/:id/comments'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, create_comment_dto_1.CreateCommentDto]),
+    __metadata("design:returntype", void 0)
+], ContentController.prototype, "createComment", null);
 exports.ContentController = ContentController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [content_service_1.ContentService])

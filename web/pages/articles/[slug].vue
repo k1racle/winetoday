@@ -13,10 +13,7 @@ if (!article.value && error.value) {
   throw createError({ statusCode: 404, statusMessage: 'Статья не найдена' });
 }
 
-useSeoMeta({
-  title: article.value?.seo?.metaTitle || article.value?.title,
-  description: article.value?.seo?.metaDescription || article.value?.excerpt,
-});
+useContentSeo(article.value);
 
 onMounted(() => {
   if (article.value?.id) {
