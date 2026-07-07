@@ -9,8 +9,9 @@ import { PrismaService } from '../prisma/prisma.service';
 export class MediaService {
   private readonly logger = new Logger(MediaService.name);
   private readonly BLOCK_WIDTH_PX = 1200;
-  private readonly AVIF_QUALITY = 80;
+  private readonly AVIF_QUALITY = 75;
   private readonly AVIF_EFFORT = 4;
+  private readonly MAX_WIDTH = 1920;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -143,6 +144,7 @@ export class MediaService {
       }
 
       await transformer
+        .resize({ width: this.MAX_WIDTH, withoutEnlargement: true })
         .avif({ quality: this.AVIF_QUALITY, effort: this.AVIF_EFFORT })
         .toFile(outputPath);
 

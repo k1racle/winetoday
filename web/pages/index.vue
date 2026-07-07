@@ -43,7 +43,7 @@ const mixedItems = computed<ContentItem[]>(() => {
       const db = new Date(a.publishedAt || a.createdAt).getTime();
       return da - db;
     })
-    .slice(0, 9);
+    .slice(0, 36);
 });
 
 const thumbScroll = ref<HTMLDivElement | null>(null);

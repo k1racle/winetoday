@@ -25,7 +25,7 @@ const typeFilter = ref('');
 const statusFilter = ref('');
 const search = ref('');
 
-const limit = 20;
+const limit = 10000;
 const offset = ref(0);
 const sortField = ref('updatedAt');
 const sortOrder = ref<'asc' | 'desc'>('desc');

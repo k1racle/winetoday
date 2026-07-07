@@ -6,9 +6,10 @@ import sharp from 'sharp';
 const prisma = new PrismaClient();
 
 const UPLOADS_DIRS = ['/app/uploads', '/app/public/uploads'];
-const RASTER_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
-const AVIF_QUALITY = 80;
+const RASTER_EXTS = new Set(['.jpg', '.jpeg', '.jpe', '.png', '.webp', '.jfif']);
+const AVIF_QUALITY = 75;
 const AVIF_EFFORT = 4;
+const MAX_WIDTH = 1920;
 
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
@@ -58,6 +59,7 @@ async function main() {
           if (!dryRun) {
             console.log(`Converting: ${originalPublicPath}`);
             await sharp(absolutePath, { animated: false })
+              .resize({ width: MAX_WIDTH, withoutEnlargement: true })
               .avif({ quality: AVIF_QUALITY, effort: AVIF_EFFORT })
               .toFile(avifAbsolutePath);
 

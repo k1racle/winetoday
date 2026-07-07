@@ -48,7 +48,7 @@ async function load() {
     const res: any = await getEditorMaterials({
       type: props.activeType,
       search: search.value || undefined,
-      limit: 50,
+      limit: 10000,
     });
     materials.value = res.items || [];
     const map: Record<string, number> = {};

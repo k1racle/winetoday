@@ -159,7 +159,7 @@ async function openMaterials(u: AdminUser) {
     if (!u.authorId) {
       materials.value = [];
     } else {
-      const res: any = await getEditorMaterials({ authorId: u.authorId });
+      const res: any = await getEditorMaterials({ authorId: u.authorId, limit: 10000 });
       materials.value = Array.isArray(res?.items) ? res.items : [];
     }
   } catch (err: any) {

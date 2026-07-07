@@ -4,9 +4,10 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import sharp from 'sharp';
 
-const AVIF_QUALITY = 80;
+const AVIF_QUALITY = 75;
 const AVIF_EFFORT = 4;
-const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
+const MAX_WIDTH = 1920;
+const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.jpe', '.png', '.webp', '.jfif']);
 
 export function createMediaAvifMiddleware(uploadsDirs: string[]) {
   const logger = new Logger('MediaAvifMiddleware');
@@ -56,6 +57,7 @@ export function createMediaAvifMiddleware(uploadsDirs: string[]) {
 
           logger.log(`Generating AVIF on-the-fly: ${urlPath}`);
           await sharp(originalFile, { animated: false })
+            .resize({ width: MAX_WIDTH, withoutEnlargement: true })
             .avif({ quality: AVIF_QUALITY, effort: AVIF_EFFORT })
             .toFile(avifFile);
 
