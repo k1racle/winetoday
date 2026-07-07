@@ -115,6 +115,7 @@ export class EditorService {
       homepageSpecialBlock: dto.homepageSpecialBlock ?? false,
       coverMediaId: dto.coverMediaId || null,
       coverShowWatermark: dto.coverShowWatermark ?? false,
+      coverSource: dto.coverSource?.trim() || null,
       videoUrl: dto.videoUrl || null,
       duration: dto.duration ?? null,
       authorId,

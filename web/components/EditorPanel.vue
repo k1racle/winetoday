@@ -49,6 +49,7 @@ function emptyForm() {
     coverMediaId: '',
     coverPath: '',
     coverShowWatermark: false,
+    coverSource: '',
     videoUrl: '',
     duration: 0,
     authorId: '',
@@ -261,6 +262,7 @@ async function loadDraft(id: string) {
       coverMediaId: res.coverMediaId || '',
       coverPath: res.coverMedia?.path || '',
       coverShowWatermark: res.coverShowWatermark,
+      coverSource: res.coverSource || '',
       videoUrl: res.videoUrl || '',
       duration: res.duration || 0,
       authorId: res.authorId || '',
@@ -542,6 +544,7 @@ function buildBody(status?: 'draft' | 'published'): Record<string, unknown> {
     homepageSpecialBlock: form.homepageSpecialBlock,
     coverMediaId: form.coverMediaId || undefined,
     coverShowWatermark: form.coverShowWatermark,
+    coverSource: form.coverSource || undefined,
     categoryIds: form.categoryIds,
     tagIds: form.tagIds,
     authorId: form.authorId || undefined,
@@ -884,6 +887,10 @@ async function submit(status?: 'draft' | 'published') {
                   </div>
                   Водяной знак
                 </label>
+                <div>
+                  <label class="mb-1 block text-xs font-medium text-foreground/70">Источник фото</label>
+                  <input v-model="form.coverSource" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-xs outline-none focus:border-accent" placeholder="Источник обложки">
+                </div>
               </div>
             </div>
             <div v-if="form.type === 'video'" class="mt-3 space-y-3">

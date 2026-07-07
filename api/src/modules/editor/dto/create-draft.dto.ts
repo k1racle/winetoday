@@ -63,6 +63,11 @@ export class CreateDraftDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(500)
+  coverSource?: string;
+
+  @IsOptional()
+  @IsString()
   videoUrl?: string;
 
   @IsOptional()
