@@ -73,14 +73,14 @@ useSeoMeta({
   <div class="pb-16">
     <!-- Top content + video + fresh sidebar -->
     <section v-if="topItems.length" class="mx-auto max-w-7xl px-4 py-4">
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-stretch">
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
         <!-- Fresh / popular news: first on mobile, right column on desktop -->
-        <aside class="order-first w-full lg:order-last lg:w-1/4">
+        <aside class="order-first lg:col-span-1 lg:row-span-2">
           <FreshList :items="freshItems" />
         </aside>
 
-        <!-- Main column: hero + video -->
-        <div class="order-2 flex w-full flex-col gap-4 lg:w-3/4">
+        <!-- Hero block -->
+        <div class="lg:col-span-3 lg:col-start-2">
           <!-- Mobile: top 3 items look the same (photo on top, text below) -->
           <div class="flex flex-col gap-4 lg:hidden">
             <NewsThumbCard
@@ -110,9 +110,10 @@ useSeoMeta({
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Video block -->
-          <div v-if="homepage?.videos?.length" class="w-full">
+        <!-- Video block -->
+        <div v-if="homepage?.videos?.length" class="lg:col-span-3 lg:col-start-2">
           <div class="mb-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <svg class="h-5 w-5 fill-current text-accent" viewBox="0 0 24 24">
@@ -174,8 +175,7 @@ useSeoMeta({
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
     <!-- Latest mixed materials grid + categories sidebar -->
     <section v-if="mixedItems.length" class="mx-auto max-w-7xl px-4 py-10">
