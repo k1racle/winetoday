@@ -34,14 +34,11 @@ function truncatedTitle(title: string, exclusive: boolean): string {
 
 <template>
   <div class="h-full border border-foreground/5 bg-card p-5 shadow-sm md:p-6">
-    <h3 class="mb-5 font-heading text-base font-bold text-foreground">
-      Свежие новости
-    </h3>
     <div class="space-y-8">
       <div v-for="group in groups" :key="group.category.id">
         <NuxtLink
           :to="`/category/${group.category.slug}`"
-          class="mb-3 block text-xs font-bold text-accent hover:text-accent/80"
+          class="mb-3 block text-base font-bold text-accent hover:text-accent/80"
         >
           {{ group.category.name }}
         </NuxtLink>

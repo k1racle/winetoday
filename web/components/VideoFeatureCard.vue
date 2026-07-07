@@ -15,6 +15,12 @@ const props = withDefaults(
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
 const { date, category } = useContentMeta(props.item);
+const { user } = useAuth();
+const canEdit = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
+
+function editUrl(item: ContentItem) {
+  return `/account?type=${item.type}&id=${item.id}`;
+}
 const duration = computed(() => {
   const block = props.item.contentBlocks?.find((b: any) => b.type === 'video-player');
   return block?.duration || props.item.duration;
@@ -31,8 +37,15 @@ function formatDuration(seconds?: number) {
 </script>
 
 <template>
-  <div class="group">
+  <div class="group relative">
     <slot name="title" />
+    <NuxtLink
+      v-if="canEdit"
+      :to="editUrl(item)"
+      class="absolute right-2 top-2 z-20 rounded bg-accent px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
+    >
+      Редактировать
+    </NuxtLink>
 
     <NuxtLink
       :to="`/videos/${item.slug}`"

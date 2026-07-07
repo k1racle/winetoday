@@ -6,6 +6,13 @@ const props = defineProps<{
 }>();
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
+const { user } = useAuth();
+const canEdit = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
+
+function editUrl(item: ContentItem) {
+  return `/account?type=${item.type}&id=${item.id}`;
+}
+
 const duration = computed(() => {
   const block = props.item.contentBlocks?.find((b: any) => b.type === 'video-player');
   return block?.duration || props.item.duration;
@@ -22,10 +29,13 @@ function formatDuration(seconds?: number) {
 </script>
 
 <template>
-  <NuxtLink
-    :to="`/videos/${item.slug}`"
+  <div
     class="group relative block w-64 shrink-0 overflow-hidden bg-card shadow-sm transition hover:shadow-md md:w-72"
   >
+    <NuxtLink
+      :to="`/videos/${item.slug}`"
+      class="block"
+    >
     <div class="relative aspect-video overflow-hidden bg-foreground/10">
       <NuxtImg
         v-if="coverSrc"
@@ -46,5 +56,13 @@ function formatDuration(seconds?: number) {
         </h4>
       </div>
     </div>
-  </NuxtLink>
+    </NuxtLink>
+    <NuxtLink
+      v-if="canEdit"
+      :to="editUrl(item)"
+      class="absolute right-2 top-2 z-10 rounded bg-accent px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
+    >
+      Редактировать
+    </NuxtLink>
+  </div>
 </template>

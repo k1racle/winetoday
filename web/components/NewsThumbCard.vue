@@ -22,13 +22,22 @@ const link = computed(() => {
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
 const { shortDate, category } = useContentMeta(props.item);
+const { user } = useAuth();
+const canEdit = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
+
+function editUrl(item: ContentItem) {
+  return `/account?type=${item.type}&id=${item.id}`;
+}
 </script>
 
 <template>
-  <NuxtLink
-    :to="link"
-    class="group flex h-full min-w-0 flex-col overflow-hidden bg-card shadow-sm transition duration-300 hover:scale-[1.02] hover:shadow-md"
+  <div
+    class="group relative flex h-full min-w-0 flex-col overflow-hidden bg-card shadow-sm transition duration-300 hover:scale-[1.02] hover:shadow-md"
   >
+    <NuxtLink
+      :to="link"
+      class="flex h-full min-w-0 flex-col overflow-hidden"
+    >
     <div class="relative aspect-video overflow-hidden bg-foreground/10">
       <NuxtImg
         v-if="coverSrc"
@@ -52,5 +61,13 @@ const { shortDate, category } = useContentMeta(props.item);
         {{ item.title }}
       </h3>
     </div>
-  </NuxtLink>
+    </NuxtLink>
+    <NuxtLink
+      v-if="canEdit"
+      :to="editUrl(item)"
+      class="absolute right-2 top-2 z-10 rounded bg-accent px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
+    >
+      Редактировать
+    </NuxtLink>
+  </div>
 </template>

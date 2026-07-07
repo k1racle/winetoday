@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const { user, isAuthenticated } = useAuth();
+const route = useRoute();
 
 const canCreate = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
 
@@ -29,6 +30,15 @@ function onSaved(id: string) {
 onMounted(() => {
   if (!isAuthenticated.value) {
     navigateTo('/');
+    return;
+  }
+  const editId = route.query.id;
+  if (editId && typeof editId === 'string') {
+    editingId.value = editId;
+    const editType = route.query.type;
+    if (editType && typeof editType === 'string') {
+      activeType.value = editType;
+    }
   }
 });
 </script>

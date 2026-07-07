@@ -8,7 +8,7 @@ const props = defineProps<{
 }>();
 
 const { getLatestByCategory, getReactions, react, getComments, createComment } = useApi();
-const { isAuthenticated } = useAuth();
+const { user, isAuthenticated } = useAuth();
 const viewerId = useViewerId();
 const { data: categoryGroups } = await useAsyncData('latest-by-category', () =>
   getLatestByCategory(5).catch(() => []),
@@ -16,6 +16,11 @@ const { data: categoryGroups } = await useAsyncData('latest-by-category', () =>
 
 const meta = computed(() => useContentMeta(props.item));
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
+const canEdit = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
+
+function editUrl(item: ContentItem) {
+  return `/account?type=${item.type}&id=${item.id}`;
+}
 const commentText = ref('');
 const shareMessage = ref('');
 
@@ -150,6 +155,17 @@ function formatTime(date?: string | null) {
         <h1 class="font-heading text-3xl font-bold leading-tight md:text-4xl">
           {{ item.title }}
         </h1>
+
+        <NuxtLink
+          v-if="canEdit"
+          :to="editUrl(item)"
+          class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:text-accent/80"
+        >
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+          </svg>
+          Редактировать
+        </NuxtLink>
 
         <!-- Cover image (hidden for videos so the player appears immediately) -->
         <figure v-if="coverSrc && item.type !== 'video'" class="mt-6">
