@@ -3,7 +3,7 @@ const { user, isAuthenticated } = useAuth();
 
 const canCreate = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
 
-const activeType = ref('article');
+const activeType = ref('all');
 const editingId = ref('');
 const sidebarRef = ref<any>(null);
 
@@ -46,7 +46,7 @@ onMounted(() => {
           @select-material="selectMaterial"
         />
         <section class="border border-foreground/10 bg-card p-4 shadow-sm md:p-6">
-          <EditorPanel :type="activeType" :draft-id="editingId" @saved="onSaved" />
+          <EditorPanel :type="activeType === 'all' ? undefined : activeType" :draft-id="editingId" @saved="onSaved" />
         </section>
       </div>
 

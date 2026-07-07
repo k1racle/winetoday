@@ -12,13 +12,14 @@ const { user } = useAuth();
 const { getEditorMaterials } = useApi();
 
 const typeLabels: Record<string, { label: string; icon: string }> = {
+  all: { label: 'Все материалы', icon: '📁' },
   article: { label: 'Статьи', icon: '📄' },
   news: { label: 'Новости', icon: '✎' },
   video: { label: 'Видео', icon: '🎬' },
   gallery: { label: 'Галереи', icon: '🖼' },
 };
 
-const typeOrder = ['article', 'news', 'video', 'gallery'];
+const typeOrder = ['all', 'article', 'news', 'video', 'gallery'];
 
 const roleLabels: Record<string, string> = {
   admin: 'Администратор',
@@ -45,16 +46,20 @@ const initials = computed(() => {
 async function load() {
   loading.value = true;
   try {
-    const res: any = await getEditorMaterials({
-      type: props.activeType,
+    const query: Record<string, unknown> = {
       search: search.value || undefined,
       limit: 10000,
-    });
+    };
+    if (props.activeType && props.activeType !== 'all') {
+      query.type = props.activeType;
+    }
+    const res: any = await getEditorMaterials(query);
     materials.value = res.items || [];
     const map: Record<string, number> = {};
     (res.counts || []).forEach((c: any) => {
       map[c.type] = c._count?.type || 0;
     });
+    map.all = Object.values(map).reduce((sum: number, n) => sum + (typeof n === 'number' ? n : 0), 0);
     counts.value = map;
   } catch (e) {
     materials.value = [];
