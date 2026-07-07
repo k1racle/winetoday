@@ -16,7 +16,7 @@ const { data: categoryGroups } = await useAsyncData('latest-by-category', () =>
 
 const meta = computed(() => useContentMeta(props.item));
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
-const canEdit = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
+const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
 
 function editUrl(item: ContentItem) {
   return `/account?type=${item.type}&id=${item.id}`;

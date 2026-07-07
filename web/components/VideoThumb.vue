@@ -7,7 +7,7 @@ const props = defineProps<{
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
 const { user } = useAuth();
-const canEdit = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
+const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
 
 function editUrl(item: ContentItem) {
   return `/account?type=${item.type}&id=${item.id}`;

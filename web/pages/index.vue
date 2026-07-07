@@ -114,7 +114,7 @@ useSeoMeta({
                   <path d="M8 5v14l11-7z" />
                 </svg>
                 <h2 class="font-heading text-xl font-bold uppercase tracking-wider">
-                  <span class="rounded bg-accent px-2 py-0.5 text-white">Видео</span>
+                  <span class="rounded bg-accent px-2 py-0.5 text-white dark:text-black">Видео</span>
                 </h2>
               </div>
               <NuxtLink
