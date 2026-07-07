@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, computed, onMounted, nextTick, watch } from 'vue';
+import { isTiptapJson, tiptapToHtml } from '~/utils/tiptap-html';
 
 const props = defineProps<{
   type?: 'article' | 'news' | 'video' | 'gallery';
@@ -178,7 +179,8 @@ function normalizeBlock(b: any, mediaMap: Map<string, string>) {
 
   // Legacy Strapi block types -> new editor block types
   if (b.type === 'html-editor' || b.type === 'rich-text') {
-    return { id, type: 'text', title: b.title, content: b.content || '' };
+    const content = b.content || '';
+    return { id, type: 'text', title: b.title, content: isTiptapJson(content) ? tiptapToHtml(content) : content };
   }
 
   if (b.type === 'image-highlight') {
@@ -216,7 +218,8 @@ function normalizeBlock(b: any, mediaMap: Map<string, string>) {
 
   // New-format blocks
   if (b.type === 'text') {
-    return { id, type: b.type, title: b.title, content: b.content || '' };
+    const content = b.content || '';
+    return { id, type: b.type, title: b.title, content: isTiptapJson(content) ? tiptapToHtml(content) : content };
   }
 
   const data = b.data || {};
