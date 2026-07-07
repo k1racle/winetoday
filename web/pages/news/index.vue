@@ -2,7 +2,7 @@
 const { getNews, getLatestByCategory } = useApi();
 
 const { data: news } = await useAsyncData('news-list', () =>
-  getNews({ limit: 24 }).catch(() => ({ items: [], total: 0 })),
+  getNews({ limit: 10000 }).catch(() => ({ items: [], total: 0 })),
 );
 
 const { data: latestByCategory } = await useAsyncData('latest-by-category-news', () =>

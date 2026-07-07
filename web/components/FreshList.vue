@@ -23,9 +23,26 @@ function link(item: ContentItem) {
   }
 }
 
-function formatDayMonth(date?: string | null) {
+function isTodayInMoscow(date: string): boolean {
+  const d = new Date(date).toLocaleDateString('ru-RU', { timeZone: 'Europe/Moscow' });
+  const today = new Date().toLocaleDateString('ru-RU', { timeZone: 'Europe/Moscow' });
+  return d === today;
+}
+
+function formatFreshDate(date?: string | null) {
   if (!date) return '';
-  return new Date(date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+  if (isTodayInMoscow(date)) {
+    return new Date(date).toLocaleTimeString('ru-RU', {
+      timeZone: 'Europe/Moscow',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
+  return new Date(date).toLocaleDateString('ru-RU', {
+    timeZone: 'Europe/Moscow',
+    day: '2-digit',
+    month: '2-digit',
+  });
 }
 
 function category(item: ContentItem) {
@@ -82,7 +99,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
       >
         <NuxtLink :to="link(item)" class="group flex min-w-0 items-start gap-3 transition-transform duration-200 hover:scale-[1.01]">
           <span class="shrink-0 pt-0.5 text-sm font-bold text-accent">
-            {{ formatDayMonth(item.publishedAt || item.createdAt) }}
+            {{ formatFreshDate(item.publishedAt || item.createdAt) }}
           </span>
           <div class="min-w-0 flex-1">
             <span class="line-clamp-2 text-sm font-medium leading-snug text-foreground group-hover:text-foreground">
