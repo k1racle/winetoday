@@ -2,6 +2,13 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4,
   },
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
+    },
+  },
   devtools: { enabled: false },
   modules: [
     '@nuxtjs/tailwindcss',
