@@ -44,7 +44,7 @@ function formatDuration(seconds?: number) {
         :alt="item.coverMedia?.altText || item.title"
         class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
       />
-      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+      <div v-if="showTitle" class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
       <!-- Play button -->
       <div v-if="showPlay" class="absolute inset-0 flex items-center justify-center">

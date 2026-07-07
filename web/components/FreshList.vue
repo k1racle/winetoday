@@ -60,16 +60,16 @@ const displayedItems = computed<ContentItem[]>(() => {
   if (activeTab.value === 'popular') {
     return [...list]
       .sort((a, b) => (b.viewsTotal || 0) - (a.viewsTotal || 0))
-      .slice(0, 17);
+      .slice(0, 30);
   }
-  return list.slice(0, 17);
+  return list.slice(0, 30);
 });
 
 const hasMobileMore = computed(() => displayedItems.value.length > 4);
 </script>
 
 <template>
-  <div class="flex flex-col border border-foreground/5 bg-card p-5 shadow-sm md:p-6">
+  <div class="flex h-full flex-col border border-foreground/5 bg-card p-5 shadow-sm md:p-6">
     <!-- Tabs -->
     <div class="mb-4 flex items-center justify-between">
       <button
@@ -90,7 +90,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
       </button>
     </div>
 
-    <ul class="divide-y divide-foreground/10">
+    <ul class="flex-1 divide-y divide-foreground/10 overflow-y-auto">
       <li
         v-for="(item, index) in displayedItems"
         :key="item.id"

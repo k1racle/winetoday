@@ -30,7 +30,7 @@ const freshItems = computed<ContentItem[]>(() => {
       const db = new Date(a.publishedAt || a.createdAt).getTime();
       return da - db;
     })
-    .slice(0, 17);
+    .slice(0, 30);
 });
 
 const mixedItems = computed<ContentItem[]>(() => {
@@ -73,51 +73,53 @@ useSeoMeta({
   <div class="pb-16">
     <!-- Top content + video + fresh sidebar -->
     <section v-if="topItems.length" class="mx-auto max-w-7xl px-4 py-4">
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-stretch">
         <!-- Fresh / popular news: first on mobile, right column on desktop -->
-        <aside class="order-first w-full self-start lg:order-none lg:col-start-4 lg:row-start-1 lg:row-span-3">
+        <aside class="order-first w-full lg:order-last lg:w-1/4">
           <FreshList :items="freshItems" />
         </aside>
 
-        <!-- Mobile: top 3 items look the same (photo on top, text below) -->
-        <div class="flex flex-col gap-4 lg:hidden">
-          <NewsThumbCard
-            v-for="item in topItems.slice(0, 3)"
-            :key="`mob-${item.id}`"
-            :item="item"
-          />
-        </div>
+        <!-- Main column: hero + video -->
+        <div class="order-2 flex w-full flex-col gap-4 lg:w-3/4">
+          <!-- Mobile: top 3 items look the same (photo on top, text below) -->
+          <div class="flex flex-col gap-4 lg:hidden">
+            <NewsThumbCard
+              v-for="item in topItems.slice(0, 3)"
+              :key="`mob-${item.id}`"
+              :item="item"
+            />
+          </div>
 
-        <!-- Desktop: large square hero + two small cards on the right -->
-        <div class="hidden w-full flex-col gap-4 lg:col-span-3 lg:flex">
-          <div class="flex flex-col gap-4 lg:flex-row">
-            <div class="w-full lg:w-2/3">
-              <HeroCard
-                v-if="topItems[0]"
-                :item="topItems[0]"
-                size="large"
-              />
-            </div>
-            <div class="flex w-full flex-col gap-4 lg:w-1/3">
-              <NewsThumbCard
-                v-for="item in topItems.slice(1, 3)"
-                :key="`top-${item.id}`"
-                :item="item"
-                class="min-h-0 flex-1"
-              />
+          <!-- Desktop: large square hero + two small cards on the right -->
+          <div class="hidden w-full flex-col gap-4 lg:flex">
+            <div class="flex flex-col gap-4 lg:flex-row">
+              <div class="w-full lg:w-2/3">
+                <HeroCard
+                  v-if="topItems[0]"
+                  :item="topItems[0]"
+                  size="large"
+                />
+              </div>
+              <div class="flex w-full flex-col gap-4 lg:w-1/3">
+                <NewsThumbCard
+                  v-for="item in topItems.slice(1, 3)"
+                  :key="`top-${item.id}`"
+                  :item="item"
+                  class="min-h-0 flex-1"
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Video block: width up to fresh sidebar (3 cols) -->
-        <div v-if="homepage?.videos?.length" class="w-full lg:col-span-3 lg:col-start-1 lg:row-start-3">
+          <!-- Video block -->
+          <div v-if="homepage?.videos?.length" class="w-full">
           <div class="mb-4 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <svg class="h-5 w-5 fill-current text-accent" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
               </svg>
               <h2 class="font-heading text-xl font-bold uppercase tracking-wider">
-                <span class="rounded bg-accent px-2 py-0.5 text-black">Видео</span>
+                <span class="rounded bg-accent px-2 py-0.5 text-white">Видео</span>
               </h2>
             </div>
             <NuxtLink
@@ -172,7 +174,8 @@ useSeoMeta({
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
     <!-- Latest mixed materials grid + categories sidebar -->
     <section v-if="mixedItems.length" class="mx-auto max-w-7xl px-4 py-10">
