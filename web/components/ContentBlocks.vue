@@ -19,6 +19,15 @@ function getEmbedUrl(url?: string) {
   if (youtubeMatch) return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
   return url;
 }
+
+function formatSource(source?: string | null): string {
+  if (!source) return '';
+  const normalized = source.trim().toLowerCase();
+  if (/^(источник|автор|фото|пресс-служба|photo by|source)/.test(normalized)) {
+    return source.trim();
+  }
+  return `Источник: ${source.trim()}`;
+}
 </script>
 
 <template>
@@ -38,8 +47,9 @@ function getEmbedUrl(url?: string) {
           class="w-full"
         />
         <figcaption v-if="block.caption || block.credit" class="mt-2 text-sm text-foreground/60">
-          {{ block.caption }}
-          <span v-if="block.credit"> / {{ block.credit }}</span>
+          <span v-if="block.caption">{{ block.caption }}</span>
+          <span v-if="block.caption && block.credit"> / </span>
+          <span v-if="block.credit">{{ formatSource(block.credit) }}</span>
         </figcaption>
       </figure>
 
@@ -51,9 +61,9 @@ function getEmbedUrl(url?: string) {
           class="w-full"
         />
         <figcaption v-if="block.data?.caption || block.data?.source" class="mt-2 text-sm text-foreground/60">
-          {{ block.data.caption }}
+          <span v-if="block.data.caption">{{ block.data.caption }}</span>
           <span v-if="block.data.caption && block.data.source"> / </span>
-          <span v-if="block.data.source">{{ block.data.source }}</span>
+          <span v-if="block.data.source">{{ formatSource(block.data.source) }}</span>
         </figcaption>
       </figure>
 
@@ -73,7 +83,7 @@ function getEmbedUrl(url?: string) {
               class="w-full"
             />
             <figcaption v-if="item.source" class="mt-1 text-xs text-foreground/60">
-              {{ item.source }}
+              {{ formatSource(item.source) }}
             </figcaption>
           </figure>
         </div>
