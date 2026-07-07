@@ -25,6 +25,13 @@ export default defineNuxtConfig({
     },
   },
   devtools: { enabled: false },
+  experimental: {
+    defaults: {
+      nuxtLink: {
+        prefetchOn: { visibility: false, interaction: true },
+      },
+    },
+  },
   modules: [
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
@@ -48,11 +55,11 @@ export default defineNuxtConfig({
     provider: 'none',
   },
   routeRules: {
-    '/': { swr: 60 },
-    '/articles/**': { swr: 60 },
-    '/news/**': { swr: 60 },
-    '/videos/**': { swr: 60 },
-    '/gallery/**': { swr: 60 },
+    '/': { swr: 300 },
+    '/articles/**': { swr: 300 },
+    '/news/**': { swr: 300 },
+    '/videos/**': { swr: 300 },
+    '/gallery/**': { swr: 300 },
     '/account/**': { ssr: false },
     '/api/og-image': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
   },

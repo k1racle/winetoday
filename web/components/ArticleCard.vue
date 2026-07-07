@@ -56,6 +56,8 @@ const link = computed(() => {
         v-if="item.coverMedia?.path"
         :src="coverSrc"
         :alt="item.coverMedia.altText || item.title"
+        loading="lazy"
+        decoding="async"
         class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
       />
       <span

@@ -388,7 +388,6 @@ function onBlockInput(id: string) {
 function formatBlock(event: Event) {
   const target = event.target as HTMLSelectElement;
   if (target.value) format('formatBlock', target.value);
-  target.value = '';
 }
 
 function format(cmd: string, value?: string) {
@@ -740,9 +739,9 @@ async function submit(status?: 'draft' | 'published') {
                   <div v-if="block.type === 'text'" class="overflow-hidden border border-foreground/10">
                     <div class="flex flex-wrap items-center gap-1 border-b border-foreground/10 bg-muted px-2 py-1.5">
                       <select class="h-7 border border-foreground/10 bg-card px-1 text-xs" @change="formatBlock($event)">
-                        <option value="">Абзац</option>
-                        <option value="H2">H2</option>
-                        <option value="H3">H3</option>
+                        <option value="p">Абзац</option>
+                        <option value="h2">H2</option>
+                        <option value="h3">H3</option>
                       </select>
                       <span class="mx-1 h-4 w-px bg-foreground/10" />
                       <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('bold')"><b>Ж</b></button>

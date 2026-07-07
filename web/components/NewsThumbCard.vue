@@ -43,6 +43,8 @@ function editUrl(item: ContentItem) {
         v-if="coverSrc"
         :src="coverSrc"
         :alt="item.coverMedia?.altText || item.title"
+        loading="lazy"
+        decoding="async"
         class="h-full w-full object-cover"
       />
       <span

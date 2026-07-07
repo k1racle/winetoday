@@ -3,17 +3,17 @@ import type { ContentItem } from '~/types/content';
 
 const { getHomepage, getContent, getLatestByCategory } = useApi();
 
-const { data: homepage } = await useAsyncData('homepage', () =>
-  getHomepage().catch(() => ({ lead: [], articles: [], news: [], videos: [], galleries: [] })),
-);
-
-const { data: fresh } = await useAsyncData('fresh', () =>
-  getContent({ limit: 40 }).catch(() => ({ items: [] })),
-);
-
-const { data: latestByCategory } = await useAsyncData('latest-by-category', () =>
-  getLatestByCategory(5).catch(() => []),
-);
+const [{ data: homepage }, { data: fresh }, { data: latestByCategory }] = await Promise.all([
+  useAsyncData('homepage', () =>
+    getHomepage().catch(() => ({ lead: [], articles: [], news: [], videos: [], galleries: [] })),
+  ),
+  useAsyncData('fresh', () =>
+    getContent({ limit: 21 }).catch(() => ({ items: [] })),
+  ),
+  useAsyncData('latest-by-category', () =>
+    getLatestByCategory(5).catch(() => []),
+  ),
+]);
 
 const topItems = computed<ContentItem[]>(() => {
   const h = homepage.value;
