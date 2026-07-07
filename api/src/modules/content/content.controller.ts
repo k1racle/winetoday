@@ -104,14 +104,14 @@ export class ContentController {
 
   @Get('content/:id/reactions')
   @UseGuards(OptionalJwtAuthGuard)
-  reactions(@Param('id') id: string, @Request() req) {
-    return this.contentService.getReactions(id, req.user?.userId);
+  reactions(@Param('id') id: string, @Request() req, @Query('viewerId') viewerId?: string) {
+    return this.contentService.getReactions(id, req.user?.userId, viewerId);
   }
 
   @Post('content/:id/react')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   react(@Param('id') id: string, @Request() req, @Body() dto: ReactDto) {
-    return this.contentService.react(id, req.user.userId, dto.type);
+    return this.contentService.react(id, req.user?.userId, dto.viewerId, dto.type);
   }
 
   @Get('content/:id/comments')

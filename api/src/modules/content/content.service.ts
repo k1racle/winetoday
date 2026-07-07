@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { ContentStatus, ContentType, Prisma, ReactionType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListContentDto } from './dto/list-content.dto';
@@ -320,7 +320,7 @@ export class ContentService {
     return tag;
   }
 
-  async getReactions(contentItemId: string, userId?: string) {
+  async getReactions(contentItemId: string, userId?: string, viewerId?: string) {
     const [likes, dislikes, userReaction] = await Promise.all([
       this.prisma.reaction.count({ where: { contentItemId, type: ReactionType.like } }),
       this.prisma.reaction.count({ where: { contentItemId, type: ReactionType.dislike } }),
@@ -329,7 +329,12 @@ export class ContentService {
             where: { contentItemId_userId: { contentItemId, userId } },
             select: { type: true },
           })
-        : null,
+        : viewerId
+          ? this.prisma.reaction.findUnique({
+              where: { contentItemId_viewerId: { contentItemId, viewerId } },
+              select: { type: true },
+            })
+          : null,
     ]);
     return {
       likes,
@@ -338,13 +343,31 @@ export class ContentService {
     };
   }
 
-  async react(contentItemId: string, userId: string, type: ReactionType) {
-    await this.prisma.reaction.upsert({
-      where: { contentItemId_userId: { contentItemId, userId } },
-      update: { type },
-      create: { contentItemId, userId, type },
-    });
-    return this.getReactions(contentItemId, userId);
+  async react(
+    contentItemId: string,
+    userId: string | undefined,
+    viewerId: string | undefined,
+    type: ReactionType,
+  ) {
+    if (!userId && !viewerId) {
+      throw new BadRequestException('viewer required');
+    }
+
+    if (userId) {
+      await this.prisma.reaction.upsert({
+        where: { contentItemId_userId: { contentItemId, userId } },
+        update: { type },
+        create: { contentItemId, userId, type },
+      });
+    } else {
+      await this.prisma.reaction.upsert({
+        where: { contentItemId_viewerId: { contentItemId, viewerId: viewerId! } },
+        update: { type },
+        create: { contentItemId, viewerId: viewerId!, type },
+      });
+    }
+
+    return this.getReactions(contentItemId, userId, viewerId);
   }
 
   async getComments(contentItemId: string) {
