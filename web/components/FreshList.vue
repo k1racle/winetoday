@@ -60,9 +60,9 @@ const displayedItems = computed<ContentItem[]>(() => {
   if (activeTab.value === 'popular') {
     return [...list]
       .sort((a, b) => (b.viewsTotal || 0) - (a.viewsTotal || 0))
-      .slice(0, 30);
+      .slice(0, 21);
   }
-  return list.slice(0, 30);
+  return list.slice(0, 21);
 });
 
 const hasMobileMore = computed(() => displayedItems.value.length > 4);

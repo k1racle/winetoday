@@ -30,7 +30,7 @@ const freshItems = computed<ContentItem[]>(() => {
       const db = new Date(a.publishedAt || a.createdAt).getTime();
       return da - db;
     })
-    .slice(0, 30);
+    .slice(0, 21);
 });
 
 const mixedItems = computed<ContentItem[]>(() => {
@@ -73,14 +73,9 @@ useSeoMeta({
   <div class="pb-16">
     <!-- Top content + video + fresh sidebar -->
     <section v-if="topItems.length" class="mx-auto max-w-7xl px-4 py-4">
-      <div class="grid grid-cols-1 gap-4 lg:grid-cols-4">
-        <!-- Fresh / popular news: first on mobile, right column on desktop -->
-        <aside class="order-first lg:col-span-1 lg:row-span-2">
-          <FreshList :items="freshItems" />
-        </aside>
-
-        <!-- Hero block -->
-        <div class="lg:col-span-3 lg:col-start-2">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-stretch">
+        <!-- Main column: hero + video -->
+        <div class="order-2 flex w-full flex-col gap-4 lg:w-3/4">
           <!-- Mobile: top 3 items look the same (photo on top, text below) -->
           <div class="flex flex-col gap-4 lg:hidden">
             <NewsThumbCard
@@ -110,70 +105,75 @@ useSeoMeta({
               </div>
             </div>
           </div>
+
+          <!-- Video block -->
+          <div v-if="homepage?.videos?.length" class="w-full">
+            <div class="mb-4 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <svg class="h-5 w-5 fill-current text-accent" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                <h2 class="font-heading text-xl font-bold uppercase tracking-wider">
+                  <span class="rounded bg-accent px-2 py-0.5 text-white">Видео</span>
+                </h2>
+              </div>
+              <NuxtLink
+                to="/videos"
+                class="text-sm font-medium text-foreground transition hover:text-foreground/80"
+              >
+                Все видео →
+              </NuxtLink>
+            </div>
+
+            <VideoFeatureCard :item="homepage.videos[0]" :show-title="false" :show-play="false">
+              <template #title>
+                <h3 class="mb-3 font-heading text-lg font-bold leading-snug text-foreground md:text-xl">
+                  {{ homepage.videos[0].title }}
+                </h3>
+              </template>
+            </VideoFeatureCard>
+
+            <div class="mt-4">
+              <div
+                ref="thumbScroll"
+                class="flex min-w-0 gap-4 overflow-x-auto pb-2 scroll-smooth"
+              >
+                <VideoThumb
+                  v-for="item in homepage.videos.slice(1)"
+                  :key="item.id"
+                  :item="item"
+                />
+              </div>
+              <div class="mt-2 hidden justify-end gap-2 md:flex">
+                <button
+                  type="button"
+                  class="flex h-9 w-9 items-center justify-center rounded border border-foreground/10 bg-card text-foreground/70 transition hover:border-accent hover:text-accent"
+                  aria-label="Назад"
+                  @click="scrollThumbs(-1)"
+                >
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  class="flex h-9 w-9 items-center justify-center rounded border border-foreground/10 bg-card text-foreground/70 transition hover:border-accent hover:text-accent"
+                  aria-label="Вперёд"
+                  @click="scrollThumbs(1)"
+                >
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- Video block -->
-        <div v-if="homepage?.videos?.length" class="lg:col-span-3 lg:col-start-2">
-          <div class="mb-4 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <svg class="h-5 w-5 fill-current text-accent" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-              <h2 class="font-heading text-xl font-bold uppercase tracking-wider">
-                <span class="rounded bg-accent px-2 py-0.5 text-white">Видео</span>
-              </h2>
-            </div>
-            <NuxtLink
-              to="/videos"
-              class="text-sm font-medium text-foreground transition hover:text-foreground/80"
-            >
-              Все видео →
-            </NuxtLink>
-          </div>
-
-          <VideoFeatureCard :item="homepage.videos[0]" :show-title="false" :show-play="false">
-            <template #title>
-              <h3 class="mb-3 font-heading text-lg font-bold leading-snug text-foreground md:text-xl">
-                {{ homepage.videos[0].title }}
-              </h3>
-            </template>
-          </VideoFeatureCard>
-
-          <div class="mt-4">
-            <div
-              ref="thumbScroll"
-              class="flex min-w-0 gap-4 overflow-x-auto pb-2 scroll-smooth"
-            >
-              <VideoThumb
-                v-for="item in homepage.videos.slice(1)"
-                :key="item.id"
-                :item="item"
-              />
-            </div>
-            <div class="mt-2 hidden justify-end gap-2 md:flex">
-              <button
-                type="button"
-                class="flex h-9 w-9 items-center justify-center rounded border border-foreground/10 bg-card text-foreground/70 transition hover:border-accent hover:text-accent"
-                aria-label="Назад"
-                @click="scrollThumbs(-1)"
-              >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                class="flex h-9 w-9 items-center justify-center rounded border border-foreground/10 bg-card text-foreground/70 transition hover:border-accent hover:text-accent"
-                aria-label="Вперёд"
-                @click="scrollThumbs(1)"
-              >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
+        <!-- Fresh / popular news: right column on desktop -->
+        <aside class="order-first w-full lg:order-last lg:w-1/4">
+          <FreshList :items="freshItems" />
+        </aside>
       </div>
     </section>
 
