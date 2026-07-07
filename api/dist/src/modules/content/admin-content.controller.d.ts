@@ -10,6 +10,7 @@ export declare class AdminContentController {
         id: string;
         name: string;
         slug: string;
+        parentId: string;
     }[]>;
     createCategory(dto: CreateCategoryDto): Promise<{
         id: string;
@@ -27,9 +28,9 @@ export declare class AdminContentController {
         id: string;
         createdAt: Date;
         name: string;
-        updatedAt: Date;
         slug: string;
         parentId: string | null;
+        updatedAt: Date;
     }>;
     adminTags(): Promise<{
         id: string;
@@ -50,7 +51,7 @@ export declare class AdminContentController {
         id: string;
         createdAt: Date;
         name: string;
-        updatedAt: Date;
         slug: string;
+        updatedAt: Date;
     }>;
 }

@@ -16,17 +16,17 @@ export declare class EditorService {
             id: string;
             createdAt: Date;
             name: string;
-            updatedAt: Date;
             slug: string;
+            updatedAt: Date;
             position: string | null;
             bio: string | null;
             memberProfileId: string | null;
         };
         coverMedia: {
+            width: number | null;
             id: string;
             path: string;
             mime: string | null;
-            width: number | null;
             height: number | null;
             altText: string | null;
             sizeBytes: bigint | null;
@@ -36,27 +36,31 @@ export declare class EditorService {
             id: string;
             createdAt: Date;
             name: string;
-            updatedAt: Date;
             slug: string;
             parentId: string | null;
+            updatedAt: Date;
         }[];
         tags: {
             id: string;
             createdAt: Date;
             name: string;
-            updatedAt: Date;
             slug: string;
+            updatedAt: Date;
         }[];
     } & {
         id: string;
         createdAt: Date;
+        contentBlocks: Prisma.JsonValue;
+        sources: Prisma.JsonValue | null;
+        tastingNote: Prisma.JsonValue | null;
+        seo: Prisma.JsonValue | null;
+        slug: string;
         updatedAt: Date;
         authorId: string | null;
         type: import(".prisma/client").$Enums.ContentType;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
         homepageLead: boolean;
-        slug: string;
         title: string;
         excerpt: string | null;
         publishedAt: Date | null;
@@ -70,12 +74,8 @@ export declare class EditorService {
         materialLabel: string | null;
         readingTime: number | null;
         preview: boolean;
-        contentBlocks: Prisma.JsonValue;
-        sources: Prisma.JsonValue | null;
-        tastingNote: Prisma.JsonValue | null;
         videoUrl: string | null;
         duration: number | null;
-        seo: Prisma.JsonValue | null;
         viewsTotal: number;
         submittedAt: Date | null;
         reviewedAt: Date | null;
@@ -86,17 +86,17 @@ export declare class EditorService {
             id: string;
             createdAt: Date;
             name: string;
-            updatedAt: Date;
             slug: string;
+            updatedAt: Date;
             position: string | null;
             bio: string | null;
             memberProfileId: string | null;
         };
         coverMedia: {
+            width: number | null;
             id: string;
             path: string;
             mime: string | null;
-            width: number | null;
             height: number | null;
             altText: string | null;
             sizeBytes: bigint | null;
@@ -106,27 +106,31 @@ export declare class EditorService {
             id: string;
             createdAt: Date;
             name: string;
-            updatedAt: Date;
             slug: string;
             parentId: string | null;
+            updatedAt: Date;
         }[];
         tags: {
             id: string;
             createdAt: Date;
             name: string;
-            updatedAt: Date;
             slug: string;
+            updatedAt: Date;
         }[];
     } & {
         id: string;
         createdAt: Date;
+        contentBlocks: Prisma.JsonValue;
+        sources: Prisma.JsonValue | null;
+        tastingNote: Prisma.JsonValue | null;
+        seo: Prisma.JsonValue | null;
+        slug: string;
         updatedAt: Date;
         authorId: string | null;
         type: import(".prisma/client").$Enums.ContentType;
         status: import(".prisma/client").$Enums.ContentStatus;
         featured: boolean;
         homepageLead: boolean;
-        slug: string;
         title: string;
         excerpt: string | null;
         publishedAt: Date | null;
@@ -140,12 +144,8 @@ export declare class EditorService {
         materialLabel: string | null;
         readingTime: number | null;
         preview: boolean;
-        contentBlocks: Prisma.JsonValue;
-        sources: Prisma.JsonValue | null;
-        tastingNote: Prisma.JsonValue | null;
         videoUrl: string | null;
         duration: number | null;
-        seo: Prisma.JsonValue | null;
         viewsTotal: number;
         submittedAt: Date | null;
         reviewedAt: Date | null;
@@ -164,15 +164,15 @@ export declare class EditorService {
     }): Promise<{
         items: {
             id: string;
+            slug: string;
+            updatedAt: Date;
             author: {
                 id: string;
                 name: string;
             };
-            updatedAt: Date;
             authorId: string;
             type: import(".prisma/client").$Enums.ContentType;
             status: import(".prisma/client").$Enums.ContentStatus;
-            slug: string;
             coverMedia: {
                 path: string;
             };
@@ -215,10 +215,10 @@ export declare class EditorService {
         };
         materials: {
             id: string;
+            slug: string;
             updatedAt: Date;
             type: import(".prisma/client").$Enums.ContentType;
             status: import(".prisma/client").$Enums.ContentStatus;
-            slug: string;
             title: string;
             publishedAt: Date;
             viewsTotal: number;

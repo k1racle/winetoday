@@ -25,10 +25,10 @@ export declare class AdminAuthorsController {
         };
         materials: {
             id: string;
+            slug: string;
             updatedAt: Date;
             type: import(".prisma/client").$Enums.ContentType;
             status: import(".prisma/client").$Enums.ContentStatus;
-            slug: string;
             title: string;
             publishedAt: Date;
             viewsTotal: number;

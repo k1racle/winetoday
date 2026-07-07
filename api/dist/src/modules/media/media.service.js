@@ -59,8 +59,9 @@ let MediaService = MediaService_1 = class MediaService {
         this.config = config;
         this.logger = new common_1.Logger(MediaService_1.name);
         this.BLOCK_WIDTH_PX = 1200;
-        this.AVIF_QUALITY = 80;
+        this.AVIF_QUALITY = 75;
         this.AVIF_EFFORT = 4;
+        this.MAX_WIDTH = 1920;
     }
     async createFromUpload(file) {
         const compressed = await this.tryCompressToAvif(file);
@@ -162,6 +163,7 @@ let MediaService = MediaService_1 = class MediaService {
                 return { path: file.path, mime: file.mimetype, sizeBytes: file.size };
             }
             await transformer
+                .resize({ width: this.MAX_WIDTH, withoutEnlargement: true })
                 .avif({ quality: this.AVIF_QUALITY, effort: this.AVIF_EFFORT })
                 .toFile(outputPath);
             const stats = await fs.stat(outputPath);

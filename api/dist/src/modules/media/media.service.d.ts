@@ -7,22 +7,23 @@ export declare class MediaService {
     private readonly BLOCK_WIDTH_PX;
     private readonly AVIF_QUALITY;
     private readonly AVIF_EFFORT;
+    private readonly MAX_WIDTH;
     constructor(prisma: PrismaService, config: ConfigService);
     createFromUpload(file: Express.Multer.File): Promise<{
+        width: number | null;
         id: string;
         path: string;
         mime: string | null;
-        width: number | null;
         height: number | null;
         altText: string | null;
         sizeBytes: bigint | null;
         createdAt: Date;
     }>;
     createCoverFromUpload(file: Express.Multer.File, applyWatermark?: boolean): Promise<{
+        width: number | null;
         id: string;
         path: string;
         mime: string | null;
-        width: number | null;
         height: number | null;
         altText: string | null;
         sizeBytes: bigint | null;
@@ -35,10 +36,10 @@ export declare class MediaService {
     private tryCompressToAvif;
     findAll(limit?: number, offset?: number): Promise<{
         items: {
+            width: number | null;
             id: string;
             path: string;
             mime: string | null;
-            width: number | null;
             height: number | null;
             altText: string | null;
             sizeBytes: bigint | null;
@@ -49,10 +50,10 @@ export declare class MediaService {
         offset: number;
     }>;
     findById(id: string): Promise<{
+        width: number | null;
         id: string;
         path: string;
         mime: string | null;
-        width: number | null;
         height: number | null;
         altText: string | null;
         sizeBytes: bigint | null;

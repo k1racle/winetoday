@@ -32,6 +32,9 @@ const search = ref('');
 const materials = ref<any[]>([]);
 const counts = ref<Record<string, number>>({});
 const loading = ref(false);
+const total = ref(0);
+const page = ref(1);
+const limit = 20;
 
 const initials = computed(() => {
   const name = user.value?.displayName || user.value?.username || user.value?.email || '';
@@ -43,18 +46,22 @@ const initials = computed(() => {
     .toUpperCase();
 });
 
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / limit)));
+
 async function load() {
   loading.value = true;
   try {
     const query: Record<string, unknown> = {
       search: search.value || undefined,
-      limit: 10000,
+      limit,
+      offset: (page.value - 1) * limit,
     };
     if (props.activeType && props.activeType !== 'all') {
       query.type = props.activeType;
     }
     const res: any = await getEditorMaterials(query);
     materials.value = res.items || [];
+    total.value = res.total || 0;
     const map: Record<string, number> = {};
     (res.counts || []).forEach((c: any) => {
       map[c.type] = c._count?.type || 0;
@@ -63,16 +70,29 @@ async function load() {
     counts.value = map;
   } catch (e) {
     materials.value = [];
+    total.value = 0;
   } finally {
     loading.value = false;
+  }
+}
+
+function goToPage(newPage: number) {
+  const target = Math.max(1, Math.min(totalPages.value, newPage));
+  if (target !== page.value) {
+    page.value = target;
+    load();
   }
 }
 
 defineExpose({ load });
 
 onMounted(load);
-watch(() => props.activeType, load);
+watch(() => props.activeType, () => {
+  page.value = 1;
+  load();
+});
 watch(search, () => {
+  page.value = 1;
   // simple debounce could be added
   load();
 });
@@ -182,6 +202,26 @@ function selectType(type: string) {
               <span>·</span>
               <span>{{ relativeTime(item.updatedAt) }}</span>
             </div>
+          </button>
+        </div>
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="mt-2 flex items-center justify-between border-t border-foreground/10 px-2 pt-2">
+          <button
+            class="px-2 py-1 text-xs text-foreground/70 transition hover:text-foreground disabled:opacity-40"
+            :disabled="page <= 1"
+            @click="goToPage(page - 1)"
+          >
+            ← Назад
+          </button>
+          <span class="text-[10px] text-foreground/50">
+            {{ page }} / {{ totalPages }}
+          </span>
+          <button
+            class="px-2 py-1 text-xs text-foreground/70 transition hover:text-foreground disabled:opacity-40"
+            :disabled="page >= totalPages"
+            @click="goToPage(page + 1)"
+          >
+            Вперёд →
           </button>
         </div>
       </div>

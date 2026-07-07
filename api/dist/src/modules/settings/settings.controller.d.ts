@@ -4,20 +4,20 @@ export declare class SettingsController {
     constructor(settingsService: SettingsService);
     siteSettings(): Promise<{
         logoMedia: {
+            width: number | null;
             id: string;
             path: string;
             mime: string | null;
-            width: number | null;
             height: number | null;
             altText: string | null;
             sizeBytes: bigint | null;
             createdAt: Date;
         };
         watermarkMedia: {
+            width: number | null;
             id: string;
             path: string;
             mime: string | null;
-            width: number | null;
             height: number | null;
             altText: string | null;
             sizeBytes: bigint | null;
@@ -26,12 +26,12 @@ export declare class SettingsController {
     } & {
         id: string;
         createdAt: Date;
+        typography: import("@prisma/client/runtime/library").JsonValue | null;
+        socialLinks: import("@prisma/client/runtime/library").JsonValue | null;
         updatedAt: Date;
         siteName: string | null;
         siteDescription: string | null;
         logoMediaId: string | null;
-        typography: import("@prisma/client/runtime/library").JsonValue | null;
-        socialLinks: import("@prisma/client/runtime/library").JsonValue | null;
         watermarkEnabled: boolean;
         watermarkMediaId: string | null;
         watermarkOpacity: number;
@@ -47,28 +47,28 @@ export declare class SettingsController {
     homepage(): Promise<{
         id: string;
         createdAt: Date;
+        infographicCards: import("@prisma/client/runtime/library").JsonValue | null;
+        blocks: import("@prisma/client/runtime/library").JsonValue | null;
         updatedAt: Date;
         title: string | null;
         description: string | null;
-        infographicCards: import("@prisma/client/runtime/library").JsonValue | null;
-        blocks: import("@prisma/client/runtime/library").JsonValue | null;
     }>;
     siteHeader(): Promise<{
         lightLogo: {
+            width: number | null;
             id: string;
             path: string;
             mime: string | null;
-            width: number | null;
             height: number | null;
             altText: string | null;
             sizeBytes: bigint | null;
             createdAt: Date;
         };
         darkLogo: {
+            width: number | null;
             id: string;
             path: string;
             mime: string | null;
-            width: number | null;
             height: number | null;
             altText: string | null;
             sizeBytes: bigint | null;
@@ -77,8 +77,8 @@ export declare class SettingsController {
     } & {
         id: string;
         createdAt: Date;
-        updatedAt: Date;
         menu: import("@prisma/client/runtime/library").JsonValue | null;
+        updatedAt: Date;
         lightLogoMediaId: string | null;
         darkLogoMediaId: string | null;
         stickyDesktop: boolean;
@@ -88,25 +88,25 @@ export declare class SettingsController {
     siteFooter(): Promise<{
         id: string;
         createdAt: Date;
-        updatedAt: Date;
         columns: import("@prisma/client/runtime/library").JsonValue | null;
+        updatedAt: Date;
     }>;
     siteSeo(): Promise<{
         openGraphImage: {
+            width: number | null;
             id: string;
             path: string;
             mime: string | null;
-            width: number | null;
             height: number | null;
             altText: string | null;
             sizeBytes: bigint | null;
             createdAt: Date;
         };
         twitterImage: {
+            width: number | null;
             id: string;
             path: string;
             mime: string | null;
-            width: number | null;
             height: number | null;
             altText: string | null;
             sizeBytes: bigint | null;
@@ -115,12 +115,12 @@ export declare class SettingsController {
     } & {
         id: string;
         createdAt: Date;
-        updatedAt: Date;
         defaultSeo: import("@prisma/client/runtime/library").JsonValue | null;
+        robotsRules: import("@prisma/client/runtime/library").JsonValue | null;
+        updatedAt: Date;
         openGraphImageMediaId: string | null;
         twitterImageMediaId: string | null;
         robotsEnabled: boolean;
-        robotsRules: import("@prisma/client/runtime/library").JsonValue | null;
         robotsHost: string | null;
         robotsAdditionalSitemaps: string | null;
         sitemapEnabled: boolean;
@@ -135,10 +135,10 @@ export declare class SettingsController {
         enabled: boolean;
         mediaId: string;
         media: {
+            width: number | null;
             id: string;
             path: string;
             mime: string | null;
-            width: number | null;
             height: number | null;
             altText: string | null;
             sizeBytes: bigint | null;

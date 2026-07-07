@@ -42,7 +42,10 @@ let ContentService = class ContentService {
             where.homepageLead = dto.homepageLead;
         }
         if (dto.categorySlug) {
-            where.categories = { some: { slug: dto.categorySlug } };
+            const categoryIds = await this.getCategoryAndDescendantIds(dto.categorySlug);
+            where.categories = categoryIds.length
+                ? { some: { id: { in: categoryIds } } }
+                : { some: { slug: dto.categorySlug } };
         }
         if (dto.tagSlug) {
             where.tags = { some: { slug: dto.tagSlug } };
@@ -78,8 +81,51 @@ let ContentService = class ContentService {
     async findCategories() {
         return this.prisma.category.findMany({
             orderBy: { name: 'asc' },
-            select: { id: true, name: true, slug: true },
+            select: { id: true, name: true, slug: true, parentId: true },
         });
+    }
+    async getCategoryAndDescendantIds(slug) {
+        const candidates = await this.prisma.category.findMany({
+            where: {
+                OR: [
+                    { slug },
+                    { slug: { startsWith: `${slug}-` } },
+                ],
+            },
+            select: { id: true, slug: true, parentId: true },
+        });
+        const duplicateSuffixPattern = new RegExp(`^${this.escapeRegex(slug)}-(\\d+)$`);
+        const matchingIds = candidates
+            .filter((c) => c.slug === slug || duplicateSuffixPattern.test(c.slug))
+            .map((c) => c.id);
+        if (matchingIds.length === 0) {
+            return [];
+        }
+        const allCategories = await this.prisma.category.findMany({
+            select: { id: true, parentId: true },
+        });
+        const categoryMap = new Map();
+        for (const c of allCategories) {
+            categoryMap.set(c.id, c.parentId);
+        }
+        const descendantIds = [];
+        const queue = [...matchingIds];
+        while (queue.length > 0) {
+            const currentId = queue.shift();
+            if (descendantIds.includes(currentId)) {
+                continue;
+            }
+            descendantIds.push(currentId);
+            for (const [id, parentId] of categoryMap.entries()) {
+                if (parentId === currentId) {
+                    queue.push(id);
+                }
+            }
+        }
+        return descendantIds;
+    }
+    escapeRegex(value) {
+        return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
     async findTags() {
         return this.prisma.tag.findMany({
@@ -92,11 +138,30 @@ let ContentService = class ContentService {
             orderBy: { name: 'asc' },
             select: { id: true, name: true, slug: true },
         });
-        const result = await Promise.all(categories.map(async (category) => {
+        const EXCLUDED_CATEGORY_SLUGS = new Set(['afisha']);
+        const duplicateSuffixPattern = /^(.*)-(\d+)$/;
+        const groups = new Map();
+        for (const category of categories) {
+            const baseSlug = category.slug.replace(duplicateSuffixPattern, '$1');
+            if (EXCLUDED_CATEGORY_SLUGS.has(baseSlug)) {
+                continue;
+            }
+            const existing = groups.get(baseSlug);
+            if (!existing) {
+                groups.set(baseSlug, category);
+            }
+            else if (!duplicateSuffixPattern.test(category.slug)) {
+                groups.set(baseSlug, category);
+            }
+        }
+        const result = await Promise.all(Array.from(groups.values()).map(async (category) => {
+            const categoryIds = await this.getCategoryAndDescendantIds(category.slug);
             const items = await this.prisma.contentItem.findMany({
                 where: {
                     status: client_1.ContentStatus.published,
-                    categories: { some: { id: category.id } },
+                    categories: categoryIds.length
+                        ? { some: { id: { in: categoryIds } } }
+                        : { some: { id: category.id } },
                     publishedAt: { lte: new Date() },
                 },
                 include: contentInclude,

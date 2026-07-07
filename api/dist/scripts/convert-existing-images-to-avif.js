@@ -40,98 +40,217 @@ const client_1 = require("@prisma/client");
 const fs = __importStar(require("fs/promises"));
 const path = __importStar(require("path"));
 const sharp_1 = __importDefault(require("sharp"));
-const UPLOADS_DIR = process.env.UPLOADS_DIR || path.resolve(__dirname, '../uploads');
-const AVIF_QUALITY = 80;
-const AVIF_EFFORT = 4;
-const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 const prisma = new client_1.PrismaClient();
+const UPLOADS_DIRS = ['/app/uploads', '/app/public/uploads'];
+const RASTER_EXTS = new Set(['.jpg', '.jpeg', '.jpe', '.png', '.webp', '.jfif']);
+const AVIF_QUALITY = 75;
+const AVIF_EFFORT = 4;
+const MAX_WIDTH = 1920;
+BigInt.prototype.toJSON = function () {
+    return this.toString();
+};
 async function main() {
-    console.log(`Scanning uploads directory: ${UPLOADS_DIR}`);
-    const entries = await fs.readdir(UPLOADS_DIR, { withFileTypes: true });
-    const imageFiles = entries
-        .filter((e) => e.isFile())
-        .map((e) => e.name)
-        .filter((name) => {
-        const ext = path.extname(name).toLowerCase();
-        return IMAGE_EXTENSIONS.has(ext);
-    });
-    console.log(`Found ${imageFiles.length} image files to convert`);
-    let converted = 0;
-    let skipped = 0;
-    let failed = 0;
-    for (const filename of imageFiles) {
-        const inputPath = path.join(UPLOADS_DIR, filename);
-        const ext = path.extname(filename);
-        const baseName = filename.slice(0, -ext.length);
-        const outputFilename = `${baseName}.avif`;
-        const outputPath = path.join(UPLOADS_DIR, outputFilename);
-        try {
-            const existing = await fs.stat(outputPath).catch(() => null);
-            if (existing?.isFile()) {
-                console.log(`  SKIP ${filename} (AVIF already exists)`);
-                skipped++;
-                continue;
-            }
-            const metadata = await (0, sharp_1.default)(inputPath, { animated: false }).metadata();
-            if (!metadata.width || !metadata.height) {
-                console.log(`  SKIP ${filename} (not a raster image)`);
-                skipped++;
-                continue;
-            }
-            await (0, sharp_1.default)(inputPath, { animated: false })
-                .avif({ quality: AVIF_QUALITY, effort: AVIF_EFFORT })
-                .toFile(outputPath);
-            console.log(`  OK   ${filename} -> ${outputFilename}`);
-            converted++;
-        }
-        catch (err) {
-            console.error(`  FAIL ${filename}: ${err?.message || err}`);
-            failed++;
-        }
+    const dryRun = process.env.DRY_RUN === 'true';
+    const skipExisting = process.env.SKIP_EXISTING === 'true';
+    if (dryRun) {
+        console.log('DRY RUN: no files or database rows will be changed');
     }
-    console.log(`\nConversion complete: ${converted} converted, ${skipped} skipped, ${failed} failed`);
-    console.log('\nUpdating MediaAsset records...');
-    const assets = await prisma.mediaAsset.findMany();
-    let updated = 0;
-    for (const asset of assets) {
-        const assetPath = asset.path || '';
-        if (!assetPath.startsWith('/uploads/'))
-            continue;
-        const filename = path.basename(assetPath);
-        const ext = path.extname(filename).toLowerCase();
-        if (!IMAGE_EXTENSIONS.has(ext))
-            continue;
-        const baseName = filename.slice(0, -ext.length);
-        const newFilename = `${baseName}.avif`;
-        const newPath = `/uploads/${newFilename}`;
-        if (newPath === assetPath)
-            continue;
-        try {
-            const avifFilePath = path.join(UPLOADS_DIR, newFilename);
-            const avifStats = await fs.stat(avifFilePath);
-            if (!avifStats.isFile())
+    const conversions = [];
+    for (const uploadsDir of UPLOADS_DIRS) {
+        await fs.mkdir(uploadsDir, { recursive: true });
+        const files = await collectRasterImages(uploadsDir);
+        console.log(`Found ${files.length} raster image(s) in ${uploadsDir}`);
+        for (const absolutePath of files) {
+            const relativePath = path.relative(uploadsDir, absolutePath);
+            const ext = path.extname(relativePath).toLowerCase();
+            const baseRelativePath = relativePath.slice(0, -ext.length);
+            const avifRelativePath = `${baseRelativePath}.avif`;
+            const originalPublicPath = `/uploads/${relativePath.replace(/\\/g, '/')}`;
+            const avifPublicPath = `/uploads/${avifRelativePath.replace(/\\/g, '/')}`;
+            const avifAbsolutePath = path.join(uploadsDir, avifRelativePath);
+            let converted = false;
+            try {
+                const outputExists = await fileExists(avifAbsolutePath);
+                if (skipExisting && outputExists) {
+                    console.log(`SKIP (exists): ${originalPublicPath}`);
+                }
+                else {
+                    if (!dryRun) {
+                        console.log(`Converting: ${originalPublicPath}`);
+                        await (0, sharp_1.default)(absolutePath, { animated: false })
+                            .resize({ width: MAX_WIDTH, withoutEnlargement: true })
+                            .avif({ quality: AVIF_QUALITY, effort: AVIF_EFFORT })
+                            .toFile(avifAbsolutePath);
+                        await fs.unlink(absolutePath);
+                        converted = true;
+                        console.log(` -> ${avifPublicPath}`);
+                    }
+                    else {
+                        console.log(`WOULD convert: ${originalPublicPath} -> ${avifPublicPath}`);
+                    }
+                }
+            }
+            catch (err) {
+                console.error(`Failed to convert ${originalPublicPath}: ${err?.message || err}`);
                 continue;
-            await prisma.mediaAsset.update({
-                where: { id: asset.id },
-                data: {
-                    path: newPath,
-                    mime: 'image/avif',
-                    sizeBytes: BigInt(avifStats.size),
-                },
+            }
+            conversions.push({
+                originalPublicPath,
+                avifPublicPath,
+                originalAbsolutePath: absolutePath,
+                avifAbsolutePath,
+                converted,
             });
-            console.log(`  UPDATED ${assetPath} -> ${newPath}`);
-            updated++;
-        }
-        catch (err) {
-            console.error(`  FAIL update ${assetPath}: ${err?.message || err}`);
+            if (!dryRun) {
+                await updateMediaAsset(originalPublicPath, avifPublicPath, avifAbsolutePath);
+            }
         }
     }
-    console.log(`\nMediaAsset records updated: ${updated}`);
+    console.log(`Total conversions recorded: ${conversions.length}`);
+    if (!dryRun && conversions.length > 0) {
+        await updateJsonContent(conversions);
+    }
     await prisma.$disconnect();
+    console.log('Done.');
 }
-main().catch(async (err) => {
+async function collectRasterImages(dir) {
+    const result = [];
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+        const absolutePath = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+            result.push(...(await collectRasterImages(absolutePath)));
+        }
+        else if (entry.isFile()) {
+            const ext = path.extname(entry.name).toLowerCase();
+            if (RASTER_EXTS.has(ext)) {
+                result.push(absolutePath);
+            }
+        }
+    }
+    return result;
+}
+async function fileExists(filePath) {
+    try {
+        const stat = await fs.stat(filePath);
+        return stat.isFile();
+    }
+    catch {
+        return false;
+    }
+}
+async function updateMediaAsset(originalPublicPath, avifPublicPath, avifAbsolutePath) {
+    const assets = await prisma.mediaAsset.findMany({
+        where: { path: originalPublicPath },
+    });
+    if (assets.length === 0) {
+        return;
+    }
+    let sizeBytes = null;
+    let width = null;
+    let height = null;
+    try {
+        const stats = await fs.stat(avifAbsolutePath);
+        sizeBytes = BigInt(stats.size);
+        const metadata = await (0, sharp_1.default)(avifAbsolutePath).metadata();
+        width = metadata.width ?? null;
+        height = metadata.height ?? null;
+    }
+    catch (err) {
+        console.warn(`Could not read AVIF metadata for ${avifPublicPath}: ${err?.message || err}`);
+    }
+    for (const asset of assets) {
+        await prisma.mediaAsset.update({
+            where: { id: asset.id },
+            data: {
+                path: avifPublicPath,
+                mime: 'image/avif',
+                sizeBytes,
+                width,
+                height,
+            },
+        });
+        console.log(`Updated MediaAsset ${asset.id}: ${originalPublicPath} -> ${avifPublicPath}`);
+    }
+}
+async function updateJsonContent(conversions) {
+    const sortedMappings = [...conversions].sort((a, b) => b.originalPublicPath.length - a.originalPublicPath.length);
+    const replaceInValue = (value) => {
+        if (typeof value === 'string') {
+            let result = value;
+            for (const { originalPublicPath, avifPublicPath } of sortedMappings) {
+                result = result.split(originalPublicPath).join(avifPublicPath);
+            }
+            return result;
+        }
+        if (Array.isArray(value)) {
+            return value.map(replaceInValue);
+        }
+        if (value && typeof value === 'object') {
+            const next = {};
+            for (const [key, val] of Object.entries(value)) {
+                next[key] = replaceInValue(val);
+            }
+            return next;
+        }
+        return value;
+    };
+    const jsonColumns = [
+        { table: 'ContentItem', column: 'contentBlocks' },
+        { table: 'ContentItem', column: 'sources' },
+        { table: 'ContentItem', column: 'tastingNote' },
+        { table: 'ContentItem', column: 'seo' },
+        { table: 'StaticPage', column: 'contentBlocks' },
+        { table: 'StaticPage', column: 'seo' },
+        { table: 'Homepage', column: 'infographicCards' },
+        { table: 'Homepage', column: 'blocks' },
+        { table: 'Sidebar', column: 'archiveBlocks' },
+        { table: 'Sidebar', column: 'sections' },
+        { table: 'Sidebar', column: 'links' },
+        { table: 'Sidebar', column: 'paths' },
+        { table: 'SiteSettings', column: 'typography' },
+        { table: 'SiteSettings', column: 'socialLinks' },
+        { table: 'SiteHeader', column: 'menu' },
+        { table: 'SiteFooter', column: 'columns' },
+        { table: 'SiteSeo', column: 'defaultSeo' },
+        { table: 'SiteSeo', column: 'robotsRules' },
+        { table: 'CommunitySettings', column: 'shareNetworks' },
+        { table: 'SocialAuthSettings', column: 'providers' },
+        { table: 'ArchiveSettings', column: 'settings' },
+    ];
+    for (const { table, column } of jsonColumns) {
+        await processTable(table, column, replaceInValue);
+    }
+}
+async function processTable(tableName, column, replaceInValue) {
+    const model = prisma[tableName];
+    if (!model || typeof model.findMany !== 'function') {
+        console.warn(`Model ${tableName} not found, skipping`);
+        return;
+    }
+    const records = await model.findMany({});
+    let updatedCount = 0;
+    for (const record of records) {
+        const originalValue = record[column];
+        if (originalValue == null) {
+            continue;
+        }
+        const newValue = replaceInValue(originalValue);
+        if (JSON.stringify(originalValue) === JSON.stringify(newValue)) {
+            continue;
+        }
+        await model.update({
+            where: { id: record.id },
+            data: { [column]: newValue },
+        });
+        updatedCount++;
+    }
+    if (updatedCount > 0) {
+        console.log(`Updated ${updatedCount} row(s) in ${tableName}.${column}`);
+    }
+}
+main().catch((err) => {
     console.error(err);
-    await prisma.$disconnect();
-    process.exit(1);
+    prisma.$disconnect().finally(() => process.exit(1));
 });
 //# sourceMappingURL=convert-existing-images-to-avif.js.map

@@ -221,9 +221,11 @@ let EditorService = class EditorService {
             }),
             this.prisma.contentItem.count({ where }),
         ]);
+        const countWhere = { ...where };
+        delete countWhere.type;
         const counts = await this.prisma.contentItem.groupBy({
             by: ['type'],
-            where,
+            where: countWhere,
             _count: { type: true },
         });
         return { items, total, counts };

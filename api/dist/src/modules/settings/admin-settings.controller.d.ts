@@ -10,10 +10,10 @@ export declare class AdminSettingsController {
     }>;
     updateWatermark(dto: UpdateWatermarkDto): Promise<{
         watermarkMedia: {
+            width: number | null;
             id: string;
             path: string;
             mime: string | null;
-            width: number | null;
             height: number | null;
             altText: string | null;
             sizeBytes: bigint | null;
@@ -22,12 +22,12 @@ export declare class AdminSettingsController {
     } & {
         id: string;
         createdAt: Date;
+        typography: import("@prisma/client/runtime/library").JsonValue | null;
+        socialLinks: import("@prisma/client/runtime/library").JsonValue | null;
         updatedAt: Date;
         siteName: string | null;
         siteDescription: string | null;
         logoMediaId: string | null;
-        typography: import("@prisma/client/runtime/library").JsonValue | null;
-        socialLinks: import("@prisma/client/runtime/library").JsonValue | null;
         watermarkEnabled: boolean;
         watermarkMediaId: string | null;
         watermarkOpacity: number;
