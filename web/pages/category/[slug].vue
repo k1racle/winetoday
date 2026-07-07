@@ -11,7 +11,7 @@ const { data: categories } = await useAsyncData('categories', () =>
 );
 
 const { data: content, error: contentError } = await useAsyncData(`category-content-${slug}`, () =>
-  getContent({ categorySlug: slug, limit: 24 }).catch((err) => {
+  getContent({ categorySlug: slug, limit: 10000 }).catch((err) => {
     console.error('Failed to load category content:', err);
     return { items: [], total: 0 };
   }),
