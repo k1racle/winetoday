@@ -176,8 +176,8 @@ function formatTime(date?: string | null) {
           <div class="flex items-center gap-4">
             <button
               type="button"
-              class="flex items-center gap-1.5 transition hover:text-foreground"
-              :class="reactions.userReaction === 'like' ? 'text-accent' : 'text-foreground/60'"
+              class="flex items-center gap-1.5 transition"
+              :class="reactions.userReaction === 'like' ? 'text-green-500 hover:text-green-400' : 'text-foreground/60 hover:text-foreground'"
               aria-label="Нравится"
               @click="toggleReaction('like')"
             >
@@ -194,8 +194,8 @@ function formatTime(date?: string | null) {
           <div class="flex items-center gap-4">
             <button
               type="button"
-              class="flex items-center gap-1.5 transition hover:text-foreground"
-              :class="reactions.userReaction === 'dislike' ? 'text-red-500' : 'text-foreground/60'"
+              class="flex items-center gap-1.5 transition"
+              :class="reactions.userReaction === 'dislike' ? 'text-red-500 hover:text-red-400' : 'text-foreground/60 hover:text-foreground'"
               aria-label="Не нравится"
               @click="toggleReaction('dislike')"
             >
