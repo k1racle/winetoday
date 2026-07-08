@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ContentItem } from '~/types/content';
 import { isTiptapJson, tiptapToHtml } from '~/utils/tiptap-html';
+import { getVideoEmbedUrl } from '~/utils/video-embed';
 
 const props = defineProps<{
   blocks: any[];
@@ -14,10 +15,7 @@ function renderContent(content: unknown): string {
 }
 
 function getEmbedUrl(url?: string) {
-  if (!url) return '';
-  const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
-  if (youtubeMatch) return `https://www.youtube.com/embed/${youtubeMatch[1]}`;
-  return url;
+  return getVideoEmbedUrl(url);
 }
 
 function formatSource(source?: string | null): string {
@@ -105,16 +103,16 @@ function formatSource(source?: string | null): string {
         v-html="block.html"
       />
 
-      <div v-else-if="block.type === 'video-player'" class="my-6 aspect-video w-full bg-black">
-        <iframe
-          v-if="getEmbedUrl(block.videoUrl || props.item.videoUrl)"
-          :src="getEmbedUrl(block.videoUrl || props.item.videoUrl)"
-          class="h-full w-full"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
+      <ClientOnly v-else-if="block.type === 'video-player' && getEmbedUrl(block.videoUrl || props.item.videoUrl)">
+        <VideoEmbed
+          :url="getEmbedUrl(block.videoUrl || props.item.videoUrl)"
+          :title="props.item.title || 'Видео'"
+          class="my-6"
         />
-      </div>
+        <template #fallback>
+          <div class="my-6 aspect-video w-full bg-black" aria-hidden="true" />
+        </template>
+      </ClientOnly>
     </template>
   </div>
 </template>

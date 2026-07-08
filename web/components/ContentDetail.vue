@@ -218,18 +218,14 @@ const relatedItems = computed(() => {
           Редактировать
         </NuxtLink>
 
-        <!-- Video player -->
+        <!-- Video player (client-only mount avoids VK/Rutube cacheframe race on SSR) -->
         <figure v-if="item.type === 'video' && item.videoUrl" class="mt-6">
-          <div class="aspect-video w-full overflow-hidden bg-black">
-            <iframe
-              :src="item.videoUrl"
-              class="h-full w-full border-0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen
-              referrerpolicy="strict-origin-when-cross-origin"
-              :title="item.title || 'Видео'"
-            />
-          </div>
+          <ClientOnly>
+            <VideoEmbed :key="item.videoUrl" :url="item.videoUrl" :title="item.title || 'Видео'" />
+            <template #fallback>
+              <div class="aspect-video w-full bg-black" aria-hidden="true" />
+            </template>
+          </ClientOnly>
           <figcaption v-if="item.duration" class="mt-2 text-xs text-foreground/50">
             Продолжительность: {{ formatDuration(item.duration) }}
           </figcaption>
