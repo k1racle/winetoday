@@ -12,7 +12,8 @@ import { MobileWidgetsProvider } from "@/components/mobile-widgets-provider";
 import { SocialLinks } from "@/components/social-links";
 import { SiteHeader } from "@/components/site-header";
 import { TagCloud } from "@/components/tag-cloud";
-import { buildSeoMetadata, DEFAULT_OG_IMAGE, getGlobalSettings, getSiteFooter, getSiteHeader, getSiteSeo, getTagCloud, type FooterItem, withLoggedFallback } from "@/lib/strapi";
+import { SidebarPanel } from "@/components/sidebar-panel";
+import { buildSeoMetadata, DEFAULT_OG_IMAGE, getGlobalSettings, getSiteFooter, getSiteHeader, getSiteSeo, getTagCloud, getSidebarForPath, type FooterItem, withLoggedFallback } from "@/lib/strapi";
 import { buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/lib/json-ld";
 
 import "./globals.css";
@@ -140,11 +141,12 @@ export default async function RootLayout({
   // #region agent log
   agentDebugLog("H2,H3,H5", "frontend/src/app/layout.tsx:RootLayout:start", "Root layout render start", {});
   // #endregion
-  const [settings, headerSettings, footerSettings, tagCloud] = await Promise.all([
+  const [settings, headerSettings, footerSettings, tagCloud, sidebar] = await Promise.all([
     withLoggedFallback("layout global settings", () => getGlobalSettings(), null),
     withLoggedFallback("layout site header", () => getSiteHeader(), null),
     withLoggedFallback("layout site footer", () => getSiteFooter(), null),
     withLoggedFallback("layout tag cloud", () => getTagCloud(), []),
+    withLoggedFallback("layout sidebar", () => getSidebarForPath("/"), null),
   ]);
   // #region agent log
   agentDebugLog("H2,H3,H5", "frontend/src/app/layout.tsx:RootLayout:data", "Root layout data loaded", {
@@ -339,6 +341,14 @@ export default async function RootLayout({
             />
 
             <AuthWidget label="Открыть вход" listenOnly />
+
+            {/* Мобильный мини-сайдбар: показываем только архивные блоки типа homepage-news-block
+                в самом верху страницы на мобильных устройствах (скрыт на xl+). */}
+            {sidebar ? (
+              <div className="xl:hidden mx-4 mt-4">
+                <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} stacked mobile showOnlyArchive />
+              </div>
+            ) : null}
 
           <main className="flex-1 px-4 pb-3 md:px-0 md:pb-0">{children}</main>
 
