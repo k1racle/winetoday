@@ -73,7 +73,7 @@ useSeoMeta({
   <div class="pb-16">
     <!-- Top content + video + fresh sidebar -->
     <section v-if="topItems.length" class="mx-auto max-w-7xl px-4 py-4">
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-stretch">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
         <!-- Main column: hero + video -->
         <div class="order-2 flex w-full flex-col gap-4 lg:w-3/4">
           <!-- Mobile: top 3 items look the same (photo on top, text below) -->
