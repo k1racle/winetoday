@@ -520,9 +520,6 @@ export default async function Home() {
         <div className="grid gap-8 px-4 max-md:pt-0 sm:px-0">
           <MobileSidebarBridge sidebar={regularSidebar} />
           <div className="min-w-0 space-y-10">
-            {hasHomepageNewsWidget ? (
-              <HomepageNewsSidebar latest={latestNewsSidebarItems} popular={popularNewsSidebarItems} className="xl:hidden" />
-            ) : null}
             {desktopInfographicCards.length || tabletInfographicCards.length || phoneInfographicCards.length ? (
               <section className="hidden space-y-4">
                 <div className="grid gap-3 md:hidden">
