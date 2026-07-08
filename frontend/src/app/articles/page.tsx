@@ -87,6 +87,7 @@ export default async function ArticlesPage() {
               imageAlt: article.cover?.alternativeText ?? article.title,
               meta: buildArchiveMeta(article.categories, article.publishedAt, article.publishedAtCustom),
             }))}
+            showExcerpt={false}
           />
           <div className="mt-10 xl:hidden">
             <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} stacked mobile />
