@@ -8,7 +8,7 @@ const [{ data: homepage }, { data: fresh }, { data: latestByCategory }] = await 
     getHomepage().catch(() => ({ lead: [], articles: [], news: [], videos: [], galleries: [] })),
   ),
   useAsyncData('fresh', () =>
-    getContent({ limit: 21 }).catch(() => ({ items: [] })),
+    getContent({ limit: 7 }).catch(() => ({ items: [] })),
   ),
   useAsyncData('latest-by-category', () =>
     getLatestByCategory(5).catch(() => []),
@@ -30,7 +30,7 @@ const freshItems = computed<ContentItem[]>(() => {
       const db = new Date(a.publishedAt || a.createdAt).getTime();
       return da - db;
     })
-    .slice(0, 21);
+    .slice(0, 7);
 });
 
 const mixedItems = computed<ContentItem[]>(() => {

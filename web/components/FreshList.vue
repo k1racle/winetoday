@@ -55,14 +55,16 @@ function truncatedTitle(title: string, exclusive: boolean): string {
   return title.slice(0, max).trim().replace(/[\s.,!?;:]$/, '') + '…';
 }
 
+const ITEM_LIMIT = 7;
+
 const displayedItems = computed<ContentItem[]>(() => {
   const list = props.items || [];
   if (activeTab.value === 'popular') {
     return [...list]
       .sort((a, b) => (b.viewsTotal || 0) - (a.viewsTotal || 0))
-      .slice(0, 21);
+      .slice(0, ITEM_LIMIT);
   }
-  return list.slice(0, 21);
+  return list.slice(0, ITEM_LIMIT);
 });
 
 const hasMobileMore = computed(() => displayedItems.value.length > 4);
