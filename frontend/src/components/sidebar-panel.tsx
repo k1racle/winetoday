@@ -17,7 +17,7 @@ type SidebarPanelProps = {
   showOnlyArchive?: boolean;
 };
 
-export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = false, archiveBlockInnerWidthClassName }: SidebarPanelProps) {
+export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = false, archiveBlockInnerWidthClassName, showOnlyArchive = false }: SidebarPanelProps) {
   const asideClassName = mobile
     ? "w-full min-w-0 box-border overflow-hidden border border-black/10 bg-white text-foreground dark:border-white/10 dark:bg-[#12202d] dark:text-white"
     : stacked
@@ -55,13 +55,15 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
             const blocks = sidebar.archiveBlocks ?? [];
             let orderedBlocks = blocks;
 
-            // На мобильной версии переместим блоки "homepage-news-block" (свежие/популярные) в начало,
-            // а блоки-рубрики (archive-block с категориями) — в конец.
+            // На мобильной версии: показываем вначале блоки "homepage-news-block" (свежие/популярные),
+            // но полностью скрываем блоки-рубрики (archive-block с категориями) — они не нужны на телефоне.
             if (mobile) {
               const homepageNews = blocks.filter((b) => b.__component === "sidebar.homepage-news-block");
-              const categoryBlocks = blocks.filter((b) => b.__component === "sidebar.archive-block" && Array.isArray((b as SidebarArchiveBlock).categories) && (b as SidebarArchiveBlock).categories!.length > 0);
-              const others = blocks.filter((b) => !homepageNews.includes(b) && !categoryBlocks.includes(b));
-              orderedBlocks = [...homepageNews, ...others, ...categoryBlocks];
+              const others = blocks.filter((b) => b.__component !== "sidebar.archive-block");
+              // others содержит homepageNews и все остальные блоки, кроме archive-block с рубриками
+              // Сначала ставим homepageNews, потом остальные (без рубрик).
+              const nonHomepageOthers = others.filter((b) => !homepageNews.includes(b));
+              orderedBlocks = [...homepageNews, ...nonHomepageOthers];
             }
 
             return orderedBlocks.map((block, index) => {
