@@ -17,4 +17,4 @@ RUN npx nest build
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
+CMD ["sh", "-c", "npx prisma migrate resolve --rolled-back '20250707160000_add_reaction_viewer_unique' 2>/dev/null || true; npx prisma migrate deploy && npm run start:prod"]
