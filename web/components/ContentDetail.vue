@@ -8,11 +8,19 @@ const props = defineProps<{
   typeRoute: string;
 }>();
 
-const { getLatestByCategory, getReactions, react, getComments, createComment } = useApi();
+const { getLatestByCategory, getVideos, getReactions, react, getComments, createComment } = useApi();
 const { user, isAuthenticated } = useAuth();
 const viewerId = ref('');
 const { data: categoryGroups } = await useAsyncData('latest-by-category', () =>
   getLatestByCategory(5).catch(() => []),
+);
+
+const { data: relatedVideosList } = await useAsyncData(
+  `related-videos-${props.item.id}`,
+  () =>
+    props.item.type === 'video'
+      ? getVideos({ limit: 4 }).catch(() => ({ items: [] }))
+      : Promise.resolve({ items: [] }),
 );
 
 const meta = computed(() => useContentMeta(props.item));
@@ -143,13 +151,25 @@ function formatDuration(seconds?: number | null): string {
   return parts.map((n) => String(n).padStart(2, '0')).join(':');
 }
 
+const bodyBlocks = computed(() => {
+  const blocks = props.item.contentBlocks || [];
+  if (props.item.type !== 'video') return blocks;
+  return blocks.filter((b) => b?.type !== 'video-player');
+});
+
 const relatedItems = computed(() => {
-  const groups = categoryGroups.value || [];
-  if (!groups.length) return [];
   const currentId = props.item.id;
   const currentType = props.item.type;
+
+  if (currentType === 'video') {
+    const videos = (relatedVideosList.value?.items || []).filter((i: ContentItem) => i.id !== currentId);
+    return videos.slice(0, 3);
+  }
+
+  const groups = categoryGroups.value || [];
+  if (!groups.length) return [];
   const categoryId = props.item.categories?.[0]?.id;
-  const typeFilter = (i: ContentItem) => i.id !== currentId && (currentType !== 'video' || i.type === 'video');
+  const typeFilter = (i: ContentItem) => i.id !== currentId;
 
   let items: ContentItem[] = [];
   if (categoryId) {
@@ -229,7 +249,7 @@ const relatedItems = computed(() => {
 
         <!-- Content -->
         <div class="mt-8">
-          <ContentBlocks v-if="item.contentBlocks?.length" :blocks="item.contentBlocks" :item="item" />
+          <ContentBlocks v-if="bodyBlocks.length" :blocks="bodyBlocks" :item="item" />
           <p v-else-if="item.excerpt" class="text-lg leading-relaxed opacity-80">
             {{ item.excerpt }}
           </p>
