@@ -1,13 +1,11 @@
 import { computed } from 'vue';
 
-export const headerCategoryOrder = [
-  'Российское виноделие',
-  'Зарубежное виноделие',
-  'Алкогольный рынок',
-  'Розничный бизнес',
-  'Ресторанный бизнес',
-  'Туризм',
-];
+import {
+  matchSidebarCategory,
+  SIDEBAR_CATEGORY_GROUPS,
+} from '~/utils/sidebar-categories';
+
+export const headerCategoryOrder = SIDEBAR_CATEGORY_GROUPS.map((group) => group.label);
 
 export function useHeaderCategories() {
   const { getCategories } = useApi();
@@ -17,14 +15,9 @@ export function useHeaderCategories() {
 
   const headerCategories = computed(() => {
     if (!categories.value) return [];
-    const map = new Map(
-      (categories.value as any[]).map((c: any) => [
-        String(c.name || '').trim().toLowerCase(),
-        c,
-      ]),
-    );
-    return headerCategoryOrder
-      .map((name) => map.get(name.toLowerCase()))
+
+    return SIDEBAR_CATEGORY_GROUPS
+      .map((group) => matchSidebarCategory(categories.value as Array<{ name: string; slug: string }>, group))
       .filter(Boolean);
   });
 

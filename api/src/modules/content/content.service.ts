@@ -6,6 +6,10 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
+import {
+  matchSidebarCategory,
+  SIDEBAR_CATEGORY_GROUPS,
+} from './sidebar-category-order';
 
 const contentInclude = {
   author: true,
@@ -162,54 +166,45 @@ export class ContentService {
 
   async findLatestByCategory(limit = 5) {
     const categories = await this.prisma.category.findMany({
-      orderBy: { name: 'asc' },
       select: { id: true, name: true, slug: true },
     });
 
-    const EXCLUDED_CATEGORY_SLUGS = new Set(['afisha']);
-    const duplicateSuffixPattern = /^(.*)-(\d+)$/;
+    const result = [];
 
-    // Group duplicate categories (e.g. slug-2) under their canonical slug.
-    const groups = new Map<
-      string,
-      { id: string; name: string; slug: string }
-    >();
-
-    for (const category of categories) {
-      const baseSlug = category.slug.replace(duplicateSuffixPattern, '$1');
-      if (EXCLUDED_CATEGORY_SLUGS.has(baseSlug)) {
+    for (const group of SIDEBAR_CATEGORY_GROUPS) {
+      const category = matchSidebarCategory(categories, group);
+      if (!category) {
         continue;
       }
 
-      const existing = groups.get(baseSlug);
-      if (!existing) {
-        groups.set(baseSlug, category);
-      } else if (!duplicateSuffixPattern.test(category.slug)) {
-        // Prefer the canonical category (no numeric suffix) for name/slug.
-        groups.set(baseSlug, category);
+      const categoryIds = await this.getCategoryAndDescendantIds(category.slug);
+      const items = await this.prisma.contentItem.findMany({
+        where: {
+          status: ContentStatus.published,
+          categories: categoryIds.length
+            ? { some: { id: { in: categoryIds } } }
+            : { some: { id: category.id } },
+          publishedAt: { lte: new Date() },
+        },
+        include: contentInclude,
+        orderBy: [{ pinned: 'desc' }, { publishedAt: 'desc' }, { createdAt: 'desc' }],
+        take: limit,
+      });
+
+      if (!items.length) {
+        continue;
       }
+
+      result.push({
+        category: {
+          ...category,
+          name: group.label,
+        },
+        items,
+      });
     }
 
-    const result = await Promise.all(
-      Array.from(groups.values()).map(async (category) => {
-        const categoryIds = await this.getCategoryAndDescendantIds(category.slug);
-        const items = await this.prisma.contentItem.findMany({
-          where: {
-            status: ContentStatus.published,
-            categories: categoryIds.length
-              ? { some: { id: { in: categoryIds } } }
-              : { some: { id: category.id } },
-            publishedAt: { lte: new Date() },
-          },
-          include: contentInclude,
-          orderBy: [{ pinned: 'desc' }, { publishedAt: 'desc' }, { createdAt: 'desc' }],
-          take: limit,
-        });
-        return { category, items };
-      }),
-    );
-
-    return result.filter((group) => group.items.length > 0);
+    return result;
   }
 
   async findHomepageContent() {

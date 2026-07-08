@@ -1,9 +1,20 @@
 <script setup lang="ts">
 import type { ContentItem } from '~/types/content';
+import { sortBySidebarCategoryOrder, resolveSidebarCategoryLabel } from '~/utils/sidebar-categories';
 
 const props = defineProps<{
   groups: { category: { id: string; name: string; slug: string }; items: ContentItem[] }[];
 }>();
+
+const orderedGroups = computed(() =>
+  sortBySidebarCategoryOrder(props.groups).map((group) => ({
+    ...group,
+    category: {
+      ...group.category,
+      name: resolveSidebarCategoryLabel(group.category),
+    },
+  })),
+);
 
 function link(item: ContentItem) {
   switch (item.type) {
@@ -35,7 +46,7 @@ function truncatedTitle(title: string, exclusive: boolean): string {
 <template>
   <div class="border border-foreground/5 bg-card p-5 shadow-sm md:p-6">
     <div class="space-y-8">
-      <div v-for="group in groups" :key="group.category.id">
+      <div v-for="group in orderedGroups" :key="group.category.id">
         <NuxtLink
           :to="`/category/${group.category.slug}`"
           class="mb-3 block text-base font-bold text-accent hover:text-accent/80"
