@@ -147,15 +147,18 @@ const relatedItems = computed(() => {
   const groups = categoryGroups.value || [];
   if (!groups.length) return [];
   const currentId = props.item.id;
+  const currentType = props.item.type;
   const categoryId = props.item.categories?.[0]?.id;
+  const typeFilter = (i: ContentItem) => i.id !== currentId && (currentType !== 'video' || i.type === 'video');
+
   let items: ContentItem[] = [];
   if (categoryId) {
     const group = groups.find((g) => g.category.id === categoryId);
-    if (group) items = group.items.filter((i) => i.id !== currentId);
+    if (group) items = group.items.filter(typeFilter);
   }
   if (items.length < 3) {
     const existingIds = new Set(items.map((i) => i.id));
-    const allItems = groups.flatMap((g) => g.items).filter((i) => i.id !== currentId);
+    const allItems = groups.flatMap((g) => g.items).filter(typeFilter);
     for (const item of allItems) {
       if (!existingIds.has(item.id)) {
         items.push(item);

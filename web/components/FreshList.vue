@@ -90,19 +90,19 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
       </button>
     </div>
 
-    <ul class="flex-1 divide-y divide-foreground/10 overflow-y-auto">
+    <ul class="flex-1 divide-y divide-foreground/10 overflow-y-auto overflow-x-hidden">
       <li
         v-for="(item, index) in displayedItems"
         :key="item.id"
         class="py-3 first:pt-0 last:pb-0"
         :class="{ 'hidden md:block': !isExpanded && index >= 4 }"
       >
-        <NuxtLink :to="link(item)" class="group flex min-w-0 items-start gap-3 transition-transform duration-200 hover:scale-[1.01]">
+        <NuxtLink :to="link(item)" class="group flex min-w-0 items-start gap-3 transition-colors duration-200">
           <span class="shrink-0 pt-0.5 text-sm font-bold text-accent">
             {{ formatFreshDate(item.publishedAt || item.createdAt) }}
           </span>
           <div class="min-w-0 flex-1">
-            <span class="line-clamp-2 text-sm font-medium leading-snug text-foreground group-hover:text-foreground">
+            <span class="line-clamp-2 text-sm font-medium leading-snug text-foreground group-hover:text-accent">
               {{ truncatedTitle(item.title, item.materialLabel === 'exclusive') }}
               <span
                 v-if="item.materialLabel === 'exclusive'"
