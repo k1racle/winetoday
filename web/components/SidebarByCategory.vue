@@ -33,7 +33,7 @@ function truncatedTitle(title: string, exclusive: boolean): string {
 </script>
 
 <template>
-  <div class="h-full border border-foreground/5 bg-card p-5 shadow-sm md:p-6">
+  <div class="border border-foreground/5 bg-card p-5 shadow-sm md:p-6">
     <div class="space-y-8">
       <div v-for="group in groups" :key="group.category.id">
         <NuxtLink

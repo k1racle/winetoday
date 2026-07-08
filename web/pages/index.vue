@@ -170,9 +170,10 @@ useSeoMeta({
           </div>
         </div>
 
-        <!-- Fresh / popular news: right column on desktop -->
-        <aside class="order-first w-full lg:order-last lg:w-1/4">
+        <!-- Fresh / popular news + categories: right column on desktop -->
+        <aside class="order-first flex w-full flex-col gap-4 lg:order-last lg:w-1/4">
           <FreshList :items="freshItems" />
+          <SidebarByCategory v-if="latestByCategory?.length" :groups="latestByCategory" />
         </aside>
       </div>
     </section>
@@ -180,9 +181,7 @@ useSeoMeta({
     <!-- Latest mixed materials grid + categories sidebar -->
     <section v-if="mixedItems.length" class="mx-auto max-w-7xl px-4 py-10">
       <h2 class="mb-6 font-heading text-2xl font-bold">Последние новости</h2>
-      <div class="grid items-start gap-4 lg:grid-cols-4">
-        <!-- Left: mixed grid -->
-        <div class="grid gap-4 sm:grid-cols-2 lg:col-span-3 lg:grid-cols-3">
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <ArticleCard
             v-for="item in mixedItems"
             :key="item.id"
@@ -192,12 +191,6 @@ useSeoMeta({
             class="h-[320px]"
           />
         </div>
-
-        <!-- Right: sidebar by category -->
-        <aside class="lg:col-span-1">
-          <SidebarByCategory :groups="latestByCategory || []" />
-        </aside>
-      </div>
     </section>
   </div>
 </template>
