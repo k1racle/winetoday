@@ -81,7 +81,7 @@ export class MediaService {
       return null;
     }
 
-    const WATERMARK_PATH = '/uploads/56c7826c-a463-4423-a34f-fe59226023f6.png';
+    const WATERMARK_PATH = this.config.get<string>('WATERMARK_IMAGE_PATH') || '/uploads/watermark.png';
     const settings = {
       opacity: 0.85,
       sizePercent: 24,
