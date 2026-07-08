@@ -14,6 +14,7 @@ type SidebarPanelProps = {
   tagCloud?: TagCloudItem[] | null;
   stacked?: boolean;
   archiveBlockInnerWidthClassName?: string;
+  showOnlyArchive?: boolean;
 };
 
 export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = false, archiveBlockInnerWidthClassName }: SidebarPanelProps) {
@@ -39,6 +40,121 @@ export function SidebarPanel({ sidebar, mobile = false, tagCloud, stacked = fals
   const hasLinks = Boolean(sidebar.links?.length);
   const hasArchiveBlocks = Boolean(sidebar.archiveBlocks?.length);
   const hasSocialLinks = Boolean(sidebar.socialLinks?.links?.length);
+
+  // Если запрошен только архив (showOnlyArchive), то рендерим только блоки archiveBlocks.
+  if (showOnlyArchive) {
+    if (!hasArchiveBlocks) {
+      return null;
+    }
+
+    return (
+      <aside className={`w-full box-border ${asideClassName}`}>
+        {/** В мобильном мини-виджете обычно не показываем заголовок/описание панели, оставляем только архивные блоки */}
+        <div className={`grid gap-4 ${panelPaddingX} py-4`}>
+          {sidebar.archiveBlocks?.map((block, index) => {
+            if (block.__component === "sidebar.tag-cloud-block") {
+              return tagCloud?.length ? (
+                <section key={`${sidebar.slug}-archive-tag-cloud-${index}`} className={`space-y-3 border-t border-black/10 pt-4 first:border-t-0 first:pt-0 dark:border-white/10 ${archiveInnerWidthClassName}`}>
+                  <TagCloud tags={tagCloud} title={block.title ?? undefined} />
+                </section>
+              ) : null;
+            }
+
+            if (!isSidebarArchiveBlock(block)) {
+              return null;
+            }
+
+            return (
+              <section key={`${sidebar.slug}-archive-${block.__component ?? block.contentType}-${index}`} className={`space-y-3 border-t border-black/10 pt-4 first:border-t-0 first:pt-0 dark:border-white/10 ${archiveInnerWidthClassName}`}>
+                {block.title ? <h2 className="font-menu text-[13px] font-bold tracking-[0.02em] text-foreground dark:text-white">{block.title}</h2> : null}
+                <div className="space-y-4">
+                  {block.categoryGroups?.length ? (
+                    block.categoryGroups.map((group) => (
+                      <section key={`${block.contentType}-${group.category.slug}`} className="space-y-1">
+                        <h3 className="font-menu text-[13px] font-bold tracking-[0.02em] text-emerald-700 dark:text-emerald-300">
+                          {group.category.name}
+                        </h3>
+                        <div>
+                          {group.items.map((item) => (
+                            <Link
+                              key={`${block.contentType}-${group.category.slug}-${item.href}-${item.label}`}
+                              href={item.href}
+                              className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
+                            >
+                              <div className="type-body-sm flex min-w-0 items-start gap-x-3 text-[#10211a] dark:text-white">
+                                {item.meta ? (
+                                  <span className="w-[44px] shrink-0 pt-0.5 font-menu text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
+                                    {item.meta}
+                                  </span>
+                                ) : null}
+                                <SidebarItemTitle
+                                  title={item.label}
+                                  materialLabel={item.materialLabel}
+                                  className={`min-w-0 flex-1 ${wordWrapClassName}`}
+                                  badgeClassName={
+                                    item.materialLabel?.trim().toLowerCase() === "video"
+                                      ? "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-[#1e2f23] uppercase"
+                                      : "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-white uppercase"
+                                  }
+                                  badgeBackgroundClassName={
+                                    item.materialLabel?.trim().toLowerCase() === "video" ? "bg-[#cfe95b]" : "bg-[#b00000]"
+                                  }
+                                  gapPx={8}
+                                />
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      </section>
+                    ))
+                  ) : (
+                    (block.items ?? []).map((item) => (
+                      <Link
+                        key={`${block.contentType}-${item.href}-${item.label}`}
+                        href={item.href}
+                        className={`${itemClassName} hover:text-emerald-600 dark:hover:text-emerald-300`}
+                      >
+                        <div className="type-body-sm flex min-w-0 items-start gap-x-3 text-[#10211a] dark:text-white">
+                          {item.meta ? (
+                            <span className="w-[44px] shrink-0 pt-0.5 font-menu text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-300">
+                              {item.meta}
+                            </span>
+                          ) : null}
+                          <SidebarItemTitle
+                            title={item.label}
+                            materialLabel={item.materialLabel}
+                            className={`min-w-0 flex-1 ${wordWrapClassName}`}
+                            badgeClassName={
+                              item.materialLabel?.trim().toLowerCase() === "video"
+                                ? "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-[#1e2f23] uppercase"
+                                : "inline-flex w-fit items-center rounded-[2px] px-1 py-0 font-menu !text-[11px] font-normal leading-[16px] tracking-[0.10em] text-white uppercase"
+                            }
+                            badgeBackgroundClassName={
+                              item.materialLabel?.trim().toLowerCase() === "video" ? "bg-[#cfe95b]" : "bg-[#b00000]"
+                            }
+                            gapPx={8}
+                          />
+                        </div>
+                      </Link>
+                    ))
+                  )}
+                </div>
+                {block.archiveHref && block.archiveLabel ? (
+                  <Link
+                    href={block.archiveHref}
+                    className="type-small font-menu inline-flex items-center gap-2 text-emerald-600 transition-colors hover:text-foreground dark:text-emerald-300 dark:hover:text-white"
+                  >
+                    {block.archiveLabel}
+                    <span aria-hidden="true">&rarr;</span>
+                  </Link>
+                ) : null}
+              </section>
+            );
+          })}
+        </div>
+      </aside>
+    );
+  }
 
   if (!hasSections && !hasLinks && !hasArchiveBlocks && !hasSocialLinks) {
     return null;

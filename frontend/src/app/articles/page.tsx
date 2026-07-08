@@ -67,6 +67,11 @@ export default async function ArticlesPage() {
             </h1>
           </header>
 
+          {/* Мобильный мини-сайдбар: показываем только архивные блоки (популярные / свежие) в самом верху страницы на мобильных */}
+          <div className="mt-4 xl:hidden">
+            <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} stacked mobile showOnlyArchive />
+          </div>
+
           <InfiniteArchivePageList
             emptyLabel="Материалы пока не опубликованы"
             leadItem={leadItem ? {
@@ -89,9 +94,6 @@ export default async function ArticlesPage() {
             }))}
             showExcerpt={false}
           />
-          <div className="mt-10 xl:hidden">
-            <SidebarPanel sidebar={sidebar} tagCloud={tagCloud} stacked mobile />
-          </div>
         </section>
 
         <DesktopSidebarSlot>
