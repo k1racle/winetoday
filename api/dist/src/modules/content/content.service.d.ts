@@ -119,93 +119,7 @@ export declare class ContentService {
         name: string;
         slug: string;
     }[]>;
-    findLatestByCategory(limit?: number): Promise<{
-        category: {
-            id: string;
-            name: string;
-            slug: string;
-        };
-        items: ({
-            author: {
-                id: string;
-                createdAt: Date;
-                name: string;
-                slug: string;
-                updatedAt: Date;
-                position: string | null;
-                bio: string | null;
-                memberProfileId: string | null;
-            };
-            coverMedia: {
-                width: number | null;
-                id: string;
-                path: string;
-                mime: string | null;
-                height: number | null;
-                altText: string | null;
-                sizeBytes: bigint | null;
-                createdAt: Date;
-            };
-            archiveCoverMedia: {
-                width: number | null;
-                id: string;
-                path: string;
-                mime: string | null;
-                height: number | null;
-                altText: string | null;
-                sizeBytes: bigint | null;
-                createdAt: Date;
-            };
-            categories: {
-                id: string;
-                createdAt: Date;
-                name: string;
-                slug: string;
-                parentId: string | null;
-                updatedAt: Date;
-            }[];
-            tags: {
-                id: string;
-                createdAt: Date;
-                name: string;
-                slug: string;
-                updatedAt: Date;
-            }[];
-        } & {
-            id: string;
-            createdAt: Date;
-            contentBlocks: Prisma.JsonValue;
-            sources: Prisma.JsonValue | null;
-            tastingNote: Prisma.JsonValue | null;
-            seo: Prisma.JsonValue | null;
-            slug: string;
-            updatedAt: Date;
-            authorId: string | null;
-            type: import(".prisma/client").$Enums.ContentType;
-            status: import(".prisma/client").$Enums.ContentStatus;
-            featured: boolean;
-            homepageLead: boolean;
-            title: string;
-            excerpt: string | null;
-            publishedAt: Date | null;
-            publishedAtCustom: Date | null;
-            coverMediaId: string | null;
-            archiveCoverMediaId: string | null;
-            coverSource: string | null;
-            coverShowWatermark: boolean;
-            pinned: boolean;
-            homepageSpecialBlock: boolean;
-            materialLabel: string | null;
-            readingTime: number | null;
-            preview: boolean;
-            videoUrl: string | null;
-            duration: number | null;
-            viewsTotal: number;
-            submittedAt: Date | null;
-            reviewedAt: Date | null;
-            reviewComment: string | null;
-        })[];
-    }[]>;
+    findLatestByCategory(limit?: number): Promise<any[]>;
     findHomepageContent(): Promise<{
         lead: ({
             author: {
@@ -647,12 +561,12 @@ export declare class ContentService {
         updatedAt: Date;
     }>;
     private findTagOrThrow;
-    getReactions(contentItemId: string, userId?: string): Promise<{
+    getReactions(contentItemId: string, userId?: string, viewerId?: string): Promise<{
         likes: number;
         dislikes: number;
         userReaction: import(".prisma/client").$Enums.ReactionType;
     }>;
-    react(contentItemId: string, userId: string, type: ReactionType): Promise<{
+    react(contentItemId: string, userId: string | undefined, viewerId: string | undefined, type: ReactionType): Promise<{
         likes: number;
         dislikes: number;
         userReaction: import(".prisma/client").$Enums.ReactionType;

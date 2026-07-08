@@ -19,4 +19,10 @@ __decorate([
     (0, class_validator_1.IsEnum)(client_1.ReactionType),
     __metadata("design:type", String)
 ], ReactDto.prototype, "type", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(64),
+    __metadata("design:type", String)
+], ReactDto.prototype, "viewerId", void 0);
 //# sourceMappingURL=react.dto.js.map

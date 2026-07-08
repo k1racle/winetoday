@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { cache } from "react";
 
 import { OG_IMAGE_HEIGHT, OG_IMAGE_MIME, OG_IMAGE_WIDTH, toOgImage } from "@/lib/og-image";
+import { resolveSidebarCategoryLabel, sortBySidebarCategoryOrder } from "@/lib/sidebar-categories";
 
 export const SITE_URL = process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://127.0.0.1";
 const CMS_URL = process.env.CMS_URL ?? "http://localhost:1337";
@@ -866,13 +867,15 @@ function buildSidebarArchiveCategoryGroups<T extends { categories?: CategorySumm
   serializeItem: (item: T) => SidebarArchiveItem,
 ) {
   const categories = (selectedCategories ?? [])
-    .filter((category): category is CategorySummary => Boolean(category?.slug?.trim() && category.name?.trim()));
+    .filter((category): category is CategorySummary & { slug: string } =>
+      Boolean(category?.slug?.trim() && category.name?.trim()),
+    );
 
   if (!categories.length) {
     return null;
   }
 
-  return categories
+  const groups = categories
     .map((category) => ({
       category,
       items: items
@@ -881,6 +884,14 @@ function buildSidebarArchiveCategoryGroups<T extends { categories?: CategorySumm
         .map(serializeItem),
     }))
     .filter((group) => group.items.length > 0);
+
+  return sortBySidebarCategoryOrder(groups).map((group) => ({
+    ...group,
+    category: {
+      ...group.category,
+      name: resolveSidebarCategoryLabel(group.category),
+    },
+  }));
 }
 
 export { getEffectivePublishedAt, sortArchiveItems, sortPublishedItems };

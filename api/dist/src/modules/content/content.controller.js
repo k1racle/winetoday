@@ -68,11 +68,11 @@ let ContentController = class ContentController {
     homepage() {
         return this.contentService.findHomepageContent();
     }
-    reactions(id, req) {
-        return this.contentService.getReactions(id, req.user?.userId);
+    reactions(id, req, viewerId) {
+        return this.contentService.getReactions(id, req.user?.userId, viewerId);
     }
     react(id, req, dto) {
-        return this.contentService.react(id, req.user.userId, dto.type);
+        return this.contentService.react(id, req.user?.userId, dto.viewerId, dto.type);
     }
     comments(id) {
         return this.contentService.getComments(id);
@@ -179,13 +179,14 @@ __decorate([
     (0, common_1.UseGuards)(optional_jwt_auth_guard_1.OptionalJwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
+    __param(2, (0, common_1.Query)('viewerId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, Object, String]),
     __metadata("design:returntype", void 0)
 ], ContentController.prototype, "reactions", null);
 __decorate([
     (0, common_1.Post)('content/:id/react'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(optional_jwt_auth_guard_1.OptionalJwtAuthGuard),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __param(2, (0, common_1.Body)()),

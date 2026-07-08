@@ -1,0 +1,310 @@
+import { _ as __nuxt_component_0 } from './nuxt-link-DHNkfH9n.mjs';
+import { a as useMediaUrl, _ as __nuxt_component_1$1, s as sortBySidebarCategoryOrder, r as resolveSidebarCategoryLabel } from './sidebar-categories-B7iei0NP.mjs';
+import { defineComponent, computed, mergeProps, unref, withCtx, createVNode, openBlock, createBlock, createCommentVNode, toDisplayString, createTextVNode, useSSRContext } from 'vue';
+import { ssrRenderAttrs, ssrRenderComponent, ssrRenderClass, ssrInterpolate, ssrRenderList } from 'vue/server-renderer';
+import { a as useAuth } from './useAuth-2AbBXMNZ.mjs';
+
+function useContentMeta(item) {
+  const date = computed(() => {
+    const d = item.publishedAt || item.createdAt;
+    if (!d) return "";
+    return new Date(d).toLocaleDateString("ru-RU", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+  });
+  const shortDate = computed(() => {
+    const d = item.publishedAt || item.createdAt;
+    if (!d) return "";
+    return new Date(d).toLocaleDateString("ru-RU", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+  });
+  const category = computed(() => {
+    return item.categories?.[0]?.name || "";
+  });
+  const categorySlug = computed(() => {
+    return item.categories?.[0]?.slug || "";
+  });
+  const typeLabel = computed(() => {
+    switch (item.type) {
+      case "article":
+        return "Статья";
+      case "news":
+        return "Новость";
+      case "video":
+        return "Видео";
+      case "gallery":
+        return "Галерея";
+      default:
+        return "";
+    }
+  });
+  return { date, shortDate, category, categorySlug, typeLabel };
+}
+const _sfc_main$1 = /* @__PURE__ */ defineComponent({
+  __name: "ArticleCard",
+  __ssrInlineRender: true,
+  props: {
+    item: {},
+    imageAspect: { default: "square" },
+    variant: { default: "default" }
+  },
+  setup(__props) {
+    const props = __props;
+    const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
+    const { date, category } = useContentMeta(props.item);
+    const { user } = useAuth();
+    const canEdit = computed(() => ["admin", "editor"].includes(user.value?.role || ""));
+    function editUrl(item) {
+      return `/account?type=${item.type}&id=${item.id}`;
+    }
+    const link = computed(() => {
+      switch (props.item.type) {
+        case "article":
+          return `/articles/${props.item.slug}`;
+        case "news":
+          return `/news/${props.item.slug}`;
+        case "video":
+          return `/videos/${props.item.slug}`;
+        case "gallery":
+          return `/gallery/${props.item.slug}`;
+        default:
+          return "/";
+      }
+    });
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_NuxtLink = __nuxt_component_0;
+      const _component_NuxtImg = __nuxt_component_1$1;
+      _push(`<div${ssrRenderAttrs(mergeProps({
+        class: ["group relative min-w-0 overflow-hidden border border-foreground/10 bg-card", __props.variant === "compact" ? "flex h-[320px] flex-col" : "block"]
+      }, _attrs))}>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: unref(link),
+        class: ["block", __props.variant === "compact" ? "flex h-full flex-col" : ""]
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`<div class="${ssrRenderClass([{
+              "aspect-square": __props.imageAspect === "square" && __props.variant !== "compact",
+              "aspect-video": __props.imageAspect === "video" || __props.variant === "compact"
+            }, "relative w-full overflow-hidden bg-foreground/10"])}"${_scopeId}>`);
+            if (__props.item.coverMedia?.path) {
+              _push2(ssrRenderComponent(_component_NuxtImg, {
+                src: unref(coverSrc),
+                alt: __props.item.coverMedia.altText || __props.item.title,
+                loading: "lazy",
+                decoding: "async",
+                class: "h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              }, null, _parent2, _scopeId));
+            } else {
+              _push2(`<!---->`);
+            }
+            if (__props.item.materialLabel === "exclusive") {
+              _push2(`<span class="absolute bottom-2 right-2 rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"${_scopeId}> Эксклюзив </span>`);
+            } else {
+              _push2(`<!---->`);
+            }
+            _push2(`</div><div class="${ssrRenderClass([__props.variant === "compact" ? "flex flex-1 flex-col p-3" : "p-4", "overflow-hidden"])}"${_scopeId}><div class="mb-1.5 flex flex-wrap items-center gap-2 text-xs text-foreground/50"${_scopeId}>`);
+            if (unref(category)) {
+              _push2(`<span${_scopeId}>${ssrInterpolate(unref(category))}</span>`);
+            } else {
+              _push2(`<!---->`);
+            }
+            if (unref(date)) {
+              _push2(`<span${_scopeId}>${ssrInterpolate(unref(date))}</span>`);
+            } else {
+              _push2(`<!---->`);
+            }
+            _push2(`</div><h3 class="${ssrRenderClass([__props.variant === "compact" ? "break-words text-[17px] leading-snug line-clamp-3" : "break-words text-lg", "font-heading font-bold leading-snug group-hover:text-foreground"])}"${_scopeId}>${ssrInterpolate(__props.item.title)}</h3>`);
+            if (__props.item.excerpt && __props.variant !== "compact") {
+              _push2(`<p class="mt-2 line-clamp-2 text-sm opacity-80"${_scopeId}>${ssrInterpolate(__props.item.excerpt)}</p>`);
+            } else {
+              _push2(`<!---->`);
+            }
+            _push2(`</div>`);
+          } else {
+            return [
+              createVNode("div", {
+                class: ["relative w-full overflow-hidden bg-foreground/10", {
+                  "aspect-square": __props.imageAspect === "square" && __props.variant !== "compact",
+                  "aspect-video": __props.imageAspect === "video" || __props.variant === "compact"
+                }]
+              }, [
+                __props.item.coverMedia?.path ? (openBlock(), createBlock(_component_NuxtImg, {
+                  key: 0,
+                  src: unref(coverSrc),
+                  alt: __props.item.coverMedia.altText || __props.item.title,
+                  loading: "lazy",
+                  decoding: "async",
+                  class: "h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                }, null, 8, ["src", "alt"])) : createCommentVNode("", true),
+                __props.item.materialLabel === "exclusive" ? (openBlock(), createBlock("span", {
+                  key: 1,
+                  class: "absolute bottom-2 right-2 rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
+                }, " Эксклюзив ")) : createCommentVNode("", true)
+              ], 2),
+              createVNode("div", {
+                class: ["overflow-hidden", __props.variant === "compact" ? "flex flex-1 flex-col p-3" : "p-4"]
+              }, [
+                createVNode("div", { class: "mb-1.5 flex flex-wrap items-center gap-2 text-xs text-foreground/50" }, [
+                  unref(category) ? (openBlock(), createBlock("span", { key: 0 }, toDisplayString(unref(category)), 1)) : createCommentVNode("", true),
+                  unref(date) ? (openBlock(), createBlock("span", { key: 1 }, toDisplayString(unref(date)), 1)) : createCommentVNode("", true)
+                ]),
+                createVNode("h3", {
+                  class: ["font-heading font-bold leading-snug group-hover:text-foreground", __props.variant === "compact" ? "break-words text-[17px] leading-snug line-clamp-3" : "break-words text-lg"]
+                }, toDisplayString(__props.item.title), 3),
+                __props.item.excerpt && __props.variant !== "compact" ? (openBlock(), createBlock("p", {
+                  key: 0,
+                  class: "mt-2 line-clamp-2 text-sm opacity-80"
+                }, toDisplayString(__props.item.excerpt), 1)) : createCommentVNode("", true)
+              ], 2)
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      if (unref(canEdit)) {
+        _push(ssrRenderComponent(_component_NuxtLink, {
+          to: editUrl(__props.item),
+          class: "absolute right-2 top-2 z-10 rounded bg-accent px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
+        }, {
+          default: withCtx((_, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(` Редактировать `);
+            } else {
+              return [
+                createTextVNode(" Редактировать ")
+              ];
+            }
+          }),
+          _: 1
+        }, _parent));
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div>`);
+    };
+  }
+});
+const _sfc_setup$1 = _sfc_main$1.setup;
+_sfc_main$1.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/ArticleCard.vue");
+  return _sfc_setup$1 ? _sfc_setup$1(props, ctx) : void 0;
+};
+const __nuxt_component_1 = Object.assign(_sfc_main$1, { __name: "ArticleCard" });
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  __name: "SidebarByCategory",
+  __ssrInlineRender: true,
+  props: {
+    groups: {}
+  },
+  setup(__props) {
+    const props = __props;
+    const orderedGroups = computed(
+      () => sortBySidebarCategoryOrder(props.groups).map((group) => ({
+        ...group,
+        category: {
+          ...group.category,
+          name: resolveSidebarCategoryLabel(group.category)
+        }
+      }))
+    );
+    function link(item) {
+      switch (item.type) {
+        case "article":
+          return `/articles/${item.slug}`;
+        case "news":
+          return `/news/${item.slug}`;
+        case "video":
+          return `/videos/${item.slug}`;
+        case "gallery":
+          return `/gallery/${item.slug}`;
+        default:
+          return "/";
+      }
+    }
+    function formatDayMonth(date) {
+      if (!date) return "";
+      return new Date(date).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" });
+    }
+    function truncatedTitle(title, exclusive) {
+      const max = exclusive ? 40 : 200;
+      if (title.length <= max) return title;
+      return title.slice(0, max).trim().replace(/[\s.,!?;:]$/, "") + "…";
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_NuxtLink = __nuxt_component_0;
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "border border-foreground/5 bg-card p-5 shadow-sm md:p-6" }, _attrs))}><div class="space-y-8"><!--[-->`);
+      ssrRenderList(unref(orderedGroups), (group) => {
+        _push(`<div>`);
+        _push(ssrRenderComponent(_component_NuxtLink, {
+          to: `/category/${group.category.slug}`,
+          class: "mb-3 block text-base font-bold text-accent hover:text-accent/80"
+        }, {
+          default: withCtx((_, _push2, _parent2, _scopeId) => {
+            if (_push2) {
+              _push2(`${ssrInterpolate(group.category.name)}`);
+            } else {
+              return [
+                createTextVNode(toDisplayString(group.category.name), 1)
+              ];
+            }
+          }),
+          _: 2
+        }, _parent));
+        _push(`<ul class="space-y-3"><!--[-->`);
+        ssrRenderList(group.items, (item) => {
+          _push(`<li>`);
+          _push(ssrRenderComponent(_component_NuxtLink, {
+            to: link(item),
+            class: "group flex items-start gap-3"
+          }, {
+            default: withCtx((_, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`<span class="shrink-0 pt-0.5 text-sm font-bold text-accent"${_scopeId}>${ssrInterpolate(formatDayMonth(item.publishedAt || item.createdAt))}</span><div class="min-w-0 flex-1"${_scopeId}><p class="text-sm font-medium leading-snug text-foreground group-hover:text-foreground line-clamp-2"${_scopeId}>${ssrInterpolate(truncatedTitle(item.title, item.materialLabel === "exclusive"))} `);
+                if (item.materialLabel === "exclusive") {
+                  _push2(`<span class="ml-1 inline-block whitespace-nowrap align-middle rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"${_scopeId}> Эксклюзив </span>`);
+                } else {
+                  _push2(`<!---->`);
+                }
+                _push2(`</p></div>`);
+              } else {
+                return [
+                  createVNode("span", { class: "shrink-0 pt-0.5 text-sm font-bold text-accent" }, toDisplayString(formatDayMonth(item.publishedAt || item.createdAt)), 1),
+                  createVNode("div", { class: "min-w-0 flex-1" }, [
+                    createVNode("p", { class: "text-sm font-medium leading-snug text-foreground group-hover:text-foreground line-clamp-2" }, [
+                      createTextVNode(toDisplayString(truncatedTitle(item.title, item.materialLabel === "exclusive")) + " ", 1),
+                      item.materialLabel === "exclusive" ? (openBlock(), createBlock("span", {
+                        key: 0,
+                        class: "ml-1 inline-block whitespace-nowrap align-middle rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
+                      }, " Эксклюзив ")) : createCommentVNode("", true)
+                    ])
+                  ])
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+          _push(`</li>`);
+        });
+        _push(`<!--]--></ul></div>`);
+      });
+      _push(`<!--]--></div></div>`);
+    };
+  }
+});
+const _sfc_setup = _sfc_main.setup;
+_sfc_main.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/SidebarByCategory.vue");
+  return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
+};
+const __nuxt_component_2 = Object.assign(_sfc_main, { __name: "SidebarByCategory" });
+
+export { __nuxt_component_1 as _, __nuxt_component_2 as a, useContentMeta as u };
+//# sourceMappingURL=SidebarByCategory-DFuBu4iH.mjs.map

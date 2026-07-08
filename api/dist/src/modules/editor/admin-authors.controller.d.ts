@@ -17,6 +17,12 @@ export declare class AdminAuthorsController {
     }[]>;
     getAuthorAnalytics(id: string): Promise<{
         author: {
+            user: {
+                id: string;
+                email: string;
+                username: string;
+                role: import(".prisma/client").$Enums.Role;
+            };
             id: string;
             name: string;
             slug: string;

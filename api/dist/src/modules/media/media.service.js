@@ -111,7 +111,7 @@ let MediaService = MediaService_1 = class MediaService {
             this.logger.warn('WATERMARK_SERVICE_URL is not set, skipping watermark');
             return null;
         }
-        const WATERMARK_PATH = '/uploads/56c7826c-a463-4423-a34f-fe59226023f6.png';
+        const WATERMARK_PATH = this.config.get('WATERMARK_IMAGE_PATH') || '/uploads/watermark.png';
         const settings = {
             opacity: 0.85,
             sizePercent: 24,

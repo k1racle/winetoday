@@ -13,6 +13,7 @@ exports.ContentService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../prisma/prisma.service");
+const sidebar_category_order_1 = require("./sidebar-category-order");
 const contentInclude = {
     author: true,
     coverMedia: true,
@@ -135,26 +136,14 @@ let ContentService = class ContentService {
     }
     async findLatestByCategory(limit = 5) {
         const categories = await this.prisma.category.findMany({
-            orderBy: { name: 'asc' },
             select: { id: true, name: true, slug: true },
         });
-        const EXCLUDED_CATEGORY_SLUGS = new Set(['afisha']);
-        const duplicateSuffixPattern = /^(.*)-(\d+)$/;
-        const groups = new Map();
-        for (const category of categories) {
-            const baseSlug = category.slug.replace(duplicateSuffixPattern, '$1');
-            if (EXCLUDED_CATEGORY_SLUGS.has(baseSlug)) {
+        const result = [];
+        for (const group of sidebar_category_order_1.SIDEBAR_CATEGORY_GROUPS) {
+            const category = (0, sidebar_category_order_1.matchSidebarCategory)(categories, group);
+            if (!category) {
                 continue;
             }
-            const existing = groups.get(baseSlug);
-            if (!existing) {
-                groups.set(baseSlug, category);
-            }
-            else if (!duplicateSuffixPattern.test(category.slug)) {
-                groups.set(baseSlug, category);
-            }
-        }
-        const result = await Promise.all(Array.from(groups.values()).map(async (category) => {
             const categoryIds = await this.getCategoryAndDescendantIds(category.slug);
             const items = await this.prisma.contentItem.findMany({
                 where: {
@@ -168,9 +157,18 @@ let ContentService = class ContentService {
                 orderBy: [{ pinned: 'desc' }, { publishedAt: 'desc' }, { createdAt: 'desc' }],
                 take: limit,
             });
-            return { category, items };
-        }));
-        return result.filter((group) => group.items.length > 0);
+            if (!items.length) {
+                continue;
+            }
+            result.push({
+                category: {
+                    ...category,
+                    name: group.label,
+                },
+                items,
+            });
+        }
+        return result;
     }
     async findHomepageContent() {
         const [lead, articles, news, videos, galleries] = await Promise.all([
@@ -268,7 +266,7 @@ let ContentService = class ContentService {
         }
         return tag;
     }
-    async getReactions(contentItemId, userId) {
+    async getReactions(contentItemId, userId, viewerId) {
         const [likes, dislikes, userReaction] = await Promise.all([
             this.prisma.reaction.count({ where: { contentItemId, type: client_1.ReactionType.like } }),
             this.prisma.reaction.count({ where: { contentItemId, type: client_1.ReactionType.dislike } }),
@@ -277,7 +275,12 @@ let ContentService = class ContentService {
                     where: { contentItemId_userId: { contentItemId, userId } },
                     select: { type: true },
                 })
-                : null,
+                : viewerId
+                    ? this.prisma.reaction.findUnique({
+                        where: { contentItemId_viewerId: { contentItemId, viewerId } },
+                        select: { type: true },
+                    })
+                    : null,
         ]);
         return {
             likes,
@@ -285,13 +288,25 @@ let ContentService = class ContentService {
             userReaction: userReaction?.type || null,
         };
     }
-    async react(contentItemId, userId, type) {
-        await this.prisma.reaction.upsert({
-            where: { contentItemId_userId: { contentItemId, userId } },
-            update: { type },
-            create: { contentItemId, userId, type },
-        });
-        return this.getReactions(contentItemId, userId);
+    async react(contentItemId, userId, viewerId, type) {
+        if (!userId && !viewerId) {
+            throw new common_1.BadRequestException('viewer required');
+        }
+        if (userId) {
+            await this.prisma.reaction.upsert({
+                where: { contentItemId_userId: { contentItemId, userId } },
+                update: { type },
+                create: { contentItemId, userId, type },
+            });
+        }
+        else {
+            await this.prisma.reaction.upsert({
+                where: { contentItemId_viewerId: { contentItemId, viewerId: viewerId } },
+                update: { type },
+                create: { contentItemId, viewerId: viewerId, type },
+            });
+        }
+        return this.getReactions(contentItemId, userId, viewerId);
     }
     async getComments(contentItemId) {
         const comments = await this.prisma.comment.findMany({
@@ -320,7 +335,7 @@ let ContentService = class ContentService {
                 contentItemId,
                 userId,
                 body: body.trim(),
-                status: 'pending',
+                status: 'approved',
             },
             include: {
                 user: {

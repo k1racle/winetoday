@@ -8,12 +8,12 @@ export const SIDEBAR_CATEGORY_GROUPS: SidebarCategoryGroup[] = [
   {
     label: 'Российское виноделие',
     names: ['Российское виноделие', 'Вино'],
-    slugs: ['rossiyskoe-vinodelie', 'rossijskoe-vinodelie', 'vino'],
+    slugs: ['rossijskoe-vino', 'rossiyskoe-vinodelie', 'rossijskoe-vinodelie', 'vino'],
   },
   {
     label: 'Зарубежное виноделие',
     names: ['Зарубежное виноделие'],
-    slugs: ['zarubezhnoe-vinodelie'],
+    slugs: ['zarubezhnoe-vino', 'zarubezhnoe-vinodelie'],
   },
   {
     label: 'Алкогольный рынок',
@@ -45,13 +45,17 @@ function normalizeSlug(slug: string): string {
   return slug.trim().toLowerCase().replace(duplicateSuffixPattern, '');
 }
 
+function normalizeName(name: string): string {
+  return name.trim().toLowerCase();
+}
+
 function resolveGroupIndex(category: { name: string; slug: string }): number | null {
-  const normalizedName = category.name.trim().toLowerCase();
+  const normalizedName = normalizeName(category.name);
   const normalizedSlug = normalizeSlug(category.slug);
 
   for (let index = 0; index < SIDEBAR_CATEGORY_GROUPS.length; index += 1) {
     const group = SIDEBAR_CATEGORY_GROUPS[index];
-    if (group.names.some((name) => name.trim().toLowerCase() === normalizedName)) {
+    if (group.names.some((name) => normalizeName(name) === normalizedName)) {
       return index;
     }
     if (group.slugs.some((slug) => normalizeSlug(slug) === normalizedSlug)) {
@@ -84,21 +88,17 @@ export function sortBySidebarCategoryOrder<T extends { category: { name: string;
 export function resolveSidebarCategoryLabel(category: { name: string; slug: string }): string {
   const index = resolveGroupIndex(category);
   if (index === null) {
-    return category.name;
+    return category.name.trim();
   }
   return SIDEBAR_CATEGORY_GROUPS[index].label;
 }
 
-export function matchSidebarCategory(
-  categories: Array<{ name: string; slug: string }>,
+export function matchSidebarCategory<T extends { id: string; name: string; slug: string }>(
+  categories: T[],
   group: SidebarCategoryGroup,
-): { name: string; slug: string } | null {
-  const nameMap = new Map(
-    categories.map((category) => [category.name.trim().toLowerCase(), category]),
-  );
-  const slugMap = new Map(
-    categories.map((category) => [normalizeSlug(category.slug), category]),
-  );
+): T | null {
+  const nameMap = new Map(categories.map((category) => [normalizeName(category.name), category]));
+  const slugMap = new Map(categories.map((category) => [normalizeSlug(category.slug), category]));
 
   for (const slug of group.slugs) {
     const match = slugMap.get(normalizeSlug(slug));
@@ -108,7 +108,7 @@ export function matchSidebarCategory(
   }
 
   for (const name of group.names) {
-    const match = nameMap.get(name.trim().toLowerCase());
+    const match = nameMap.get(normalizeName(name));
     if (match) {
       return match;
     }

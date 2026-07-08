@@ -12,6 +12,7 @@ export declare class CreateDraftDto {
     homepageSpecialBlock?: boolean;
     coverMediaId?: string;
     coverShowWatermark?: boolean;
+    coverSource?: string;
     videoUrl?: string;
     duration?: number;
     authorId?: string;

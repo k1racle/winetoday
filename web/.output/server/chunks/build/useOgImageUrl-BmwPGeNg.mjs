@@ -1,0 +1,11 @@
+import { a as useRuntimeConfig } from './server.mjs';
+
+function useOgImageUrl(src) {
+  const config = useRuntimeConfig();
+  const siteUrl = config.public.siteUrl?.replace(/\/$/, "") || "";
+  if (!src) return "";
+  return `${siteUrl}/api/og-image?src=${encodeURIComponent(src)}`;
+}
+
+export { useOgImageUrl as u };
+//# sourceMappingURL=useOgImageUrl-BmwPGeNg.mjs.map

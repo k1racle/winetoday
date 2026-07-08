@@ -105,6 +105,7 @@ let EditorService = class EditorService {
             homepageSpecialBlock: dto.homepageSpecialBlock ?? false,
             coverMediaId: dto.coverMediaId || null,
             coverShowWatermark: dto.coverShowWatermark ?? false,
+            coverSource: dto.coverSource?.trim() || null,
             videoUrl: dto.videoUrl || null,
             duration: dto.duration ?? null,
             authorId,
@@ -240,14 +241,22 @@ let EditorService = class EditorService {
         const authors = await this.prisma.author.findMany({
             orderBy: [{ name: 'asc' }, { slug: 'asc' }],
             include: {
-                memberProfile: {
-                    include: {
-                        user: { select: { id: true, email: true, username: true, role: true } },
-                    },
-                },
                 _count: { select: { contentItems: true } },
             },
         });
+        const authorIds = authors.map((a) => a.id);
+        const memberProfiles = await this.prisma.memberProfile.findMany({
+            where: { authorId: { in: authorIds } },
+            include: {
+                user: { select: { id: true, email: true, username: true, role: true } },
+            },
+        });
+        const profileByAuthorId = new Map();
+        for (const profile of memberProfiles) {
+            if (profile.authorId) {
+                profileByAuthorId.set(profile.authorId, profile);
+            }
+        }
         const groups = new Map();
         for (const author of authors) {
             const key = author.name.trim().toLowerCase();
@@ -263,8 +272,8 @@ let EditorService = class EditorService {
         }
         const result = Array.from(groups.values()).map((group) => {
             const representative = group.representatives.sort((a, b) => {
-                const aHasUser = a.memberProfile?.user ? 1 : 0;
-                const bHasUser = b.memberProfile?.user ? 1 : 0;
+                const aHasUser = profileByAuthorId.get(a.id)?.user ? 1 : 0;
+                const bHasUser = profileByAuthorId.get(b.id)?.user ? 1 : 0;
                 if (aHasUser !== bHasUser)
                     return bHasUser - aHasUser;
                 const aCount = a._count.contentItems;
@@ -273,18 +282,19 @@ let EditorService = class EditorService {
                     return bCount - aCount;
                 return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
             })[0];
+            const profile = profileByAuthorId.get(representative.id);
             return {
                 id: representative.id,
                 name: representative.name,
                 slug: representative.slug,
                 position: representative.position,
                 materialsCount: group.totalMaterials,
-                user: representative.memberProfile?.user
+                user: profile?.user
                     ? {
-                        id: representative.memberProfile.user.id,
-                        email: representative.memberProfile.user.email,
-                        username: representative.memberProfile.user.username,
-                        role: representative.memberProfile.user.role,
+                        id: profile.user.id,
+                        email: profile.user.email,
+                        username: profile.user.username,
+                        role: profile.user.role,
                     }
                     : null,
             };
@@ -299,6 +309,12 @@ let EditorService = class EditorService {
         if (!author) {
             throw new common_1.NotFoundException('Author not found');
         }
+        const memberProfile = await this.prisma.memberProfile.findUnique({
+            where: { authorId },
+            include: {
+                user: { select: { id: true, email: true, username: true, role: true } },
+            },
+        });
         const allAuthors = await this.prisma.author.findMany({
             where: { name: { equals: author.name, mode: 'insensitive' } },
             select: { id: true },
@@ -354,7 +370,17 @@ let EditorService = class EditorService {
         const dailyViews = Array.from(dailyMap.values()).sort((a, b) => a.date.localeCompare(b.date));
         const totalViews = dailyViews.reduce((sum, day) => sum + day.totalViews, 0);
         return {
-            author,
+            author: {
+                ...author,
+                user: memberProfile?.user
+                    ? {
+                        id: memberProfile.user.id,
+                        email: memberProfile.user.email,
+                        username: memberProfile.user.username,
+                        role: memberProfile.user.role,
+                    }
+                    : null,
+            },
             materials,
             totalViews,
             dailyViews,

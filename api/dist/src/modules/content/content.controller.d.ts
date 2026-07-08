@@ -761,93 +761,7 @@ export declare class ContentController {
         name: string;
         slug: string;
     }[]>;
-    latestByCategory(limit?: string): Promise<{
-        category: {
-            id: string;
-            name: string;
-            slug: string;
-        };
-        items: ({
-            author: {
-                id: string;
-                createdAt: Date;
-                name: string;
-                slug: string;
-                updatedAt: Date;
-                position: string | null;
-                bio: string | null;
-                memberProfileId: string | null;
-            };
-            coverMedia: {
-                width: number | null;
-                id: string;
-                path: string;
-                mime: string | null;
-                height: number | null;
-                altText: string | null;
-                sizeBytes: bigint | null;
-                createdAt: Date;
-            };
-            archiveCoverMedia: {
-                width: number | null;
-                id: string;
-                path: string;
-                mime: string | null;
-                height: number | null;
-                altText: string | null;
-                sizeBytes: bigint | null;
-                createdAt: Date;
-            };
-            categories: {
-                id: string;
-                createdAt: Date;
-                name: string;
-                slug: string;
-                parentId: string | null;
-                updatedAt: Date;
-            }[];
-            tags: {
-                id: string;
-                createdAt: Date;
-                name: string;
-                slug: string;
-                updatedAt: Date;
-            }[];
-        } & {
-            id: string;
-            createdAt: Date;
-            contentBlocks: import("@prisma/client/runtime/library").JsonValue;
-            sources: import("@prisma/client/runtime/library").JsonValue | null;
-            tastingNote: import("@prisma/client/runtime/library").JsonValue | null;
-            seo: import("@prisma/client/runtime/library").JsonValue | null;
-            slug: string;
-            updatedAt: Date;
-            authorId: string | null;
-            type: import(".prisma/client").$Enums.ContentType;
-            status: import(".prisma/client").$Enums.ContentStatus;
-            featured: boolean;
-            homepageLead: boolean;
-            title: string;
-            excerpt: string | null;
-            publishedAt: Date | null;
-            publishedAtCustom: Date | null;
-            coverMediaId: string | null;
-            archiveCoverMediaId: string | null;
-            coverSource: string | null;
-            coverShowWatermark: boolean;
-            pinned: boolean;
-            homepageSpecialBlock: boolean;
-            materialLabel: string | null;
-            readingTime: number | null;
-            preview: boolean;
-            videoUrl: string | null;
-            duration: number | null;
-            viewsTotal: number;
-            submittedAt: Date | null;
-            reviewedAt: Date | null;
-            reviewComment: string | null;
-        })[];
-    }[]>;
+    latestByCategory(limit?: string): Promise<any[]>;
     homepage(): Promise<{
         lead: ({
             author: {
@@ -1250,7 +1164,7 @@ export declare class ContentController {
             reviewComment: string | null;
         })[];
     }>;
-    reactions(id: string, req: any): Promise<{
+    reactions(id: string, req: any, viewerId?: string): Promise<{
         likes: number;
         dislikes: number;
         userReaction: import(".prisma/client").$Enums.ReactionType;

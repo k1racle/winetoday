@@ -5,8 +5,6 @@ import {
   SIDEBAR_CATEGORY_GROUPS,
 } from '~/utils/sidebar-categories';
 
-export const headerCategoryOrder = SIDEBAR_CATEGORY_GROUPS.map((group) => group.label);
-
 export function useHeaderCategories() {
   const { getCategories } = useApi();
   const { data: categories } = useAsyncData('categories', () =>
