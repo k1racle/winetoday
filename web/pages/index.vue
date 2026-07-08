@@ -75,7 +75,7 @@ useSeoMeta({
     <section v-if="topItems.length || mixedItems.length" class="mx-auto max-w-7xl px-4 py-4">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
         <!-- Main column: hero + video + latest news -->
-        <div class="order-2 flex w-full flex-col gap-4 lg:w-3/4">
+        <div class="flex w-full flex-col gap-4 lg:w-3/4">
           <template v-if="topItems.length">
             <!-- Mobile: top 3 items look the same (photo on top, text below) -->
             <div class="flex flex-col gap-4 lg:hidden">
@@ -190,7 +190,7 @@ useSeoMeta({
         <!-- Fresh / popular news + categories: right column on desktop -->
         <aside
           v-if="freshItems.length || latestByCategory?.length"
-          class="order-first flex w-full flex-col gap-4 lg:order-last lg:w-1/4"
+          class="order-last flex w-full flex-col gap-4 lg:w-1/4"
         >
           <FreshList v-if="freshItems.length" :items="freshItems" />
           <SidebarByCategory v-if="latestByCategory?.length" :groups="latestByCategory" />

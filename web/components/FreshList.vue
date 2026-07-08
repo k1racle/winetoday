@@ -77,18 +77,18 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
       <button
         type="button"
         class="flex-1 pb-1 text-center font-heading text-xs font-bold uppercase tracking-wider transition border-b-2"
-        :class="activeTab === 'fresh' ? 'text-foreground border-accent' : 'text-foreground/50 border-transparent hover:text-foreground'"
-        @click="activeTab = 'fresh'"
-      >
-        Свежие
-      </button>
-      <button
-        type="button"
-        class="flex-1 pb-1 text-center font-heading text-xs font-bold uppercase tracking-wider transition border-b-2"
         :class="activeTab === 'popular' ? 'text-foreground border-accent' : 'text-foreground/50 border-transparent hover:text-foreground'"
         @click="activeTab = 'popular'"
       >
         Популярные
+      </button>
+      <button
+        type="button"
+        class="flex-1 pb-1 text-center font-heading text-xs font-bold uppercase tracking-wider transition border-b-2"
+        :class="activeTab === 'fresh' ? 'text-foreground border-accent' : 'text-foreground/50 border-transparent hover:text-foreground'"
+        @click="activeTab = 'fresh'"
+      >
+        Свежие
       </button>
     </div>
 
