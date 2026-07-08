@@ -456,7 +456,7 @@ export default async function Home() {
     .sort((left, right) => (right.popularityCount !== left.popularityCount
       ? right.popularityCount - left.popularityCount
       : comparePublishedDesc(left.publishedAtCustom ?? left.publishedAt, right.publishedAtCustom ?? right.publishedAt)))
-    .slice(0, 10);
+    .slice(0, 7);
   // #region agent log
   agentDebugLog("H3,H5", "frontend/src/app/page.tsx:Home:popularity", "Home popularity requests finished", {
     baseCount: popularNewsBase.length,
@@ -464,7 +464,7 @@ export default async function Home() {
     nonZeroCount: popularNews.filter((item) => item.popularityCount > 0).length,
   });
   // #endregion
-  const latestNewsSidebarItemsSource: HomepageSidebarSourceItem[] = latestNews.slice(0, 10).map((item) => ({
+  const latestNewsSidebarItemsSource: HomepageSidebarSourceItem[] = latestNews.slice(0, 7).map((item) => ({
     documentId: item.documentId,
     slug: item.slug,
     title: item.title,
@@ -474,7 +474,7 @@ export default async function Home() {
     popularityCount: 0,
     href: `/news/${item.slug}`,
   }));
-  const latestVideosSidebarItemsSource: HomepageSidebarSourceItem[] = latestVideos.slice(0, 10).map((item) => ({
+  const latestVideosSidebarItemsSource: HomepageSidebarSourceItem[] = latestVideos.slice(0, 7).map((item) => ({
     documentId: item.documentId,
     slug: item.slug,
     title: item.title,
@@ -486,7 +486,7 @@ export default async function Home() {
   }));
   const latestNewsSidebarItems: HomepageNewsSidebarItem[] = [...latestNewsSidebarItemsSource, ...latestVideosSidebarItemsSource]
     .sort((left, right) => comparePublishedDesc(left.publishedAtCustom ?? left.publishedAt, right.publishedAtCustom ?? right.publishedAt))
-    .slice(0, 10)
+    .slice(0, 7)
     .map(mapHomepageSidebarItem);
   const popularNewsSidebarItems: HomepageNewsSidebarItem[] = popularNews.map((item) => ({
     documentId: item.documentId,

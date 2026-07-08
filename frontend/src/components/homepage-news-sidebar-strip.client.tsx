@@ -11,12 +11,14 @@ type HomepageNewsSidebarStripProps = {
   popular: HomepageNewsSidebarItem[];
 };
 
+const SIDEBAR_ITEM_LIMIT = 7;
+
 export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSidebarStripProps) {
   const [activeTab, setActiveTab] = useState<"latest" | "popular">("latest");
   const [isExpandedMobile, setIsExpandedMobile] = useState(false);
 
-  const latestItems = latest.slice(0, 10);
-  const popularItems = popular.slice(0, 10);
+  const latestItems = latest.slice(0, SIDEBAR_ITEM_LIMIT);
+  const popularItems = popular.slice(0, SIDEBAR_ITEM_LIMIT);
   const activeConfig =
     activeTab === "latest"
       ? {
@@ -32,26 +34,12 @@ export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSideba
     setIsExpandedMobile(false);
   }, [activeTab]);
 
-  const mobileItems = isExpandedMobile ? activeConfig.items.slice(0, 10) : activeConfig.items.slice(0, 4);
+  const mobileItems = isExpandedMobile ? activeConfig.items.slice(0, SIDEBAR_ITEM_LIMIT) : activeConfig.items.slice(0, 4);
 
   return (
     <aside className="overflow-hidden border border-black/10 bg-white text-foreground shadow-[0_24px_60px_-42px_rgba(15,23,42,0.25)] dark:border-white/10 dark:bg-[#12202d] dark:text-white">
       <div className="border-b border-black/10 px-5 py-4 dark:border-white/10">
         <div className="flex flex-wrap items-center gap-4 sm:gap-5">
-          <button
-            type="button"
-            onClick={() => setActiveTab("latest")}
-            className={
-              activeTab === "latest"
-                ? "relative font-menu text-[13px] font-bold tracking-[0.02em] text-foreground transition-colors dark:text-white"
-                : "font-menu text-[13px] font-normal tracking-[0.02em] text-zinc-500 transition-colors hover:text-foreground dark:text-zinc-400 dark:hover:text-white"
-            }
-          >
-            Свежие
-            {activeTab === "latest" ? (
-              <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-[3px] bg-emerald-700 dark:bg-emerald-300" />
-            ) : null}
-          </button>
           <button
             type="button"
             onClick={() => setActiveTab("popular")}
@@ -63,6 +51,20 @@ export function HomepageNewsSidebarStrip({ latest, popular }: HomepageNewsSideba
           >
             Популярные
             {activeTab === "popular" ? (
+              <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-[3px] bg-emerald-700 dark:bg-emerald-300" />
+            ) : null}
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("latest")}
+            className={
+              activeTab === "latest"
+                ? "relative font-menu text-[13px] font-bold tracking-[0.02em] text-foreground transition-colors dark:text-white"
+                : "font-menu text-[13px] font-normal tracking-[0.02em] text-zinc-500 transition-colors hover:text-foreground dark:text-zinc-400 dark:hover:text-white"
+            }
+          >
+            Свежие
+            {activeTab === "latest" ? (
               <span aria-hidden="true" className="absolute inset-x-0 -bottom-px h-[3px] bg-emerald-700 dark:bg-emerald-300" />
             ) : null}
           </button>
