@@ -5,6 +5,12 @@ interface Author {
   slug: string;
   position?: string | null;
   bio?: string | null;
+  user?: {
+    id: string;
+    email: string;
+    username: string | null;
+    role: string;
+  } | null;
 }
 
 interface Material {
@@ -190,6 +196,18 @@ onMounted(() => {
             <div>
               <dt class="text-xs text-foreground/60">Должность</dt>
               <dd>{{ data.author.position || '—' }}</dd>
+            </div>
+            <div v-if="data.author.user">
+              <dt class="text-xs text-foreground/60">Пользователь</dt>
+              <dd>
+                <NuxtLink
+                  :to="`/account/admin/users/${data.author.user.id}`"
+                  class="text-accent hover:underline"
+                >
+                  {{ data.author.user.username || data.author.user.email }}
+                </NuxtLink>
+                <span class="ml-2 text-xs text-foreground/50">({{ data.author.user.role }})</span>
+              </dd>
             </div>
             <div>
               <dt class="text-xs text-foreground/60">Всего материалов</dt>

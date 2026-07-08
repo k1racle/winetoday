@@ -279,14 +279,25 @@ export class EditorService {
     const authors = await this.prisma.author.findMany({
       orderBy: [{ name: 'asc' }, { slug: 'asc' }],
       include: {
-        memberProfile: {
-          include: {
-            user: { select: { id: true, email: true, username: true, role: true } },
-          },
-        },
         _count: { select: { contentItems: true } },
       },
     });
+
+    // Связь с пользователем идёт через member_profiles.authorId (это реальный FK),
+    // а не через authors.memberProfileId, который в старой БД мог оставаться пустым.
+    const authorIds = authors.map((a) => a.id);
+    const memberProfiles = await this.prisma.memberProfile.findMany({
+      where: { authorId: { in: authorIds } },
+      include: {
+        user: { select: { id: true, email: true, username: true, role: true } },
+      },
+    });
+    const profileByAuthorId = new Map<string, (typeof memberProfiles)[0]>();
+    for (const profile of memberProfiles) {
+      if (profile.authorId) {
+        profileByAuthorId.set(profile.authorId, profile);
+      }
+    }
 
     const groups = new Map<
       string,
@@ -310,8 +321,8 @@ export class EditorService {
 
     const result = Array.from(groups.values()).map((group) => {
       const representative = group.representatives.sort((a, b) => {
-        const aHasUser = a.memberProfile?.user ? 1 : 0;
-        const bHasUser = b.memberProfile?.user ? 1 : 0;
+        const aHasUser = profileByAuthorId.get(a.id)?.user ? 1 : 0;
+        const bHasUser = profileByAuthorId.get(b.id)?.user ? 1 : 0;
         if (aHasUser !== bHasUser) return bHasUser - aHasUser;
         const aCount = a._count.contentItems;
         const bCount = b._count.contentItems;
@@ -319,18 +330,20 @@ export class EditorService {
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       })[0];
 
+      const profile = profileByAuthorId.get(representative.id);
+
       return {
         id: representative.id,
         name: representative.name,
         slug: representative.slug,
         position: representative.position,
         materialsCount: group.totalMaterials,
-        user: representative.memberProfile?.user
+        user: profile?.user
           ? {
-              id: representative.memberProfile.user.id,
-              email: representative.memberProfile.user.email,
-              username: representative.memberProfile.user.username,
-              role: representative.memberProfile.user.role,
+              id: profile.user.id,
+              email: profile.user.email,
+              username: profile.user.username,
+              role: profile.user.role,
             }
           : null,
       };
@@ -348,6 +361,14 @@ export class EditorService {
     if (!author) {
       throw new NotFoundException('Author not found');
     }
+
+    // Load the linked user through member_profile.authorId, which is the actual FK.
+    const memberProfile = await this.prisma.memberProfile.findUnique({
+      where: { authorId },
+      include: {
+        user: { select: { id: true, email: true, username: true, role: true } },
+      },
+    });
 
     // Aggregate all author duplicates by name (case-insensitive) so the cabinet
     // shows the combined stats regardless of which duplicate was picked in the list.
@@ -418,7 +439,17 @@ export class EditorService {
     const totalViews = dailyViews.reduce((sum, day) => sum + day.totalViews, 0);
 
     return {
-      author,
+      author: {
+        ...author,
+        user: memberProfile?.user
+          ? {
+              id: memberProfile.user.id,
+              email: memberProfile.user.email,
+              username: memberProfile.user.username,
+              role: memberProfile.user.role,
+            }
+          : null,
+      },
       materials,
       totalViews,
       dailyViews,

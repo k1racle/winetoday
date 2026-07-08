@@ -23,11 +23,11 @@ useSeoMeta({
     <div class="grid gap-8 lg:grid-cols-4">
       <div class="lg:col-span-3">
         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <VideoThumb
+          <ArticleCard
             v-for="item in items"
             :key="item.id"
             :item="item"
-            class="w-full"
+            image-aspect="video"
           />
         </div>
       </div>

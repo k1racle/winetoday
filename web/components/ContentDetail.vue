@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ContentItem } from '~/types/content';
+import { v4 as uuidv4 } from 'uuid';
 
 const props = defineProps<{
   item: ContentItem;
@@ -9,7 +10,7 @@ const props = defineProps<{
 
 const { getLatestByCategory, getReactions, react, getComments, createComment } = useApi();
 const { user, isAuthenticated } = useAuth();
-const viewerId = useViewerId();
+const viewerId = ref('');
 const { data: categoryGroups } = await useAsyncData('latest-by-category', () =>
   getLatestByCategory(5).catch(() => []),
 );
@@ -29,10 +30,31 @@ const comments = ref<any[]>([]);
 const commentLoading = ref(false);
 const commentError = ref('');
 const commentSuccess = ref('');
+const reactionError = ref('');
+
+function ensureViewerId(): string {
+  if (viewerId.value) return viewerId.value;
+  let id = '';
+  try {
+    id = useViewerId();
+  } catch {
+    // ignore
+  }
+  if (!id) {
+    id = uuidv4();
+    try {
+      localStorage.setItem('vino_viewer_id', id);
+    } catch {
+      // localStorage недоступен — используем временный id в памяти
+    }
+  }
+  viewerId.value = id;
+  return id;
+}
 
 async function loadReactions() {
   try {
-    reactions.value = await getReactions(props.item.id, viewerId);
+    reactions.value = await getReactions(props.item.id, viewerId.value || undefined);
   } catch {
     // ignore
   }
@@ -47,11 +69,16 @@ async function loadComments() {
 }
 
 async function toggleReaction(type: 'like' | 'dislike') {
+  reactionError.value = '';
+  const currentViewerId = ensureViewerId();
+  if (!currentViewerId) {
+    reactionError.value = 'Не удалось определить голосующего';
+    return;
+  }
   try {
-    reactions.value = await react(props.item.id, type, viewerId);
-    commentError.value = '';
+    reactions.value = await react(props.item.id, type, currentViewerId);
   } catch (e: any) {
-    commentError.value = e?.data?.message || 'Не удалось поставить оценку';
+    reactionError.value = e?.data?.message || 'Не удалось поставить оценку';
   }
 }
 
@@ -80,6 +107,7 @@ async function submitComment() {
 }
 
 onMounted(() => {
+  ensureViewerId();
   loadReactions();
   loadComments();
 });
@@ -106,6 +134,15 @@ async function shareItem() {
   }
 }
 
+function formatDuration(seconds?: number | null): string {
+  if (!seconds || seconds <= 0) return '';
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  const parts = h > 0 ? [h, m, s] : [m, s];
+  return parts.map((n) => String(n).padStart(2, '0')).join(':');
+}
+
 const relatedItems = computed(() => {
   const groups = categoryGroups.value || [];
   if (!groups.length) return [];
@@ -129,10 +166,6 @@ const relatedItems = computed(() => {
   return items.slice(0, 3);
 });
 
-function formatTime(date?: string | null) {
-  if (!date) return '';
-  return new Date(date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-}
 </script>
 
 <template>
@@ -145,11 +178,6 @@ function formatTime(date?: string | null) {
           <span>/</span>
           <NuxtLink :to="typeRoute" class="hover:text-foreground">{{ typeLabel }}</NuxtLink>
         </nav>
-
-        <!-- Time -->
-        <div class="mb-3 text-sm text-foreground/50">
-          {{ formatTime(item.publishedAt || item.createdAt) }}
-        </div>
 
         <!-- Title -->
         <h1 class="font-heading text-3xl font-bold leading-tight md:text-4xl">
@@ -167,8 +195,25 @@ function formatTime(date?: string | null) {
           Редактировать
         </NuxtLink>
 
+        <!-- Video player -->
+        <figure v-if="item.type === 'video' && item.videoUrl" class="mt-6">
+          <div class="aspect-video w-full overflow-hidden bg-black">
+            <iframe
+              :src="item.videoUrl"
+              class="h-full w-full border-0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+              referrerpolicy="strict-origin-when-cross-origin"
+              :title="item.title || 'Видео'"
+            />
+          </div>
+          <figcaption v-if="item.duration" class="mt-2 text-xs text-foreground/50">
+            Продолжительность: {{ formatDuration(item.duration) }}
+          </figcaption>
+        </figure>
+
         <!-- Cover image (hidden for videos so the player appears immediately) -->
-        <figure v-if="coverSrc && item.type !== 'video'" class="mt-6">
+        <figure v-else-if="coverSrc && item.type !== 'video'" class="mt-6">
           <NuxtImg
             :src="coverSrc"
             :alt="item.coverMedia?.altText || item.title"
@@ -200,6 +245,7 @@ function formatTime(date?: string | null) {
               <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12.784 12.784 0 0 1-.52-3.369c0-1.242.2-2.489.58-3.628M5.904 18.5H10.5m-4.596 0v-9.75m0 9.75v2.25" />
               </svg>
+              <span v-if="reactions.likes > 0" class="text-sm">{{ reactions.likes }}</span>
             </button>
             <button type="button" class="flex items-center gap-1.5 text-foreground/60 transition hover:text-foreground" aria-label="Комментарии">
               <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -226,6 +272,7 @@ function formatTime(date?: string | null) {
             </button>
           </div>
         </div>
+        <p v-if="reactionError" class="mt-2 text-xs text-red-500">{{ reactionError }}</p>
         <p v-if="shareMessage" class="mt-2 text-xs text-foreground/60">{{ shareMessage }}</p>
 
         <!-- Related articles -->
