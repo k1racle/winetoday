@@ -3,7 +3,11 @@ import type { ContentItem } from '~/types/content';
 
 const { getHomepage, getContent, getLatestByCategory } = useApi();
 
-const [{ data: homepage }, { data: fresh }, { data: latestByCategory }] = await Promise.all([
+const itemsPerPage = 36;
+const displayLimit = ref(itemsPerPage);
+const isLoading = ref(false);
+
+const [{ data: homepage }, { data: fresh }, { data: latestByCategory }, { data: allMixed }] = await Promise.all([
   useAsyncData('homepage', () =>
     getHomepage().catch(() => ({ lead: [], articles: [], news: [], videos: [], galleries: [] })),
   ),
@@ -12,6 +16,9 @@ const [{ data: homepage }, { data: fresh }, { data: latestByCategory }] = await 
   ),
   useAsyncData('latest-by-category', () =>
     getLatestByCategory(5).catch(() => []),
+  ),
+  useAsyncData('all-mixed', () =>
+    getContent({ limit: 1000 }).catch(() => ({ items: [] })),
   ),
 ]);
 
@@ -36,15 +43,19 @@ const freshItems = computed<ContentItem[]>(() => {
 const mixedItems = computed<ContentItem[]>(() => {
   const h = homepage.value;
   if (!h) return [];
-  const items = [...(h.news || []), ...(h.articles || []), ...(h.videos || [])];
+  const items = h.articles || [];
   return items
     .sort((a, b) => {
       const da = new Date(b.publishedAt || b.createdAt).getTime();
       const db = new Date(a.publishedAt || a.createdAt).getTime();
       return da - db;
     })
-    .slice(0, 36);
+    .slice(0, displayLimit.value);
 });
+
+function loadMore() {
+  displayLimit.value += itemsPerPage;
+}
 
 const thumbScroll = ref<HTMLDivElement | null>(null);
 
@@ -186,6 +197,16 @@ useSeoMeta({
                 variant="compact"
                 class="h-[320px]"
               />
+            </div>
+            <div class="mt-8 flex justify-center">
+              <button
+                type="button"
+                :disabled="isLoading || displayLimit >= (homepage?.news?.length || 0) + (homepage?.articles?.length || 0) + (homepage?.videos?.length || 0)"
+                @click="loadMore()"
+                class="rounded bg-accent px-8 py-3 font-heading font-bold text-white transition hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ isLoading ? 'Загрузка...' : 'Еще' }}
+              </button>
             </div>
           </div>
         </div>
