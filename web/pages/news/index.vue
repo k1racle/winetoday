@@ -6,7 +6,7 @@ const { data: news } = await useAsyncData('news-list', () =>
 );
 
 const { data: latestByCategory } = await useAsyncData('latest-by-category-news', () =>
-  getLatestByCategory(5).catch(() => []),
+  getLatestByCategory(10).catch(() => []),
 );
 
 const items = computed(() => news.value?.items || []);

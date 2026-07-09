@@ -18,7 +18,7 @@ const { data: content, error: contentError } = await useAsyncData(`category-cont
 );
 
 const { data: latestByCategory } = await useAsyncData('latest-by-category', () =>
-  getLatestByCategory(5).catch(() => []),
+  getLatestByCategory(10).catch(() => []),
 );
 
 const category = computed(() =>

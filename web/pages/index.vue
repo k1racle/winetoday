@@ -15,7 +15,7 @@ const [{ data: homepage }, { data: fresh }, { data: latestByCategory }, { data: 
     getContent({ limit: 7 }).catch(() => ({ items: [] })),
   ),
   useAsyncData('latest-by-category', () =>
-    getLatestByCategory(5).catch(() => []),
+    getLatestByCategory(10).catch(() => []),
   ),
   useAsyncData('all-mixed', () =>
     getContent({ limit: 1000 }).catch(() => ({ items: [] })),

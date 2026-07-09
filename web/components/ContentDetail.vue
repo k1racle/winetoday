@@ -12,7 +12,7 @@ const { getLatestByCategory, getVideos, getReactions, react, getComments, create
 const { user, isAuthenticated } = useAuth();
 const viewerId = ref('');
 const { data: categoryGroups } = await useAsyncData('latest-by-category', () =>
-  getLatestByCategory(5).catch(() => []),
+  getLatestByCategory(10).catch(() => []),
 );
 
 const { data: relatedVideosList } = await useAsyncData(
