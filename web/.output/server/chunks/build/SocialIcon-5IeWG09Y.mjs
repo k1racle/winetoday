@@ -1,0 +1,151 @@
+import { defineComponent, computed, mergeProps, useSSRContext } from 'vue';
+import { ssrRenderAttrs, ssrRenderAttr, ssrRenderClass } from 'vue/server-renderer';
+
+const ICON_FILES = {
+  youtube: "youtube-1.svg",
+  vk: "vkontakte-1.svg",
+  vkontakte: "vkontakte-1.svg",
+  telegram: "telegram-1.svg",
+  rutube: "rutube-1.svg",
+  dzen: "dzen-1.svg",
+  max: "max-1.svg",
+  instagram: "instagram-1.svg"
+};
+const ICON_FILES_BLACK = {
+  youtube: "youtube-1-black.svg",
+  vk: "vkontakte-1-black.svg",
+  vkontakte: "vkontakte-1-black.svg",
+  telegram: "telegram-1-black.svg",
+  rutube: "rutube-1-black.svg",
+  dzen: "dzen-1-black.svg",
+  max: "max-1.svg",
+  instagram: "instagram-1.svg"
+};
+const ICON_FILES_DARK = {
+  youtube: "youtube-1-dark.svg",
+  vk: "vkontakte-1-dark.svg",
+  vkontakte: "vkontakte-1-dark.svg",
+  telegram: "telegram-1-dark.svg",
+  rutube: "rutube-1-dark.svg",
+  dzen: "dzen-1-dark.svg",
+  max: "max-1-dark.svg",
+  instagram: "instagram-1.svg"
+};
+function normalizeSocialIconInput(icon) {
+  if (!icon) {
+    return null;
+  }
+  const trimmed = icon.trim();
+  if (!trimmed || trimmed === "link" || trimmed.includes("<svg")) {
+    return null;
+  }
+  return trimmed;
+}
+function resolveSocialIconKey(icon, label, href) {
+  const normalizedIcon = normalizeSocialIconInput(icon)?.toLowerCase() ?? "";
+  if (normalizedIcon && !normalizedIcon.includes("<svg")) {
+    if (ICON_FILES[normalizedIcon]) {
+      return normalizedIcon;
+    }
+    const withoutSuffix = normalizedIcon.replace(/-1$/, "");
+    if (ICON_FILES[withoutSuffix]) {
+      return withoutSuffix;
+    }
+  }
+  const normalizedLabel = label?.trim().toLowerCase() ?? "";
+  const normalizedHref = href?.trim().toLowerCase() ?? "";
+  if (normalizedHref.includes("t.me") || normalizedLabel.includes("telegram") || normalizedLabel.includes("телеграм")) {
+    return "telegram";
+  }
+  if (normalizedHref.includes("vk.com") || normalizedLabel.includes("vkontakte") || normalizedLabel.includes("вконтакте") || normalizedLabel === "vk" || normalizedLabel === "вк") {
+    return "vkontakte";
+  }
+  if (normalizedHref.includes("youtube.com") || normalizedHref.includes("youtu.be") || normalizedLabel.includes("youtube") || normalizedLabel.includes("ютуб")) {
+    return "youtube";
+  }
+  if (normalizedHref.includes("rutube.ru") || normalizedLabel.includes("rutube") || normalizedLabel.includes("рутуб")) {
+    return "rutube";
+  }
+  if (normalizedHref.includes("dzen.ru") || normalizedHref.includes("zen.yandex") || normalizedLabel.includes("dzen") || normalizedLabel.includes("дзен")) {
+    return "dzen";
+  }
+  if (normalizedHref.includes("max.ru") || normalizedHref.includes("oneme.ru") || normalizedLabel === "max" || normalizedLabel === "макс" || normalizedLabel.includes("мессенджер max")) {
+    return "max";
+  }
+  if (normalizedHref.includes("instagram.com") || normalizedLabel.includes("instagram") || normalizedLabel.includes("инстаграм") || normalizedLabel.includes("инста")) {
+    return "instagram";
+  }
+  return null;
+}
+function getSocialIconUrl(icon, label, href, variant = "default") {
+  const key = resolveSocialIconKey(icon, label, href);
+  if (!key) {
+    return null;
+  }
+  const map = variant === "black" ? ICON_FILES_BLACK : variant === "dark" ? ICON_FILES_DARK : ICON_FILES;
+  const file = map[key];
+  return file ? `/icons/${file}` : null;
+}
+const SOCIAL_PLATFORMS = [
+  { id: "vk", label: "ВКонтакте" },
+  { id: "youtube", label: "YouTube" },
+  { id: "instagram", label: "Instagram" },
+  { id: "telegram", label: "Telegram" },
+  { id: "rutube", label: "Rutube" },
+  { id: "dzen", label: "Дзен" },
+  { id: "max", label: "MAX" }
+];
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  __name: "SocialIcon",
+  __ssrInlineRender: true,
+  props: {
+    name: {
+      type: String,
+      default: ""
+    },
+    label: {
+      type: String,
+      default: ""
+    },
+    href: {
+      type: String,
+      default: ""
+    },
+    inverted: {
+      type: Boolean,
+      default: false
+    },
+    variant: {
+      type: String,
+      default: "default"
+    }
+  },
+  setup(__props) {
+    const props = __props;
+    const iconUrl = computed(
+      () => getSocialIconUrl(props.name, props.label, props.href, props.variant)
+    );
+    return (_ctx, _push, _parent, _attrs) => {
+      _push(`<span${ssrRenderAttrs(mergeProps({
+        class: "inline-flex h-5 w-5 items-center justify-center",
+        "aria-hidden": "true"
+      }, _attrs))}>`);
+      if (iconUrl.value) {
+        _push(`<img${ssrRenderAttr("src", iconUrl.value)} alt="" class="${ssrRenderClass([__props.inverted ? "brightness-0 invert" : "", "h-full w-full object-contain"])}">`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</span>`);
+    };
+  }
+});
+const _sfc_setup = _sfc_main.setup;
+_sfc_main.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/SocialIcon.vue");
+  return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
+};
+const __nuxt_component_1 = Object.assign(_sfc_main, { __name: "SocialIcon" });
+
+export { SOCIAL_PLATFORMS as S, __nuxt_component_1 as _ };
+//# sourceMappingURL=SocialIcon-5IeWG09Y.mjs.map

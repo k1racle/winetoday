@@ -20,7 +20,7 @@ const props = defineProps({
     default: false,
   },
   variant: {
-    type: String as PropType<'default' | 'black'>,
+    type: String as PropType<'default' | 'black' | 'dark'>,
     default: 'default',
   },
 });

@@ -20,6 +20,17 @@ const ICON_FILES_BLACK: Record<string, string> = {
   instagram: 'instagram-1.svg',
 };
 
+const ICON_FILES_DARK: Record<string, string> = {
+  youtube: 'youtube-1-dark.svg',
+  vk: 'vkontakte-1-dark.svg',
+  vkontakte: 'vkontakte-1-dark.svg',
+  telegram: 'telegram-1-dark.svg',
+  rutube: 'rutube-1-dark.svg',
+  dzen: 'dzen-1-dark.svg',
+  max: 'max-1-dark.svg',
+  instagram: 'instagram-1.svg',
+};
+
 export function normalizeSocialIconInput(icon?: string | null): string | null {
   if (!icon) {
     return null;
@@ -126,7 +137,9 @@ export function getSocialIconUrl(
   if (!key) {
     return null;
   }
-  const file = variant === 'black' ? ICON_FILES_BLACK[key] : ICON_FILES[key];
+  const map =
+    variant === 'black' ? ICON_FILES_BLACK : variant === 'dark' ? ICON_FILES_DARK : ICON_FILES;
+  const file = map[key];
   return file ? `/icons/${file}` : null;
 }
 

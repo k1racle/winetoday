@@ -558,7 +558,7 @@ const _routes = [
   {
     name: "account-admin-socials",
     path: "/account/admin/socials",
-    component: () => import('./socials-D--ayt9f.mjs')
+    component: () => import('./socials-BvrpRimh.mjs')
   },
   {
     name: "account-subscriptions",
@@ -1086,7 +1086,7 @@ const plugins = [
   components_plugin_4kY4pyzJIYX99vmMAAIorFf3CnAaptHitJgf7JxiED8
 ];
 const layouts = {
-  default: defineAsyncComponent(() => import('./default-CFGfBfhk.mjs').then((m) => m.default || m))
+  default: defineAsyncComponent(() => import('./default-Bu1k0pkM.mjs').then((m) => m.default || m))
 };
 const routeRulesMatcher = _routeRulesMatcher;
 const LayoutLoader = defineComponent({
