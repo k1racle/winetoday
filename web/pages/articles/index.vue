@@ -27,6 +27,8 @@ useSeoMeta({
             v-for="article in items"
             :key="article.id"
             :item="article"
+            imageAspect="video"
+            hideExcerpt
           />
         </div>
       </div>

@@ -6,8 +6,9 @@ const props = withDefaults(
     item: ContentItem;
     imageAspect?: 'square' | 'video';
     variant?: 'default' | 'compact';
+    hideExcerpt?: boolean;
   }>(),
-  { imageAspect: 'square', variant: 'default' },
+  { imageAspect: 'square', variant: 'default', hideExcerpt: false },
 );
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
@@ -82,7 +83,7 @@ const link = computed(() => {
         {{ item.title }}
       </h3>
       <p
-        v-if="item.excerpt && variant !== 'compact'"
+        v-if="item.excerpt && variant !== 'compact' && !hideExcerpt"
         class="mt-2 line-clamp-2 text-sm opacity-80"
       >
         {{ item.excerpt }}
