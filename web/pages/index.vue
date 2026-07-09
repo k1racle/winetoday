@@ -41,10 +41,9 @@ const freshItems = computed<ContentItem[]>(() => {
 });
 
 const mixedItems = computed<ContentItem[]>(() => {
-  const h = homepage.value;
-  if (!h) return [];
-  const items = h.articles || [];
-  return items
+  const items = allMixed.value?.items || [];
+  const articles = items.filter((item) => item.type === 'article');
+  return articles
     .sort((a, b) => {
       const da = new Date(b.publishedAt || b.createdAt).getTime();
       const db = new Date(a.publishedAt || a.createdAt).getTime();
@@ -187,7 +186,7 @@ useSeoMeta({
 
           <!-- Latest news: left of sidebar -->
           <div v-if="mixedItems.length" class="pt-2 lg:pt-6">
-            <h2 class="mb-6 font-heading text-2xl font-bold">Последние новости</h2>
+            <h2 class="mb-6 font-heading text-2xl font-bold">Последние статьи</h2>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <ArticleCard
                 v-for="item in mixedItems"

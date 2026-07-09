@@ -33,7 +33,7 @@ function formatSource(source?: string | null): string {
     <template v-for="block in props.blocks" :key="block.id">
       <div
         v-if="block.type === 'rich-text' || block.type === 'html-editor' || block.type === 'text'"
-        class="prose prose-lg max-w-none text-foreground"
+        class="prose prose-lg max-w-none text-foreground [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-5 [&_h3]:mb-3"
         v-html="renderContent(block.content)"
       />
 

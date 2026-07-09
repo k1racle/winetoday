@@ -49,12 +49,12 @@ function truncatedTitle(title: string, exclusive: boolean): string {
       <div v-for="group in orderedGroups" :key="group.category.id">
         <NuxtLink
           :to="`/category/${group.category.slug}`"
-          class="mb-3 block text-base font-bold text-accent hover:text-accent/80"
+          class="mb-3 block text-base font-bold text-white uppercase border-b-2 border-accent pb-2 hover:text-white/80"
         >
           {{ group.category.name }}
         </NuxtLink>
         <ul class="space-y-3">
-          <li v-for="item in group.items" :key="item.id">
+          <li v-for="item in group.items.slice(0, 10)" :key="item.id">
             <NuxtLink :to="link(item)" class="group flex items-start gap-3">
               <span class="shrink-0 pt-0.5 text-sm font-bold text-accent">
                 {{ formatDayMonth(item.publishedAt || item.createdAt) }}
