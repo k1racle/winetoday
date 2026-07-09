@@ -198,14 +198,14 @@ useSeoMeta({
                 class="h-[320px]"
               />
             </div>
-            <div class="mt-8 flex justify-center">
+            <div class="mt-8">
               <button
                 type="button"
-                :disabled="isLoading || displayLimit >= (homepage?.news?.length || 0) + (homepage?.articles?.length || 0) + (homepage?.videos?.length || 0)"
+                :disabled="isLoading || displayLimit >= (homepage?.articles?.length || 0)"
                 @click="loadMore()"
-                class="rounded bg-accent px-8 py-3 font-heading font-bold text-white transition hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="text-accent font-heading font-bold text-lg transition hover:text-accent/80 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {{ isLoading ? 'Загрузка...' : 'Еще' }}
+                {{ isLoading ? 'Загрузка...' : 'Еще →' }}
               </button>
             </div>
           </div>
