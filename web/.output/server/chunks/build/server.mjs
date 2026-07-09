@@ -461,22 +461,22 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import('./index-DdEK_gS-.mjs')
+    component: () => import('./index-BaBGVXyP.mjs')
   },
   {
     name: "news",
     path: "/news",
-    component: () => import('./index-D1vsew8m.mjs')
+    component: () => import('./index-DfmCBuL3.mjs')
   },
   {
     name: "news-slug",
     path: "/news/:slug()",
-    component: () => import('./_slug_-DQUm2fZI.mjs')
+    component: () => import('./_slug_-ChOop94D.mjs')
   },
   {
     name: "videos",
     path: "/videos",
-    component: () => import('./index-Bfw5tGW_.mjs')
+    component: () => import('./index-CHGrkomg.mjs')
   },
   {
     name: "account",
@@ -496,12 +496,12 @@ const _routes = [
   {
     name: "videos-slug",
     path: "/videos/:slug()",
-    component: () => import('./_slug_-BpVRuY6O.mjs')
+    component: () => import('./_slug_-BUM9__GH.mjs')
   },
   {
     name: "articles",
     path: "/articles",
-    component: () => import('./index-9hxphJDU.mjs')
+    component: () => import('./index-rCFj0uIk.mjs')
   },
   {
     name: "contacts",
@@ -511,17 +511,17 @@ const _routes = [
   {
     name: "gallery-slug",
     path: "/gallery/:slug()",
-    component: () => import('./_slug_-Dy190o5V.mjs')
+    component: () => import('./_slug_-CNcFjRFY.mjs')
   },
   {
     name: "articles-slug",
     path: "/articles/:slug()",
-    component: () => import('./_slug_-BRbWGeuc.mjs')
+    component: () => import('./_slug_-DZg8EjIE.mjs')
   },
   {
     name: "category-slug",
     path: "/category/:slug()",
-    component: () => import('./_slug_-CRKmOIRW.mjs')
+    component: () => import('./_slug_-DciI03k5.mjs')
   },
   {
     name: "account-comments",
