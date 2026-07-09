@@ -45,6 +45,7 @@ const route = useRoute();
 const { user, isAuthenticated } = useAuth();
 const { getAuthorAnalytics, uploadMedia, updateAuthor } = useApi();
 
+const editName = ref('');
 const editBio = ref('');
 const editPosition = ref('');
 const avatarFile = ref<File | null>(null);
@@ -56,6 +57,7 @@ watch(
   () => data.value?.author,
   (author) => {
     if (author) {
+      editName.value = author.name || '';
       editBio.value = author.bio || '';
       editPosition.value = author.position || '';
       avatarPreview.value = useMediaUrl(author.avatarMedia?.path) || null;
@@ -83,6 +85,7 @@ async function saveAuthor() {
     }
 
     const body: Record<string, unknown> = {
+      name: editName.value.trim(),
       bio: editBio.value,
       position: editPosition.value,
     };
@@ -259,6 +262,14 @@ onMounted(() => {
           />
         </div>
         <div class="space-y-4">
+          <div>
+            <label class="mb-1 block text-xs text-foreground/60">ФИО</label>
+            <input
+              v-model="editName"
+              type="text"
+              class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent"
+            />
+          </div>
           <div>
             <label class="mb-1 block text-xs text-foreground/60">Должность</label>
             <input

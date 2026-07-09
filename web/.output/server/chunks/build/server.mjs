@@ -546,7 +546,7 @@ const _routes = [
       {
         name: "account-admin-authors-id",
         path: ":id()",
-        component: () => import('./_id_-CnMFh12V.mjs')
+        component: () => import('./_id_-Dr_Qj_2N.mjs')
       }
     ]
   },
