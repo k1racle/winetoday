@@ -31,6 +31,9 @@ export class ListContentDto {
   tagSlug?: string;
 
   @IsOptional()
+  authorSlug?: string;
+
+  @IsOptional()
   @Type(() => Boolean)
   featured?: boolean;
 

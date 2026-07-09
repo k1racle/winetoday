@@ -15,6 +15,14 @@ export type Author = {
   id: string;
   name: string;
   slug: string;
+  position?: string | null;
+  bio?: string | null;
+  avatarMedia?: MediaAsset | null;
+};
+
+export type AuthorProfile = Author & {
+  subscriberCount: number;
+  isSubscribed: boolean;
 };
 
 export type ContentItem = {

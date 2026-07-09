@@ -437,6 +437,8 @@ const matcher = /* @__PURE__ */ (() => {
         r.unshift({ data: $0, params: { "_": s.slice(2).join("/") } });
       } else if (s[1] === "gallery") {
         r.unshift({ data: $0, params: { "_": s.slice(2).join("/") } });
+      } else if (s[1] === "author") {
+        r.unshift({ data: $0, params: { "_": s.slice(2).join("/") } });
       } else if (s[1] === "account") {
         r.unshift({ data: $2, params: { "_": s.slice(2).join("/") } });
       }
@@ -459,37 +461,47 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import('./index-B4epSnNA.mjs')
+    component: () => import('./index-DdEK_gS-.mjs')
   },
   {
     name: "news",
     path: "/news",
-    component: () => import('./index-FHKvbxbw.mjs')
+    component: () => import('./index-D1vsew8m.mjs')
   },
   {
     name: "news-slug",
     path: "/news/:slug()",
-    component: () => import('./_slug_-5dNSITdH.mjs')
+    component: () => import('./_slug_-DQUm2fZI.mjs')
   },
   {
     name: "videos",
     path: "/videos",
-    component: () => import('./index-Dj-pt_d_.mjs')
+    component: () => import('./index-Bfw5tGW_.mjs')
   },
   {
     name: "account",
     path: "/account",
-    component: () => import('./index-DsoE-GQ8.mjs')
+    component: () => import('./index-bTPASbhy.mjs')
+  },
+  {
+    name: "account-liked",
+    path: "/account/liked",
+    component: () => import('./liked-CS8ceM42.mjs')
+  },
+  {
+    name: "author-slug",
+    path: "/author/:slug()",
+    component: () => import('./_slug_-DqS-XtqP.mjs')
   },
   {
     name: "videos-slug",
     path: "/videos/:slug()",
-    component: () => import('./_slug_-DBYwxEOR.mjs')
+    component: () => import('./_slug_-BpVRuY6O.mjs')
   },
   {
     name: "articles",
     path: "/articles",
-    component: () => import('./index-CVDHm8jF.mjs')
+    component: () => import('./index-9hxphJDU.mjs')
   },
   {
     name: "contacts",
@@ -499,59 +511,69 @@ const _routes = [
   {
     name: "gallery-slug",
     path: "/gallery/:slug()",
-    component: () => import('./_slug_-6ED62TZG.mjs')
+    component: () => import('./_slug_-Dy190o5V.mjs')
   },
   {
     name: "articles-slug",
     path: "/articles/:slug()",
-    component: () => import('./_slug_-QP6oLKq8.mjs')
+    component: () => import('./_slug_-BRbWGeuc.mjs')
   },
   {
     name: "category-slug",
     path: "/category/:slug()",
-    component: () => import('./_slug_-Cbb_lgzS.mjs')
+    component: () => import('./_slug_-CRKmOIRW.mjs')
+  },
+  {
+    name: "account-comments",
+    path: "/account/comments",
+    component: () => import('./comments-D3Dp2P91.mjs')
   },
   {
     name: "account-admin-tags",
     path: "/account/admin/tags",
-    component: () => import('./tags-mbXH7i3y.mjs')
+    component: () => import('./tags-CqlR7xz-.mjs')
   },
   {
     name: "account-admin",
     path: "/account/admin",
-    component: () => import('./index-CHr4Y09k.mjs')
+    component: () => import('./index-YnXudqBu.mjs')
   },
   {
     name: "account-admin-authors",
     path: "/account/admin/authors",
-    component: () => import('./authors-LyMM89qj.mjs'),
+    component: () => import('./authors-zoB1n0ht.mjs'),
     children: [
       {
         name: "account-admin-authors-id",
         path: ":id()",
-        component: () => import('./_id_-DdOa4A6l.mjs')
+        component: () => import('./_id_-CnMFh12V.mjs')
       }
     ]
   },
   {
     name: "account-admin-content",
     path: "/account/admin/content",
-    component: () => import('./content-COUBYKJW.mjs')
+    component: () => import('./content-CBSgEfa2.mjs')
   },
   {
     name: "account-admin-socials",
     path: "/account/admin/socials",
-    component: () => import('./socials-D0fD_kQX.mjs')
+    component: () => import('./socials-CJAE8EXn.mjs')
+  },
+  {
+    name: "account-subscriptions",
+    path: "/account/subscriptions",
+    component: () => import('./subscriptions-B2PMgrs-.mjs')
   },
   {
     name: "account-admin-categories",
     path: "/account/admin/categories",
-    component: () => import('./categories-DClAChqP.mjs')
+    component: () => import('./categories-Ch7noC2_.mjs')
   },
   {
     name: "account-admin-users-id",
     path: "/account/admin/users/:id()",
-    component: () => import('./_id_-BtFPg9j_.mjs')
+    component: () => import('./_id_-BX5i5W6s.mjs')
   }
 ];
 const _wrapInTransition = (props, children) => {
@@ -1008,7 +1030,7 @@ defineComponent({
   }
 });
 const clientOnlySymbol = /* @__PURE__ */ Symbol.for("nuxt:client-only");
-const __nuxt_component_1$1 = defineComponent({
+const __nuxt_component_2 = defineComponent({
   name: "ClientOnly",
   inheritAttrs: false,
   props: ["fallback", "placeholder", "placeholderTag", "fallbackTag"],
@@ -1064,7 +1086,7 @@ const plugins = [
   components_plugin_4kY4pyzJIYX99vmMAAIorFf3CnAaptHitJgf7JxiED8
 ];
 const layouts = {
-  default: defineAsyncComponent(() => import('./default-D1wHC7LU.mjs').then((m) => m.default || m))
+  default: defineAsyncComponent(() => import('./default-DhkinFiZ.mjs').then((m) => m.default || m))
 };
 const routeRulesMatcher = _routeRulesMatcher;
 const LayoutLoader = defineComponent({
@@ -1443,5 +1465,5 @@ let entry;
 }
 const entry_default = ((ssrContext) => entry(ssrContext));
 
-export { __nuxt_component_1$1 as _, useRuntimeConfig as a, useSeoMeta as b, useRoute as c, createError as d, entry_default as default, useRouter as e, encodeRoutePath as f, useNuxtApp as g, nuxtLinkDefaults as h, asyncDataDefaults as i, navigateTo as n, resolveRouteObject as r, useHead as u };
+export { __nuxt_component_2 as _, useRuntimeConfig as a, useSeoMeta as b, useRoute as c, createError as d, entry_default as default, useRouter as e, encodeRoutePath as f, useNuxtApp as g, nuxtLinkDefaults as h, asyncDataDefaults as i, navigateTo as n, resolveRouteObject as r, useHead as u };
 //# sourceMappingURL=server.mjs.map

@@ -1,8 +1,12 @@
 <script setup lang="ts">
 const { user, isAuthenticated } = useAuth();
+const { getMySubscriptions, getMyLikes, getMyComments } = useApi();
 const route = useRoute();
 
 const canCreate = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
+
+const stats = ref({ subscriptions: 0, likes: 0, comments: 0 });
+const statsLoading = ref(false);
 
 const activeType = ref('all');
 const editingId = ref('');
@@ -27,11 +31,30 @@ function onSaved(id: string) {
   sidebarRef.value?.load();
 }
 
+async function loadStats() {
+  statsLoading.value = true;
+  try {
+    const [subs, likes, comments] = await Promise.all([
+      getMySubscriptions().catch(() => []),
+      getMyLikes().catch(() => []),
+      getMyComments().catch(() => []),
+    ]);
+    stats.value = {
+      subscriptions: (subs as any[]).length,
+      likes: (likes as any[]).length,
+      comments: (comments as any[]).length,
+    };
+  } finally {
+    statsLoading.value = false;
+  }
+}
+
 onMounted(() => {
   if (!isAuthenticated.value) {
     navigateTo('/');
     return;
   }
+  loadStats();
   const editId = route.query.id;
   if (editId && typeof editId === 'string') {
     editingId.value = editId;
@@ -46,6 +69,35 @@ onMounted(() => {
 <template>
   <div class="mx-auto max-w-[1600px] px-4 py-10">
     <div v-if="user" class="space-y-8">
+      <div>
+        <h1 class="mb-2 font-heading text-2xl font-bold">Личный кабинет</h1>
+        <AccountTabs class="mb-6" />
+      </div>
+
+      <!-- Reader summary -->
+      <div class="grid gap-4 sm:grid-cols-3">
+        <NuxtLink
+          to="/account/subscriptions"
+          class="border border-foreground/10 bg-card p-5 shadow-sm transition hover:border-accent"
+        >
+          <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Подписки</p>
+          <p class="mt-2 font-heading text-3xl font-bold">{{ statsLoading ? '...' : stats.subscriptions }}</p>
+        </NuxtLink>
+        <NuxtLink
+          to="/account/liked"
+          class="border border-foreground/10 bg-card p-5 shadow-sm transition hover:border-accent"
+        >
+          <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Понравилось</p>
+          <p class="mt-2 font-heading text-3xl font-bold">{{ statsLoading ? '...' : stats.likes }}</p>
+        </NuxtLink>
+        <NuxtLink
+          to="/account/comments"
+          class="border border-foreground/10 bg-card p-5 shadow-sm transition hover:border-accent"
+        >
+          <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Комментарии</p>
+          <p class="mt-2 font-heading text-3xl font-bold">{{ statsLoading ? '...' : stats.comments }}</p>
+        </NuxtLink>
+      </div>
       <!-- Editor workspace -->
       <div v-if="canCreate" class="grid gap-6 lg:grid-cols-[260px_1fr] items-start">
         <EditorSidebar

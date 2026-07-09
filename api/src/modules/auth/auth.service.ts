@@ -5,7 +5,7 @@ import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { Role } from '@prisma/client';
+import { ReactionType, Role } from '@prisma/client';
 
 export type TokenPair = {
   access_token: string;
@@ -113,6 +113,61 @@ export class AuthService {
         },
       },
     });
+  }
+
+  async getSubscriptions(userId: string) {
+    return this.prisma.authorSubscription.findMany({
+      where: { userId },
+      include: {
+        author: {
+          include: { avatarMedia: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getLikedContent(userId: string) {
+    const reactions = await this.prisma.reaction.findMany({
+      where: { userId, type: ReactionType.like },
+      include: {
+        contentItem: {
+          include: {
+            author: { include: { avatarMedia: true } },
+            coverMedia: true,
+            archiveCoverMedia: true,
+            categories: true,
+            tags: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return reactions.map((r) => r.contentItem).filter(Boolean);
+  }
+
+  async getComments(userId: string) {
+    const comments = await this.prisma.comment.findMany({
+      where: { userId },
+      include: {
+        contentItem: {
+          select: {
+            id: true,
+            type: true,
+            title: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return comments.map((c) => ({
+      id: c.id,
+      body: c.body,
+      createdAt: c.createdAt,
+      status: c.status,
+      contentItem: c.contentItem,
+    }));
   }
 
   private generateTokens(userId: string, email: string, role: Role): TokenPair {

@@ -56,8 +56,13 @@ function truncatedTitle(title: string, exclusive: boolean): string {
         <ul class="space-y-3">
           <li v-for="item in group.items.slice(0, 10)" :key="item.id">
             <NuxtLink :to="link(item)" class="group flex items-start gap-3">
-              <span class="shrink-0 pt-0.5 text-sm font-bold text-accent">
-                {{ formatDayMonth(item.publishedAt || item.createdAt) }}
+              <span class="shrink-0 flex flex-col items-center justify-center text-center text-sm font-bold text-accent">
+                <span>
+                  {{ formatDayMonth(item.publishedAt || item.createdAt) }}
+                </span>
+                <span class="text-[10px] opacity-80">
+                  {{ new Date(item.publishedAt || item.createdAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) }}
+                </span>
               </span>
               <div class="min-w-0 flex-1">
                 <p class="text-sm font-medium leading-snug text-foreground group-hover:text-foreground line-clamp-2">

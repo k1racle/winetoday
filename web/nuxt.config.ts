@@ -60,6 +60,7 @@ export default defineNuxtConfig({
     '/news/**': { swr: 300 },
     '/videos/**': { swr: 300 },
     '/gallery/**': { swr: 300 },
+    '/author/**': { swr: 300 },
     '/account/**': { ssr: false },
     '/api/og-image': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
   },

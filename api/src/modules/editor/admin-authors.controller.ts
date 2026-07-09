@@ -1,9 +1,10 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { EditorService } from './editor.service';
+import { UpdateAuthorDto } from './dto/update-author.dto';
 
 @Controller('admin/authors')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -19,5 +20,10 @@ export class AdminAuthorsController {
   @Get(':id/analytics')
   getAuthorAnalytics(@Param('id') id: string) {
     return this.editorService.getAuthorAnalytics(id);
+  }
+
+  @Patch(':id')
+  updateAuthor(@Param('id') id: string, @Body() dto: UpdateAuthorDto) {
+    return this.editorService.updateAuthor(id, dto);
   }
 }

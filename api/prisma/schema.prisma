@@ -43,10 +43,11 @@ model User {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  oauthAccounts  OAuthAccount[]
-  memberProfile  MemberProfile?
-  comments       Comment[]
-  reactions      Reaction[]
+  oauthAccounts       OAuthAccount[]
+  memberProfile       MemberProfile?
+  comments            Comment[]
+  reactions           Reaction[]
+  authorSubscriptions AuthorSubscription[]
 
   @@map("users")
 }
@@ -86,12 +87,15 @@ model Author {
   position          String?
   bio               String?
   memberProfileId   String?          @unique @db.Uuid
+  avatarMediaId     String?          @db.Uuid
   createdAt         DateTime         @default(now()) @map("created_at")
   updatedAt         DateTime         @updatedAt @map("updated_at")
 
   memberProfile     MemberProfile?
+  avatarMedia       MediaAsset?      @relation("AuthorAvatar", fields: [avatarMediaId], references: [id])
   contentItems      ContentItem[]
   authorViewDaily   AuthorViewDaily[]
+  subscriptions     AuthorSubscription[]
 
   @@map("authors")
 }
@@ -141,6 +145,7 @@ model MediaAsset {
   siteHeaderDarkLogo       SiteHeader?   @relation("SiteHeaderDarkLogo")
   siteSeoOgImage           SiteSeo?      @relation("SiteSeoOgImage")
   siteSeoTwitterImage      SiteSeo?      @relation("SiteSeoTwitterImage")
+  authorAvatars            Author[]      @relation("AuthorAvatar")
 
   @@map("media_assets")
 }
@@ -281,6 +286,19 @@ model ContentViewDaily {
   @@id([date, contentType, contentId])
   @@index([date])
   @@map("content_view_daily")
+}
+
+model AuthorSubscription {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  authorId  String   @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  author Author @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, authorId])
+  @@map("author_subscriptions")
 }
 
 model AuthorViewDaily {

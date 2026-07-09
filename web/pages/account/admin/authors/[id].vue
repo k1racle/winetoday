@@ -5,6 +5,7 @@ interface Author {
   slug: string;
   position?: string | null;
   bio?: string | null;
+  avatarMedia?: { id: string; path: string } | null;
   user?: {
     id: string;
     email: string;
@@ -42,7 +43,62 @@ interface Analytics {
 
 const route = useRoute();
 const { user, isAuthenticated } = useAuth();
-const { getAuthorAnalytics } = useApi();
+const { getAuthorAnalytics, uploadMedia, updateAuthor } = useApi();
+
+const editBio = ref('');
+const editPosition = ref('');
+const avatarFile = ref<File | null>(null);
+const avatarPreview = ref<string | null>(null);
+const saving = ref(false);
+const saveMessage = ref('');
+
+watch(
+  () => data.value?.author,
+  (author) => {
+    if (author) {
+      editBio.value = author.bio || '';
+      editPosition.value = author.position || '';
+      avatarPreview.value = useMediaUrl(author.avatarMedia?.path) || null;
+    }
+  },
+  { immediate: true },
+);
+
+function onAvatarChange(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (file) {
+    avatarFile.value = file;
+    avatarPreview.value = URL.createObjectURL(file);
+  }
+}
+
+async function saveAuthor() {
+  saving.value = true;
+  saveMessage.value = '';
+  try {
+    let avatarMediaId: string | undefined;
+    if (avatarFile.value) {
+      const uploaded = await uploadMedia(avatarFile.value);
+      avatarMediaId = (uploaded as any).id;
+    }
+
+    const body: Record<string, unknown> = {
+      bio: editBio.value,
+      position: editPosition.value,
+    };
+    if (avatarMediaId !== undefined) {
+      body.avatarMediaId = avatarMediaId;
+    }
+
+    await updateAuthor(route.params.id as string, body);
+    saveMessage.value = 'Сохранено';
+    await fetchAnalytics();
+  } catch (err: any) {
+    saveMessage.value = err?.data?.message || err?.message || 'Ошибка сохранения';
+  } finally {
+    saving.value = false;
+  }
+}
 
 const data = ref<Analytics | null>(null);
 const loading = ref(false);
@@ -177,6 +233,62 @@ onMounted(() => {
     </div>
 
     <NuxtLink to="/account/admin/authors" class="text-sm text-accent hover:underline">← Назад к авторам</NuxtLink>
+
+    <!-- Edit author profile -->
+    <div class="mt-6 border border-foreground/10 bg-foreground/5 p-5">
+      <h2 class="mb-4 text-lg font-bold">Редактировать профиль автора</h2>
+      <div class="grid gap-6 md:grid-cols-[120px_1fr]">
+        <div>
+          <div
+            v-if="avatarPreview"
+            class="mb-2 h-28 w-28 overflow-hidden rounded-full"
+          >
+            <img :src="avatarPreview" alt="Аватар" class="h-full w-full object-cover" />
+          </div>
+          <div
+            v-else
+            class="mb-2 flex h-28 w-28 items-center justify-center rounded-full bg-green-600 text-2xl font-bold uppercase text-white"
+          >
+            {{ data?.author.name?.charAt(0).toUpperCase() || 'А' }}
+          </div>
+          <input
+            type="file"
+            accept="image/*"
+            class="block w-full text-xs text-foreground/70 file:mr-2 file:rounded file:border-0 file:bg-accent file:px-2 file:py-1 file:text-xs file:text-black"
+            @change="onAvatarChange"
+          />
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="mb-1 block text-xs text-foreground/60">Должность</label>
+            <input
+              v-model="editPosition"
+              type="text"
+              class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent"
+            />
+          </div>
+          <div>
+            <label class="mb-1 block text-xs text-foreground/60">О авторе</label>
+            <textarea
+              v-model="editBio"
+              rows="4"
+              class="w-full resize-none border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent"
+            />
+          </div>
+          <div class="flex items-center gap-4">
+            <button
+              type="button"
+              class="rounded bg-accent px-4 py-2 text-sm font-medium text-black transition hover:bg-accent/90 disabled:opacity-60"
+              :disabled="saving"
+              @click="saveAuthor"
+            >
+              {{ saving ? 'Сохранение...' : 'Сохранить' }}
+            </button>
+            <span v-if="saveMessage" class="text-sm" :class="saveMessage === 'Сохранено' ? 'text-green-500' : 'text-red-500'">{{ saveMessage }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <AdminTabs class="mt-6" />
 

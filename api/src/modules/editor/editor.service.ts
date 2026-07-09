@@ -8,6 +8,7 @@ import { ContentStatus, ContentType, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { MediaService } from '../media/media.service';
 import { CreateDraftDto } from './dto/create-draft.dto';
+import { UpdateAuthorDto } from './dto/update-author.dto';
 
 const CYRILLIC_MAP: Record<string, string> = {
   а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'yo', ж: 'zh', з: 'z',
@@ -355,7 +356,7 @@ export class EditorService {
   async getAuthorAnalytics(authorId: string) {
     const author = await this.prisma.author.findUnique({
       where: { id: authorId },
-      select: { id: true, name: true, slug: true, position: true, bio: true },
+      include: { avatarMedia: true },
     });
 
     if (!author) {
@@ -454,6 +455,32 @@ export class EditorService {
       totalViews,
       dailyViews,
     };
+  }
+
+  async updateAuthor(id: string, dto: UpdateAuthorDto) {
+    const existing = await this.prisma.author.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException('Author not found');
+    }
+
+    if (dto.slug && dto.slug !== existing.slug) {
+      const slugTaken = await this.prisma.author.findUnique({ where: { slug: dto.slug } });
+      if (slugTaken) {
+        throw new BadRequestException('Slug already in use');
+      }
+    }
+
+    return this.prisma.author.update({
+      where: { id },
+      data: {
+        ...(dto.name !== undefined && { name: dto.name }),
+        ...(dto.slug !== undefined && { slug: dto.slug }),
+        ...(dto.position !== undefined && { position: dto.position }),
+        ...(dto.bio !== undefined && { bio: dto.bio }),
+        ...(dto.avatarMediaId !== undefined && { avatarMediaId: dto.avatarMediaId || null }),
+      },
+      include: { avatarMedia: true },
+    });
   }
 
   private async ensureAuthorId(user: RequestUser): Promise<string> {

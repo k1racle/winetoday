@@ -34,6 +34,18 @@ export function useApi() {
       api('/tags'),
     getLatestByCategory: (limit?: number) =>
       api('/latest-by-category', { query: limit ? { limit } : undefined }),
+    getAuthor: (slug: string) =>
+      api(`/authors/${slug}`),
+    getAuthorContent: (slug: string) =>
+      api(`/authors/${slug}/content`),
+    getAuthorSubscription: (slug: string) =>
+      api(`/authors/${slug}/subscription`),
+    subscribeToAuthor: (slug: string) =>
+      api(`/authors/${slug}/subscribe`, { method: 'POST', credentials: 'include' }),
+    unsubscribeFromAuthor: (slug: string) =>
+      api(`/authors/${slug}/unsubscribe`, { method: 'DELETE', credentials: 'include' }),
+    updateAuthor: (id: string, body: Record<string, unknown>) =>
+      api(`/admin/authors/${id}`, { method: 'PATCH', body, credentials: 'include' }),
     // Admin taxonomy
     getAdminCategories: () =>
       api('/admin/categories', { credentials: 'include' }),
@@ -82,6 +94,12 @@ export function useApi() {
       api('/auth/logout', { method: 'POST' }),
     me: () =>
       api('/auth/me'),
+    getMySubscriptions: () =>
+      api('/auth/me/subscriptions', { credentials: 'include' }),
+    getMyLikes: () =>
+      api('/auth/me/likes', { credentials: 'include' }),
+    getMyComments: () =>
+      api('/auth/me/comments', { credentials: 'include' }),
     getUsers: () =>
       api('/admin/users', { credentials: 'include' }),
     getUser: (id: string) =>

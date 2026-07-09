@@ -1,0 +1,105 @@
+import { _ as __nuxt_component_0 } from './nuxt-link-DHNkfH9n.mjs';
+import { _ as __nuxt_component_1$1 } from './NuxtImg-Cgs3E8D7.mjs';
+import { defineComponent, computed, ref, mergeProps, unref, withCtx, openBlock, createBlock, createVNode, toDisplayString, createTextVNode, useSSRContext } from 'vue';
+import { ssrRenderAttrs, ssrRenderComponent, ssrInterpolate, ssrIncludeBooleanAttr } from 'vue/server-renderer';
+import { a as useAuth, u as useApi } from './useAuth-8H_2G1XE.mjs';
+import { c as useRoute } from './server.mjs';
+import { u as useMediaUrl } from './useMediaUrl-DKS3WinY.mjs';
+
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  __name: "AuthorByline",
+  __ssrInlineRender: true,
+  props: {
+    author: {},
+    hideSubscribe: { type: Boolean }
+  },
+  emits: ["change"],
+  setup(__props, { emit: __emit }) {
+    const props = __props;
+    useAuth();
+    useApi();
+    useRoute();
+    const authorLink = computed(() => `/author/${props.author.slug}`);
+    const avatarSrc = computed(() => useMediaUrl(props.author.avatarMedia?.path));
+    const initials = computed(() => {
+      const name = props.author.name || "";
+      return name.trim().charAt(0).toUpperCase() || "А";
+    });
+    const subscribed = ref(false);
+    const loading = ref(false);
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_NuxtLink = __nuxt_component_0;
+      const _component_NuxtImg = __nuxt_component_1$1;
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "flex items-center gap-3" }, _attrs))}>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: unref(authorLink),
+        class: "shrink-0"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            if (unref(avatarSrc)) {
+              _push2(`<div class="h-10 w-10 overflow-hidden rounded-full"${_scopeId}>`);
+              _push2(ssrRenderComponent(_component_NuxtImg, {
+                src: unref(avatarSrc),
+                alt: __props.author.name,
+                class: "h-full w-full object-cover"
+              }, null, _parent2, _scopeId));
+              _push2(`</div>`);
+            } else {
+              _push2(`<div class="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-sm font-bold uppercase text-white"${_scopeId}>${ssrInterpolate(unref(initials))}</div>`);
+            }
+          } else {
+            return [
+              unref(avatarSrc) ? (openBlock(), createBlock("div", {
+                key: 0,
+                class: "h-10 w-10 overflow-hidden rounded-full"
+              }, [
+                createVNode(_component_NuxtImg, {
+                  src: unref(avatarSrc),
+                  alt: __props.author.name,
+                  class: "h-full w-full object-cover"
+                }, null, 8, ["src", "alt"])
+              ])) : (openBlock(), createBlock("div", {
+                key: 1,
+                class: "flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-sm font-bold uppercase text-white"
+              }, toDisplayString(unref(initials)), 1))
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(`<div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm"><span class="text-foreground/60">Автор:</span>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: unref(authorLink),
+        class: "font-medium text-foreground hover:text-accent"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`${ssrInterpolate(__props.author.name)}`);
+          } else {
+            return [
+              createTextVNode(toDisplayString(__props.author.name), 1)
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      if (!__props.hideSubscribe) {
+        _push(`<button type="button"${ssrIncludeBooleanAttr(unref(loading)) ? " disabled" : ""} class="text-sm text-accent transition hover:text-accent/80 disabled:opacity-60">${ssrInterpolate(unref(subscribed) ? "Вы подписаны" : "Подписаться")}</button>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div></div>`);
+    };
+  }
+});
+const _sfc_setup = _sfc_main.setup;
+_sfc_main.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("components/AuthorByline.vue");
+  return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
+};
+const __nuxt_component_1 = Object.assign(_sfc_main, { __name: "AuthorByline" });
+
+export { __nuxt_component_1 as _ };
+//# sourceMappingURL=AuthorByline-HqjiVauP.mjs.map

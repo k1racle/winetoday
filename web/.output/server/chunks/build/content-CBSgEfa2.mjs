@@ -1,0 +1,217 @@
+import { _ as __nuxt_component_0 } from './nuxt-link-DHNkfH9n.mjs';
+import { _ as __nuxt_component_1 } from './AdminTabs-X7QJWm1s.mjs';
+import { defineComponent, ref, computed, mergeProps, withCtx, createTextVNode, unref, toDisplayString, useSSRContext } from 'vue';
+import { ssrRenderAttrs, ssrRenderComponent, ssrRenderList, ssrInterpolate, ssrRenderAttr, ssrIncludeBooleanAttr, ssrLooseContain, ssrLooseEqual, ssrRenderClass } from 'vue/server-renderer';
+import { a as useAuth, u as useApi } from './useAuth-8H_2G1XE.mjs';
+import { _ as _export_sfc } from './_plugin-vue_export-helper-1tPrXgE0.mjs';
+import '../_/nitro.mjs';
+import 'node:http';
+import 'node:https';
+import 'node:events';
+import 'node:buffer';
+import 'node:fs';
+import 'node:path';
+import 'node:crypto';
+import 'node:url';
+import './server.mjs';
+import '../routes/renderer.mjs';
+import 'vue-bundle-renderer/runtime';
+import 'unhead/server';
+import 'devalue';
+import 'unhead/plugins';
+import 'unhead/utils';
+import 'vue-router';
+
+const limit = 1e4;
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  __name: "content",
+  __ssrInlineRender: true,
+  setup(__props) {
+    useAuth();
+    useApi();
+    const materials = ref([]);
+    const total = ref(0);
+    const counts = ref([]);
+    const loading = ref(false);
+    const error = ref("");
+    const typeFilter = ref("");
+    const statusFilter = ref("");
+    const search = ref("");
+    const offset = ref(0);
+    const sortField = ref("updatedAt");
+    const sortOrder = ref("desc");
+    const typeOptions = [
+      { value: "", label: "Все типы" },
+      { value: "article", label: "Статьи" },
+      { value: "news", label: "Новости" },
+      { value: "video", label: "Видео" },
+      { value: "gallery", label: "Галереи" }
+    ];
+    const statusOptions = [
+      { value: "", label: "Все статусы" },
+      { value: "draft", label: "Черновик" },
+      { value: "in_review", label: "На проверке" },
+      { value: "published", label: "Опубликовано" },
+      { value: "rejected", label: "Отклонено" }
+    ];
+    const typeLabels = {
+      article: "Статья",
+      news: "Новость",
+      video: "Видео",
+      gallery: "Галерея"
+    };
+    const statusLabels = {
+      draft: "Черновик",
+      in_review: "На проверке",
+      published: "Опубликовано",
+      rejected: "Отклонено"
+    };
+    const statusColors = {
+      draft: "bg-orange-500",
+      in_review: "bg-yellow-500",
+      published: "bg-accent",
+      rejected: "bg-red-600"
+    };
+    const sortableColumns = [
+      { field: "status", label: "Статус" },
+      { field: "type", label: "Тип" },
+      { field: "title", label: "Заголовок" },
+      { field: "author", label: "Автор" },
+      { field: "viewsTotal", label: "Просмотры" },
+      { field: "updatedAt", label: "Обновлено" }
+    ];
+    const currentPage = computed(() => Math.floor(offset.value / limit) + 1);
+    const totalPages = computed(() => Math.max(1, Math.ceil(total.value / limit)));
+    function countForType(type) {
+      return counts.value.find((c) => c.type === type)?._count?.type || 0;
+    }
+    function formatDate(date) {
+      if (!date) return "—";
+      return new Date(date).toLocaleDateString("ru-RU");
+    }
+    function sortIcon(field) {
+      if (sortField.value !== field) return "↕";
+      return sortOrder.value === "asc" ? "↑" : "↓";
+    }
+    return (_ctx, _push, _parent, _attrs) => {
+      const _component_NuxtLink = __nuxt_component_0;
+      const _component_AdminTabs = __nuxt_component_1;
+      _push(`<div${ssrRenderAttrs(mergeProps({ class: "mx-auto max-w-6xl px-4 py-8" }, _attrs))} data-v-2cbbf6e4><div class="mb-6 border-b border-foreground/10 pb-4" data-v-2cbbf6e4><p class="text-xs font-medium uppercase tracking-wider text-foreground/50" data-v-2cbbf6e4>Администрирование</p><h1 class="mt-2 font-heading text-2xl font-bold" data-v-2cbbf6e4>Материалы</h1></div>`);
+      _push(ssrRenderComponent(_component_NuxtLink, {
+        to: "/account",
+        class: "text-sm text-accent hover:underline"
+      }, {
+        default: withCtx((_, _push2, _parent2, _scopeId) => {
+          if (_push2) {
+            _push2(`← Назад в кабинет`);
+          } else {
+            return [
+              createTextVNode("← Назад в кабинет")
+            ];
+          }
+        }),
+        _: 1
+      }, _parent));
+      _push(ssrRenderComponent(_component_AdminTabs, { class: "mt-6" }, null, _parent));
+      _push(`<div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4" data-v-2cbbf6e4><!--[-->`);
+      ssrRenderList(typeOptions.filter((o) => o.value), (opt) => {
+        _push(`<div class="border border-foreground/10 bg-foreground/5 p-3" data-v-2cbbf6e4><p class="text-xs text-foreground/60" data-v-2cbbf6e4>${ssrInterpolate(opt.label)}</p><p class="text-xl font-bold" data-v-2cbbf6e4>${ssrInterpolate(countForType(opt.value))}</p></div>`);
+      });
+      _push(`<!--]--></div><div class="mt-6 flex flex-wrap items-end gap-3" data-v-2cbbf6e4><div data-v-2cbbf6e4><label class="mb-1 block text-xs font-medium text-foreground/70" data-v-2cbbf6e4>Тип</label><select class="border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-accent" data-v-2cbbf6e4><!--[-->`);
+      ssrRenderList(typeOptions, (opt) => {
+        _push(`<option${ssrRenderAttr("value", opt.value)} data-v-2cbbf6e4${ssrIncludeBooleanAttr(Array.isArray(unref(typeFilter)) ? ssrLooseContain(unref(typeFilter), opt.value) : ssrLooseEqual(unref(typeFilter), opt.value)) ? " selected" : ""}>${ssrInterpolate(opt.label)}</option>`);
+      });
+      _push(`<!--]--></select></div><div data-v-2cbbf6e4><label class="mb-1 block text-xs font-medium text-foreground/70" data-v-2cbbf6e4>Статус</label><select class="border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-accent" data-v-2cbbf6e4><!--[-->`);
+      ssrRenderList(statusOptions, (opt) => {
+        _push(`<option${ssrRenderAttr("value", opt.value)} data-v-2cbbf6e4${ssrIncludeBooleanAttr(Array.isArray(unref(statusFilter)) ? ssrLooseContain(unref(statusFilter), opt.value) : ssrLooseEqual(unref(statusFilter), opt.value)) ? " selected" : ""}>${ssrInterpolate(opt.label)}</option>`);
+      });
+      _push(`<!--]--></select></div><div data-v-2cbbf6e4><label class="mb-1 block text-xs font-medium text-foreground/70" data-v-2cbbf6e4>Поиск по заголовку</label><input${ssrRenderAttr("value", unref(search))} type="text" class="border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Введите заголовок..." data-v-2cbbf6e4></div><button class="btn-primary" data-v-2cbbf6e4>Найти</button><button class="btn-secondary" data-v-2cbbf6e4>Сбросить</button></div>`);
+      if (unref(loading)) {
+        _push(`<p class="mt-6 text-sm text-foreground/60" data-v-2cbbf6e4>Загрузка...</p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (unref(error)) {
+        _push(`<p class="mt-6 text-sm text-red-600" data-v-2cbbf6e4>${ssrInterpolate(unref(error))}</p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`<div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-foreground/60" data-v-2cbbf6e4><p data-v-2cbbf6e4>Всего: ${ssrInterpolate(unref(total))}</p><p data-v-2cbbf6e4>Страница ${ssrInterpolate(unref(currentPage))} из ${ssrInterpolate(unref(totalPages))}</p></div>`);
+      if (!unref(loading) && unref(materials).length) {
+        _push(`<div class="mt-4 overflow-x-auto" data-v-2cbbf6e4><table class="w-full border-collapse border border-foreground/10 text-sm" data-v-2cbbf6e4><thead class="bg-foreground/10" data-v-2cbbf6e4><tr data-v-2cbbf6e4><!--[-->`);
+        ssrRenderList(sortableColumns, (col) => {
+          _push(`<th class="cursor-pointer select-none border border-foreground/10 px-4 py-2 text-left hover:bg-foreground/10" data-v-2cbbf6e4><span class="inline-flex items-center gap-1" data-v-2cbbf6e4>${ssrInterpolate(col.label)} <span class="text-xs text-foreground/40" data-v-2cbbf6e4>${ssrInterpolate(sortIcon(col.field))}</span></span></th>`);
+        });
+        _push(`<!--]--></tr></thead><tbody data-v-2cbbf6e4><!--[-->`);
+        ssrRenderList(unref(materials), (m) => {
+          _push(`<tr class="bg-foreground/5" data-v-2cbbf6e4><td class="border border-foreground/10 px-4 py-2" data-v-2cbbf6e4><span class="inline-flex items-center gap-1.5 text-xs" data-v-2cbbf6e4><span class="${ssrRenderClass([statusColors[m.status] || "bg-gray-400", "h-2 w-2 rounded-full"])}" data-v-2cbbf6e4></span> ${ssrInterpolate(statusLabels[m.status] || m.status)}</span></td><td class="border border-foreground/10 px-4 py-2" data-v-2cbbf6e4>${ssrInterpolate(typeLabels[m.type] || m.type)}</td><td class="border border-foreground/10 px-4 py-2" data-v-2cbbf6e4>`);
+          _push(ssrRenderComponent(_component_NuxtLink, {
+            to: `/${m.type === "article" ? "articles" : m.type === "news" ? "news" : m.type === "video" ? "videos" : "gallery"}/${m.slug}`,
+            class: "hover:text-foreground hover:underline",
+            target: "_blank"
+          }, {
+            default: withCtx((_, _push2, _parent2, _scopeId) => {
+              if (_push2) {
+                _push2(`${ssrInterpolate(m.title)}`);
+              } else {
+                return [
+                  createTextVNode(toDisplayString(m.title), 1)
+                ];
+              }
+            }),
+            _: 2
+          }, _parent));
+          _push(`</td><td class="border border-foreground/10 px-4 py-2" data-v-2cbbf6e4>`);
+          if (m.authorId && m.author) {
+            _push(ssrRenderComponent(_component_NuxtLink, {
+              to: `/account/admin/authors/${m.authorId}`,
+              class: "text-accent hover:underline"
+            }, {
+              default: withCtx((_, _push2, _parent2, _scopeId) => {
+                if (_push2) {
+                  _push2(`${ssrInterpolate(m.author.name)}`);
+                } else {
+                  return [
+                    createTextVNode(toDisplayString(m.author.name), 1)
+                  ];
+                }
+              }),
+              _: 2
+            }, _parent));
+          } else {
+            _push(`<span data-v-2cbbf6e4>${ssrInterpolate(m.author?.name || "—")}</span>`);
+          }
+          _push(`</td><td class="border border-foreground/10 px-4 py-2" data-v-2cbbf6e4>${ssrInterpolate(m.viewsTotal || 0)}</td><td class="border border-foreground/10 px-4 py-2" data-v-2cbbf6e4>${ssrInterpolate(formatDate(m.updatedAt))}</td></tr>`);
+        });
+        _push(`<!--]--></tbody></table></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (!unref(loading) && unref(totalPages) > 1) {
+        _push(`<div class="mt-4 flex flex-wrap items-center justify-between gap-3" data-v-2cbbf6e4><button class="btn-secondary"${ssrIncludeBooleanAttr(unref(currentPage) <= 1) ? " disabled" : ""} data-v-2cbbf6e4> ← Назад </button><div class="flex flex-wrap items-center gap-1" data-v-2cbbf6e4><!--[-->`);
+        ssrRenderList(unref(totalPages), (page) => {
+          _push(`<button class="${ssrRenderClass([page === unref(currentPage) ? "bg-accent text-black" : "border border-foreground/10 bg-foreground/5 hover:bg-foreground/10", "h-8 min-w-[2rem] px-2 text-xs transition"])}" data-v-2cbbf6e4>${ssrInterpolate(page)}</button>`);
+        });
+        _push(`<!--]--></div><button class="btn-secondary"${ssrIncludeBooleanAttr(unref(currentPage) >= unref(totalPages)) ? " disabled" : ""} data-v-2cbbf6e4> Вперёд → </button></div>`);
+      } else {
+        _push(`<!---->`);
+      }
+      if (!unref(loading) && !unref(materials).length) {
+        _push(`<p class="mt-6 text-sm text-foreground/60" data-v-2cbbf6e4>Материалы не найдены</p>`);
+      } else {
+        _push(`<!---->`);
+      }
+      _push(`</div>`);
+    };
+  }
+});
+const _sfc_setup = _sfc_main.setup;
+_sfc_main.setup = (props, ctx) => {
+  const ssrContext = useSSRContext();
+  (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("pages/account/admin/content.vue");
+  return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
+};
+const content = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-2cbbf6e4"]]);
+
+export { content as default };
+//# sourceMappingURL=content-CBSgEfa2.mjs.map

@@ -207,6 +207,8 @@ const relatedItems = computed(() => {
           {{ item.title }}
         </h1>
 
+        <AuthorByline v-if="item.author" :author="item.author" class="mt-4" />
+
         <NuxtLink
           v-if="canEdit"
           :to="editUrl(item)"

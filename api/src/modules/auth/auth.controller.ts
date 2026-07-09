@@ -64,6 +64,24 @@ export class AuthController {
     return this.authService.me(req.user.userId);
   }
 
+  @Get('me/subscriptions')
+  @UseGuards(JwtAuthGuard)
+  async mySubscriptions(@Request() req) {
+    return this.authService.getSubscriptions(req.user.userId);
+  }
+
+  @Get('me/likes')
+  @UseGuards(JwtAuthGuard)
+  async myLikes(@Request() req) {
+    return this.authService.getLikedContent(req.user.userId);
+  }
+
+  @Get('me/comments')
+  @UseGuards(JwtAuthGuard)
+  async myComments(@Request() req) {
+    return this.authService.getComments(req.user.userId);
+  }
+
   private setCookies(
     res: Response,
     tokens: { access_token: string; refresh_token: string },

@@ -12,7 +12,7 @@ import {
 } from './sidebar-category-order';
 
 const contentInclude = {
-  author: true,
+  author: { include: { avatarMedia: true } },
   coverMedia: true,
   archiveCoverMedia: true,
   categories: true,
@@ -56,6 +56,10 @@ export class ContentService {
 
     if (dto.tagSlug) {
       where.tags = { some: { slug: dto.tagSlug } };
+    }
+
+    if (dto.authorSlug) {
+      where.author = { slug: dto.authorSlug };
     }
 
     const [items, total] = await Promise.all([

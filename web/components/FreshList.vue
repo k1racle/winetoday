@@ -5,7 +5,7 @@ const props = defineProps<{
   items: ContentItem[];
 }>();
 
-const activeTab = ref<'fresh' | 'popular'>('fresh');
+const activeTab = ref<'fresh' | 'popular'>('popular');
 const isExpanded = ref(false);
 
 function link(item: ContentItem) {
@@ -29,19 +29,21 @@ function isTodayInMoscow(date: string): boolean {
   return d === today;
 }
 
-function formatFreshDate(date?: string | null) {
+function formatDay(date?: string | null) {
   if (!date) return '';
-  if (isTodayInMoscow(date)) {
-    return new Date(date).toLocaleTimeString('ru-RU', {
-      timeZone: 'Europe/Moscow',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  }
   return new Date(date).toLocaleDateString('ru-RU', {
     timeZone: 'Europe/Moscow',
     day: '2-digit',
     month: '2-digit',
+  });
+}
+
+function formatTime(date?: string | null) {
+  if (!date) return '';
+  return new Date(date).toLocaleTimeString('ru-RU', {
+    timeZone: 'Europe/Moscow',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -100,9 +102,14 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
         :class="{ 'hidden md:block': !isExpanded && index >= 4 }"
       >
         <NuxtLink :to="link(item)" class="group flex min-w-0 items-start gap-3 transition-colors duration-200">
-          <span class="shrink-0 pt-0.5 text-sm font-bold text-accent">
-            {{ formatFreshDate(item.publishedAt || item.createdAt) }}
-          </span>
+          <div class="flex shrink-0 flex-col items-start pt-0.5">
+            <span class="text-sm font-bold text-accent">
+              {{ formatDay(item.publishedAt || item.createdAt) }}
+            </span>
+            <span class="text-xs text-foreground/60">
+              {{ formatTime(item.publishedAt || item.createdAt) }}
+            </span>
+          </div>
           <div class="min-w-0 flex-1">
             <span class="line-clamp-2 text-sm font-medium leading-snug text-foreground group-hover:text-accent">
               {{ truncatedTitle(item.title, item.materialLabel === 'exclusive') }}
