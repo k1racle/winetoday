@@ -47,12 +47,10 @@ function editUrl(item: ContentItem) {
         decoding="async"
         class="h-full w-full object-cover"
       />
-      <span
-        v-if="item.materialLabel === 'exclusive'"
-        class="absolute bottom-2 right-2 rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
-      >
-        Эксклюзив
-      </span>
+      <MaterialLabelBadge
+        :label="item.materialLabel"
+        class="absolute bottom-2 right-2"
+      />
     </div>
     <div class="flex flex-1 flex-col p-3 md:p-4">
       <div class="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] text-foreground/50 md:text-xs">

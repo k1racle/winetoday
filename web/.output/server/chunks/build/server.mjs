@@ -461,47 +461,47 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import('./index-CV8GmD_o.mjs')
+    component: () => import('./index-CWncB_42.mjs')
   },
   {
     name: "news",
     path: "/news",
-    component: () => import('./index-7Eqc4MoU.mjs')
+    component: () => import('./index-BnXO5zLo.mjs')
   },
   {
     name: "news-slug",
     path: "/news/:slug()",
-    component: () => import('./_slug_-bas8bs2M.mjs')
+    component: () => import('./_slug_-CkxkHUzi.mjs')
   },
   {
     name: "videos",
     path: "/videos",
-    component: () => import('./index-BxbD7Krk.mjs')
+    component: () => import('./index-C84yXafr.mjs')
   },
   {
     name: "account",
     path: "/account",
-    component: () => import('./index-bTPASbhy.mjs')
+    component: () => import('./index-vqCvBCq2.mjs')
   },
   {
     name: "account-liked",
     path: "/account/liked",
-    component: () => import('./liked-CS8ceM42.mjs')
+    component: () => import('./liked-BhqT6wHQ.mjs')
   },
   {
     name: "author-slug",
     path: "/author/:slug()",
-    component: () => import('./_slug_-DqS-XtqP.mjs')
+    component: () => import('./_slug_-B_kzv9mj.mjs')
   },
   {
     name: "videos-slug",
     path: "/videos/:slug()",
-    component: () => import('./_slug_-O41kavVe.mjs')
+    component: () => import('./_slug_-DBNyrRMY.mjs')
   },
   {
     name: "articles",
     path: "/articles",
-    component: () => import('./index-CsmhucxG.mjs')
+    component: () => import('./index-BvQ0vj9j.mjs')
   },
   {
     name: "contacts",
@@ -511,17 +511,17 @@ const _routes = [
   {
     name: "gallery-slug",
     path: "/gallery/:slug()",
-    component: () => import('./_slug_-Bz8J8KY-.mjs')
+    component: () => import('./_slug_-B7d9w04d.mjs')
   },
   {
     name: "articles-slug",
     path: "/articles/:slug()",
-    component: () => import('./_slug_-Bsk32Gzi.mjs')
+    component: () => import('./_slug_-CWBKCx6R.mjs')
   },
   {
     name: "category-slug",
     path: "/category/:slug()",
-    component: () => import('./_slug_-CBmS-Nwb.mjs')
+    component: () => import('./_slug_-DiOMlopW.mjs')
   },
   {
     name: "account-comments",

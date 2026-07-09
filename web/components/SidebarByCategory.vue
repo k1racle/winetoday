@@ -36,8 +36,8 @@ function formatDayMonth(date?: string | null) {
   return new Date(date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
 }
 
-function truncatedTitle(title: string, exclusive: boolean): string {
-  const max = exclusive ? 40 : 200;
+function truncatedTitle(title: string, hasLabel: boolean): string {
+  const max = hasLabel ? 40 : 200;
   if (title.length <= max) return title;
   return title.slice(0, max).trim().replace(/[\s.,!?;:]$/, '') + '…';
 }
@@ -66,13 +66,11 @@ function truncatedTitle(title: string, exclusive: boolean): string {
               </span>
               <div class="min-w-0 flex-1">
                 <p class="text-sm font-medium leading-snug text-foreground group-hover:text-foreground line-clamp-2">
-                  {{ truncatedTitle(item.title, item.materialLabel === 'exclusive') }}
-                  <span
-                    v-if="item.materialLabel === 'exclusive'"
-                    class="ml-1 inline-block whitespace-nowrap align-middle rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
-                  >
-                    Эксклюзив
-                  </span>
+                  {{ truncatedTitle(item.title, !!item.materialLabel) }}
+                  <MaterialLabelBadge
+                    :label="item.materialLabel"
+                    class="ml-1 inline-block whitespace-nowrap align-middle"
+                  />
                 </p>
               </div>
             </NuxtLink>

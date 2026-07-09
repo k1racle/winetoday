@@ -122,7 +122,7 @@ function close() {
                         <span class="h-4 w-1 rounded bg-accent" />
                         <span class="text-sm font-semibold">Метка материала</span>
                       </div>
-                      <p class="text-xs leading-relaxed text-foreground/70">Выделяет материал особым бейджем в списке новостей: Важно, Горячая новость, Эксклюзив.</p>
+                      <p class="text-xs leading-relaxed text-foreground/70">Выделяет материал особым бейджем в списке новостей: Важно, Горячая новость, Эксклюзив, Видео.</p>
                     </div>
                     <div class="p-4">
                       <p class="mb-1 text-[10px] font-bold uppercase tracking-wider text-accent">Пример на сайте</p>

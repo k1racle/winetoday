@@ -69,9 +69,6 @@ useSeoMeta({
         <p v-if="profile?.bio" class="mt-4 max-w-3xl text-base leading-relaxed text-foreground/80">
           {{ profile.bio }}
         </p>
-        <div class="mt-4">
-          <AuthorByline v-if="profile" :author="profile" hide-subscribe />
-        </div>
       </div>
     </div>
 

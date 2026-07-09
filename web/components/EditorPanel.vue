@@ -31,6 +31,7 @@ const labelOptions = [
   { value: 'important', label: 'Важно' },
   { value: 'hot', label: 'Горячая новость' },
   { value: 'exclusive', label: 'Эксклюзив' },
+  { value: 'video', label: 'Видео' },
 ];
 
 function emptyForm() {

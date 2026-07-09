@@ -61,12 +61,10 @@ const link = computed(() => {
         decoding="async"
         class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
       />
-      <span
-        v-if="item.materialLabel === 'exclusive'"
-        class="absolute bottom-2 right-2 rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
-      >
-        Эксклюзив
-      </span>
+      <MaterialLabelBadge
+        :label="item.materialLabel"
+        class="absolute bottom-2 right-2"
+      />
     </div>
     <div
       class="overflow-hidden"
