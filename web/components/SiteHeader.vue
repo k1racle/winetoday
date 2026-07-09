@@ -335,7 +335,8 @@ async function handleLogout() {
             class="text-foreground/70 transition hover:text-accent"
             :aria-label="link.label"
           >
-            <SocialIcon :name="link.icon" :label="link.label" :href="link.href" class="h-6 w-6" />
+            <SocialIcon :name="link.icon" :label="link.label" :href="link.href" variant="black" class="h-6 w-6 dark:hidden" />
+            <SocialIcon :name="link.icon" :label="link.label" :href="link.href" class="hidden h-6 w-6 dark:block" />
           </a>
         </div>
       </div>

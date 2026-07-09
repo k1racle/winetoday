@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, type PropType } from 'vue';
 import { getSocialIconUrl } from '~/utils/social-icons';
 
 const props = defineProps({
@@ -19,10 +19,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  variant: {
+    type: String as PropType<'default' | 'black'>,
+    default: 'default',
+  },
 });
 
 const iconUrl = computed(() =>
-  getSocialIconUrl(props.name, props.label, props.href),
+  getSocialIconUrl(props.name, props.label, props.href, props.variant),
 );
 </script>
 
