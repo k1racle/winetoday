@@ -235,7 +235,6 @@ export class ContentService {
         where: { type: ContentType.video, status: ContentStatus.published, publishedAt: { lte: new Date() } },
         include: contentInclude,
         orderBy: { publishedAt: 'desc' },
-        take: 10,
       }),
       this.prisma.contentItem.findMany({
         where: { type: ContentType.gallery, status: ContentStatus.published, publishedAt: { lte: new Date() } },

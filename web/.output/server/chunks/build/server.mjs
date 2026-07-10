@@ -461,22 +461,22 @@ const _routes = [
   {
     name: "index",
     path: "/",
-    component: () => import('./index-CWncB_42.mjs')
+    component: () => import('./index-BV3yxadv.mjs')
   },
   {
     name: "news",
     path: "/news",
-    component: () => import('./index-BnXO5zLo.mjs')
+    component: () => import('./index-6tRn-f9b.mjs')
   },
   {
     name: "news-slug",
     path: "/news/:slug()",
-    component: () => import('./_slug_-CkxkHUzi.mjs')
+    component: () => import('./_slug_-JMLNyDw6.mjs')
   },
   {
     name: "videos",
     path: "/videos",
-    component: () => import('./index-C84yXafr.mjs')
+    component: () => import('./index-3cfLdpe6.mjs')
   },
   {
     name: "account",
@@ -486,22 +486,22 @@ const _routes = [
   {
     name: "account-liked",
     path: "/account/liked",
-    component: () => import('./liked-BhqT6wHQ.mjs')
+    component: () => import('./liked-tIdsg6-t.mjs')
   },
   {
     name: "author-slug",
     path: "/author/:slug()",
-    component: () => import('./_slug_-B_kzv9mj.mjs')
+    component: () => import('./_slug_-CJELoBBk.mjs')
   },
   {
     name: "videos-slug",
     path: "/videos/:slug()",
-    component: () => import('./_slug_-DBNyrRMY.mjs')
+    component: () => import('./_slug_-DNp73oh5.mjs')
   },
   {
     name: "articles",
     path: "/articles",
-    component: () => import('./index-BvQ0vj9j.mjs')
+    component: () => import('./index-DuWHQwti.mjs')
   },
   {
     name: "contacts",
@@ -511,17 +511,17 @@ const _routes = [
   {
     name: "gallery-slug",
     path: "/gallery/:slug()",
-    component: () => import('./_slug_-B7d9w04d.mjs')
+    component: () => import('./_slug_-oMMpJmmt.mjs')
   },
   {
     name: "articles-slug",
     path: "/articles/:slug()",
-    component: () => import('./_slug_-CWBKCx6R.mjs')
+    component: () => import('./_slug_-DR8g4bpz.mjs')
   },
   {
     name: "category-slug",
     path: "/category/:slug()",
-    component: () => import('./_slug_-DiOMlopW.mjs')
+    component: () => import('./_slug_-7O09ewy5.mjs')
   },
   {
     name: "account-comments",

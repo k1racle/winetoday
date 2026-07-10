@@ -8,7 +8,7 @@ const config = computed(() => {
     case 'exclusive':
       return { text: 'Эксклюзив', color: 'bg-red-700' };
     case 'video':
-      return { text: 'Видео', color: 'bg-green-600' };
+      return { text: 'Видео', color: 'bg-accent' };
     default:
       return null;
   }
