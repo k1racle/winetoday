@@ -737,36 +737,8 @@ async function submit(status?: 'draft' | 'published') {
                 </div>
                 <div class="p-3">
                   <!-- Text block -->
-                  <div v-if="block.type === 'text'" class="overflow-hidden border border-foreground/10">
-                    <div class="flex flex-wrap items-center gap-1 border-b border-foreground/10 bg-muted px-2 py-1.5">
-                      <select class="h-7 border border-foreground/10 bg-card px-1 text-xs" @change="formatBlock($event)">
-                        <option value="p">Абзац</option>
-                        <option value="h2">H2</option>
-                        <option value="h3">H3</option>
-                      </select>
-                      <span class="mx-1 h-4 w-px bg-foreground/10" />
-                      <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('bold')"><b>Ж</b></button>
-                      <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('italic')"><i>К</i></button>
-                      <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('underline')"><u>Ч</u></button>
-                      <span class="mx-1 h-4 w-px bg-foreground/10" />
-                      <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('insertUnorderedList')">≡</button>
-                      <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('insertOrderedList')">1.</button>
-                      <span class="mx-1 h-4 w-px bg-foreground/10" />
-                      <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('justifyLeft')">⬅</button>
-                      <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('justifyCenter')">↔</button>
-                      <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('justifyRight')">➡</button>
-                      <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('justifyFull')">⇹</button>
-                      <span class="mx-1 h-4 w-px bg-foreground/10" />
-                      <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('formatBlock', 'BLOCKQUOTE')">❝</button>
-                      <button class="h-7 w-7 text-xs hover:bg-foreground/5" @click="format('createLink', prompt('Введите URL', '') || '')">🔗</button>
-                    </div>
-                    <div
-                      :ref="(el) => setEditorEl(el as HTMLElement, block)"
-                      :data-id="block.id"
-                      contenteditable="true"
-                      class="min-h-[120px] px-3 py-2 text-sm leading-relaxed outline-none"
-                      @input="onBlockInput(block.id)"
-                    />
+                  <div v-if="block.type === 'text'">
+                    <TiptapEditor v-model="block.content" />
                   </div>
 
                   <!-- Image block -->

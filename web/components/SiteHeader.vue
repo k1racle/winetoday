@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, computed } from 'vue';
 
-const { getSiteSettings } = useApi();
+const { getSiteSettings, getSiteHeader } = useApi();
 const { data: siteSettings } = await useAsyncData('site-settings', () =>
   getSiteSettings().catch(() => null),
+);
+const { data: siteHeader } = await useAsyncData('site-header', () =>
+  getSiteHeader().catch(() => null),
 );
 const socialLinks = computed(() => {
   const links = siteSettings.value?.socialLinks?.links;
   return Array.isArray(links) ? links : [];
 });
+const lightLogoUrl = computed(() =>
+  useMediaUrl(siteHeader.value?.lightLogo?.path) || '/logo-light.png',
+);
+const darkLogoUrl = computed(() =>
+  useMediaUrl(siteHeader.value?.darkLogo?.path) || '/logo-dark.png',
+);
 const { user, isAuthenticated, signOut } = useAuth();
 const { headerCategories } = useHeaderCategories();
 
@@ -83,13 +92,13 @@ async function handleLogout() {
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
       <!-- Logo -->
       <NuxtLink to="/" class="flex max-w-[60%] flex-col md:max-w-none">
-        <NuxtImg
-          src="/logo-light.png"
+        <img
+          :src="lightLogoUrl"
           alt="Виноделие Сегодня"
           class="block h-8 w-auto dark:hidden md:h-10"
         />
-        <NuxtImg
-          src="/logo-dark.png"
+        <img
+          :src="darkLogoUrl"
           alt="Виноделие Сегодня"
           class="hidden h-8 w-auto dark:block md:h-10"
         />

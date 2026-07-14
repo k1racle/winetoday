@@ -8,6 +8,28 @@ import { Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 
+const CYRILLIC_MAP: Record<string, string> = {
+  а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'yo', ж: 'zh', з: 'z', и: 'i',
+  й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't',
+  у: 'u', ф: 'f', х: 'h', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sch', ы: 'y', э: 'e', ю: 'yu',
+  я: 'ya', ' ': '-', 'ь': '', 'ъ': '',
+};
+
+function translit(text: string): string {
+  return text
+    .toLowerCase()
+    .split('')
+    .map((ch) => CYRILLIC_MAP[ch] ?? ch)
+    .join('');
+}
+
+function slugify(text: string): string {
+  return translit(text)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 100);
+}
+
 export type AdminUserOutput = {
   id: string;
   email: string;
@@ -127,6 +149,7 @@ export class UsersService {
         createdAt: true,
         memberProfile: {
           select: {
+            id: true,
             displayName: true,
             authorId: true,
           },
@@ -134,12 +157,12 @@ export class UsersService {
       },
     });
 
-    return {
-      ...user,
-      displayName: user.memberProfile?.displayName ?? null,
-      authorId: user.memberProfile?.authorId ?? null,
-      authorName: null,
-    };
+    if ((data.role === Role.author || data.role === Role.editor) && user.memberProfile && !user.memberProfile.authorId) {
+      await this.ensureAuthorForUser(user.id, user.memberProfile.id, user.memberProfile.displayName || user.username || user.email);
+    }
+
+    const final = await this.findById(user.id);
+    return final;
   }
 
   async update(
@@ -209,6 +232,7 @@ export class UsersService {
         createdAt: true,
         memberProfile: {
           select: {
+            id: true,
             displayName: true,
             authorId: true,
           },
@@ -216,12 +240,15 @@ export class UsersService {
       },
     });
 
-    return {
-      ...updated,
-      displayName: updated.memberProfile?.displayName ?? null,
-      authorId: updated.memberProfile?.authorId ?? null,
-      authorName: null,
-    };
+    if ((data.role === Role.author || data.role === Role.editor) && updated.memberProfile && !updated.memberProfile.authorId) {
+      await this.ensureAuthorForUser(
+        id,
+        updated.memberProfile.id,
+        data.displayName || updated.memberProfile.displayName || updated.username || updated.email,
+      );
+    }
+
+    return this.findById(id);
   }
 
   async delete(id: string): Promise<void> {
@@ -248,17 +275,40 @@ export class UsersService {
         createdAt: true,
         memberProfile: {
           select: {
+            id: true,
             displayName: true,
             authorId: true,
           },
         },
       },
     });
-    return {
-      ...updated,
-      displayName: updated.memberProfile?.displayName ?? null,
-      authorId: updated.memberProfile?.authorId ?? null,
-      authorName: null,
-    };
+
+    if ((role === Role.author || role === Role.editor) && updated.memberProfile && !updated.memberProfile.authorId) {
+      await this.ensureAuthorForUser(
+        userId,
+        updated.memberProfile.id,
+        updated.memberProfile.displayName || updated.username || updated.email,
+      );
+    }
+
+    return this.findById(userId);
+  }
+
+  private async ensureAuthorForUser(userId: string, profileId: string, name: string): Promise<void> {
+    const baseSlug = slugify(name) || `author-${Date.now()}`;
+    let slug = baseSlug;
+    let suffix = 1;
+    while (await this.prisma.author.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${suffix++}`;
+    }
+
+    const author = await this.prisma.author.create({
+      data: { name, slug },
+    });
+
+    await this.prisma.memberProfile.update({
+      where: { id: profileId },
+      data: { authorId: author.id },
+    });
   }
 }

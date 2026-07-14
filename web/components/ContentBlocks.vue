@@ -33,7 +33,7 @@ function formatSource(source?: string | null): string {
     <template v-for="block in props.blocks" :key="block.id">
       <div
         v-if="block.type === 'rich-text' || block.type === 'html-editor' || block.type === 'text'"
-        class="prose prose-lg max-w-none text-foreground [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-5 [&_h3]:mb-3"
+        class="prose prose-lg max-w-none text-foreground [&_a]:text-accent [&_a]:underline hover:[&_a]:no-underline [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-5 [&_h3]:mb-3"
         v-html="renderContent(block.content)"
       />
 
@@ -52,12 +52,12 @@ function formatSource(source?: string | null): string {
       </figure>
 
       <figure v-else-if="block.type === 'image'" class="my-6">
-        <NuxtImg
+        <img
           v-if="block.data?.path"
           :src="useMediaUrl(block.data.path)"
           :alt="block.data.caption || ''"
           class="w-full"
-        />
+        >
         <figcaption v-if="block.data?.caption || block.data?.source" class="mt-2 text-sm text-foreground/60">
           <span v-if="block.data.caption">{{ block.data.caption }}</span>
           <span v-if="block.data.caption && block.data.source"> / </span>
@@ -74,12 +74,12 @@ function formatSource(source?: string | null): string {
       <div v-else-if="block.type === 'gallery'" class="my-6">
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <figure v-for="(item, i) in block.data?.items" :key="i">
-            <NuxtImg
+            <img
               v-if="item.path"
               :src="useMediaUrl(item.path)"
               :alt="item.source || ''"
               class="w-full"
-            />
+            >
             <figcaption v-if="item.source" class="mt-1 text-xs text-foreground/60">
               {{ formatSource(item.source) }}
             </figcaption>

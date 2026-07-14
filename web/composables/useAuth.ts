@@ -17,7 +17,7 @@ export interface RegisterBody {
 
 export function useAuth() {
   const user = useState<AuthUser | null>('auth-user', () => null);
-  const { login, register, logout, me } = useApi();
+  const { login, register, logout, me, refresh } = useApi();
 
   async function fetchUser() {
     try {
@@ -44,12 +44,24 @@ export function useAuth() {
     user.value = null;
   }
 
+  async function refreshToken() {
+    try {
+      await refresh();
+      await fetchUser();
+      return true;
+    } catch {
+      user.value = null;
+      return false;
+    }
+  }
+
   return {
     user: user as Ref<AuthUser | null>,
     fetchUser,
     signIn,
     signUp,
     signOut,
+    refreshToken,
     isAuthenticated: computed(() => !!user.value),
   };
 }

@@ -7,6 +7,7 @@ const tabs = [
   { label: 'Рубрики', to: '/account/admin/categories' },
   { label: 'Теги', to: '/account/admin/tags' },
   { label: 'Соцсети', to: '/account/admin/socials' },
+  { label: 'Настройки', to: '/account/admin/settings' },
 ];
 
 function isActive(to: string) {

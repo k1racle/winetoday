@@ -53,12 +53,12 @@ function onTouchEnd(e: TouchEvent) {
         :key="i"
         class="relative h-full w-full flex-shrink-0"
       >
-        <NuxtImg
+        <img
           v-if="item.path"
           :src="useMediaUrl(item.path)"
           :alt="item.source || ''"
           class="h-full w-full object-cover"
-        />
+        >
       </div>
     </div>
 

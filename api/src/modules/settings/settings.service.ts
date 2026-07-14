@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
 import { UpdateWatermarkDto } from './dto/update-watermark.dto';
+import { UpdateSiteHeaderDto } from './dto/update-site-header.dto';
 
 const singletonInclude = {
   logoMedia: true,
@@ -145,6 +146,30 @@ export class SettingsService {
       where: { id: existing.id },
       data,
       include: { watermarkMedia: true },
+    });
+  }
+
+  async updateSiteHeader(dto: UpdateSiteHeaderDto) {
+    const existing = await this.prisma.siteHeader.findFirst();
+    const data: any = {};
+    if (dto.lightLogoMediaId !== undefined) {
+      data.lightLogoMediaId = dto.lightLogoMediaId || null;
+    }
+    if (dto.darkLogoMediaId !== undefined) {
+      data.darkLogoMediaId = dto.darkLogoMediaId || null;
+    }
+
+    if (!existing) {
+      return this.prisma.siteHeader.create({
+        data,
+        include: { lightLogo: true, darkLogo: true },
+      });
+    }
+
+    return this.prisma.siteHeader.update({
+      where: { id: existing.id },
+      data,
+      include: { lightLogo: true, darkLogo: true },
     });
   }
 }

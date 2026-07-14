@@ -74,8 +74,14 @@ export function useApi() {
       api('/admin/settings/watermark', { method: 'PATCH', body, credentials: 'include' }),
     getSiteSettings: () =>
       api('/site-settings'),
+    getSiteHeader: () =>
+      api('/site-header'),
     getSiteSeo: () =>
       api('/site-seo'),
+    getAdminSiteHeader: () =>
+      api('/admin/site-header', { credentials: 'include' }),
+    updateSiteHeader: (body: { lightLogoMediaId?: string; darkLogoMediaId?: string }) =>
+      api('/admin/site-header', { method: 'PATCH', body, credentials: 'include' }),
     incrementView: (body: Record<string, unknown>) =>
       api('/views/increment', { method: 'POST', body }),
     getReactions: (contentItemId: string, viewerId?: string) =>
@@ -94,6 +100,8 @@ export function useApi() {
       api('/auth/logout', { method: 'POST' }),
     me: () =>
       api('/auth/me'),
+    refresh: () =>
+      api('/auth/refresh', { method: 'POST', credentials: 'include' }),
     getMySubscriptions: () =>
       api('/auth/me/subscriptions', { credentials: 'include' }),
     getMyLikes: () =>

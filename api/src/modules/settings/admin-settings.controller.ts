@@ -6,6 +6,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
 import { UpdateWatermarkDto } from './dto/update-watermark.dto';
+import { UpdateSiteHeaderDto } from './dto/update-site-header.dto';
 
 @Controller()
 export class AdminSettingsController {
@@ -28,5 +29,19 @@ export class AdminSettingsController {
   @Roles(Role.admin)
   updateWatermark(@Body() dto: UpdateWatermarkDto) {
     return this.settingsService.updateWatermark(dto);
+  }
+
+  @Get('admin/site-header')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.admin)
+  adminSiteHeader() {
+    return this.settingsService.siteHeader();
+  }
+
+  @Patch('admin/site-header')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.admin)
+  updateSiteHeader(@Body() dto: UpdateSiteHeaderDto) {
+    return this.settingsService.updateSiteHeader(dto);
   }
 }
