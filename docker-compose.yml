@@ -51,8 +51,7 @@ services:
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,http://localhost:3001}
-      WATERMARK_SERVICE_URL: http://watermark:4001
-      WATERMARK_IMAGE_PATH: ${WATERMARK_IMAGE_PATH:-/uploads/watermark.png}
+
     ports:
       - "4000:4000"
     volumes:

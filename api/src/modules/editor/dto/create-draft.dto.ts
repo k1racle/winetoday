@@ -6,7 +6,6 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  MaxLength,
 } from 'class-validator';
 import { ContentType, ContentStatus } from '@prisma/client';
 
@@ -19,17 +18,14 @@ export class CreateDraftDto {
   type: ContentType;
 
   @IsString()
-  @MaxLength(300)
   title: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(300)
   slug?: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(2000)
   excerpt?: string;
 
   @IsOptional()
@@ -42,7 +38,6 @@ export class CreateDraftDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(50)
   materialLabel?: string;
 
   @IsOptional()
@@ -58,12 +53,7 @@ export class CreateDraftDto {
   coverMediaId?: string;
 
   @IsOptional()
-  @IsBoolean()
-  coverShowWatermark?: boolean;
-
-  @IsOptional()
   @IsString()
-  @MaxLength(500)
   coverSource?: string;
 
   @IsOptional()

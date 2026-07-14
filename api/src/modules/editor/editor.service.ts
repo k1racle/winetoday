@@ -28,12 +28,7 @@ function translit(text: string): string {
 function slugify(text: string): string {
   return translit(text)
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 100);
-}
-
-function stripWatermarkSuffix(filePath: string): string {
-  return filePath.replace(/_wm(\.[^.]+)$/, '$1');
+    .replace(/^-|-$/g, '');
 }
 
 export type RequestUser = {
@@ -50,11 +45,9 @@ export class EditorService {
   ) {}
 
   async saveDraft(user: RequestUser, dto: CreateDraftDto) {
-    let authorId = await this.ensureAuthorId(user);
-    if (dto.authorId) {
-      if (user.role === Role.admin) {
-        authorId = dto.authorId;
-      }
+    let authorId = dto.type === 'video' ? null : await this.ensureAuthorId(user);
+    if (dto.authorId && user.role === Role.admin) {
+      authorId = dto.authorId;
     }
 
     const type = dto.type;
@@ -62,40 +55,11 @@ export class EditorService {
     if (!slug) {
       slug = slugify(dto.title) || `draft-${Date.now()}`;
     }
-    slug = slug.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-|-$/g, '').slice(0, 100);
+    slug = slug.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-|-$/g, '');
 
     await this.ensureUniqueSlug(type, slug, dto.id);
 
-    if (dto.coverShowWatermark && dto.coverMediaId) {
-      await this.mediaService.ensureWatermark(dto.coverMediaId);
-    }
-
     const contentBlocks = Array.isArray(dto.contentBlocks) ? dto.contentBlocks : [];
-    for (const block of contentBlocks) {
-      if (block.type === 'image' && block.data?.mediaId) {
-        if (block.data.showWatermark) {
-          const newPath = await this.mediaService.ensureWatermark(block.data.mediaId);
-          if (newPath) block.data.path = newPath;
-        } else if (block.data.path?.includes('_wm')) {
-          block.data.path = stripWatermarkSuffix(block.data.path);
-        }
-        continue;
-      }
-
-      if ((block.type === 'slider' || block.type === 'gallery') && Array.isArray(block.data?.items)) {
-        // Legacy block-level toggle: treat it as enabled for every item.
-        const legacyBlockWatermark = block.data.showWatermark === true;
-        for (const item of block.data.items) {
-          if (!item.mediaId) continue;
-          if (legacyBlockWatermark || item.showWatermark) {
-            const newPath = await this.mediaService.ensureWatermark(item.mediaId);
-            if (newPath) item.path = newPath;
-          } else if (item.path?.includes('_wm')) {
-            item.path = stripWatermarkSuffix(item.path);
-          }
-        }
-      }
-    }
 
     const isPublishing = dto.status === ContentStatus.published;
     const publishedAt = dto.publishedAt
@@ -115,7 +79,6 @@ export class EditorService {
       featured: dto.featured ?? false,
       homepageSpecialBlock: dto.homepageSpecialBlock ?? false,
       coverMediaId: dto.coverMediaId || null,
-      coverShowWatermark: dto.coverShowWatermark ?? false,
       coverSource: dto.coverSource?.trim() || null,
       videoUrl: dto.videoUrl || null,
       duration: dto.duration ?? null,
@@ -217,7 +180,7 @@ export class EditorService {
       where.title = { contains: options.search.trim(), mode: 'insensitive' };
     }
 
-    const sortField = options.sort || 'updatedAt';
+    const sortField = options.sort || 'publishedAt';
     const sortOrder = options.order === 'asc' ? 'asc' : 'desc';
 
     const allowedSortFields: Record<string, any> = {
@@ -230,9 +193,8 @@ export class EditorService {
       author: { author: { name: sortOrder } },
     };
 
-    const orderBy = allowedSortFields[sortField]
-      ? [allowedSortFields[sortField], { pinned: 'desc' }]
-      : [{ pinned: 'desc' }, { updatedAt: 'desc' }];
+    const baseOrder = allowedSortFields[sortField] || { publishedAt: sortOrder };
+    const orderBy = [baseOrder, { createdAt: sortOrder }, { pinned: 'desc' }];
 
     const [items, total] = await Promise.all([
       this.prisma.contentItem.findMany({

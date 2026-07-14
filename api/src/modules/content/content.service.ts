@@ -85,10 +85,15 @@ export class ContentService {
       type_slug: { type, slug },
     };
 
-    const item = await this.prisma.contentItem.findUnique({
+    const include =
+      type === ContentType.video
+        ? ({ ...contentInclude, author: false } as const)
+        : contentInclude;
+
+    const item = (await this.prisma.contentItem.findUnique({
       where,
-      include: contentInclude,
-    });
+      include,
+    })) as ContentItemWithRelations | null;
 
     if (!item) {
       throw new NotFoundException(`${type} not found`);

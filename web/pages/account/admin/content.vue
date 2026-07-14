@@ -27,7 +27,7 @@ const search = ref('');
 
 const limit = 10000;
 const offset = ref(0);
-const sortField = ref('updatedAt');
+const sortField = ref('publishedAt');
 const sortOrder = ref<'asc' | 'desc'>('desc');
 
 const typeOptions = [
@@ -73,6 +73,7 @@ const sortableColumns = [
   { field: 'title', label: 'Заголовок' },
   { field: 'author', label: 'Автор' },
   { field: 'viewsTotal', label: 'Просмотры' },
+  { field: 'publishedAt', label: 'Опубликовано' },
   { field: 'updatedAt', label: 'Обновлено' },
 ];
 
@@ -244,6 +245,7 @@ onMounted(() => {
               <span v-else>{{ m.author?.name || '—' }}</span>
             </td>
             <td class="border border-foreground/10 px-4 py-2">{{ m.viewsTotal || 0 }}</td>
+            <td class="border border-foreground/10 px-4 py-2">{{ formatDate(m.publishedAt) }}</td>
             <td class="border border-foreground/10 px-4 py-2">{{ formatDate(m.updatedAt) }}</td>
           </tr>
         </tbody>

@@ -68,10 +68,6 @@ export function useApi() {
       api('/site-settings/social-links', { credentials: 'include' }),
     updateSocialLinks: (body: { title?: string; links: { label: string; href: string; icon?: string }[] }) =>
       api('/admin/site-settings/social-links', { method: 'PATCH', body, credentials: 'include' }),
-    getWatermarkSettings: () =>
-      api('/settings/watermark', { credentials: 'include' }),
-    updateWatermarkSettings: (body: Record<string, unknown>) =>
-      api('/admin/settings/watermark', { method: 'PATCH', body, credentials: 'include' }),
     getSiteSettings: () =>
       api('/site-settings'),
     getSiteHeader: () =>
@@ -131,12 +127,11 @@ export function useApi() {
         credentials: 'include',
       });
     },
-    uploadCoverMedia: (file: File, watermark = false) => {
+    uploadCoverMedia: (file: File) => {
       const formData = new FormData();
       formData.append('file', file);
       return api('/media/cover', {
         method: 'POST',
-        query: watermark ? { watermark: 'true' } : undefined,
         body: formData,
         credentials: 'include',
       });

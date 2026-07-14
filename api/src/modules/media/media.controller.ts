@@ -85,10 +85,7 @@ export class MediaController {
       limits: { fileSize: 20 * 1024 * 1024 },
     }),
   )
-  uploadCover(
-    @UploadedFile() file: Express.Multer.File,
-    @Query('watermark') watermark?: string,
-  ) {
-    return this.mediaService.createCoverFromUpload(file, watermark === 'true');
+  uploadCover(@UploadedFile() file: Express.Multer.File) {
+    return this.mediaService.createCoverFromUpload(file);
   }
 }

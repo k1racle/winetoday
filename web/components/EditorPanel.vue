@@ -49,7 +49,6 @@ function emptyForm() {
     homepageSpecialBlock: false,
     coverMediaId: '',
     coverPath: '',
-    coverShowWatermark: false,
     coverSource: '',
     videoUrl: '',
     duration: 0,
@@ -196,7 +195,6 @@ function normalizeBlock(b: any, mediaMap: Map<string, string>) {
         path: path || '',
         caption: b.caption || '',
         source: b.credit || '',
-        showWatermark: false,
       },
     };
   }
@@ -207,7 +205,6 @@ function normalizeBlock(b: any, mediaMap: Map<string, string>) {
         mediaId: imageId,
         path: mediaMap.get(imageId) || '',
         source: b.photoSource || '',
-        showWatermark: false,
       }))
       .filter((it: any) => it.path);
     return {
@@ -227,14 +224,10 @@ function normalizeBlock(b: any, mediaMap: Map<string, string>) {
   const data = b.data || {};
   if (b.type === 'image') {
     data.source = data.source || '';
-    data.showWatermark = data.showWatermark ?? false;
   } else if ((b.type === 'slider' || b.type === 'gallery') && Array.isArray(data.items)) {
-    const legacyBlockWatermark = data.showWatermark === true;
     data.items.forEach((it: any) => {
       it.source = it.source || '';
-      it.showWatermark = legacyBlockWatermark || (it.showWatermark ?? false);
     });
-    data.showWatermark = false;
   }
 
   return { id, type: b.type, title: b.title, data };
@@ -262,7 +255,6 @@ async function loadDraft(id: string) {
       homepageSpecialBlock: res.homepageSpecialBlock,
       coverMediaId: res.coverMediaId || '',
       coverPath: res.coverMedia?.path || '',
-      coverShowWatermark: res.coverShowWatermark,
       coverSource: res.coverSource || '',
       videoUrl: res.videoUrl || '',
       duration: res.duration || 0,
@@ -354,7 +346,7 @@ function addBlock(type: string) {
   if (type === 'text') {
     block.content = '<p></p>';
   } else if (type === 'image') {
-    block.data = { mediaId: '', path: '', caption: '', source: '', showWatermark: false };
+    block.data = { mediaId: '', path: '', caption: '', source: '' };
   } else if (type === 'slider' || type === 'gallery') {
     block.data = { items: [] };
   } else if (type === 'embed') {
@@ -427,7 +419,7 @@ async function onCoverSelected(e: Event) {
   const file = input.files?.[0];
   if (!file) return;
   try {
-    const res: any = await uploadCoverMedia(file, form.coverShowWatermark);
+    const res: any = await uploadCoverMedia(file);
     form.coverMediaId = res.id;
     form.coverPath = res.path;
   } catch (e: any) {
@@ -465,7 +457,7 @@ async function addMediaItems(e: Event, block: typeof form.contentBlocks[0]) {
       const res: any = await uploadMedia(file);
       if (!block.data) block.data = { items: [] };
       if (!Array.isArray(block.data.items)) block.data.items = [];
-      block.data.items.push({ mediaId: res.id, path: res.path, source: '', showWatermark: false });
+      block.data.items.push({ mediaId: res.id, path: res.path, source: '' });
     } catch (e: any) {
       error.value = e?.data?.message || 'Ошибка загрузки изображения';
     }
@@ -543,7 +535,6 @@ function buildBody(status?: 'draft' | 'published'): Record<string, unknown> {
     featured: form.featured,
     homepageSpecialBlock: form.homepageSpecialBlock,
     coverMediaId: form.coverMediaId || undefined,
-    coverShowWatermark: form.coverShowWatermark,
     coverSource: form.coverSource || undefined,
     categoryIds: form.categoryIds,
     tagIds: form.tagIds,
@@ -691,7 +682,7 @@ async function submit(status?: 'draft' | 'published') {
                 <option v-for="opt in labelOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
               </select>
             </div>
-            <div>
+            <div v-if="form.type !== 'video'">
               <label class="mb-1 block text-xs font-medium text-foreground/70">Автор</label>
               <select v-model="selectedAuthorId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                 <option value="">— Автоматически —</option>
@@ -753,12 +744,6 @@ async function submit(status?: 'draft' | 'published') {
                     </label>
                     <input v-model="block.data.caption" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-xs outline-none focus:border-accent" placeholder="Подпись к изображению">
                     <input v-model="block.data.source" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-xs outline-none focus:border-accent" placeholder="Источник фото">
-                    <label class="flex cursor-pointer items-center gap-2 text-xs text-foreground/70">
-                      <div class="relative h-4 w-8 cursor-pointer rounded-full bg-foreground/10 transition" :class="block.data.showWatermark ? 'bg-accent' : ''" @click="block.data.showWatermark = !block.data.showWatermark">
-                        <span class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-card transition" :class="block.data.showWatermark ? 'translate-x-4' : ''" />
-                      </div>
-                      Водяной знак
-                    </label>
                   </div>
 
                   <!-- Slider / Gallery block -->
@@ -770,12 +755,6 @@ async function submit(status?: 'draft' | 'published') {
                           <button class="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] text-white" @click="removeMediaItem(block, i)">✕</button>
                         </div>
                         <input v-model="item.source" type="text" class="w-full border border-foreground/10 bg-card px-2 py-1.5 text-[11px] outline-none focus:border-accent" placeholder="Источник фото">
-                        <label class="flex cursor-pointer items-center gap-2 text-[11px] text-foreground/70">
-                          <div class="relative h-4 w-8 cursor-pointer rounded-full bg-foreground/10 transition" :class="item.showWatermark ? 'bg-accent' : ''" @click="item.showWatermark = !item.showWatermark">
-                            <span class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-card transition" :class="item.showWatermark ? 'translate-x-4' : ''" />
-                          </div>
-                          Водяной знак
-                        </label>
                       </div>
                     </div>
                     <label class="flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-foreground/10 px-4 py-6 text-xs text-foreground/50 transition hover:border-accent hover:text-foreground">
@@ -853,12 +832,6 @@ async function submit(status?: 'draft' | 'published') {
                 <input ref="coverInput" type="file" accept="image/*" class="hidden" @change="onCoverSelected">
                 <button class="btn-secondary w-full text-xs" @click="coverInput?.click()">Загрузить</button>
                 <button class="btn-danger w-full text-xs" :disabled="!form.coverMediaId" @click="removeCover">🗑 Удалить</button>
-                <label class="flex cursor-pointer items-center gap-2 text-xs text-foreground/70">
-                  <div class="relative h-4 w-8 cursor-pointer rounded-full bg-foreground/10 transition" :class="form.coverShowWatermark ? 'bg-accent' : ''" @click="form.coverShowWatermark = !form.coverShowWatermark">
-                    <span class="absolute top-0.5 left-0.5 h-3 w-3 rounded-full bg-card transition" :class="form.coverShowWatermark ? 'translate-x-4' : ''" />
-                  </div>
-                  Водяной знак
-                </label>
                 <div>
                   <label class="mb-1 block text-xs font-medium text-foreground/70">Источник фото</label>
                   <input v-model="form.coverSource" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-xs outline-none focus:border-accent" placeholder="Источник обложки">
