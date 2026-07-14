@@ -1,3 +1,5 @@
+name: winemakingtodayyy
+
 services:
 
   web:
@@ -158,7 +160,13 @@ networks:
 
 volumes:
   backend_uploads:
+    external: true
+    name: winemakingtoday_backend_uploads
   media_uploads:
+    external: true
+    name: winemakingtoday_media_uploads
   postgres_data:
+    external: true
+    name: winemakingtoday_postgres_data
   redis_data:
   meili_data:
