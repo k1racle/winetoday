@@ -654,7 +654,7 @@ async function migrateApiContentRelations() {
   for (const row of catRows.rows) {
     try {
       await prisma.$executeRawUnsafe(
-        `INSERT INTO "_CategoryToContentItem" ("A", "B") VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+        `INSERT INTO "_CategoryToContentItem" ("A", "B") VALUES ($1::uuid, $2::uuid) ON CONFLICT DO NOTHING`,
         row.A,
         row.B,
       );
@@ -667,7 +667,7 @@ async function migrateApiContentRelations() {
   for (const row of tagRows.rows) {
     try {
       await prisma.$executeRawUnsafe(
-        `INSERT INTO "_ContentItemToTag" ("A", "B") VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+        `INSERT INTO "_ContentItemToTag" ("A", "B") VALUES ($1::uuid, $2::uuid) ON CONFLICT DO NOTHING`,
         row.A,
         row.B,
       );
@@ -690,7 +690,7 @@ async function migrateCommentsAndReactions() {
   for (const row of commentRows.rows) {
     const type = contentTypeUidMap[row.content_type_uid];
     if (!type) continue;
-    const contentItemId = idMaps.content.get(`strapi:${type}:${row.target_document_id}`) || idMaps.content.get(`${type}:${row.target_slug}`);
+    const contentItemId = idMaps.content.get(`strapi:${type}:${row.target_document_id}`);
     if (!contentItemId) {
       console.warn(`Comment ${row.id}: content item not found`);
       continue;
@@ -711,7 +711,7 @@ async function migrateCommentsAndReactions() {
   console.log(`Migrated ${commentRows.rowCount} comments.`);
 
   const reactionRows = await strapi.query(`
-    SELECT r.id, r.type, r.content_type_uid, r.target_document_id, r.target_slug, r.guest_id, r.created_at, l.user_id
+    SELECT r.id, r.type, r.content_type_uid, r.target_document_id, r.guest_id, r.created_at, l.user_id
     FROM reactions r
     LEFT JOIN reactions_user_lnk l ON l.reaction_id = r.id
     ORDER BY r.id
