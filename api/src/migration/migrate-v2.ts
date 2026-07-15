@@ -567,6 +567,8 @@ async function migrateStrapiContentItems() {
 
     for (const row of selected) {
       if (idMaps.content.has(`${type}:${row.slug}`)) {
+        const existingId = idMaps.content.get(`${type}:${row.slug}`)!;
+        idMaps.content.set(`strapi:${type}:${row.document_id}`, existingId);
         continue;
       }
 
@@ -711,7 +713,7 @@ async function migrateCommentsAndReactions() {
   console.log(`Migrated ${commentRows.rowCount} comments.`);
 
   const reactionRows = await strapi.query(`
-    SELECT r.id, r.type, r.content_type_uid, r.target_document_id, r.guest_id, r.created_at, l.user_id
+    SELECT r.id, r.type, r.content_type_uid, r.target_document_id, r.target_slug, r.guest_id, r.created_at, l.user_id
     FROM reactions r
     LEFT JOIN reactions_user_lnk l ON l.reaction_id = r.id
     ORDER BY r.id
