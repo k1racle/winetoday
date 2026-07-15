@@ -87,14 +87,14 @@ async function resetTarget() {
 }
 
 async function migrateUsers() {
-  const rows = await api.query('SELECT id, email, username, password_hash, role, created_at, updated_at FROM users ORDER BY created_at');
+  const rows = await api.query('SELECT id, email, username, "passwordHash", role, created_at, updated_at FROM users ORDER BY created_at');
   for (const row of rows.rows) {
     await prisma.user.create({
       data: {
         id: row.id,
         email: row.email,
         username: row.username,
-        passwordHash: row.password_hash,
+        passwordHash: row.passwordHash,
         role: row.role,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
@@ -128,7 +128,7 @@ async function migrateUsers() {
 }
 
 async function migrateAuthors() {
-  const rows = await api.query('SELECT id, name, slug, position, bio, member_profile_id, avatar_media_id, created_at, updated_at FROM authors ORDER BY created_at');
+  const rows = await api.query('SELECT id, name, slug, position, bio, "memberProfileId", "avatarMediaId", created_at, updated_at FROM authors ORDER BY created_at');
   for (const row of rows.rows) {
     await prisma.author.create({
       data: {
@@ -137,8 +137,8 @@ async function migrateAuthors() {
         slug: row.slug,
         position: row.position,
         bio: row.bio,
-        memberProfileId: row.member_profile_id,
-        avatarMediaId: row.avatar_media_id,
+        memberProfileId: row.memberProfileId,
+        avatarMediaId: row.avatarMediaId,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
       },
@@ -171,15 +171,15 @@ async function migrateAuthors() {
 }
 
 async function migrateMemberProfiles() {
-  const rows = await api.query('SELECT id, user_id, display_name, account_type, author_id, created_at, updated_at FROM member_profiles ORDER BY created_at');
+  const rows = await api.query('SELECT id, "userId", display_name, account_type, "authorId", created_at, updated_at FROM member_profiles ORDER BY created_at');
   for (const row of rows.rows) {
     await prisma.memberProfile.create({
       data: {
         id: row.id,
-        userId: row.user_id,
+        userId: row.userId,
         displayName: row.display_name,
         accountType: row.account_type,
-        authorId: row.author_id,
+        authorId: row.authorId,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
       },
@@ -189,14 +189,14 @@ async function migrateMemberProfiles() {
 }
 
 async function migrateCategories() {
-  const rows = await api.query('SELECT id, name, slug, parent_id, created_at, updated_at FROM categories ORDER BY created_at');
+  const rows = await api.query('SELECT id, name, slug, "parentId", created_at, updated_at FROM categories ORDER BY created_at');
   for (const row of rows.rows) {
     await prisma.category.create({
       data: {
         id: row.id,
         name: row.name,
         slug: row.slug,
-        parentId: row.parent_id,
+        parentId: row.parentId,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
       },
@@ -310,10 +310,10 @@ async function migrateMediaAssets() {
 async function migrateApiContentItems() {
   const rows = await api.query(`
     SELECT id, type, title, slug, excerpt, status, published_at, published_at_custom,
-           cover_media_id, archive_cover_media_id, cover_source, featured, pinned,
+           "coverMediaId", "archiveCoverMediaId", cover_source, featured, pinned,
            homepage_lead, homepage_special_block, material_label, reading_time, preview,
            content_blocks, sources, tasting_note, video_url, duration, seo, views_total,
-           author_id, created_at, updated_at, submitted_at, reviewed_at, review_comment
+           "authorId", created_at, updated_at, submitted_at, reviewed_at, review_comment
     FROM content_items
     ORDER BY created_at
   `);
@@ -329,8 +329,8 @@ async function migrateApiContentItems() {
         status: row.status,
         publishedAt: row.published_at,
         publishedAtCustom: row.published_at_custom,
-        coverMediaId: row.cover_media_id,
-        archiveCoverMediaId: row.archive_cover_media_id,
+        coverMediaId: row.coverMediaId,
+        archiveCoverMediaId: row.archiveCoverMediaId,
         coverSource: row.cover_source,
         featured: row.featured,
         pinned: row.pinned,
@@ -346,7 +346,7 @@ async function migrateApiContentItems() {
         duration: row.duration,
         seo: row.seo,
         viewsTotal: row.views_total ?? 0,
-        authorId: row.author_id,
+        authorId: row.authorId,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         submittedAt: row.submitted_at,
@@ -742,13 +742,13 @@ async function migrateCommentsAndReactions() {
 }
 
 async function migrateStats() {
-  const totals = await api.query('SELECT content_type, content_id, views_total, unique_viewers, last_viewed_at FROM content_view_totals');
+  const totals = await api.query('SELECT content_type, "contentId", views_total, unique_viewers, last_viewed_at FROM content_view_totals');
   for (const row of totals.rows) {
     try {
       await prisma.contentViewTotal.create({
         data: {
           contentType: row.content_type,
-          contentId: row.content_id,
+          contentId: row.contentId,
           viewsTotal: row.views_total,
           uniqueViewers: row.unique_viewers,
           lastViewedAt: row.last_viewed_at,
@@ -760,15 +760,15 @@ async function migrateStats() {
   }
   console.log(`Migrated ${totals.rowCount} view totals.`);
 
-  const daily = await api.query('SELECT date, content_type, content_id, author_id, views, unique_viewers FROM content_view_daily');
+  const daily = await api.query('SELECT date, content_type, "contentId", "authorId", views, unique_viewers FROM content_view_daily');
   for (const row of daily.rows) {
     try {
       await prisma.contentViewDaily.create({
         data: {
           date: row.date,
           contentType: row.content_type,
-          contentId: row.content_id,
-          authorId: row.author_id,
+          contentId: row.contentId,
+          authorId: row.authorId,
           views: row.views,
           uniqueViewers: row.unique_viewers,
         },
@@ -779,16 +779,16 @@ async function migrateStats() {
   }
   console.log(`Migrated ${daily.rowCount} daily views.`);
 
-  const events = await api.query('SELECT id, content_type, content_id, slug, author_id, viewer_id, viewed_at, ip_hash, user_agent, referrer FROM content_view_events');
+  const events = await api.query('SELECT id, content_type, "contentId", slug, "authorId", viewer_id, viewed_at, ip_hash, user_agent, referrer FROM content_view_events');
   for (const row of events.rows) {
     try {
       await prisma.contentViewEvent.create({
         data: {
           id: row.id,
           contentType: row.content_type,
-          contentId: row.content_id,
+          contentId: row.contentId,
           slug: row.slug,
-          authorId: row.author_id,
+          authorId: row.authorId,
           viewerId: row.viewer_id,
           viewedAt: row.viewed_at,
           ipHash: row.ip_hash,
@@ -802,13 +802,13 @@ async function migrateStats() {
   }
   console.log(`Migrated ${events.rowCount} view events.`);
 
-  const authorDaily = await api.query('SELECT date, author_id, article_views, news_views, video_views, gallery_views, total_views FROM author_view_daily');
+  const authorDaily = await api.query('SELECT date, "authorId", article_views, news_views, video_views, gallery_views, total_views FROM author_view_daily');
   for (const row of authorDaily.rows) {
     try {
       await prisma.authorViewDaily.create({
         data: {
           date: row.date,
-          authorId: row.author_id,
+          authorId: row.authorId,
           articleViews: row.article_views,
           newsViews: row.news_views,
           videoViews: row.video_views,
@@ -824,13 +824,13 @@ async function migrateStats() {
 }
 
 async function migrateOAuthAccounts() {
-  const rows = await api.query('SELECT id, user_id, provider, provider_account_id, created_at FROM oauth_accounts');
+  const rows = await api.query('SELECT id, "userId", provider, provider_account_id, created_at FROM oauth_accounts');
   for (const row of rows.rows) {
     try {
       await prisma.oAuthAccount.create({
         data: {
           id: row.id,
-          userId: row.user_id,
+          userId: row.userId,
           provider: row.provider,
           providerAccountId: row.provider_account_id,
           createdAt: row.created_at,
@@ -844,14 +844,14 @@ async function migrateOAuthAccounts() {
 }
 
 async function migrateApiCommentsAndReactions() {
-  const comments = await api.query('SELECT id, content_item_id, user_id, body, status, created_at, updated_at FROM comments');
+  const comments = await api.query('SELECT id, "contentItemId", "userId", body, status, created_at, updated_at FROM comments');
   for (const row of comments.rows) {
     try {
       await prisma.comment.create({
         data: {
           id: row.id,
-          contentItemId: row.content_item_id,
-          userId: row.user_id,
+          contentItemId: row.contentItemId,
+          userId: row.userId,
           body: row.body,
           status: row.status,
           createdAt: row.created_at,
@@ -864,14 +864,14 @@ async function migrateApiCommentsAndReactions() {
   }
   console.log(`Migrated ${comments.rowCount} API comments.`);
 
-  const reactions = await api.query('SELECT id, content_item_id, user_id, type, created_at, viewer_id FROM reactions');
+  const reactions = await api.query('SELECT id, "contentItemId", "userId", type, created_at, viewer_id FROM reactions');
   for (const row of reactions.rows) {
     try {
       await prisma.reaction.create({
         data: {
           id: row.id,
-          contentItemId: row.content_item_id,
-          userId: row.user_id,
+          contentItemId: row.contentItemId,
+          userId: row.userId,
           viewerId: row.viewer_id,
           type: row.type,
           createdAt: row.created_at,
@@ -900,14 +900,14 @@ async function migrateSingletons() {
     });
   }
 
-  const header = await api.query('SELECT id, menu, light_logo_media_id, dark_logo_media_id, sticky_desktop, sticky_tablet, sticky_mobile, created_at, updated_at FROM site_header LIMIT 1');
+  const header = await api.query('SELECT id, menu, "lightLogoMediaId", "darkLogoMediaId", sticky_desktop, sticky_tablet, sticky_mobile, created_at, updated_at FROM site_header LIMIT 1');
   for (const row of header.rows) {
     await prisma.siteHeader.create({
       data: {
         id: row.id,
         menu: row.menu,
-        lightLogoMediaId: row.light_logo_media_id,
-        darkLogoMediaId: row.dark_logo_media_id,
+        lightLogoMediaId: row.lightLogoMediaId,
+        darkLogoMediaId: row.darkLogoMediaId,
         stickyDesktop: row.sticky_desktop,
         stickyTablet: row.sticky_tablet,
         stickyMobile: row.sticky_mobile,
@@ -929,14 +929,14 @@ async function migrateSingletons() {
     });
   }
 
-  const seo = await api.query('SELECT id, default_seo, open_graph_image_media_id, twitter_image_media_id, robots_enabled, robots_rules, robots_host, robots_additional_sitemaps, sitemap_enabled, sitemap_exclude_paths, sitemap_include_articles, sitemap_include_news, sitemap_include_videos, sitemap_include_pages, sitemap_include_galleries, created_at, updated_at FROM site_seo LIMIT 1');
+  const seo = await api.query('SELECT id, default_seo, "openGraphImageMediaId", "twitterImageMediaId", robots_enabled, robots_rules, robots_host, robots_additional_sitemaps, sitemap_enabled, sitemap_exclude_paths, sitemap_include_articles, sitemap_include_news, sitemap_include_videos, sitemap_include_pages, sitemap_include_galleries, created_at, updated_at FROM site_seo LIMIT 1');
   for (const row of seo.rows) {
     await prisma.siteSeo.create({
       data: {
         id: row.id,
         defaultSeo: row.default_seo,
-        openGraphImageMediaId: row.open_graph_image_media_id,
-        twitterImageMediaId: row.twitter_image_media_id,
+        openGraphImageMediaId: row.openGraphImageMediaId,
+        twitterImageMediaId: row.twitterImageMediaId,
         robotsEnabled: row.robots_enabled,
         robotsRules: row.robots_rules,
         robotsHost: row.robots_host,
@@ -1028,14 +1028,14 @@ async function migrateSingletons() {
 }
 
 async function migrateSubscriptionsAndSettings() {
-  const subs = await api.query('SELECT id, user_id, author_id, created_at FROM author_subscriptions');
+  const subs = await api.query('SELECT id, "userId", "authorId", created_at FROM author_subscriptions');
   for (const row of subs.rows) {
     try {
       await prisma.authorSubscription.create({
         data: {
           id: row.id,
-          userId: row.user_id,
-          authorId: row.author_id,
+          userId: row.userId,
+          authorId: row.authorId,
           createdAt: row.created_at,
         },
       });
@@ -1045,14 +1045,14 @@ async function migrateSubscriptionsAndSettings() {
   }
   console.log(`Migrated ${subs.rowCount} author subscriptions.`);
 
-  const settings = await api.query('SELECT id, site_name, site_description, logo_media_id, typography, social_links, created_at, updated_at FROM site_settings LIMIT 1');
+  const settings = await api.query('SELECT id, site_name, site_description, "logoMediaId", typography, social_links, created_at, updated_at FROM site_settings LIMIT 1');
   for (const row of settings.rows) {
     await prisma.siteSettings.create({
       data: {
         id: row.id,
         siteName: row.site_name,
         siteDescription: row.site_description,
-        logoMediaId: row.logo_media_id,
+        logoMediaId: row.logoMediaId,
         typography: row.typography,
         socialLinks: row.social_links,
         createdAt: row.created_at,
