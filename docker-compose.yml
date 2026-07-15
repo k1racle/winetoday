@@ -109,10 +109,10 @@ networks:
 
 volumes:
   backend_uploads:
-    name: vino_portal_backend_uploads
+    name: winemakingtodayyy_backend_uploads
   media_uploads:
-    name: vino_portal_media_uploads
+    name: winemakingtodayyy_media_uploads
   postgres_data:
-    name: vino_portal_postgres_data
+    name: winemakingtodayyy_postgres_data
   redis_data:
-    name: vino_portal_redis_data
+    name: winemakingtodayyy_redis_data
