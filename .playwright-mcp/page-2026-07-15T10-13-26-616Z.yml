@@ -1,0 +1,275 @@
+- generic [ref=f1e3]:
+  - banner [ref=f1e4]:
+    - generic [ref=f1e5]:
+      - link [ref=f1e6] [cursor=pointer]:
+        - /url: /
+        - img "Виноделие Сегодня" [ref=f1e7]
+      - generic [ref=f1e8]:
+        - button "Поиск" [ref=f1e10] [cursor=pointer]
+        - button "Войти" [ref=f1e13] [cursor=pointer]
+        - button "Переключить тему" [ref=f1e17] [cursor=pointer]
+    - navigation [ref=f1e20]:
+      - list [ref=f1e22]:
+        - listitem [ref=f1e23]:
+          - link "Новости" [ref=f1e24] [cursor=pointer]:
+            - /url: /news
+        - listitem [ref=f1e25]:
+          - link "Российское виноделие" [ref=f1e26] [cursor=pointer]:
+            - /url: /category/rossijskoe-vino
+        - listitem [ref=f1e27]:
+          - link "Зарубежное виноделие" [ref=f1e28] [cursor=pointer]:
+            - /url: /category/zarubezhnoe-vino
+        - listitem [ref=f1e29]:
+          - link "Алкогольный рынок" [ref=f1e30] [cursor=pointer]:
+            - /url: /category/alkogolnyj-rynok
+        - listitem [ref=f1e31]:
+          - link "Розничный бизнес" [ref=f1e32] [cursor=pointer]:
+            - /url: /category/roznichnyj-biznes
+        - listitem [ref=f1e33]:
+          - link "Ресторанный бизнес" [ref=f1e34] [cursor=pointer]:
+            - /url: /category/restorannyj-biznes
+        - listitem [ref=f1e35]:
+          - link "Туризм" [ref=f1e36] [cursor=pointer]:
+            - /url: /category/turizm
+  - main [ref=f1e37]:
+    - generic [ref=f1e38]:
+      - heading "Поиск" [level=1] [ref=f1e39]
+      - paragraph [ref=f1e40]: По запросу «вино» найдено 179 материалов
+      - generic [ref=f1e41]:
+        - link "Искусственный интеллект посчитал вино безопаснее другого алкоголя Вино 29 июня 2026 г. Искусственный интеллект посчитал вино безопаснее другого алкоголя" [ref=f1e43] [cursor=pointer]:
+          - /url: /news/iskusstvennyy-intellekt-poschital-vino-bezopasnee-drugogo-alkogolya
+          - img "Искусственный интеллект посчитал вино безопаснее другого алкоголя" [ref=f1e45]
+          - generic [ref=f1e46]:
+            - generic [ref=f1e47]:
+              - generic [ref=f1e48]: Вино
+              - generic [ref=f1e49]: 29 июня 2026 г.
+            - heading "Искусственный интеллект посчитал вино безопаснее другого алкоголя" [level=3] [ref=f1e50]
+        - 'link "Виноделами не рождаются: из каких профессий приходили к вину российские специалисты Российское виноделие 29 июня 2026 г. Виноделами не рождаются: из каких профессий приходили к вину российские специалисты" [ref=f1e52] [cursor=pointer]':
+          - /url: /articles/vinodelami-ne-rozhdayutsya-iz-kakih-professiy-prihodili-k-vinu-rossiyskie-speczialisty
+          - 'img "Виноделами не рождаются: из каких профессий приходили к вину российские специалисты" [ref=f1e54]'
+          - generic [ref=f1e55]:
+            - generic [ref=f1e56]:
+              - generic [ref=f1e57]: Российское виноделие
+              - generic [ref=f1e58]: 29 июня 2026 г.
+            - 'heading "Виноделами не рождаются: из каких профессий приходили к вину российские специалисты" [level=3] [ref=f1e59]'
+        - link "Кто чаще покупает российское вино. Рассказал ретейлер 29 июня 2026 г. Кто чаще покупает российское вино. Рассказал ретейлер" [ref=f1e61] [cursor=pointer]:
+          - /url: /news/kto-chashhe-pokupaet-rossiyskoe-vino-rasskazal-reteyler
+          - img "Кто чаще покупает российское вино. Рассказал ретейлер" [ref=f1e63]
+          - generic [ref=f1e64]:
+            - generic [ref=f1e65]: 29 июня 2026 г.
+            - heading "Кто чаще покупает российское вино. Рассказал ретейлер" [level=3] [ref=f1e67]
+        - link "Когда вино — больше, чем вино. Как энотуризм объединяют с другими сферами Российское виноделие 27 июня 2026 г. Когда вино — больше, чем вино. Как энотуризм объединяют с другими сферами" [ref=f1e69] [cursor=pointer]:
+          - /url: /articles/kogda-vino-bolshe-chem-vino-kak-enoturizm-obedinyayut-s-drugimi-sferami
+          - img "Когда вино — больше, чем вино. Как энотуризм объединяют с другими сферами" [ref=f1e71]
+          - generic [ref=f1e72]:
+            - generic [ref=f1e73]:
+              - generic [ref=f1e74]: Российское виноделие
+              - generic [ref=f1e75]: 27 июня 2026 г.
+            - heading "Когда вино — больше, чем вино. Как энотуризм объединяют с другими сферами" [level=3] [ref=f1e76]
+        - link "На «Винодельне Молчановых» рассказали о росте турпотока вдвое в 2026 году Эксклюзив Российское виноделие 26 июня 2026 г. На «Винодельне Молчановых» рассказали о росте турпотока вдвое в 2026 году" [ref=f1e78] [cursor=pointer]:
+          - /url: /news/na-vinodelne-molchanovyh-rasskazali-o-roste-turpotoka-vdvoe-v-2026-godu
+          - generic [ref=f1e79]:
+            - img "На «Винодельне Молчановых» рассказали о росте турпотока вдвое в 2026 году" [ref=f1e80]
+            - generic [ref=f1e81]: Эксклюзив
+          - generic [ref=f1e82]:
+            - generic [ref=f1e83]:
+              - generic [ref=f1e84]: Российское виноделие
+              - generic [ref=f1e85]: 26 июня 2026 г.
+            - heading "На «Винодельне Молчановых» рассказали о росте турпотока вдвое в 2026 году" [level=3] [ref=f1e86]
+        - link "Сергей Коротков обозначил тенденцию к «облегчению» вина у современных потребителей Эксклюзив Российское виноделие 26 июня 2026 г. Сергей Коротков обозначил тенденцию к «облегчению» вина у современных потребителей" [ref=f1e88] [cursor=pointer]:
+          - /url: /news/sergey-korotkov-oboznachil-tendencziyu-k-oblegcheniyu-vina-u-sovremennyh-potrebiteley
+          - generic [ref=f1e89]:
+            - img "Сергей Коротков обозначил тенденцию к «облегчению» вина у современных потребителей" [ref=f1e90]
+            - generic [ref=f1e91]: Эксклюзив
+          - generic [ref=f1e92]:
+            - generic [ref=f1e93]:
+              - generic [ref=f1e94]: Российское виноделие
+              - generic [ref=f1e95]: 26 июня 2026 г.
+            - heading "Сергей Коротков обозначил тенденцию к «облегчению» вина у современных потребителей" [level=3] [ref=f1e96]
+        - link "АВВР вынесла вопрос квотирования российского вина в Беларуси на уровень Союзного государства 26 июня 2026 г. АВВР вынесла вопрос квотирования российского вина в Беларуси на уровень Союзного государства" [ref=f1e98] [cursor=pointer]:
+          - /url: /news/avvr-vynesla-vopros-kvotirovaniya-rossiyskogo-vina-v-belarusi-na-uroven-soyuznogo-gosudarstva
+          - img "АВВР вынесла вопрос квотирования российского вина в Беларуси на уровень Союзного государства" [ref=f1e100]
+          - generic [ref=f1e101]:
+            - generic [ref=f1e102]: 26 июня 2026 г.
+            - heading "АВВР вынесла вопрос квотирования российского вина в Беларуси на уровень Союзного государства" [level=3] [ref=f1e104]
+        - link "На винодельне «Криница» показали цветение винограда 26 июня 2026 г. На винодельне «Криница» показали цветение винограда" [ref=f1e106] [cursor=pointer]:
+          - /url: /news/na-vinodelne-krinicza-pokazali-czvetenie-vinograda
+          - img "На винодельне «Криница» показали цветение винограда" [ref=f1e108]
+          - generic [ref=f1e109]:
+            - generic [ref=f1e110]: 26 июня 2026 г.
+            - heading "На винодельне «Криница» показали цветение винограда" [level=3] [ref=f1e112]
+        - link "𝗬𝗔𝗜𝗬𝗟𝗔 𝗪𝗶𝗻𝗲𝗿𝘆 впервые выпустили оранж верментино 26 июня 2026 г. 𝗬𝗔𝗜𝗬𝗟𝗔 𝗪𝗶𝗻𝗲𝗿𝘆 впервые выпустили оранж верментино" [ref=f1e114] [cursor=pointer]:
+          - /url: /news/inery-vpervye-vypustili-oranzh-vermentino
+          - img "𝗬𝗔𝗜𝗬𝗟𝗔 𝗪𝗶𝗻𝗲𝗿𝘆 впервые выпустили оранж верментино" [ref=f1e116]
+          - generic [ref=f1e117]:
+            - generic [ref=f1e118]: 26 июня 2026 г.
+            - heading "𝗬𝗔𝗜𝗬𝗟𝗔 𝗪𝗶𝗻𝗲𝗿𝘆 впервые выпустили оранж верментино" [level=3] [ref=f1e120]
+        - link "Сергей Коротков рассказал, почему не любит печенье «рыбки» Эксклюзив Российское виноделие 26 июня 2026 г. Сергей Коротков рассказал, почему не любит печенье «рыбки»" [ref=f1e122] [cursor=pointer]:
+          - /url: /news/sergey-korotkov-rasskazal-pochemu-ne-lyubit-pechene-rybki
+          - generic [ref=f1e123]:
+            - img "Сергей Коротков рассказал, почему не любит печенье «рыбки»" [ref=f1e124]
+            - generic [ref=f1e125]: Эксклюзив
+          - generic [ref=f1e126]:
+            - generic [ref=f1e127]:
+              - generic [ref=f1e128]: Российское виноделие
+              - generic [ref=f1e129]: 26 июня 2026 г.
+            - heading "Сергей Коротков рассказал, почему не любит печенье «рыбки»" [level=3] [ref=f1e130]
+        - 'link "Сергей Коротков: о вине, винограде и несостоявшейся Силиконовой долине Эксклюзив Российское виноделие 26 июня 2026 г. Сергей Коротков: о вине, винограде и несостоявшейся Силиконовой долине" [ref=f1e132] [cursor=pointer]':
+          - /url: /articles/sergey-korotkov-o-vine-vinograde-i-nesostoyavsheysya-silikonovoy-doline
+          - generic [ref=f1e133]:
+            - 'img "Сергей Коротков: о вине, винограде и несостоявшейся Силиконовой долине" [ref=f1e134]'
+            - generic [ref=f1e135]: Эксклюзив
+          - generic [ref=f1e136]:
+            - generic [ref=f1e137]:
+              - generic [ref=f1e138]: Российское виноделие
+              - generic [ref=f1e139]: 26 июня 2026 г.
+            - 'heading "Сергей Коротков: о вине, винограде и несостоявшейся Силиконовой долине" [level=3] [ref=f1e140]'
+        - link "Виноделов призвали объединиться для повышения качества продукции 25 июня 2026 г. Виноделов призвали объединиться для повышения качества продукции" [ref=f1e142] [cursor=pointer]:
+          - /url: /news/vinodelov-prizvali-obedinitsya-dlya-povysheniya-kachestva-produkczii
+          - img "Виноделов призвали объединиться для повышения качества продукции" [ref=f1e144]
+          - generic [ref=f1e145]:
+            - generic [ref=f1e146]: 25 июня 2026 г.
+            - heading "Виноделов призвали объединиться для повышения качества продукции" [level=3] [ref=f1e148]
+        - link "В России могут легализовать рекламу виноделен 25 июня 2026 г. В России могут легализовать рекламу виноделен" [ref=f1e150] [cursor=pointer]:
+          - /url: /news/v-rossii-mogut-legalizovat-reklamu-vinodelen
+          - img "В России могут легализовать рекламу виноделен" [ref=f1e152]
+          - generic [ref=f1e153]:
+            - generic [ref=f1e154]: 25 июня 2026 г.
+            - heading "В России могут легализовать рекламу виноделен" [level=3] [ref=f1e156]
+        - link "Бренды «Шумринки» сохранили за бывшим владельцем. Что это значит? Российское виноделие 25 июня 2026 г. Бренды «Шумринки» сохранили за бывшим владельцем. Что это значит?" [ref=f1e158] [cursor=pointer]:
+          - /url: /articles/brendy-shumrinki-sohranili-za-byvshim-vladelczem-chto-eto-znachit
+          - img "Бренды «Шумринки» сохранили за бывшим владельцем. Что это значит?" [ref=f1e160]
+          - generic [ref=f1e161]:
+            - generic [ref=f1e162]:
+              - generic [ref=f1e163]: Российское виноделие
+              - generic [ref=f1e164]: 25 июня 2026 г.
+            - heading "Бренды «Шумринки» сохранили за бывшим владельцем. Что это значит?" [level=3] [ref=f1e165]
+        - link "В Саратовской области начнет работу новая винодельня Эксклюзив Российское виноделие 24 июня 2026 г. В Саратовской области начнет работу новая винодельня" [ref=f1e167] [cursor=pointer]:
+          - /url: /articles/v-saratovskoy-oblasti-nachnet-rabotu-novaya-vinodelnya
+          - generic [ref=f1e168]:
+            - img "В Саратовской области начнет работу новая винодельня" [ref=f1e169]
+            - generic [ref=f1e170]: Эксклюзив
+          - generic [ref=f1e171]:
+            - generic [ref=f1e172]:
+              - generic [ref=f1e173]: Российское виноделие
+              - generic [ref=f1e174]: 24 июня 2026 г.
+            - heading "В Саратовской области начнет работу новая винодельня" [level=3] [ref=f1e175]
+        - link "В Россельхозбанке рассказали об особом влиянии ретейла на выбор вина 24 июня 2026 г. В Россельхозбанке рассказали об особом влиянии ретейла на выбор вина" [ref=f1e177] [cursor=pointer]:
+          - /url: /news/v-rosselhozbanke-rasskazali-ob-osobom-vliyanii-reteyla-na-vybor-vina
+          - img "В Россельхозбанке рассказали об особом влиянии ретейла на выбор вина" [ref=f1e179]
+          - generic [ref=f1e180]:
+            - generic [ref=f1e181]: 24 июня 2026 г.
+            - heading "В Россельхозбанке рассказали об особом влиянии ретейла на выбор вина" [level=3] [ref=f1e183]
+        - link "В АВВР малых виноделов России назвали «изюминкой отрасли» 24 июня 2026 г. В АВВР малых виноделов России назвали «изюминкой отрасли»" [ref=f1e185] [cursor=pointer]:
+          - /url: /news/v-avvr-malyh-vinodelov-rossii-nazvali-izyuminkoy-otrasli
+          - img "В АВВР малых виноделов России назвали «изюминкой отрасли»" [ref=f1e187]
+          - generic [ref=f1e188]:
+            - generic [ref=f1e189]: 24 июня 2026 г.
+            - heading "В АВВР малых виноделов России назвали «изюминкой отрасли»" [level=3] [ref=f1e191]
+        - link "Борис Титов — о замедлении качественного роста в российском виноделии Российское виноделие 23 июня 2026 г. Борис Титов — о замедлении качественного роста в российском виноделии" [ref=f1e193] [cursor=pointer]:
+          - /url: /news/boris-titov-o-zamedlenii-kachestvennogo-rosta-v-rossiyskom-vinodelii
+          - img "Борис Титов — о замедлении качественного роста в российском виноделии" [ref=f1e195]
+          - generic [ref=f1e196]:
+            - generic [ref=f1e197]:
+              - generic [ref=f1e198]: Российское виноделие
+              - generic [ref=f1e199]: 23 июня 2026 г.
+            - heading "Борис Титов — о замедлении качественного роста в российском виноделии" [level=3] [ref=f1e200]
+        - link "Модный показ на винодельне. Как это было 23 июня 2026 г. Модный показ на винодельне. Как это было" [ref=f1e202] [cursor=pointer]:
+          - /url: /news/modnyy-pokaz-na-vinodelne-kak-eto-bylo
+          - img "Модный показ на винодельне. Как это было" [ref=f1e204]
+          - generic [ref=f1e205]:
+            - generic [ref=f1e206]: 23 июня 2026 г.
+            - heading "Модный показ на винодельне. Как это было" [level=3] [ref=f1e208]
+        - link "На Uppa Winery рассказали, как прошли «Винные игры» Российское виноделие 23 июня 2026 г. На Uppa Winery рассказали, как прошли «Винные игры»" [ref=f1e210] [cursor=pointer]:
+          - /url: /news/na-uppa-winery-rasskazali-kak-proshli-vinnye-igry
+          - img "На Uppa Winery рассказали, как прошли «Винные игры»" [ref=f1e212]
+          - generic [ref=f1e213]:
+            - generic [ref=f1e214]:
+              - generic [ref=f1e215]: Российское виноделие
+              - generic [ref=f1e216]: 23 июня 2026 г.
+            - heading "На Uppa Winery рассказали, как прошли «Винные игры»" [level=3] [ref=f1e217]
+        - 'link "«Живем в благодарности»: на винодельне рассказали, что происходит в Крыму 23 июня 2026 г. «Живем в благодарности»: на винодельне рассказали, что происходит в Крыму" [ref=f1e219] [cursor=pointer]':
+          - /url: /news/zhivem-v-blagodarnosti-na-vinodelne-rasskazali-chto-proishodit-v-krymu
+          - 'img "«Живем в благодарности»: на винодельне рассказали, что происходит в Крыму" [ref=f1e221]'
+          - generic [ref=f1e222]:
+            - generic [ref=f1e223]: 23 июня 2026 г.
+            - 'heading "«Живем в благодарности»: на винодельне рассказали, что происходит в Крыму" [level=3] [ref=f1e225]'
+        - link "На «Золотой Балке» открыли парк с виноградным лабиринтом Российское виноделие 23 июня 2026 г. На «Золотой Балке» открыли парк с виноградным лабиринтом" [ref=f1e227] [cursor=pointer]:
+          - /url: /news/na-zolotoy-balke-otkryli-park-s-vinogradnym-labirintom
+          - img "На «Золотой Балке» открыли парк с виноградным лабиринтом" [ref=f1e229]
+          - generic [ref=f1e230]:
+            - generic [ref=f1e231]:
+              - generic [ref=f1e232]: Российское виноделие
+              - generic [ref=f1e233]: 23 июня 2026 г.
+            - heading "На «Золотой Балке» открыли парк с виноградным лабиринтом" [level=3] [ref=f1e234]
+        - link "На «Неделе российского ритейла — 2026» обсудят вопросы виноторговли Вино 23 июня 2026 г. На «Неделе российского ритейла — 2026» обсудят вопросы виноторговли" [ref=f1e236] [cursor=pointer]:
+          - /url: /news/na-nedele-rossiyskogo-riteyla-2026-obsudyat-voprosy-vinotorgovli
+          - img "На «Неделе российского ритейла — 2026» обсудят вопросы виноторговли" [ref=f1e238]
+          - generic [ref=f1e239]:
+            - generic [ref=f1e240]:
+              - generic [ref=f1e241]: Вино
+              - generic [ref=f1e242]: 23 июня 2026 г.
+            - heading "На «Неделе российского ритейла — 2026» обсудят вопросы виноторговли" [level=3] [ref=f1e243]
+        - link "«Бюрнье» рассказали о работе над первым игристым Российское виноделие 22 июня 2026 г. «Бюрнье» рассказали о работе над первым игристым" [ref=f1e245] [cursor=pointer]:
+          - /url: /news/byurne-rasskazali-o-rabote-nad-pervym-igristym
+          - img "«Бюрнье» рассказали о работе над первым игристым" [ref=f1e247]
+          - generic [ref=f1e248]:
+            - generic [ref=f1e249]:
+              - generic [ref=f1e250]: Российское виноделие
+              - generic [ref=f1e251]: 22 июня 2026 г.
+            - heading "«Бюрнье» рассказали о работе над первым игристым" [level=3] [ref=f1e252]
+  - contentinfo [ref=f1e253]:
+    - generic [ref=f1e255]:
+      - generic [ref=f1e256]:
+        - link "Виноделие сегодня" [ref=f1e257] [cursor=pointer]:
+          - /url: /
+        - generic [ref=f1e258]:
+          - link "ВКонтакте" [ref=f1e259] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "YouTube" [ref=f1e261] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "Instagram" [ref=f1e263] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "Дзен" [ref=f1e265] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "Telegram" [ref=f1e267] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "MAX" [ref=f1e269] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+      - generic [ref=f1e271]:
+        - heading "Рубрики" [level=4] [ref=f1e272]
+        - list [ref=f1e273]:
+          - listitem [ref=f1e274]:
+            - link "Новости" [ref=f1e275] [cursor=pointer]:
+              - /url: /news
+          - listitem [ref=f1e276]:
+            - link "Российское виноделие" [ref=f1e277] [cursor=pointer]:
+              - /url: /category/rossijskoe-vino
+          - listitem [ref=f1e278]:
+            - link "Зарубежное виноделие" [ref=f1e279] [cursor=pointer]:
+              - /url: /category/zarubezhnoe-vino
+          - listitem [ref=f1e280]:
+            - link "Алкогольный рынок" [ref=f1e281] [cursor=pointer]:
+              - /url: /category/alkogolnyj-rynok
+          - listitem [ref=f1e282]:
+            - link "Розничный бизнес" [ref=f1e283] [cursor=pointer]:
+              - /url: /category/roznichnyj-biznes
+          - listitem [ref=f1e284]:
+            - link "Ресторанный бизнес" [ref=f1e285] [cursor=pointer]:
+              - /url: /category/restorannyj-biznes
+          - listitem [ref=f1e286]:
+            - link "Туризм" [ref=f1e287] [cursor=pointer]:
+              - /url: /category/turizm
+          - listitem [ref=f1e288]:
+            - link "Афиша" [ref=f1e289] [cursor=pointer]:
+              - /url: /events
+      - generic [ref=f1e290]:
+        - heading "О нас" [level=4] [ref=f1e291]
+        - list [ref=f1e292]:
+          - listitem [ref=f1e293]:
+            - link "Правовая информация" [ref=f1e294] [cursor=pointer]:
+              - /url: /legal
+          - listitem [ref=f1e295]:
+            - link "Политика в отношении обработки персональных данных" [ref=f1e296] [cursor=pointer]:
+              - /url: /privacy
+    - paragraph [ref=f1e299]: Все права защищены. Копирование и иное использование материалов возможны только с письменного согласия правообладателя и с обязательным указанием источника.

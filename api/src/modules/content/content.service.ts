@@ -62,6 +62,14 @@ export class ContentService {
       where.author = { slug: dto.authorSlug };
     }
 
+    if (dto.search?.trim()) {
+      const term = dto.search.trim();
+      where.OR = [
+        { title: { contains: term, mode: 'insensitive' } },
+        { excerpt: { contains: term, mode: 'insensitive' } },
+      ];
+    }
+
     const [items, total] = await Promise.all([
       this.prisma.contentItem.findMany({
         where,

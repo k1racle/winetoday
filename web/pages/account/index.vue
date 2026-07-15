@@ -50,10 +50,6 @@ async function loadStats() {
 }
 
 onMounted(() => {
-  if (!isAuthenticated.value) {
-    navigateTo('/');
-    return;
-  }
   loadStats();
   const editId = route.query.id;
   if (editId && typeof editId === 'string') {

@@ -1,0 +1,5 @@
+- generic [ref=e5]:
+  - heading "404" [level=1] [ref=e6]
+  - paragraph [ref=e7]: Статья не найдена
+  - link "Go back home" [ref=e9] [cursor=pointer]:
+    - /url: /

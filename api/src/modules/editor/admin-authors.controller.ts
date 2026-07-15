@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { EditorService } from './editor.service';
+import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 
 @Controller('admin/authors')
@@ -15,6 +16,11 @@ export class AdminAuthorsController {
   @Get()
   listAuthors() {
     return this.editorService.listAuthorsAdmin();
+  }
+
+  @Post()
+  createAuthor(@Body() dto: CreateAuthorDto) {
+    return this.editorService.createAuthor(dto);
   }
 
   @Get(':id/analytics')

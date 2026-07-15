@@ -13,12 +13,21 @@ interface AdminAuthor {
   } | null;
 }
 
-const { user, isAuthenticated } = useAuth();
-const { getAdminAuthors } = useApi();
+const { getAdminAuthors, createAuthor } = useApi();
 
 const authors = ref<AdminAuthor[]>([]);
 const loading = ref(false);
 const error = ref('');
+
+const showForm = ref(false);
+const submitLoading = ref(false);
+const submitError = ref('');
+const newAuthor = ref({
+  name: '',
+  slug: '',
+  position: '',
+  bio: '',
+});
 
 function dedupeAuthors(list: AdminAuthor[]): AdminAuthor[] {
   const map = new Map<string, AdminAuthor>();
@@ -29,8 +38,6 @@ function dedupeAuthors(list: AdminAuthor[]): AdminAuthor[] {
       map.set(name, author);
       continue;
     }
-    // Prefer the author linked to a user. If both have (or lack) a user,
-    // keep the one with more materials.
     const authorHasUser = !!author.user;
     const existingHasUser = !!existing.user;
     if (
@@ -56,11 +63,27 @@ async function fetchAuthors() {
   }
 }
 
-onMounted(() => {
-  if (!isAuthenticated.value || user.value?.role !== 'admin') {
-    navigateTo('/account');
-    return;
+async function onSubmit() {
+  submitLoading.value = true;
+  submitError.value = '';
+  try {
+    const body: Record<string, string> = { name: newAuthor.value.name.trim() };
+    if (newAuthor.value.slug.trim()) body.slug = newAuthor.value.slug.trim();
+    if (newAuthor.value.position.trim()) body.position = newAuthor.value.position.trim();
+    if (newAuthor.value.bio.trim()) body.bio = newAuthor.value.bio.trim();
+
+    await createAuthor(body);
+    newAuthor.value = { name: '', slug: '', position: '', bio: '' };
+    showForm.value = false;
+    await fetchAuthors();
+  } catch (err: any) {
+    submitError.value = err?.data?.message || err?.message || 'Ошибка создания автора';
+  } finally {
+    submitLoading.value = false;
   }
+}
+
+onMounted(() => {
   fetchAuthors();
 });
 </script>
@@ -76,9 +99,68 @@ onMounted(() => {
 
     <AdminTabs class="mt-6" />
 
-    <div class="mt-6 flex items-center justify-end">
+    <div class="mt-6 flex items-center justify-between">
+      <button
+        class="bg-accent px-4 py-2 text-sm font-medium text-black transition hover:bg-accent/90"
+        @click="showForm = !showForm"
+      >
+        {{ showForm ? 'Отменить' : 'Добавить автора' }}
+      </button>
       <button class="text-sm text-accent hover:underline" @click="fetchAuthors">Обновить</button>
     </div>
+
+    <form
+      v-if="showForm"
+      class="mt-6 space-y-4 border border-foreground/10 bg-card p-5 shadow-sm"
+      @submit.prevent="onSubmit"
+    >
+      <div>
+        <label class="mb-1 block text-sm font-medium">Имя <span class="text-red-600">*</span></label>
+        <input
+          v-model="newAuthor.name"
+          type="text"
+          required
+          class="w-full border border-foreground/20 bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
+          placeholder="Иван Иванов"
+        />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium">Slug</label>
+        <input
+          v-model="newAuthor.slug"
+          type="text"
+          class="w-full border border-foreground/20 bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
+          placeholder="ivan-ivanov"
+        />
+        <p class="mt-1 text-xs text-foreground/50">Если не указан, будет сгенерирован автоматически.</p>
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium">Должность</label>
+        <input
+          v-model="newAuthor.position"
+          type="text"
+          class="w-full border border-foreground/20 bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
+          placeholder="Винный критик"
+        />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm font-medium">Биография</label>
+        <textarea
+          v-model="newAuthor.bio"
+          rows="3"
+          class="w-full border border-foreground/20 bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
+          placeholder="Краткая биография"
+        />
+      </div>
+      <p v-if="submitError" class="text-sm text-red-600">{{ submitError }}</p>
+      <button
+        type="submit"
+        :disabled="submitLoading"
+        class="bg-accent px-5 py-2.5 text-sm font-medium text-black transition hover:bg-accent/90 disabled:opacity-50"
+      >
+        {{ submitLoading ? 'Сохранение...' : 'Создать автора' }}
+      </button>
+    </form>
 
     <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
     <p v-if="error" class="mt-6 text-sm text-red-600">{{ error }}</p>

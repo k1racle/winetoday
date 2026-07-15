@@ -4,6 +4,8 @@ import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
+import TextAlign from '@tiptap/extension-text-align';
+import { FontSize } from '~/utils/tiptap-font-size';
 
 const props = defineProps<{
   modelValue?: any;
@@ -27,6 +29,8 @@ const editor = useEditor({
     }),
     TextStyle,
     Color.configure({ types: ['textStyle'] }),
+    TextAlign.configure({ types: ['paragraph', 'heading'] }),
+    FontSize,
   ],
   editorProps: {
     attributes: {
@@ -59,6 +63,24 @@ function setLink() {
   } else {
     editor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
   }
+}
+
+function setFontSize(event: Event) {
+  if (!editor.value) return;
+  const target = event.target as HTMLSelectElement;
+  const size = target.value;
+  if (!size) {
+    editor.value.chain().focus().unsetFontSize().run();
+  } else {
+    editor.value.chain().focus().setFontSize(`${size}px`).run();
+  }
+}
+
+function currentFontSize() {
+  if (!editor.value) return '';
+  const size = editor.value.getAttributes('fontSize').size as string | undefined;
+  if (!size) return '';
+  return size.replace('px', '');
 }
 
 onBeforeUnmount(() => {
@@ -101,6 +123,9 @@ onBeforeUnmount(() => {
       >
         H3
       </button>
+
+      <span class="mx-1 h-4 w-px bg-foreground/20" />
+
       <button
         type="button"
         class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
@@ -117,6 +142,69 @@ onBeforeUnmount(() => {
       >
         1. Список
       </button>
+      <button
+        type="button"
+        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        :class="{ 'bg-foreground/20': editor.isActive('blockquote') }"
+        @click="editor.chain().focus().toggleBlockquote().run()"
+      >
+        Цитата
+      </button>
+
+      <span class="mx-1 h-4 w-px bg-foreground/20" />
+
+      <button
+        type="button"
+        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        :class="{ 'bg-foreground/20': editor.isActive({ textAlign: 'left' }) }"
+        @click="editor.chain().focus().setTextAlign('left').run()"
+      >
+        ←
+      </button>
+      <button
+        type="button"
+        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        :class="{ 'bg-foreground/20': editor.isActive({ textAlign: 'center' }) }"
+        @click="editor.chain().focus().setTextAlign('center').run()"
+      >
+        ↔
+      </button>
+      <button
+        type="button"
+        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        :class="{ 'bg-foreground/20': editor.isActive({ textAlign: 'right' }) }"
+        @click="editor.chain().focus().setTextAlign('right').run()"
+      >
+        →
+      </button>
+      <button
+        type="button"
+        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        :class="{ 'bg-foreground/20': editor.isActive({ textAlign: 'justify' }) }"
+        @click="editor.chain().focus().setTextAlign('justify').run()"
+      >
+        ⇹
+      </button>
+
+      <span class="mx-1 h-4 w-px bg-foreground/20" />
+
+      <select
+        :value="currentFontSize()"
+        class="h-6 px-1 text-xs bg-transparent border border-foreground/20 rounded"
+        @change="setFontSize"
+      >
+        <option value="">Размер</option>
+        <option value="12">12px</option>
+        <option value="14">14px</option>
+        <option value="16">16px</option>
+        <option value="18">18px</option>
+        <option value="20">20px</option>
+        <option value="24">24px</option>
+        <option value="30">30px</option>
+      </select>
+
+      <span class="mx-1 h-4 w-px bg-foreground/20" />
+
       <button
         type="button"
         class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"

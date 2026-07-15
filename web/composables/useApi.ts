@@ -2,10 +2,12 @@ export function useApi() {
   const config = useRuntimeConfig();
 
   const baseURL = import.meta.server ? config.apiUrl : config.public.apiUrl;
+  const headers = import.meta.server ? useRequestHeaders(['cookie']) : {};
 
   const api = $fetch.create({
     baseURL,
     credentials: 'include',
+    headers,
   });
 
   return {
@@ -74,6 +76,10 @@ export function useApi() {
       api('/site-header'),
     getSiteSeo: () =>
       api('/site-seo'),
+    getAdminSiteSeo: () =>
+      api('/admin/site-seo', { credentials: 'include' }),
+    updateSiteSeo: (body: Record<string, unknown>) =>
+      api('/admin/site-seo', { method: 'PATCH', body, credentials: 'include' }),
     getAdminSiteHeader: () =>
       api('/admin/site-header', { credentials: 'include' }),
     updateSiteHeader: (body: { lightLogoMediaId?: string; darkLogoMediaId?: string }) =>
@@ -146,6 +152,8 @@ export function useApi() {
       api('/editor/authors', { credentials: 'include' }),
     getAdminAuthors: () =>
       api('/admin/authors', { credentials: 'include' }),
+    createAuthor: (body: { name: string; slug?: string; position?: string; bio?: string; avatarMediaId?: string }) =>
+      api('/admin/authors', { method: 'POST', body, credentials: 'include' }),
     getAuthorAnalytics: (id: string) =>
       api(`/admin/authors/${id}/analytics`, { credentials: 'include' }),
   };

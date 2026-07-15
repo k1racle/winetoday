@@ -8,6 +8,7 @@ import { ContentStatus, ContentType, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { MediaService } from '../media/media.service';
 import { CreateDraftDto } from './dto/create-draft.dto';
+import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 
 const CYRILLIC_MAP: Record<string, string> = {
@@ -417,6 +418,35 @@ export class EditorService {
       totalViews,
       dailyViews,
     };
+  }
+
+  async createAuthor(dto: CreateAuthorDto) {
+    const name = dto.name?.trim();
+    if (!name) {
+      throw new BadRequestException('Name is required');
+    }
+
+    let slug = dto.slug?.trim();
+    if (!slug) {
+      slug = slugify(name) || `author-${Date.now()}`;
+    }
+    slug = slug.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-|-$/g, '');
+
+    const slugTaken = await this.prisma.author.findUnique({ where: { slug } });
+    if (slugTaken) {
+      throw new BadRequestException('Slug already in use');
+    }
+
+    return this.prisma.author.create({
+      data: {
+        name,
+        slug,
+        position: dto.position?.trim() || null,
+        bio: dto.bio?.trim() || null,
+        avatarMediaId: dto.avatarMediaId || null,
+      },
+      include: { avatarMedia: true },
+    });
   }
 
   async updateAuthor(id: string, dto: UpdateAuthorDto) {

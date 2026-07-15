@@ -16,6 +16,7 @@
     "@pinia/nuxt": "^0.5.0",
     "@tiptap/extension-color": "^2.27.2",
     "@tiptap/extension-link": "^2.27.2",
+    "@tiptap/extension-text-align": "^2.27.2",
     "@tiptap/extension-text-style": "^2.27.2",
     "@tiptap/pm": "^2.27.2",
     "@tiptap/starter-kit": "^2.27.2",
@@ -32,6 +33,7 @@
   "devDependencies": {
     "@nuxt/image": "^1.7.0",
     "@nuxtjs/tailwindcss": "^6.12.0",
+    "@tailwindcss/typography": "^0.5.20",
     "@types/node": "^20.0.0",
     "@types/uuid": "^9.0.0",
     "typescript": "^5.5.0"

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
 import { UpdateSiteHeaderDto } from './dto/update-site-header.dto';
+import { UpdateSiteSeoDto } from './dto/update-site-seo.dto';
 
 const singletonInclude = {
   logoMedia: true,
@@ -102,6 +103,40 @@ export class SettingsService {
       where: { id: existing.id },
       data,
       include: { lightLogo: true, darkLogo: true },
+    });
+  }
+
+  async updateSiteSeo(dto: UpdateSiteSeoDto) {
+    const existing = await this.prisma.siteSeo.findFirst();
+    const data: any = {};
+
+    if (dto.defaultSeo !== undefined) {
+      data.defaultSeo = dto.defaultSeo as any;
+    }
+    if (dto.openGraphImageMediaId !== undefined) {
+      data.openGraphImageMediaId = dto.openGraphImageMediaId || null;
+    }
+    if (dto.twitterImageMediaId !== undefined) {
+      data.twitterImageMediaId = dto.twitterImageMediaId || null;
+    }
+    if (dto.robotsEnabled !== undefined) {
+      data.robotsEnabled = dto.robotsEnabled;
+    }
+    if (dto.sitemapEnabled !== undefined) {
+      data.sitemapEnabled = dto.sitemapEnabled;
+    }
+
+    if (!existing) {
+      return this.prisma.siteSeo.create({
+        data,
+        include: seoInclude,
+      });
+    }
+
+    return this.prisma.siteSeo.update({
+      where: { id: existing.id },
+      data,
+      include: seoInclude,
     });
   }
 }

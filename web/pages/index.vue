@@ -3,7 +3,7 @@ import type { ContentItem } from '~/types/content';
 
 const { getHomepage, getContent, getLatestByCategory } = useApi();
 
-const itemsPerPage = 36;
+const itemsPerPage = 24;
 const displayLimit = ref(itemsPerPage);
 const isLoading = ref(false);
 
@@ -50,6 +50,11 @@ const mixedItems = computed<ContentItem[]>(() => {
       return da - db;
     })
     .slice(0, displayLimit.value);
+});
+
+const totalMixedCount = computed(() => {
+  const items = allMixed.value?.items || [];
+  return items.filter((item) => item.type === 'article').length;
 });
 
 function loadMore() {
@@ -200,7 +205,7 @@ useSeoMeta({
             <div class="mt-8">
               <button
                 type="button"
-                :disabled="isLoading || displayLimit >= (homepage?.articles?.length || 0)"
+                :disabled="isLoading || displayLimit >= totalMixedCount"
                 @click="loadMore()"
                 class="text-accent font-heading font-bold text-lg transition hover:text-accent/80 disabled:opacity-50 disabled:cursor-not-allowed"
               >

@@ -1,0 +1,1002 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Виноделие Сегодня" [ref=e7]
+      - generic [ref=e8]:
+        - button "Поиск" [ref=e10] [cursor=pointer]
+        - button "Войти" [ref=e13] [cursor=pointer]
+        - button "Переключить тему" [ref=e17] [cursor=pointer]
+    - navigation [ref=e20]:
+      - list [ref=e22]:
+        - listitem [ref=e23]:
+          - link "Новости" [ref=e24] [cursor=pointer]:
+            - /url: /news
+        - listitem [ref=e25]:
+          - link "Российское виноделие" [ref=e26] [cursor=pointer]:
+            - /url: /category/rossijskoe-vino
+        - listitem [ref=e27]:
+          - link "Зарубежное виноделие" [ref=e28] [cursor=pointer]:
+            - /url: /category/zarubezhnoe-vino
+        - listitem [ref=e29]:
+          - link "Алкогольный рынок" [ref=e30] [cursor=pointer]:
+            - /url: /category/alkogolnyj-rynok
+        - listitem [ref=e31]:
+          - link "Розничный бизнес" [ref=e32] [cursor=pointer]:
+            - /url: /category/roznichnyj-biznes
+        - listitem [ref=e33]:
+          - link "Ресторанный бизнес" [ref=e34] [cursor=pointer]:
+            - /url: /category/restorannyj-biznes
+        - listitem [ref=e35]:
+          - link "Туризм" [ref=e36] [cursor=pointer]:
+            - /url: /category/turizm
+  - main [ref=e37]:
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e43]:
+          - link "werr Алкогольный рынок 01.07.2026 werr werr" [ref=e46] [cursor=pointer]:
+            - /url: /articles/werr
+            - img "werr" [ref=e47]
+            - generic [ref=e49]:
+              - generic [ref=e50]:
+                - generic [ref=e51]: Алкогольный рынок
+                - generic [ref=e52]: 01.07.2026
+              - heading "werr" [level=3] [ref=e53]
+              - paragraph [ref=e54]: werr
+          - generic [ref=e55]:
+            - link "test Эксклюзив Алкогольный рынок 30.06.2026 test" [ref=e57] [cursor=pointer]:
+              - /url: /articles/test
+              - generic [ref=e58]:
+                - img "test" [ref=e59]
+                - generic [ref=e60]: Эксклюзив
+              - generic [ref=e61]:
+                - generic [ref=e62]:
+                  - generic [ref=e63]: Алкогольный рынок
+                  - generic [ref=e64]: 30.06.2026
+                - heading "test" [level=3] [ref=e65]
+            - 'link "Виноделами не рождаются: из каких профессий приходили к вину российские специалисты Российское виноделие 29.06.2026 Виноделами не рождаются: из каких профессий приходили к вину российские специалисты" [ref=e67] [cursor=pointer]':
+              - /url: /articles/vinodelami-ne-rozhdayutsya-iz-kakih-professiy-prihodili-k-vinu-rossiyskie-speczialisty
+              - 'img "Виноделами не рождаются: из каких профессий приходили к вину российские специалисты" [ref=e69]'
+              - generic [ref=e70]:
+                - generic [ref=e71]:
+                  - generic [ref=e72]: Российское виноделие
+                  - generic [ref=e73]: 29.06.2026
+                - 'heading "Виноделами не рождаются: из каких профессий приходили к вину российские специалисты" [level=3] [ref=e74]'
+        - generic [ref=e75]:
+          - generic [ref=e76]:
+            - heading "Видео" [level=2] [ref=e80]
+            - link "Все видео →" [ref=e81] [cursor=pointer]:
+              - /url: /videos
+          - generic [ref=e82]:
+            - 'heading "Константин Дзитоев: как родилось семейное виноделие, и зачем расписывать бутылки вручную" [level=3] [ref=e83]'
+            - link [ref=e84] [cursor=pointer]:
+              - /url: /videos/konstantin-dzitoev-kak-rodilos-semeynoe-vinodelie-i-zachem-raspisyvat-butylki-vruchnuyu-2
+              - 'img "Константин Дзитоев: как родилось семейное виноделие, и зачем расписывать бутылки вручную" [ref=e85]'
+          - generic [ref=e86]:
+            - generic [ref=e87]:
+              - 'link "Вероника Мачусская (Mons Albus): экстремальное виноделие в Белогорском районе Крыма 0:00:11 Вероника Мачусская (Mons Albus): экстремальное виноделие в Белогорском районе Крыма" [ref=e89] [cursor=pointer]':
+                - /url: /videos/veronika-machusskaya-mons-albus-ekstremalnoe-vinodelie-v-belogorskom-rayone-kryma-2
+                - generic [ref=e90]:
+                  - 'img "Вероника Мачусская (Mons Albus): экстремальное виноделие в Белогорском районе Крыма" [ref=e91]'
+                  - generic [ref=e93]: 0:00:11
+                  - 'heading "Вероника Мачусская (Mons Albus): экстремальное виноделие в Белогорском районе Крыма" [level=4] [ref=e95]'
+              - 'link "Жанна Садовская: «История — это главное, что продаёт вино» 0:00:18 Жанна Садовская: «История — это главное, что продаёт вино»" [ref=e97] [cursor=pointer]':
+                - /url: /videos/zhanna-sadovskaya-istoriya-eto-glavnoe-chto-prodaet-vino
+                - generic [ref=e98]:
+                  - 'img "Жанна Садовская: «История — это главное, что продаёт вино»" [ref=e99]'
+                  - generic [ref=e101]: 0:00:18
+                  - 'heading "Жанна Садовская: «История — это главное, что продаёт вино»" [level=4] [ref=e103]'
+              - 'link "Никита Дубинин: «Мы приняли решение расти качественно» 0:00:11 Никита Дубинин: «Мы приняли решение расти качественно»" [ref=e105] [cursor=pointer]':
+                - /url: /videos/nikita-dubinin-my-prinyali-reshenie-rasti-kachestvenno
+                - generic [ref=e106]:
+                  - 'img "Никита Дубинин: «Мы приняли решение расти качественно»" [ref=e107]'
+                  - generic [ref=e109]: 0:00:11
+                  - 'heading "Никита Дубинин: «Мы приняли решение расти качественно»" [level=4] [ref=e111]'
+              - 'link "От советского шампанского до собственного бренда: династия Звягинцевых в российском виноделии 0:00:13 От советского шампанского до собственного бренда: династия Звягинцевых в российском виноделии" [ref=e113] [cursor=pointer]':
+                - /url: /videos/ot-sovetskogo-shampanskogo-do-sobstvennogo-brenda-dinastiya-zvyaginczevyh-v-rossiyskom-vinodelii
+                - generic [ref=e114]:
+                  - 'img "От советского шампанского до собственного бренда: династия Звягинцевых в российском виноделии" [ref=e115]'
+                  - generic [ref=e117]: 0:00:13
+                  - 'heading "От советского шампанского до собственного бренда: династия Звягинцевых в российском виноделии" [level=4] [ref=e119]'
+              - link "«50 на 50 мы точно выиграем» — Алексей Сидоренко о конкуренции с Европой 0:00:10 «50 на 50 мы точно выиграем» — Алексей Сидоренко о конкуренции с Европой" [ref=e121] [cursor=pointer]:
+                - /url: /videos/50-na-50-my-tochno-vyigraem-aleksey-sidorenko-o-konkurenczii-s-evropoy
+                - generic [ref=e122]:
+                  - img "«50 на 50 мы точно выиграем» — Алексей Сидоренко о конкуренции с Европой" [ref=e123]
+                  - generic [ref=e125]: 0:00:10
+                  - heading "«50 на 50 мы точно выиграем» — Алексей Сидоренко о конкуренции с Европой" [level=4] [ref=e127]
+              - 'link "Карина Согоян: «Академия Российского вина» и кадровые вызовы отрасли 0:00:01 Карина Согоян: «Академия Российского вина» и кадровые вызовы отрасли" [ref=e129] [cursor=pointer]':
+                - /url: /videos/karina-sogoyan-akademiya-rossiyskogo-vina-i-kadrovye-vyzovy-otrasli
+                - generic [ref=e130]:
+                  - 'img "Карина Согоян: «Академия Российского вина» и кадровые вызовы отрасли" [ref=e131]'
+                  - generic [ref=e133]: 0:00:01
+                  - 'heading "Карина Согоян: «Академия Российского вина» и кадровые вызовы отрасли" [level=4] [ref=e135]'
+              - 'link "Роман Логунов о «Шумринке»: десятилетие развития и масштаб в 92 гектара 0:00:10 Роман Логунов о «Шумринке»: десятилетие развития и масштаб в 92 гектара" [ref=e137] [cursor=pointer]':
+                - /url: /videos/roman-logunov-o-shumrinke-desyatiletie-razvitiya-i-masshtab-v-92-gektara
+                - generic [ref=e138]:
+                  - 'img "Роман Логунов о «Шумринке»: десятилетие развития и масштаб в 92 гектара" [ref=e139]'
+                  - generic [ref=e141]: 0:00:10
+                  - 'heading "Роман Логунов о «Шумринке»: десятилетие развития и масштаб в 92 гектара" [level=4] [ref=e143]'
+              - 'link "Винодел Сергей Невский: малому производителю нужен личный бренд и актёрское мастерство 0:00:14 Винодел Сергей Невский: малому производителю нужен личный бренд и актёрское мастерство" [ref=e145] [cursor=pointer]':
+                - /url: /videos/vinodel-sergey-nevskiy-malomu-proizvoditelyu-nuzhen-lichnyy-brend-i-akterskoe-masterstvo
+                - generic [ref=e146]:
+                  - 'img "Винодел Сергей Невский: малому производителю нужен личный бренд и актёрское мастерство" [ref=e147]'
+                  - generic [ref=e149]: 0:00:14
+                  - 'heading "Винодел Сергей Невский: малому производителю нужен личный бренд и актёрское мастерство" [level=4] [ref=e151]'
+              - 'link "Винодельня «Дрозд»: как маркетологи нашли заброшенный виноградник и вдохнули в него новую жизнь 0:00:08 Винодельня «Дрозд»: как маркетологи нашли заброшенный виноградник и вдохнули в него новую жизнь" [ref=e153] [cursor=pointer]':
+                - /url: /videos/vinodelnya-drozd-kak-marketologi-nashli-zabroshennyy-vinogradnik-i-vdohnuli-v-nego-novuyu-zhizn
+                - generic [ref=e154]:
+                  - 'img "Винодельня «Дрозд»: как маркетологи нашли заброшенный виноградник и вдохнули в него новую жизнь" [ref=e155]'
+                  - generic [ref=e157]: 0:00:08
+                  - 'heading "Винодельня «Дрозд»: как маркетологи нашли заброшенный виноградник и вдохнули в него новую жизнь" [level=4] [ref=e159]'
+              - 'link "Что ждет российское виноделие: Алексей Соловьев о конкурсе «Винорус», дегустациях и рынке 0:00:16 Что ждет российское виноделие: Алексей Соловьев о конкурсе «Винорус», дегустациях и рынке" [ref=e161] [cursor=pointer]':
+                - /url: /videos/chto-zhdet-rossiyskoe-vinodelie-aleksey-solovev-o-konkurse-vinorus-degustacziyah-i-rynke
+                - generic [ref=e162]:
+                  - 'img "Что ждет российское виноделие: Алексей Соловьев о конкурсе «Винорус», дегустациях и рынке" [ref=e163]'
+                  - generic [ref=e165]: 0:00:16
+                  - 'heading "Что ждет российское виноделие: Алексей Соловьев о конкурсе «Винорус», дегустациях и рынке" [level=4] [ref=e167]'
+              - 'link "400 000 бутылок, энотуризм и редкие сорта винограда: Андрей Куличков о том, как работает винодельня «Собер Баш» 0:00:13 400 000 бутылок, энотуризм и редкие сорта винограда: Андрей Куличков о том, как работает винодельня «Собер Баш»" [ref=e169] [cursor=pointer]':
+                - /url: /videos/400-000-butylok-enoturizm-i-redkie-sorta-vinograda-andrey-kulichkov-o-tom-kak-rabotaet-vinodelnya-sober-bash
+                - generic [ref=e170]:
+                  - 'img "400 000 бутылок, энотуризм и редкие сорта винограда: Андрей Куличков о том, как работает винодельня «Собер Баш»" [ref=e171]'
+                  - generic [ref=e173]: 0:00:13
+                  - 'heading "400 000 бутылок, энотуризм и редкие сорта винограда: Андрей Куличков о том, как работает винодельня «Собер Баш»" [level=4] [ref=e175]'
+              - 'link "Илья Волошин: от гаражного игристого до больших проектов в Крыму и на Кубани 0:00:16 Илья Волошин: от гаражного игристого до больших проектов в Крыму и на Кубани" [ref=e177] [cursor=pointer]':
+                - /url: /videos/ilya-voloshin-ot-garazhnogo-igristogo-do-bolshih-proektov-v-krymu-i-na-kubani
+                - generic [ref=e178]:
+                  - 'img "Илья Волошин: от гаражного игристого до больших проектов в Крыму и на Кубани" [ref=e179]'
+                  - generic [ref=e181]: 0:00:16
+                  - 'heading "Илья Волошин: от гаражного игристого до больших проектов в Крыму и на Кубани" [level=4] [ref=e183]'
+              - 'link "Алексей Сапсай: как дефицит саженцев привёл к созданию собственного питомника 0:00:12 Алексей Сапсай: как дефицит саженцев привёл к созданию собственного питомника" [ref=e185] [cursor=pointer]':
+                - /url: /videos/aleksey-sapsay-kak-deficzit-sazhenczev-privel-k-sozdaniyu-sobstvennogo-pitomnika
+                - generic [ref=e186]:
+                  - 'img "Алексей Сапсай: как дефицит саженцев привёл к созданию собственного питомника" [ref=e187]'
+                  - generic [ref=e189]: 0:00:12
+                  - 'heading "Алексей Сапсай: как дефицит саженцев привёл к созданию собственного питомника" [level=4] [ref=e191]'
+              - 'link "Максим Тройчук («Ведерников»): автохтоны Дона, прорывные технологии и вино за 1,5 миллиона 0:00:15 Максим Тройчук («Ведерников»): автохтоны Дона, прорывные технологии и вино за 1,5 миллиона" [ref=e193] [cursor=pointer]':
+                - /url: /videos/maksim-troychuk-vedernikov-avtohtony-dona-proryvnye-tehnologii-i-vino-za-1-5-milliona
+                - generic [ref=e194]:
+                  - 'img "Максим Тройчук («Ведерников»): автохтоны Дона, прорывные технологии и вино за 1,5 миллиона" [ref=e195]'
+                  - generic [ref=e197]: 0:00:15
+                  - 'heading "Максим Тройчук («Ведерников»): автохтоны Дона, прорывные технологии и вино за 1,5 миллиона" [level=4] [ref=e199]'
+              - 'link "Пётр Ефремов и Павел Майоров (АВВР): на какой стадии российское виноделие, и что его ждет дальше 0:00:18 Пётр Ефремов и Павел Майоров (АВВР): на какой стадии российское виноделие, и что его ждет дальше" [ref=e201] [cursor=pointer]':
+                - /url: /videos/petr-efremov-i-pavel-mayorov-avvr-na-kakoy-stadii-rossiyskoe-vinodelie-i-chto-ego-zhdet-dalshe
+                - generic [ref=e202]:
+                  - 'img "Пётр Ефремов и Павел Майоров (АВВР): на какой стадии российское виноделие, и что его ждет дальше" [ref=e203]'
+                  - generic [ref=e205]: 0:00:18
+                  - 'heading "Пётр Ефремов и Павел Майоров (АВВР): на какой стадии российское виноделие, и что его ждет дальше" [level=4] [ref=e207]'
+              - 'link "Игорь Сердюк: как формируется один из главных независимых рейтингов вин России Top 100 Wines 0:00:14 Игорь Сердюк: как формируется один из главных независимых рейтингов вин России Top 100 Wines" [ref=e209] [cursor=pointer]':
+                - /url: /videos/igor-serdyuk-kak-formiruetsya-glavnyy-nezavisimyy-reyting-vin-rossii
+                - generic [ref=e210]:
+                  - 'img "Игорь Сердюк: как формируется один из главных независимых рейтингов вин России Top 100 Wines" [ref=e211]'
+                  - generic [ref=e213]: 0:00:14
+                  - 'heading "Игорь Сердюк: как формируется один из главных независимых рейтингов вин России Top 100 Wines" [level=4] [ref=e215]'
+              - 'link "КубГТУ: 4400 виноделов за 101 год, лаборатория с ИИ и охота работодателей за студентами 0:00:16 КубГТУ: 4400 виноделов за 101 год, лаборатория с ИИ и охота работодателей за студентами" [ref=e217] [cursor=pointer]':
+                - /url: /videos/kubgtu-4400-vinodelov-za-101-god-laboratoriya-s-ii-i-ohota-rabotodateley-za-studentami
+                - generic [ref=e218]:
+                  - 'img "КубГТУ: 4400 виноделов за 101 год, лаборатория с ИИ и охота работодателей за студентами" [ref=e219]'
+                  - generic [ref=e221]: 0:00:16
+                  - 'heading "КубГТУ: 4400 виноделов за 101 год, лаборатория с ИИ и охота работодателей за студентами" [level=4] [ref=e223]'
+              - 'link "«Дача Сердюка»: натуральное вино без SO₂ от братьев Сердюков 0:00:16 «Дача Сердюка»: натуральное вино без SO₂ от братьев Сердюков" [ref=e225] [cursor=pointer]':
+                - /url: /videos/dacha-serdyuka-naturalnoe-vino-bez-so2-ot-bratev-serdyukov
+                - generic [ref=e226]:
+                  - 'img "«Дача Сердюка»: натуральное вино без SO₂ от братьев Сердюков" [ref=e227]'
+                  - generic [ref=e229]: 0:00:16
+                  - 'heading "«Дача Сердюка»: натуральное вино без SO₂ от братьев Сердюков" [level=4] [ref=e231]'
+              - 'link "Сергей Левожинский (Магнит): как формируется винный ассортимент, импорт vs отечественное вино, СТМ и новые цены 0:00:16 Сергей Левожинский (Магнит): как формируется винный ассортимент, импорт vs отечественное вино, СТМ и новые цены" [ref=e233] [cursor=pointer]':
+                - /url: /videos/sergey-levozhinskiy-magnit-kak-formiruetsya-vinnyy-assortiment-import-vs-otechestvennoe-vino-stm-i-novye-czeny
+                - generic [ref=e234]:
+                  - 'img "Сергей Левожинский (Магнит): как формируется винный ассортимент, импорт vs отечественное вино, СТМ и новые цены" [ref=e235]'
+                  - generic [ref=e237]: 0:00:16
+                  - 'heading "Сергей Левожинский (Магнит): как формируется винный ассортимент, импорт vs отечественное вино, СТМ и новые цены" [level=4] [ref=e239]'
+            - generic [ref=e240]:
+              - button "Назад" [ref=e241] [cursor=pointer]
+              - button "Вперёд" [ref=e244] [cursor=pointer]
+        - generic [ref=e247]:
+          - heading "Последние статьи" [level=2] [ref=e248]
+          - generic [ref=e249]:
+            - link "werr Алкогольный рынок 1 июля 2026 г. werr" [ref=e251] [cursor=pointer]:
+              - /url: /articles/werr
+              - img "werr" [ref=e253]
+              - generic [ref=e254]:
+                - generic [ref=e255]:
+                  - generic [ref=e256]: Алкогольный рынок
+                  - generic [ref=e257]: 1 июля 2026 г.
+                - heading "werr" [level=3] [ref=e258]
+            - link "test Эксклюзив Алкогольный рынок 30 июня 2026 г. test" [ref=e260] [cursor=pointer]:
+              - /url: /articles/test
+              - generic [ref=e261]:
+                - img "test" [ref=e262]
+                - generic [ref=e263]: Эксклюзив
+              - generic [ref=e264]:
+                - generic [ref=e265]:
+                  - generic [ref=e266]: Алкогольный рынок
+                  - generic [ref=e267]: 30 июня 2026 г.
+                - heading "test" [level=3] [ref=e268]
+            - 'link "Виноделами не рождаются: из каких профессий приходили к вину российские специалисты Российское виноделие 29 июня 2026 г. Виноделами не рождаются: из каких профессий приходили к вину российские специалисты" [ref=e270] [cursor=pointer]':
+              - /url: /articles/vinodelami-ne-rozhdayutsya-iz-kakih-professiy-prihodili-k-vinu-rossiyskie-speczialisty
+              - 'img "Виноделами не рождаются: из каких профессий приходили к вину российские специалисты" [ref=e272]'
+              - generic [ref=e273]:
+                - generic [ref=e274]:
+                  - generic [ref=e275]: Российское виноделие
+                  - generic [ref=e276]: 29 июня 2026 г.
+                - 'heading "Виноделами не рождаются: из каких профессий приходили к вину российские специалисты" [level=3] [ref=e277]'
+            - link "Когда вино — больше, чем вино. Как энотуризм объединяют с другими сферами Российское виноделие 27 июня 2026 г. Когда вино — больше, чем вино. Как энотуризм объединяют с другими сферами" [ref=e279] [cursor=pointer]:
+              - /url: /articles/kogda-vino-bolshe-chem-vino-kak-enoturizm-obedinyayut-s-drugimi-sferami
+              - img "Когда вино — больше, чем вино. Как энотуризм объединяют с другими сферами" [ref=e281]
+              - generic [ref=e282]:
+                - generic [ref=e283]:
+                  - generic [ref=e284]: Российское виноделие
+                  - generic [ref=e285]: 27 июня 2026 г.
+                - heading "Когда вино — больше, чем вино. Как энотуризм объединяют с другими сферами" [level=3] [ref=e286]
+            - 'link "Сергей Коротков: о вине, винограде и несостоявшейся Силиконовой долине Эксклюзив Российское виноделие 26 июня 2026 г. Сергей Коротков: о вине, винограде и несостоявшейся Силиконовой долине" [ref=e288] [cursor=pointer]':
+              - /url: /articles/sergey-korotkov-o-vine-vinograde-i-nesostoyavsheysya-silikonovoy-doline
+              - generic [ref=e289]:
+                - 'img "Сергей Коротков: о вине, винограде и несостоявшейся Силиконовой долине" [ref=e290]'
+                - generic [ref=e291]: Эксклюзив
+              - generic [ref=e292]:
+                - generic [ref=e293]:
+                  - generic [ref=e294]: Российское виноделие
+                  - generic [ref=e295]: 26 июня 2026 г.
+                - 'heading "Сергей Коротков: о вине, винограде и несостоявшейся Силиконовой долине" [level=3] [ref=e296]'
+            - link "Бренды «Шумринки» сохранили за бывшим владельцем. Что это значит? Российское виноделие 25 июня 2026 г. Бренды «Шумринки» сохранили за бывшим владельцем. Что это значит?" [ref=e298] [cursor=pointer]:
+              - /url: /articles/brendy-shumrinki-sohranili-za-byvshim-vladelczem-chto-eto-znachit
+              - img "Бренды «Шумринки» сохранили за бывшим владельцем. Что это значит?" [ref=e300]
+              - generic [ref=e301]:
+                - generic [ref=e302]:
+                  - generic [ref=e303]: Российское виноделие
+                  - generic [ref=e304]: 25 июня 2026 г.
+                - heading "Бренды «Шумринки» сохранили за бывшим владельцем. Что это значит?" [level=3] [ref=e305]
+            - link "В Саратовской области начнет работу новая винодельня Эксклюзив Российское виноделие 24 июня 2026 г. В Саратовской области начнет работу новая винодельня" [ref=e307] [cursor=pointer]:
+              - /url: /articles/v-saratovskoy-oblasti-nachnet-rabotu-novaya-vinodelnya
+              - generic [ref=e308]:
+                - img "В Саратовской области начнет работу новая винодельня" [ref=e309]
+                - generic [ref=e310]: Эксклюзив
+              - generic [ref=e311]:
+                - generic [ref=e312]:
+                  - generic [ref=e313]: Российское виноделие
+                  - generic [ref=e314]: 24 июня 2026 г.
+                - heading "В Саратовской области начнет работу новая винодельня" [level=3] [ref=e315]
+            - link "Как винодельня «Усадьба Мезыбь» выпускает 300 тысяч бутылок в год при штате в 22 человека Эксклюзив Российское виноделие 22 июня 2026 г. Как винодельня «Усадьба Мезыбь» выпускает 300 тысяч бутылок в год при штате в 22 человека" [ref=e317] [cursor=pointer]:
+              - /url: /articles/kak-vinodelnya-usadba-mezyb-vypuskaet-300-tysyach-butylok-v-god-pri-shtate-v-22-cheloveka
+              - generic [ref=e318]:
+                - img "Как винодельня «Усадьба Мезыбь» выпускает 300 тысяч бутылок в год при штате в 22 человека" [ref=e319]
+                - generic [ref=e320]: Эксклюзив
+              - generic [ref=e321]:
+                - generic [ref=e322]:
+                  - generic [ref=e323]: Российское виноделие
+                  - generic [ref=e324]: 22 июня 2026 г.
+                - heading "Как винодельня «Усадьба Мезыбь» выпускает 300 тысяч бутылок в год при штате в 22 человека" [level=3] [ref=e325]
+            - 'link "Топливный кризис в Крыму: как реагируют винодельни, и что будет с турпотоком Российское виноделие 21 июня 2026 г. Топливный кризис в Крыму: как реагируют винодельни, и что будет с турпотоком" [ref=e327] [cursor=pointer]':
+              - /url: /articles/toplivnyy-krizis-v-krymu-kak-reagiruyut-vinodelni-i-chto-budet-s-turpotokom
+              - 'img "Топливный кризис в Крыму: как реагируют винодельни, и что будет с турпотоком" [ref=e329]'
+              - generic [ref=e330]:
+                - generic [ref=e331]:
+                  - generic [ref=e332]: Российское виноделие
+                  - generic [ref=e333]: 21 июня 2026 г.
+                - 'heading "Топливный кризис в Крыму: как реагируют винодельни, и что будет с турпотоком" [level=3] [ref=e334]'
+            - link "В «Усадьбе Мезыбь» рассказали о работе в условиях санкционных ограничений и развитии виноградников Российское виноделие 19 июня 2026 г. В «Усадьбе Мезыбь» рассказали о работе в условиях санкционных ограничений и развитии виноградников" [ref=e336] [cursor=pointer]:
+              - /url: /articles/v-usadbe-mezyb-rasskazali-o-rabote-v-usloviyah-sankczionnyh-ogranicheniy-i-razvitii-vinogradnikov
+              - img "В «Усадьбе Мезыбь» рассказали о работе в условиях санкционных ограничений и развитии виноградников" [ref=e338]
+              - generic [ref=e339]:
+                - generic [ref=e340]:
+                  - generic [ref=e341]: Российское виноделие
+                  - generic [ref=e342]: 19 июня 2026 г.
+                - heading "В «Усадьбе Мезыбь» рассказали о работе в условиях санкционных ограничений и развитии виноградников" [level=3] [ref=e343]
+            - 'link "Сокровища российских терруаров: путеводитель по автохтонным сортам винограда Российское виноделие 17 июня 2026 г. Сокровища российских терруаров: путеводитель по автохтонным сортам винограда" [ref=e345] [cursor=pointer]':
+              - /url: /articles/sokrovishha-rossiyskih-terruarov-putevoditel-po-avtohtonnym-sortam-vinograda
+              - 'img "Сокровища российских терруаров: путеводитель по автохтонным сортам винограда" [ref=e347]'
+              - generic [ref=e348]:
+                - generic [ref=e349]:
+                  - generic [ref=e350]: Российское виноделие
+                  - generic [ref=e351]: 17 июня 2026 г.
+                - 'heading "Сокровища российских терруаров: путеводитель по автохтонным сортам винограда" [level=3] [ref=e352]'
+            - 'link "Павел Голодрига: жизнь и трагедия советского селекционера Российское виноделие 11 июня 2026 г. Павел Голодрига: жизнь и трагедия советского селекционера" [ref=e354] [cursor=pointer]':
+              - /url: /articles/pavel-golodriga-zhizn-i-tragediya-sovetskogo-selekczionera
+              - 'img "Павел Голодрига: жизнь и трагедия советского селекционера" [ref=e356]'
+              - generic [ref=e357]:
+                - generic [ref=e358]:
+                  - generic [ref=e359]: Российское виноделие
+                  - generic [ref=e360]: 11 июня 2026 г.
+                - 'heading "Павел Голодрига: жизнь и трагедия советского селекционера" [level=3] [ref=e361]'
+            - 'link "От объекта показа к развитию территории: в Краснодаре обсудили будущее агротуризма на Юге России Российское виноделие 4 июня 2026 г. От объекта показа к развитию территории: в Краснодаре обсудили будущее агротуризма на Юге России" [ref=e363] [cursor=pointer]':
+              - /url: /articles/ot-obekta-pokaza-k-razvitiyu-territorii-v-krasnodare-obsudili-budushhee-agroturizma-na-yuge-rossii
+              - 'img "От объекта показа к развитию территории: в Краснодаре обсудили будущее агротуризма на Юге России" [ref=e365]'
+              - generic [ref=e366]:
+                - generic [ref=e367]:
+                  - generic [ref=e368]: Российское виноделие
+                  - generic [ref=e369]: 4 июня 2026 г.
+                - 'heading "От объекта показа к развитию территории: в Краснодаре обсудили будущее агротуризма на Юге России" [level=3] [ref=e370]'
+            - 'link "Новинки российских виноделов: что пробовать этим летом Российское виноделие 3 июня 2026 г. Новинки российских виноделов: что пробовать этим летом" [ref=e372] [cursor=pointer]':
+              - /url: /articles/novinki-rossiyskih-vinodelov-chto-probovat-etim-letom
+              - 'img "Новинки российских виноделов: что пробовать этим летом" [ref=e374]'
+              - generic [ref=e375]:
+                - generic [ref=e376]:
+                  - generic [ref=e377]: Российское виноделие
+                  - generic [ref=e378]: 3 июня 2026 г.
+                - 'heading "Новинки российских виноделов: что пробовать этим летом" [level=3] [ref=e379]'
+            - 'link "Лучшие рестораны Юга России с красивыми видами 2026: где вкусно и очень красиво Ресторанный бизнес 1 июня 2026 г. Лучшие рестораны Юга России с красивыми видами 2026: где вкусно и очень красиво" [ref=e381] [cursor=pointer]':
+              - /url: /articles/luchshie-restorany-yuga-rossii-s-krasivymi-vidami-2026-gde-vkusno-i-ochen-krasivo
+              - 'img "Лучшие рестораны Юга России с красивыми видами 2026: где вкусно и очень красиво" [ref=e383]'
+              - generic [ref=e384]:
+                - generic [ref=e385]:
+                  - generic [ref=e386]: Ресторанный бизнес
+                  - generic [ref=e387]: 1 июня 2026 г.
+                - 'heading "Лучшие рестораны Юга России с красивыми видами 2026: где вкусно и очень красиво" [level=3] [ref=e388]'
+            - 'link "Александр Ставцев: «Выставка «Винорус.Винотех 2026» стала ключевым событием года для ритейла» Российское виноделие 31 мая 2026 г. Александр Ставцев: «Выставка «Винорус.Винотех 2026» стала ключевым событием года для ритейла»" [ref=e390] [cursor=pointer]':
+              - /url: /articles/aleksandr-stavczev-vystavka-vinorus-vinoteh-2026-stala-klyuchevym-sobytiem-goda-dlya-riteyla
+              - 'img "Александр Ставцев: «Выставка «Винорус.Винотех 2026» стала ключевым событием года для ритейла»" [ref=e392]'
+              - generic [ref=e393]:
+                - generic [ref=e394]:
+                  - generic [ref=e395]: Российское виноделие
+                  - generic [ref=e396]: 31 мая 2026 г.
+                - 'heading "Александр Ставцев: «Выставка «Винорус.Винотех 2026» стала ключевым событием года для ритейла»" [level=3] [ref=e397]'
+            - 'link "Алексей Синельников: «Есть вина сакральные, а есть — „под котлету“» Российское виноделие 31 мая 2026 г. Алексей Синельников: «Есть вина сакральные, а есть — „под котлету“»" [ref=e399] [cursor=pointer]':
+              - /url: /articles/aleksey-sinelnikov-est-vina-sakralnye-a-est-pod-kotletu
+              - 'img "Алексей Синельников: «Есть вина сакральные, а есть — „под котлету“»" [ref=e401]'
+              - generic [ref=e402]:
+                - generic [ref=e403]:
+                  - generic [ref=e404]: Российское виноделие
+                  - generic [ref=e405]: 31 мая 2026 г.
+                - 'heading "Алексей Синельников: «Есть вина сакральные, а есть — „под котлету“»" [level=3] [ref=e406]'
+            - 'link "Артур Саркисян на «Винорус.Винотех»: «Плохих вин на рынке много, но на конкурс их попадает меньше» Российское виноделие 31 мая 2026 г. Артур Саркисян на «Винорус.Винотех»: «Плохих вин на рынке много, но на конкурс их попадает меньше»" [ref=e408] [cursor=pointer]':
+              - /url: /articles/artur-sarkisyan-na-vinorus-vinoteh-plohih-vin-na-rynke-mnogo-no-na-konkurs-ih-popadaet-menshe
+              - 'img "Артур Саркисян на «Винорус.Винотех»: «Плохих вин на рынке много, но на конкурс их попадает меньше»" [ref=e410]'
+              - generic [ref=e411]:
+                - generic [ref=e412]:
+                  - generic [ref=e413]: Российское виноделие
+                  - generic [ref=e414]: 31 мая 2026 г.
+                - 'heading "Артур Саркисян на «Винорус.Винотех»: «Плохих вин на рынке много, но на конкурс их попадает меньше»" [level=3] [ref=e415]'
+            - 'link "Рынок вина в России меняется: импорт дорожает, российский средний сегмент растет — обсуждение на «Винорус.Винотех 2026» Российское виноделие 31 мая 2026 г. Рынок вина в России меняется: импорт дорожает, российский средний сегмент растет — обсуждение на «Винорус.Винотех 2026»" [ref=e417] [cursor=pointer]':
+              - /url: /articles/rynok-vina-v-rossii-menyaetsya-import-dorozhaet-rossiyskiy-sredniy-segment-rastet-obsuzhdenie-na-vinorus-vinoteh-2026
+              - 'img "Рынок вина в России меняется: импорт дорожает, российский средний сегмент растет — обсуждение на «Винорус.Винотех 2026»" [ref=e419]'
+              - generic [ref=e420]:
+                - generic [ref=e421]:
+                  - generic [ref=e422]: Российское виноделие
+                  - generic [ref=e423]: 31 мая 2026 г.
+                - 'heading "Рынок вина в России меняется: импорт дорожает, российский средний сегмент растет — обсуждение на «Винорус.Винотех 2026»" [level=3] [ref=e424]'
+            - 'link "Господдержка, земля и полка: что ждет российское виноделие Российское виноделие 31 мая 2026 г. Господдержка, земля и полка: что ждет российское виноделие" [ref=e426] [cursor=pointer]':
+              - /url: /articles/gospodderzhka-zemlya-i-polka-chto-zhdet-rossiyskoe-vinodelie
+              - 'img "Господдержка, земля и полка: что ждет российское виноделие" [ref=e428]'
+              - generic [ref=e429]:
+                - generic [ref=e430]:
+                  - generic [ref=e431]: Российское виноделие
+                  - generic [ref=e432]: 31 мая 2026 г.
+                - 'heading "Господдержка, земля и полка: что ждет российское виноделие" [level=3] [ref=e433]'
+            - 'link "Алексей Соловьев: «Слепая дегустация никогда не будет полностью объективной» Российское виноделие 31 мая 2026 г. Алексей Соловьев: «Слепая дегустация никогда не будет полностью объективной»" [ref=e435] [cursor=pointer]':
+              - /url: /articles/aleksey-solovev-slepaya-degustacziya-nikogda-ne-budet-polnostyu-obektivnoy
+              - 'img "Алексей Соловьев: «Слепая дегустация никогда не будет полностью объективной»" [ref=e437]'
+              - generic [ref=e438]:
+                - generic [ref=e439]:
+                  - generic [ref=e440]: Российское виноделие
+                  - generic [ref=e441]: 31 мая 2026 г.
+                - 'heading "Алексей Соловьев: «Слепая дегустация никогда не будет полностью объективной»" [level=3] [ref=e442]'
+            - 'link "Винные блогеры и юристы: «Мы постоянно адаптируемся к новым условиям» Эксклюзив Российское виноделие 31 мая 2026 г. Винные блогеры и юристы: «Мы постоянно адаптируемся к новым условиям»" [ref=e444] [cursor=pointer]':
+              - /url: /articles/vinnye-blogery-i-yuristy-na-vinorus-vinoteh-2026-my-postoyanno-adaptiruemsya-k-novym-usloviyam
+              - generic [ref=e445]:
+                - 'img "Винные блогеры и юристы: «Мы постоянно адаптируемся к новым условиям»" [ref=e446]'
+                - generic [ref=e447]: Эксклюзив
+              - generic [ref=e448]:
+                - generic [ref=e449]:
+                  - generic [ref=e450]: Российское виноделие
+                  - generic [ref=e451]: 31 мая 2026 г.
+                - 'heading "Винные блогеры и юристы: «Мы постоянно адаптируемся к новым условиям»" [level=3] [ref=e452]'
+            - 'link "Алексей Сидоренко: «Современный покупатель любит яркие, свежие, хрустящие белые вина» Российское виноделие 31 мая 2026 г. Алексей Сидоренко: «Современный покупатель любит яркие, свежие, хрустящие белые вина»" [ref=e454] [cursor=pointer]':
+              - /url: /articles/aleksey-sidorenko-sovremennyy-pokupatel-lyubit-yarkie-svezhie-hrustyashhie-belye-vina
+              - 'img "Алексей Сидоренко: «Современный покупатель любит яркие, свежие, хрустящие белые вина»" [ref=e456]'
+              - generic [ref=e457]:
+                - generic [ref=e458]:
+                  - generic [ref=e459]: Российское виноделие
+                  - generic [ref=e460]: 31 мая 2026 г.
+                - 'heading "Алексей Сидоренко: «Современный покупатель любит яркие, свежие, хрустящие белые вина»" [level=3] [ref=e461]'
+            - 'link "Евгений Шамов: «На конкурсе мне не хватило крымских вин» Российское виноделие 31 мая 2026 г. Евгений Шамов: «На конкурсе мне не хватило крымских вин»" [ref=e463] [cursor=pointer]':
+              - /url: /articles/evgeniy-shamov-na-konkurse-mne-ne-hvatilo-krymskih-vin
+              - 'img "Евгений Шамов: «На конкурсе мне не хватило крымских вин»" [ref=e465]'
+              - generic [ref=e466]:
+                - generic [ref=e467]:
+                  - generic [ref=e468]: Российское виноделие
+                  - generic [ref=e469]: 31 мая 2026 г.
+                - 'heading "Евгений Шамов: «На конкурсе мне не хватило крымских вин»" [level=3] [ref=e470]'
+            - 'link "Что такое пробковый сбор в России: правовая и экономическая модель в 2026 году Ресторанный бизнес 31 мая 2026 г. Что такое пробковый сбор в России: правовая и экономическая модель в 2026 году" [ref=e472] [cursor=pointer]':
+              - /url: /articles/chto-takoe-probkovyy-sbor-v-rossii-pravovaya-i-ekonomicheskaya-model-v-2026-godu
+              - 'img "Что такое пробковый сбор в России: правовая и экономическая модель в 2026 году" [ref=e474]'
+              - generic [ref=e475]:
+                - generic [ref=e476]:
+                  - generic [ref=e477]: Ресторанный бизнес
+                  - generic [ref=e478]: 31 мая 2026 г.
+                - 'heading "Что такое пробковый сбор в России: правовая и экономическая модель в 2026 году" [level=3] [ref=e479]'
+            - 'link "Лучшие винодельни Юга России 2026: 10 хозяйств, которые стоит посетить Российское виноделие 30 мая 2026 г. Лучшие винодельни Юга России 2026: 10 хозяйств, которые стоит посетить" [ref=e481] [cursor=pointer]':
+              - /url: /articles/luchshie-vinodelni-yuga-rossii-2026-10-hozyaystv-kotorye-stoit-posetit
+              - 'img "Лучшие винодельни Юга России 2026: 10 хозяйств, которые стоит посетить" [ref=e483]'
+              - generic [ref=e484]:
+                - generic [ref=e485]:
+                  - generic [ref=e486]: Российское виноделие
+                  - generic [ref=e487]: 30 мая 2026 г.
+                - 'heading "Лучшие винодельни Юга России 2026: 10 хозяйств, которые стоит посетить" [level=3] [ref=e488]'
+            - 'link "Идеальная пара: какие блюда подавать к разным винам 30 мая 2026 г. Идеальная пара: какие блюда подавать к разным винам" [ref=e490] [cursor=pointer]':
+              - /url: /articles/idealnaya-para-kakie-blyuda-podavat-k-raznym-vinam
+              - 'img "Идеальная пара: какие блюда подавать к разным винам" [ref=e492]'
+              - generic [ref=e493]:
+                - generic [ref=e494]: 30 мая 2026 г.
+                - 'heading "Идеальная пара: какие блюда подавать к разным винам" [level=3] [ref=e496]'
+            - 'link "КубГТУ о подготовке кадров: «Каждый второй студент стремится попасть на кафедру виноделия» Российское виноделие 15 мая 2026 г. КубГТУ о подготовке кадров: «Каждый второй студент стремится попасть на кафедру виноделия»" [ref=e498] [cursor=pointer]':
+              - /url: /articles/kubgtu-o-podgotovke-kadrov-kazhdyy-vtoroy-student-stremitsya-popast-na-kafedru-vinodeliya
+              - 'img "КубГТУ о подготовке кадров: «Каждый второй студент стремится попасть на кафедру виноделия»" [ref=e500]'
+              - generic [ref=e501]:
+                - generic [ref=e502]:
+                  - generic [ref=e503]: Российское виноделие
+                  - generic [ref=e504]: 15 мая 2026 г.
+                - 'heading "КубГТУ о подготовке кадров: «Каждый второй студент стремится попасть на кафедру виноделия»" [level=3] [ref=e505]'
+            - 'link "Винодельческие регионы России: как расширяется карта российского виноделия Российское виноделие 8 мая 2026 г. Винодельческие регионы России: как расширяется карта российского виноделия" [ref=e507] [cursor=pointer]':
+              - /url: /articles/vinodelcheskie-regiony-rossii-kak-rasshiryaetsya-karta-rossiyskogo-vinodeliya
+              - 'img "Винодельческие регионы России: как расширяется карта российского виноделия" [ref=e509]'
+              - generic [ref=e510]:
+                - generic [ref=e511]:
+                  - generic [ref=e512]: Российское виноделие
+                  - generic [ref=e513]: 8 мая 2026 г.
+                - 'heading "Винодельческие регионы России: как расширяется карта российского виноделия" [level=3] [ref=e514]'
+            - 'link "Миллиарды на винограде: какие кубанские винодельни заработали больше всех в 2025 году 7 мая 2026 г. Миллиарды на винограде: какие кубанские винодельни заработали больше всех в 2025 году" [ref=e516] [cursor=pointer]':
+              - /url: /articles/milliardy-na-vinograde-kakie-kubanskie-vinodelni-zarabotali-bolshe-vseh-v-2025-godu
+              - 'img "Миллиарды на винограде: какие кубанские винодельни заработали больше всех в 2025 году" [ref=e518]'
+              - generic [ref=e519]:
+                - generic [ref=e520]: 7 мая 2026 г.
+                - 'heading "Миллиарды на винограде: какие кубанские винодельни заработали больше всех в 2025 году" [level=3] [ref=e522]'
+            - link "Топ-10 виноделен Крыма по выручке в 2025 году Российское виноделие 6 мая 2026 г. Топ-10 виноделен Крыма по выручке в 2025 году" [ref=e524] [cursor=pointer]:
+              - /url: /articles/top-10-vinodelen-kryma-po-vyruchke-2025-massandra-fotisal-zolotaya-balka
+              - img "Топ-10 виноделен Крыма по выручке в 2025 году" [ref=e526]
+              - generic [ref=e527]:
+                - generic [ref=e528]:
+                  - generic [ref=e529]: Российское виноделие
+                  - generic [ref=e530]: 6 мая 2026 г.
+                - heading "Топ-10 виноделен Крыма по выручке в 2025 году" [level=3] [ref=e531]
+            - link "Почему производство вина в России ушло в минус в начале 2026-го Российское виноделие 4 мая 2026 г. Почему производство вина в России ушло в минус в начале 2026-го" [ref=e533] [cursor=pointer]:
+              - /url: /articles/pochemu-proizvodstvo-vina-v-rossii-ushlo-v-minus-uzhe-v-nachale-2026-go-2-2-2-2
+              - img "Почему производство вина в России ушло в минус в начале 2026-го" [ref=e535]
+              - generic [ref=e536]:
+                - generic [ref=e537]:
+                  - generic [ref=e538]: Российское виноделие
+                  - generic [ref=e539]: 4 мая 2026 г.
+                - heading "Почему производство вина в России ушло в минус в начале 2026-го" [level=3] [ref=e540]
+          - button "Еще →" [disabled] [ref=e542]
+      - complementary [ref=e543]:
+        - generic [ref=e544]:
+          - generic [ref=e545]:
+            - button "Популярные" [ref=e546] [cursor=pointer]
+            - button "Свежие" [ref=e547] [cursor=pointer]
+          - list [ref=e548]:
+            - listitem [ref=e549]:
+              - link "02.07 12:28 testtt Эксклюзив" [ref=e550] [cursor=pointer]:
+                - /url: /news/testtt
+                - generic [ref=e551]:
+                  - generic [ref=e552]: "02.07"
+                  - generic [ref=e553]: 12:28
+                - generic [ref=e555]:
+                  - text: testtt
+                  - generic [ref=e556]: Эксклюзив
+            - listitem [ref=e557]:
+              - link "02.07 11:13 ипарарарв" [ref=e558] [cursor=pointer]:
+                - /url: /news/iparararv
+                - generic [ref=e559]:
+                  - generic [ref=e560]: "02.07"
+                  - generic [ref=e561]: 11:13
+                - generic [ref=e562]: ипарарарв
+            - listitem [ref=e564]:
+              - link "02.07 10:40 непарапрпаррпа Эксклюзив" [ref=e565] [cursor=pointer]:
+                - /url: /news/neparaprparrpa
+                - generic [ref=e566]:
+                  - generic [ref=e567]: "02.07"
+                  - generic [ref=e568]: 10:40
+                - generic [ref=e570]:
+                  - text: непарапрпаррпа
+                  - generic [ref=e571]: Эксклюзив
+            - listitem [ref=e572]:
+              - link "02.07 10:17 баплтбадлтадптлдап Эксклюзив" [ref=e573] [cursor=pointer]:
+                - /url: /news/bapltbadltadptldap
+                - generic [ref=e574]:
+                  - generic [ref=e575]: "02.07"
+                  - generic [ref=e576]: 10:17
+                - generic [ref=e578]:
+                  - text: баплтбадлтадптлдап
+                  - generic [ref=e579]: Эксклюзив
+            - listitem [ref=e580]:
+              - link "02.07 09:39 щшхщзхщзхщззхщ" [ref=e581] [cursor=pointer]:
+                - /url: /news/schshkhschzkhschzkhschzzkhsch
+                - generic [ref=e582]:
+                  - generic [ref=e583]: "02.07"
+                  - generic [ref=e584]: 09:39
+                - generic [ref=e585]: щшхщзхщзхщззхщ
+            - listitem [ref=e587]:
+              - link "02.07 09:37 апоапоапоапоапо Эксклюзив" [ref=e588] [cursor=pointer]:
+                - /url: /news/apoapoapoapoapo
+                - generic [ref=e589]:
+                  - generic [ref=e590]: "02.07"
+                  - generic [ref=e591]: 09:37
+                - generic [ref=e593]:
+                  - text: апоапоапоапоапо
+                  - generic [ref=e594]: Эксклюзив
+            - listitem [ref=e595]:
+              - link "02.07 09:35 пропаорп Эксклюзив" [ref=e596] [cursor=pointer]:
+                - /url: /news/propaorp
+                - generic [ref=e597]:
+                  - generic [ref=e598]: "02.07"
+                  - generic [ref=e599]: 09:35
+                - generic [ref=e601]:
+                  - text: пропаорп
+                  - generic [ref=e602]: Эксклюзив
+          - link "Все новости →" [ref=e603] [cursor=pointer]:
+            - /url: /news
+            - text: Все новости
+            - generic [ref=e604]: →
+        - generic [ref=e606]:
+          - generic [ref=e607]:
+            - link "Российское виноделие" [ref=e608] [cursor=pointer]:
+              - /url: /category/rossijskoe-vino
+            - list [ref=e609]:
+              - listitem [ref=e610]:
+                - 'link "29.06 12:00 Виноделами не рождаются: из каких профес…" [ref=e611] [cursor=pointer]':
+                  - /url: /articles/vinodelami-ne-rozhdayutsya-iz-kakih-professiy-prihodili-k-vinu-rossiyskie-speczialisty
+                  - generic [ref=e612]:
+                    - generic [ref=e613]: "29.06"
+                    - generic [ref=e614]: 12:00
+                  - paragraph [ref=e616]: "Виноделами не рождаются: из каких профес…"
+              - listitem [ref=e617]:
+                - link "27.06 11:08 Когда вино — больше, чем вино. Как эноту…" [ref=e618] [cursor=pointer]:
+                  - /url: /articles/kogda-vino-bolshe-chem-vino-kak-enoturizm-obedinyayut-s-drugimi-sferami
+                  - generic [ref=e619]:
+                    - generic [ref=e620]: "27.06"
+                    - generic [ref=e621]: 11:08
+                  - paragraph [ref=e623]: Когда вино — больше, чем вино. Как эноту…
+              - listitem [ref=e624]:
+                - link "26.06 15:42 На «Винодельне Молчановых» рассказали о… Эксклюзив" [ref=e625] [cursor=pointer]:
+                  - /url: /news/na-vinodelne-molchanovyh-rasskazali-o-roste-turpotoka-vdvoe-v-2026-godu
+                  - generic [ref=e626]:
+                    - generic [ref=e627]: "26.06"
+                    - generic [ref=e628]: 15:42
+                  - paragraph [ref=e630]:
+                    - text: На «Винодельне Молчановых» рассказали о…
+                    - generic [ref=e631]: Эксклюзив
+              - listitem [ref=e632]:
+                - link "26.06 14:11 Сергей Коротков обозначил тенденцию к «о… Эксклюзив" [ref=e633] [cursor=pointer]:
+                  - /url: /news/sergey-korotkov-oboznachil-tendencziyu-k-oblegcheniyu-vina-u-sovremennyh-potrebiteley
+                  - generic [ref=e634]:
+                    - generic [ref=e635]: "26.06"
+                    - generic [ref=e636]: 14:11
+                  - paragraph [ref=e638]:
+                    - text: Сергей Коротков обозначил тенденцию к «о…
+                    - generic [ref=e639]: Эксклюзив
+              - listitem [ref=e640]:
+                - link "26.06 08:14 Сергей Коротков рассказал, почему не люб… Эксклюзив" [ref=e641] [cursor=pointer]:
+                  - /url: /news/sergey-korotkov-rasskazal-pochemu-ne-lyubit-pechene-rybki
+                  - generic [ref=e642]:
+                    - generic [ref=e643]: "26.06"
+                    - generic [ref=e644]: 08:14
+                  - paragraph [ref=e646]:
+                    - text: Сергей Коротков рассказал, почему не люб…
+                    - generic [ref=e647]: Эксклюзив
+              - listitem [ref=e648]:
+                - 'link "26.06 08:13 Сергей Коротков: о вине, винограде и нес… Эксклюзив" [ref=e649] [cursor=pointer]':
+                  - /url: /articles/sergey-korotkov-o-vine-vinograde-i-nesostoyavsheysya-silikonovoy-doline
+                  - generic [ref=e650]:
+                    - generic [ref=e651]: "26.06"
+                    - generic [ref=e652]: 08:13
+                  - paragraph [ref=e654]:
+                    - text: "Сергей Коротков: о вине, винограде и нес…"
+                    - generic [ref=e655]: Эксклюзив
+              - listitem [ref=e656]:
+                - link "25.06 10:03 Бренды «Шумринки» сохранили за бывшим вл…" [ref=e657] [cursor=pointer]:
+                  - /url: /articles/brendy-shumrinki-sohranili-za-byvshim-vladelczem-chto-eto-znachit
+                  - generic [ref=e658]:
+                    - generic [ref=e659]: "25.06"
+                    - generic [ref=e660]: 10:03
+                  - paragraph [ref=e662]: Бренды «Шумринки» сохранили за бывшим вл…
+              - listitem [ref=e663]:
+                - link "24.06 15:43 В Саратовской области начнет работу нова… Эксклюзив" [ref=e664] [cursor=pointer]:
+                  - /url: /articles/v-saratovskoy-oblasti-nachnet-rabotu-novaya-vinodelnya
+                  - generic [ref=e665]:
+                    - generic [ref=e666]: "24.06"
+                    - generic [ref=e667]: 15:43
+                  - paragraph [ref=e669]:
+                    - text: В Саратовской области начнет работу нова…
+                    - generic [ref=e670]: Эксклюзив
+              - listitem [ref=e671]:
+                - link "23.06 13:11 Борис Титов — о замедлении качественного…" [ref=e672] [cursor=pointer]:
+                  - /url: /news/boris-titov-o-zamedlenii-kachestvennogo-rosta-v-rossiyskom-vinodelii
+                  - generic [ref=e673]:
+                    - generic [ref=e674]: "23.06"
+                    - generic [ref=e675]: 13:11
+                  - paragraph [ref=e677]: Борис Титов — о замедлении качественного…
+              - listitem [ref=e678]:
+                - link "23.06 10:36 На Uppa Winery рассказали, как прошли «В…" [ref=e679] [cursor=pointer]:
+                  - /url: /news/na-uppa-winery-rasskazali-kak-proshli-vinnye-igry
+                  - generic [ref=e680]:
+                    - generic [ref=e681]: "23.06"
+                    - generic [ref=e682]: 10:36
+                  - paragraph [ref=e684]: На Uppa Winery рассказали, как прошли «В…
+          - generic [ref=e685]:
+            - link "Зарубежное виноделие" [ref=e686] [cursor=pointer]:
+              - /url: /category/zarubezhnoe-vino
+            - list [ref=e687]:
+              - listitem [ref=e688]:
+                - link "02.07 09:28 testtt Эксклюзив" [ref=e689] [cursor=pointer]:
+                  - /url: /news/testtt
+                  - generic [ref=e690]:
+                    - generic [ref=e691]: "02.07"
+                    - generic [ref=e692]: 09:28
+                  - paragraph [ref=e694]:
+                    - text: testtt
+                    - generic [ref=e695]: Эксклюзив
+              - listitem [ref=e696]:
+                - link "02.07 07:17 баплтбадлтадптлдап Эксклюзив" [ref=e697] [cursor=pointer]:
+                  - /url: /news/bapltbadltadptldap
+                  - generic [ref=e698]:
+                    - generic [ref=e699]: "02.07"
+                    - generic [ref=e700]: 07:17
+                  - paragraph [ref=e702]:
+                    - text: баплтбадлтадптлдап
+                    - generic [ref=e703]: Эксклюзив
+              - listitem [ref=e704]:
+                - link "02.07 06:39 щшхщзхщзхщззхщ" [ref=e705] [cursor=pointer]:
+                  - /url: /news/schshkhschzkhschzkhschzzkhsch
+                  - generic [ref=e706]:
+                    - generic [ref=e707]: "02.07"
+                    - generic [ref=e708]: 06:39
+                  - paragraph [ref=e710]: щшхщзхщзхщззхщ
+              - listitem [ref=e711]:
+                - 'link "23.06 09:08 Редкая находка: во Франции с аукциона пр…" [ref=e712] [cursor=pointer]':
+                  - /url: /news/redkaya-nahodka-vo-franczii-s-aukcziona-prodadut-chateau-montrose-1893-goda
+                  - generic [ref=e713]:
+                    - generic [ref=e714]: "23.06"
+                    - generic [ref=e715]: 09:08
+                  - paragraph [ref=e717]: "Редкая находка: во Франции с аукциона пр…"
+              - listitem [ref=e718]:
+                - link "22.06 10:55 Ввоз грузинского вина в Россию в мае сок…" [ref=e719] [cursor=pointer]:
+                  - /url: /news/vvoz-gruzinskogo-vina-v-rossiyu-v-mae-sokratilsya-na-tret
+                  - generic [ref=e720]:
+                    - generic [ref=e721]: "22.06"
+                    - generic [ref=e722]: 10:55
+                  - paragraph [ref=e724]: Ввоз грузинского вина в Россию в мае сок…
+              - listitem [ref=e725]:
+                - link "18.06 09:39 В Италии создали музыку из звуков виногр…" [ref=e726] [cursor=pointer]:
+                  - /url: /news/v-italii-sozdali-muzyku-iz-zvukov-vinogradnika
+                  - generic [ref=e727]:
+                    - generic [ref=e728]: "18.06"
+                    - generic [ref=e729]: 09:39
+                  - paragraph [ref=e731]: В Италии создали музыку из звуков виногр…
+              - listitem [ref=e732]:
+                - link "18.06 09:27 Производитель шампанского для ЧМ-2026 не…" [ref=e733] [cursor=pointer]:
+                  - /url: /news/proizvoditel-shampanskogo-dlya-chm-2026-ne-mozhet-prodavat-ego-vo-franczii-kak-eto-vyshlo
+                  - generic [ref=e734]:
+                    - generic [ref=e735]: "18.06"
+                    - generic [ref=e736]: 09:27
+                  - paragraph [ref=e738]: Производитель шампанского для ЧМ-2026 не…
+              - listitem [ref=e739]:
+                - link "15.06 13:02 Розе от барабанщика Queen назвали одним…" [ref=e740] [cursor=pointer]:
+                  - /url: /news/ekaterina-maslova-roze-ot-barabanshhika-queen-nazvali-odnim-iz-luchshih-v-mire
+                  - generic [ref=e741]:
+                    - generic [ref=e742]: "15.06"
+                    - generic [ref=e743]: 13:02
+                  - paragraph [ref=e745]: Розе от барабанщика Queen назвали одним…
+              - listitem [ref=e746]:
+                - link "15.06 12:56 Какой винодельней в Британии владеет вдо…" [ref=e747] [cursor=pointer]:
+                  - /url: /news/kakoy-vinodelney-v-britanii-vladeet-vdova-yuriya-luzhkova
+                  - generic [ref=e748]:
+                    - generic [ref=e749]: "15.06"
+                    - generic [ref=e750]: 12:56
+                  - paragraph [ref=e752]: Какой винодельней в Британии владеет вдо…
+              - listitem [ref=e753]:
+                - link "11.06 10:04 В Италии выпустили вино с виноградника П…" [ref=e754] [cursor=pointer]:
+                  - /url: /news/v-italii-vypustili-vino-s-vinogradnika-papy-rimskogo
+                  - generic [ref=e755]:
+                    - generic [ref=e756]: "11.06"
+                    - generic [ref=e757]: 10:04
+                  - paragraph [ref=e759]: В Италии выпустили вино с виноградника П…
+          - generic [ref=e760]:
+            - link "Алкогольный рынок" [ref=e761] [cursor=pointer]:
+              - /url: /category/alkogolnyj-rynok
+            - list [ref=e762]:
+              - listitem [ref=e763]:
+                - link "02.07 07:40 непарапрпаррпа Эксклюзив" [ref=e764] [cursor=pointer]:
+                  - /url: /news/neparaprparrpa
+                  - generic [ref=e765]:
+                    - generic [ref=e766]: "02.07"
+                    - generic [ref=e767]: 07:40
+                  - paragraph [ref=e769]:
+                    - text: непарапрпаррпа
+                    - generic [ref=e770]: Эксклюзив
+              - listitem [ref=e771]:
+                - link "02.07 06:37 апоапоапоапоапо Эксклюзив" [ref=e772] [cursor=pointer]:
+                  - /url: /news/apoapoapoapoapo
+                  - generic [ref=e773]:
+                    - generic [ref=e774]: "02.07"
+                    - generic [ref=e775]: 06:37
+                  - paragraph [ref=e777]:
+                    - text: апоапоапоапоапо
+                    - generic [ref=e778]: Эксклюзив
+              - listitem [ref=e779]:
+                - link "02.07 06:35 пропаорп Эксклюзив" [ref=e780] [cursor=pointer]:
+                  - /url: /news/propaorp
+                  - generic [ref=e781]:
+                    - generic [ref=e782]: "02.07"
+                    - generic [ref=e783]: 06:35
+                  - paragraph [ref=e785]:
+                    - text: пропаорп
+                    - generic [ref=e786]: Эксклюзив
+              - listitem [ref=e787]:
+                - link "02.07 06:32 важно Эксклюзив" [ref=e788] [cursor=pointer]:
+                  - /url: /news/vazhno
+                  - generic [ref=e789]:
+                    - generic [ref=e790]: "02.07"
+                    - generic [ref=e791]: 06:32
+                  - paragraph [ref=e793]:
+                    - text: важно
+                    - generic [ref=e794]: Эксклюзив
+              - listitem [ref=e795]:
+                - link "01.07 14:21 werr" [ref=e796] [cursor=pointer]:
+                  - /url: /articles/werr
+                  - generic [ref=e797]:
+                    - generic [ref=e798]: "01.07"
+                    - generic [ref=e799]: 14:21
+                  - paragraph [ref=e801]: werr
+              - listitem [ref=e802]:
+                - link "30.06 12:41 test Эксклюзив" [ref=e803] [cursor=pointer]:
+                  - /url: /articles/test
+                  - generic [ref=e804]:
+                    - generic [ref=e805]: "30.06"
+                    - generic [ref=e806]: 12:41
+                  - paragraph [ref=e808]:
+                    - text: test
+                    - generic [ref=e809]: Эксклюзив
+              - listitem [ref=e810]:
+                - link "09.06 17:10 В России выросли продажи сидра" [ref=e811] [cursor=pointer]:
+                  - /url: /news/v-rossii-vyrosli-prodazhi-sidra
+                  - generic [ref=e812]:
+                    - generic [ref=e813]: "09.06"
+                    - generic [ref=e814]: 17:10
+                  - paragraph [ref=e816]: В России выросли продажи сидра
+              - listitem [ref=e817]:
+                - link "05.06 09:46 Российские бренды водки, виски и джина в…" [ref=e818] [cursor=pointer]:
+                  - /url: /news/rossiyskie-brendy-vodki-viski-i-dzhina-voshli-v-reyting-drinks-international
+                  - generic [ref=e819]:
+                    - generic [ref=e820]: "05.06"
+                    - generic [ref=e821]: 09:46
+                  - paragraph [ref=e823]: Российские бренды водки, виски и джина в…
+              - listitem [ref=e824]:
+                - link "05.06 09:41 Российские алкогольные бренды вошли в ре…" [ref=e825] [cursor=pointer]:
+                  - /url: /news/rossiyskie-alkogolnye-brendy-voshli-v-reyting-brand-champions
+                  - generic [ref=e826]:
+                    - generic [ref=e827]: "05.06"
+                    - generic [ref=e828]: 09:41
+                  - paragraph [ref=e830]: Российские алкогольные бренды вошли в ре…
+              - listitem [ref=e831]:
+                - link "04.06 17:11 От объекта показа к развитию территории…" [ref=e832] [cursor=pointer]:
+                  - /url: /articles/ot-obekta-pokaza-k-razvitiyu-territorii-v-krasnodare-obsudili-budushhee-agroturizma-na-yuge-rossii
+                  - generic [ref=e833]:
+                    - generic [ref=e834]: "04.06"
+                    - generic [ref=e835]: 17:11
+                  - paragraph [ref=e837]: От объекта показа к развитию территории…
+          - generic [ref=e838]:
+            - link "Розничный бизнес" [ref=e839] [cursor=pointer]:
+              - /url: /category/roznichnyj-biznes
+            - list [ref=e840]:
+              - listitem [ref=e841]:
+                - link "01.07 14:58 utyuytu Эксклюзив" [ref=e842] [cursor=pointer]:
+                  - /url: /news/utyuytu
+                  - generic [ref=e843]:
+                    - generic [ref=e844]: "01.07"
+                    - generic [ref=e845]: 14:58
+                  - paragraph [ref=e847]:
+                    - text: utyuytu
+                    - generic [ref=e848]: Эксклюзив
+              - listitem [ref=e849]:
+                - 'link "31.05 19:48 Александр Ставцев: «Выставка «Винорус.Ви…" [ref=e850] [cursor=pointer]':
+                  - /url: /articles/aleksandr-stavczev-vystavka-vinorus-vinoteh-2026-stala-klyuchevym-sobytiem-goda-dlya-riteyla
+                  - generic [ref=e851]:
+                    - generic [ref=e852]: "31.05"
+                    - generic [ref=e853]: 19:48
+                  - paragraph [ref=e855]: "Александр Ставцев: «Выставка «Винорус.Ви…"
+              - listitem [ref=e856]:
+                - 'link "31.05 17:40 Алексей Синельников: «Есть вина сакральн…" [ref=e857] [cursor=pointer]':
+                  - /url: /articles/aleksey-sinelnikov-est-vina-sakralnye-a-est-pod-kotletu
+                  - generic [ref=e858]:
+                    - generic [ref=e859]: "31.05"
+                    - generic [ref=e860]: 17:40
+                  - paragraph [ref=e862]: "Алексей Синельников: «Есть вина сакральн…"
+              - listitem [ref=e863]:
+                - 'link "31.05 12:57 Рынок вина в России меняется: импорт дорожает, российский средний сегмент растет — обсуждение на «Винорус.Винотех 2026»" [ref=e864] [cursor=pointer]':
+                  - /url: /articles/rynok-vina-v-rossii-menyaetsya-import-dorozhaet-rossiyskiy-sredniy-segment-rastet-obsuzhdenie-na-vinorus-vinoteh-2026
+                  - generic [ref=e865]:
+                    - generic [ref=e866]: "31.05"
+                    - generic [ref=e867]: 12:57
+                  - paragraph [ref=e869]: "Рынок вина в России меняется: импорт дорожает, российский средний сегмент растет — обсуждение на «Винорус.Винотех 2026»"
+              - listitem [ref=e870]:
+                - 'link "31.05 12:57 Господдержка, земля и полка: что ждет российское виноделие" [ref=e871] [cursor=pointer]':
+                  - /url: /articles/gospodderzhka-zemlya-i-polka-chto-zhdet-rossiyskoe-vinodelie
+                  - generic [ref=e872]:
+                    - generic [ref=e873]: "31.05"
+                    - generic [ref=e874]: 12:57
+                  - paragraph [ref=e876]: "Господдержка, земля и полка: что ждет российское виноделие"
+              - listitem [ref=e877]:
+                - 'link "31.05 12:54 Винные блогеры и юристы: «Мы постоянно а… Эксклюзив" [ref=e878] [cursor=pointer]':
+                  - /url: /articles/vinnye-blogery-i-yuristy-na-vinorus-vinoteh-2026-my-postoyanno-adaptiruemsya-k-novym-usloviyam
+                  - generic [ref=e879]:
+                    - generic [ref=e880]: "31.05"
+                    - generic [ref=e881]: 12:54
+                  - paragraph [ref=e883]:
+                    - text: "Винные блогеры и юристы: «Мы постоянно а…"
+                    - generic [ref=e884]: Эксклюзив
+              - listitem [ref=e885]:
+                - link "15.05 10:33 Экспорт виноградных выжимок из России вы…" [ref=e886] [cursor=pointer]:
+                  - /url: /news/eksport-vinogradnyh-vyzhimok-iz-rossii-vyros-v-5-6-raza
+                  - generic [ref=e887]:
+                    - generic [ref=e888]: "15.05"
+                    - generic [ref=e889]: 10:33
+                  - paragraph [ref=e891]: Экспорт виноградных выжимок из России вы…
+              - listitem [ref=e892]:
+                - link "14.05 13:32 Виноделы получили право торговать на выс… Эксклюзив" [ref=e893] [cursor=pointer]:
+                  - /url: /news/vinodely-poluchili-pravo-torgovat-na-vystavkah-bez-obhodnyh-putey
+                  - generic [ref=e894]:
+                    - generic [ref=e895]: "14.05"
+                    - generic [ref=e896]: 13:32
+                  - paragraph [ref=e898]:
+                    - text: Виноделы получили право торговать на выс…
+                    - generic [ref=e899]: Эксклюзив
+              - listitem [ref=e900]:
+                - link "04.05 11:07 На российском рынке отметили сокращение спроса на оранжи" [ref=e901] [cursor=pointer]:
+                  - /url: /news/na-rossiyskom-rynke-otmetili-sokrashhenie-sprosa-na-oranzhi
+                  - generic [ref=e902]:
+                    - generic [ref=e903]: "04.05"
+                    - generic [ref=e904]: 11:07
+                  - paragraph [ref=e906]: На российском рынке отметили сокращение спроса на оранжи
+              - listitem [ref=e907]:
+                - link "01.05 14:14 Спрос на безалкогольное пиво и вино вырос на майские праздники-2026 среди россиян" [ref=e908] [cursor=pointer]:
+                  - /url: /news/spros-na-bezalkogolnoe-pivo-i-vino-vyros-na-mayskie-prazdniki-2026-sredi-rossiyan
+                  - generic [ref=e909]:
+                    - generic [ref=e910]: "01.05"
+                    - generic [ref=e911]: 14:14
+                  - paragraph [ref=e913]: Спрос на безалкогольное пиво и вино вырос на майские праздники-2026 среди россиян
+          - generic [ref=e914]:
+            - link "Ресторанный бизнес" [ref=e915] [cursor=pointer]:
+              - /url: /category/restorannyj-biznes
+            - list [ref=e916]:
+              - listitem [ref=e917]:
+                - link "02.07 08:13 ипарарарв" [ref=e918] [cursor=pointer]:
+                  - /url: /news/iparararv
+                  - generic [ref=e919]:
+                    - generic [ref=e920]: "02.07"
+                    - generic [ref=e921]: 08:13
+                  - paragraph [ref=e923]: ипарарарв
+              - listitem [ref=e924]:
+                - link "24.06 09:01 Wine Spectator отметил винные карты 21 р…" [ref=e925] [cursor=pointer]:
+                  - /url: /news/wine-spectator-otmetil-vinnye-karty-21-rossiyskogo-restorana
+                  - generic [ref=e926]:
+                    - generic [ref=e927]: "24.06"
+                    - generic [ref=e928]: 09:01
+                  - paragraph [ref=e930]: Wine Spectator отметил винные карты 21 р…
+              - listitem [ref=e931]:
+                - link "10.06 09:19 «Фанагория» откроет гастрономическое бис…" [ref=e932] [cursor=pointer]:
+                  - /url: /news/fanagoriya-otkroet-gastronomicheskoe-bistro-v-novom-vinnom-klastere-gelendzhika
+                  - generic [ref=e933]:
+                    - generic [ref=e934]: "10.06"
+                    - generic [ref=e935]: 09:19
+                  - paragraph [ref=e937]: «Фанагория» откроет гастрономическое бис…
+              - listitem [ref=e938]:
+                - link "01.06 11:49 Лучшие рестораны Юга России с красивыми…" [ref=e939] [cursor=pointer]:
+                  - /url: /articles/luchshie-restorany-yuga-rossii-s-krasivymi-vidami-2026-gde-vkusno-i-ochen-krasivo
+                  - generic [ref=e940]:
+                    - generic [ref=e941]: "01.06"
+                    - generic [ref=e942]: 11:49
+                  - paragraph [ref=e944]: Лучшие рестораны Юга России с красивыми…
+              - listitem [ref=e945]:
+                - 'link "31.05 19:48 Александр Ставцев: «Выставка «Винорус.Ви…" [ref=e946] [cursor=pointer]':
+                  - /url: /articles/aleksandr-stavczev-vystavka-vinorus-vinoteh-2026-stala-klyuchevym-sobytiem-goda-dlya-riteyla
+                  - generic [ref=e947]:
+                    - generic [ref=e948]: "31.05"
+                    - generic [ref=e949]: 19:48
+                  - paragraph [ref=e951]: "Александр Ставцев: «Выставка «Винорус.Ви…"
+              - listitem [ref=e952]:
+                - 'link "31.05 09:21 Что такое пробковый сбор в России: правовая и экономическая модель в 2026 году" [ref=e953] [cursor=pointer]':
+                  - /url: /articles/chto-takoe-probkovyy-sbor-v-rossii-pravovaya-i-ekonomicheskaya-model-v-2026-godu
+                  - generic [ref=e954]:
+                    - generic [ref=e955]: "31.05"
+                    - generic [ref=e956]: 09:21
+                  - paragraph [ref=e958]: "Что такое пробковый сбор в России: правовая и экономическая модель в 2026 году"
+              - listitem [ref=e959]:
+                - link "30.05 18:02 VII Всероссийский симпозиум виноделов «Б…" [ref=e960] [cursor=pointer]:
+                  - /url: /news/vii-vserossiyskiy-simpozium-vinodelov-bolshe-chem-vinodel-startoval-v-abrau-dyurso
+                  - generic [ref=e961]:
+                    - generic [ref=e962]: "30.05"
+                    - generic [ref=e963]: 18:02
+                  - paragraph [ref=e965]: VII Всероссийский симпозиум виноделов «Б…
+              - listitem [ref=e966]:
+                - link "05.05 13:11 Компания Martini рассказала о росте популярности коктейлей с вином в Европе" [ref=e967] [cursor=pointer]:
+                  - /url: /news/kompaniya-martini-rasskazala-o-roste-populyarnosti-kokteyley-s-vinom-v-evrope
+                  - generic [ref=e968]:
+                    - generic [ref=e969]: "05.05"
+                    - generic [ref=e970]: 13:11
+                  - paragraph [ref=e972]: Компания Martini рассказала о росте популярности коктейлей с вином в Европе
+          - generic [ref=e973]:
+            - link "Туризм" [ref=e974] [cursor=pointer]:
+              - /url: /category/turizm
+            - list [ref=e975]:
+              - listitem [ref=e976]:
+                - link "04.06 17:11 От объекта показа к развитию территории…" [ref=e977] [cursor=pointer]:
+                  - /url: /articles/ot-obekta-pokaza-k-razvitiyu-territorii-v-krasnodare-obsudili-budushhee-agroturizma-na-yuge-rossii
+                  - generic [ref=e978]:
+                    - generic [ref=e979]: "04.06"
+                    - generic [ref=e980]: 17:11
+                  - paragraph [ref=e982]: От объекта показа к развитию территории…
+              - listitem [ref=e983]:
+                - link "01.06 13:46 «Скалистый Берег» нарисовал созвездие на… Эксклюзив" [ref=e984] [cursor=pointer]:
+                  - /url: /news/skalistyy-bereg-narisoval-sozvezdie-na-karte-novyy-marshrut-malaya-medvedicza-obedinil-vino-zvezdy-i-antichnost
+                  - generic [ref=e985]:
+                    - generic [ref=e986]: "01.06"
+                    - generic [ref=e987]: 13:46
+                  - paragraph [ref=e989]:
+                    - text: «Скалистый Берег» нарисовал созвездие на…
+                    - generic [ref=e990]: Эксклюзив
+              - listitem [ref=e991]:
+                - 'link "30.05 20:41 Лучшие винодельни Юга России 2026: 10 хо…" [ref=e992] [cursor=pointer]':
+                  - /url: /articles/luchshie-vinodelni-yuga-rossii-2026-10-hozyaystv-kotorye-stoit-posetit
+                  - generic [ref=e993]:
+                    - generic [ref=e994]: "30.05"
+                    - generic [ref=e995]: 20:41
+                  - paragraph [ref=e997]: "Лучшие винодельни Юга России 2026: 10 хо…"
+              - listitem [ref=e998]:
+                - link "29.05 10:31 Лучшие отели России с красивыми видами 2…" [ref=e999] [cursor=pointer]:
+                  - /url: /news/luchshie-oteli-rossii-s-krasivymi-vidami-2026-10-stilnyh-oteley-gde-hochetsya-ostatsya-na-nedelyu
+                  - generic [ref=e1000]:
+                    - generic [ref=e1001]: "29.05"
+                    - generic [ref=e1002]: 10:31
+                  - paragraph [ref=e1004]: Лучшие отели России с красивыми видами 2…
+  - contentinfo [ref=e1005]:
+    - generic [ref=e1007]:
+      - generic [ref=e1008]:
+        - link "Виноделие сегодня" [ref=e1009] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e1010]:
+          - link "ВКонтакте" [ref=e1011] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "YouTube" [ref=e1013] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "Instagram" [ref=e1015] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "Дзен" [ref=e1017] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "Telegram" [ref=e1019] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "MAX" [ref=e1021] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+      - generic [ref=e1023]:
+        - heading "Рубрики" [level=4] [ref=e1024]
+        - list [ref=e1025]:
+          - listitem [ref=e1026]:
+            - link "Новости" [ref=e1027] [cursor=pointer]:
+              - /url: /news
+          - listitem [ref=e1028]:
+            - link "Российское виноделие" [ref=e1029] [cursor=pointer]:
+              - /url: /category/rossijskoe-vino
+          - listitem [ref=e1030]:
+            - link "Зарубежное виноделие" [ref=e1031] [cursor=pointer]:
+              - /url: /category/zarubezhnoe-vino
+          - listitem [ref=e1032]:
+            - link "Алкогольный рынок" [ref=e1033] [cursor=pointer]:
+              - /url: /category/alkogolnyj-rynok
+          - listitem [ref=e1034]:
+            - link "Розничный бизнес" [ref=e1035] [cursor=pointer]:
+              - /url: /category/roznichnyj-biznes
+          - listitem [ref=e1036]:
+            - link "Ресторанный бизнес" [ref=e1037] [cursor=pointer]:
+              - /url: /category/restorannyj-biznes
+          - listitem [ref=e1038]:
+            - link "Туризм" [ref=e1039] [cursor=pointer]:
+              - /url: /category/turizm
+      - generic [ref=e1040]:
+        - heading "О нас" [level=4] [ref=e1041]
+        - list [ref=e1042]:
+          - listitem [ref=e1043]:
+            - link "Правовая информация" [ref=e1044] [cursor=pointer]:
+              - /url: /legal
+          - listitem [ref=e1045]:
+            - link "Политика в отношении обработки персональных данных" [ref=e1046] [cursor=pointer]:
+              - /url: /privacy
+    - paragraph [ref=e1049]: Все права защищены. Копирование и иное использование материалов возможны только с письменного согласия правообладателя и с обязательным указанием источника.

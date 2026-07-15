@@ -1,0 +1,89 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img "Виноделие Сегодня" [ref=e7]
+      - generic [ref=e8]:
+        - button "Поиск" [ref=e10] [cursor=pointer]
+        - button "Войти" [ref=e13] [cursor=pointer]
+        - button "Переключить тему" [ref=e17] [cursor=pointer]
+    - navigation [ref=e20]:
+      - list [ref=e22]:
+        - listitem [ref=e23]:
+          - link "Новости" [ref=e24] [cursor=pointer]:
+            - /url: /news
+        - listitem [ref=e25]:
+          - link "Российское виноделие" [ref=e26] [cursor=pointer]:
+            - /url: /category/rossijskoe-vino
+        - listitem [ref=e27]:
+          - link "Зарубежное виноделие" [ref=e28] [cursor=pointer]:
+            - /url: /category/zarubezhnoe-vino
+        - listitem [ref=e29]:
+          - link "Алкогольный рынок" [ref=e30] [cursor=pointer]:
+            - /url: /category/alkogolnyj-rynok
+        - listitem [ref=e31]:
+          - link "Розничный бизнес" [ref=e32] [cursor=pointer]:
+            - /url: /category/roznichnyj-biznes
+        - listitem [ref=e33]:
+          - link "Ресторанный бизнес" [ref=e34] [cursor=pointer]:
+            - /url: /category/restorannyj-biznes
+        - listitem [ref=e35]:
+          - link "Туризм" [ref=e36] [cursor=pointer]:
+            - /url: /category/turizm
+  - main [ref=e37]:
+    - generic [ref=e38]:
+      - heading "Test Editor" [level=1] [ref=e39]
+      - generic [ref=e40]: <p>Пример текста для проверки редактора.</p>
+  - contentinfo [ref=e41]:
+    - generic [ref=e43]:
+      - generic [ref=e44]:
+        - link "Виноделие сегодня" [ref=e45] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e46]:
+          - link "ВКонтакте" [ref=e47] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "YouTube" [ref=e49] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "Instagram" [ref=e51] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "Дзен" [ref=e53] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "Telegram" [ref=e55] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+          - link "MAX" [ref=e57] [cursor=pointer]:
+            - /url: https://chat.z.ai/c/65c039cc-62ee-4485-aec1-5438151ffe29
+      - generic [ref=e59]:
+        - heading "Рубрики" [level=4] [ref=e60]
+        - list [ref=e61]:
+          - listitem [ref=e62]:
+            - link "Новости" [ref=e63] [cursor=pointer]:
+              - /url: /news
+          - listitem [ref=e64]:
+            - link "Российское виноделие" [ref=e65] [cursor=pointer]:
+              - /url: /category/rossijskoe-vino
+          - listitem [ref=e66]:
+            - link "Зарубежное виноделие" [ref=e67] [cursor=pointer]:
+              - /url: /category/zarubezhnoe-vino
+          - listitem [ref=e68]:
+            - link "Алкогольный рынок" [ref=e69] [cursor=pointer]:
+              - /url: /category/alkogolnyj-rynok
+          - listitem [ref=e70]:
+            - link "Розничный бизнес" [ref=e71] [cursor=pointer]:
+              - /url: /category/roznichnyj-biznes
+          - listitem [ref=e72]:
+            - link "Ресторанный бизнес" [ref=e73] [cursor=pointer]:
+              - /url: /category/restorannyj-biznes
+          - listitem [ref=e74]:
+            - link "Туризм" [ref=e75] [cursor=pointer]:
+              - /url: /category/turizm
+      - generic [ref=e76]:
+        - heading "О нас" [level=4] [ref=e77]
+        - list [ref=e78]:
+          - listitem [ref=e79]:
+            - link "Правовая информация" [ref=e80] [cursor=pointer]:
+              - /url: /legal
+          - listitem [ref=e81]:
+            - link "Политика в отношении обработки персональных данных" [ref=e82] [cursor=pointer]:
+              - /url: /privacy
+    - paragraph [ref=e85]: Все права защищены. Копирование и иное использование материалов возможны только с письменного согласия правообладателя и с обязательным указанием источника.

@@ -51,11 +51,6 @@ const socialLinks = computed(() => {
                 {{ cat.name }}
               </NuxtLink>
             </li>
-            <li>
-              <NuxtLink to="/events" class="text-white/90 transition hover:text-white">
-                Афиша
-              </NuxtLink>
-            </li>
           </ul>
         </div>
 

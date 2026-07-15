@@ -34,6 +34,9 @@ export class ListContentDto {
   authorSlug?: string;
 
   @IsOptional()
+  search?: string;
+
+  @IsOptional()
   @Type(() => Boolean)
   featured?: boolean;
 
