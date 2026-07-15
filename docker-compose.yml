@@ -12,7 +12,6 @@ services:
       NUXT_PUBLIC_SITE_URL: ${SITE_URL:-http://localhost}
       NUXT_PUBLIC_API_URL: ${NUXT_PUBLIC_API_URL:-http://localhost:4000/api}
       NUXT_PUBLIC_MEDIA_BASE_URL: ${NUXT_PUBLIC_MEDIA_BASE_URL:-http://localhost:4000}
-      NUXT_PUBLIC_MEILISEARCH_URL: ${NUXT_PUBLIC_MEILISEARCH_URL:-http://localhost/search}
       NUXT_PUBLIC_EDITOR_URL: ${NUXT_PUBLIC_EDITOR_URL:-http://localhost:3000/account}
       NUXT_PUBLIC_UPLOADS_URL: ${NUXT_PUBLIC_UPLOADS_URL:-http://localhost:4000/uploads}
       API_URL: http://api:4000/api
@@ -25,8 +24,6 @@ services:
         ipv4_address: 192.168.240.13
     depends_on:
       api:
-        condition: service_healthy
-      meilisearch:
         condition: service_healthy
     restart: unless-stopped
 
@@ -43,8 +40,6 @@ services:
       SITE_URL: ${SITE_URL:-http://localhost}
       MEDIA_URL: ${MEDIA_URL:-http://localhost/uploads}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
-      MEILISEARCH_URL: http://meilisearch:7700
-      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
       JWT_SECRET: ${JWT_SECRET}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
@@ -66,38 +61,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      meilisearch:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 30s
-    restart: unless-stopped
-
-  watermark:
-    build:
-      context: ./watermark
-      dockerfile: Dockerfile
-    container_name: vino_watermark
-    environment:
-      NODE_ENV: production
-      PORT: 4001
-      UPLOADS_DIR: /app/uploads
-      CONCURRENCY: 1
-      MAX_QUEUE_SIZE: 10
-    volumes:
-      - media_uploads:/app/uploads
-    networks:
-      default:
-      winemakingtoday_static:
-        ipv4_address: 192.168.240.14
-    depends_on:
-      api:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4001/health').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -135,21 +100,6 @@ services:
       retries: 10
     restart: unless-stopped
 
-  meilisearch:
-    image: getmeili/meilisearch:v1.16
-    container_name: vino_meilisearch
-    environment:
-      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
-      MEILI_ENV: development
-    volumes:
-      - meili_data:/meili_data
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:7700/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-    restart: unless-stopped
-
 networks:
   winemakingtoday_static:
     driver: bridge
@@ -170,6 +120,3 @@ volumes:
   redis_data:
     external: true
     name: winemakingtoday_redis_data
-  meili_data:
-    external: true
-    name: winemakingtoday_meili_data

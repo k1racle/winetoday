@@ -140,7 +140,6 @@ model MediaAsset {
   coverContentItems        ContentItem[] @relation("CoverMedia")
   archiveCoverContentItems ContentItem[] @relation("ArchiveCoverMedia")
   siteSettingsLogo         SiteSettings? @relation("SiteSettingsLogo")
-  siteSettingsWatermark    SiteSettings? @relation("SiteSettingsWatermark")
   siteHeaderLightLogo      SiteHeader?   @relation("SiteHeaderLightLogo")
   siteHeaderDarkLogo       SiteHeader?   @relation("SiteHeaderDarkLogo")
   siteSeoOgImage           SiteSeo?      @relation("SiteSeoOgImage")
@@ -163,7 +162,6 @@ model ContentItem {
   coverMediaId          String?       @db.Uuid
   archiveCoverMediaId   String?       @db.Uuid
   coverSource           String?       @map("cover_source")
-  coverShowWatermark    Boolean       @default(false) @map("cover_show_watermark")
 
   featured              Boolean       @default(false)
   pinned                Boolean       @default(false)
@@ -326,20 +324,7 @@ model SiteSettings {
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 
-  watermarkEnabled          Boolean  @default(true) @map("watermark_enabled")
-  watermarkMediaId          String?  @unique @db.Uuid
-  watermarkOpacity          Float    @default(0.85) @map("watermark_opacity")
-  watermarkSizePercent      Float    @default(18) @map("watermark_size_percent")
-  watermarkPosition         String   @default("bottom-right") @map("watermark_position")
-  watermarkOffsetTopPercent    Float    @default(4) @map("watermark_offset_top_percent")
-  watermarkOffsetRightPercent  Float    @default(4) @map("watermark_offset_right_percent")
-  watermarkOffsetBottomPercent Float    @default(4) @map("watermark_offset_bottom_percent")
-  watermarkOffsetLeftPercent   Float    @default(4) @map("watermark_offset_left_percent")
-  watermarkMinSizePx        Int      @default(48) @map("watermark_min_size_px")
-  watermarkMaxSizePx        Int      @default(220) @map("watermark_max_size_px")
-
   logoMedia      MediaAsset? @relation("SiteSettingsLogo", fields: [logoMediaId], references: [id])
-  watermarkMedia MediaAsset? @relation("SiteSettingsWatermark", fields: [watermarkMediaId], references: [id])
 
   @@map("site_settings")
 }

@@ -30,8 +30,4 @@ export class SettingsController {
     return this.settingsService.siteSeo();
   }
 
-  @Get('settings/watermark')
-  watermark() {
-    return this.settingsService.watermark();
-  }
 }

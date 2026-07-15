@@ -8,8 +8,7 @@ import { MediaModule } from './modules/media/media.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { CommunityModule } from './modules/community/community.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
-import { WatermarkModule } from './modules/watermark/watermark.module';
-import { SearchModule } from './modules/search/search.module';
+
 import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 
@@ -24,8 +23,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
     SettingsModule,
     CommunityModule,
     AnalyticsModule,
-    WatermarkModule,
-    SearchModule,
+
     UsersModule,
   ],
   controllers: [HealthController],

@@ -55,6 +55,7 @@ CREATE TABLE "authors" (
     "position" TEXT,
     "bio" TEXT,
     "memberProfileId" UUID,
+    "avatarMediaId" UUID,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -111,7 +112,6 @@ CREATE TABLE "content_items" (
     "coverMediaId" UUID,
     "archiveCoverMediaId" UUID,
     "cover_source" TEXT,
-    "cover_show_watermark" BOOLEAN NOT NULL DEFAULT false,
     "featured" BOOLEAN NOT NULL DEFAULT false,
     "pinned" BOOLEAN NOT NULL DEFAULT false,
     "homepage_lead" BOOLEAN NOT NULL DEFAULT false,
@@ -153,7 +153,8 @@ CREATE TABLE "comments" (
 CREATE TABLE "reactions" (
     "id" UUID NOT NULL,
     "contentItemId" UUID NOT NULL,
-    "userId" UUID NOT NULL,
+    "userId" UUID,
+    "viewer_id" TEXT,
     "type" "ReactionType" NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -200,6 +201,16 @@ CREATE TABLE "content_view_daily" (
 );
 
 -- CreateTable
+CREATE TABLE "author_subscriptions" (
+    "id" UUID NOT NULL,
+    "userId" UUID NOT NULL,
+    "authorId" UUID NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "author_subscriptions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "author_view_daily" (
     "date" DATE NOT NULL,
     "authorId" UUID NOT NULL,
@@ -222,17 +233,6 @@ CREATE TABLE "site_settings" (
     "social_links" JSONB,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
-    "watermark_enabled" BOOLEAN NOT NULL DEFAULT true,
-    "watermarkMediaId" UUID,
-    "watermark_opacity" DOUBLE PRECISION NOT NULL DEFAULT 0.85,
-    "watermark_size_percent" DOUBLE PRECISION NOT NULL DEFAULT 18,
-    "watermark_position" TEXT NOT NULL DEFAULT 'bottom-right',
-    "watermark_offset_top_percent" DOUBLE PRECISION NOT NULL DEFAULT 4,
-    "watermark_offset_right_percent" DOUBLE PRECISION NOT NULL DEFAULT 4,
-    "watermark_offset_bottom_percent" DOUBLE PRECISION NOT NULL DEFAULT 4,
-    "watermark_offset_left_percent" DOUBLE PRECISION NOT NULL DEFAULT 4,
-    "watermark_min_size_px" INTEGER NOT NULL DEFAULT 48,
-    "watermark_max_size_px" INTEGER NOT NULL DEFAULT 220,
 
     CONSTRAINT "site_settings_pkey" PRIMARY KEY ("id")
 );
@@ -416,6 +416,9 @@ CREATE UNIQUE INDEX "content_items_type_id_key" ON "content_items"("type", "id")
 CREATE UNIQUE INDEX "reactions_contentItemId_userId_key" ON "reactions"("contentItemId", "userId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "reactions_contentItemId_viewer_id_key" ON "reactions"("contentItemId", "viewer_id");
+
+-- CreateIndex
 CREATE INDEX "content_view_events_content_type_contentId_idx" ON "content_view_events"("content_type", "contentId");
 
 -- CreateIndex
@@ -431,10 +434,10 @@ CREATE UNIQUE INDEX "content_view_totals_contentId_key" ON "content_view_totals"
 CREATE INDEX "content_view_daily_date_idx" ON "content_view_daily"("date");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "site_settings_logoMediaId_key" ON "site_settings"("logoMediaId");
+CREATE UNIQUE INDEX "author_subscriptions_userId_authorId_key" ON "author_subscriptions"("userId", "authorId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "site_settings_watermarkMediaId_key" ON "site_settings"("watermarkMediaId");
+CREATE UNIQUE INDEX "site_settings_logoMediaId_key" ON "site_settings"("logoMediaId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "site_header_lightLogoMediaId_key" ON "site_header"("lightLogoMediaId");
@@ -473,6 +476,9 @@ ALTER TABLE "member_profiles" ADD CONSTRAINT "member_profiles_userId_fkey" FOREI
 ALTER TABLE "member_profiles" ADD CONSTRAINT "member_profiles_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "authors"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "authors" ADD CONSTRAINT "authors_avatarMediaId_fkey" FOREIGN KEY ("avatarMediaId") REFERENCES "media_assets"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "categories" ADD CONSTRAINT "categories_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "categories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -506,13 +512,16 @@ ALTER TABLE "content_view_totals" ADD CONSTRAINT "content_view_totals_content_ty
 ALTER TABLE "content_view_daily" ADD CONSTRAINT "content_view_daily_contentId_fkey" FOREIGN KEY ("contentId") REFERENCES "content_items"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "author_subscriptions" ADD CONSTRAINT "author_subscriptions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "author_subscriptions" ADD CONSTRAINT "author_subscriptions_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "authors"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "author_view_daily" ADD CONSTRAINT "author_view_daily_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "authors"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "site_settings" ADD CONSTRAINT "site_settings_logoMediaId_fkey" FOREIGN KEY ("logoMediaId") REFERENCES "media_assets"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "site_settings" ADD CONSTRAINT "site_settings_watermarkMediaId_fkey" FOREIGN KEY ("watermarkMediaId") REFERENCES "media_assets"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "site_header" ADD CONSTRAINT "site_header_lightLogoMediaId_fkey" FOREIGN KEY ("lightLogoMediaId") REFERENCES "media_assets"("id") ON DELETE SET NULL ON UPDATE CASCADE;

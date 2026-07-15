@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
-import { UpdateWatermarkDto } from './dto/update-watermark.dto';
 import { UpdateSiteHeaderDto } from './dto/update-site-header.dto';
 
 const singletonInclude = {
   logoMedia: true,
-  watermarkMedia: true,
 };
 
 const headerInclude = {
@@ -49,43 +47,6 @@ export class SettingsService {
     });
   }
 
-  async watermark() {
-    const settings = await this.prisma.siteSettings.findFirst({
-      select: {
-        watermarkEnabled: true,
-        watermarkMediaId: true,
-        watermarkOpacity: true,
-        watermarkSizePercent: true,
-        watermarkPosition: true,
-        watermarkOffsetTopPercent: true,
-        watermarkOffsetRightPercent: true,
-        watermarkOffsetBottomPercent: true,
-        watermarkOffsetLeftPercent: true,
-        watermarkMinSizePx: true,
-        watermarkMaxSizePx: true,
-        watermarkMedia: true,
-      },
-    });
-
-    if (!settings) {
-      return null;
-    }
-
-    return {
-      enabled: settings.watermarkEnabled,
-      mediaId: settings.watermarkMediaId,
-      media: settings.watermarkMedia,
-      opacity: settings.watermarkOpacity,
-      sizePercent: settings.watermarkSizePercent,
-      position: settings.watermarkPosition,
-      offsetTopPercent: settings.watermarkOffsetTopPercent,
-      offsetRightPercent: settings.watermarkOffsetRightPercent,
-      offsetBottomPercent: settings.watermarkOffsetBottomPercent,
-      offsetLeftPercent: settings.watermarkOffsetLeftPercent,
-      minSizePx: settings.watermarkMinSizePx,
-      maxSizePx: settings.watermarkMaxSizePx,
-    };
-  }
 
   async socialLinks() {
     const settings = await this.prisma.siteSettings.findFirst({
@@ -119,35 +80,6 @@ export class SettingsService {
     });
   }
 
-  async updateWatermark(dto: UpdateWatermarkDto) {
-    const existing = await this.prisma.siteSettings.findFirst();
-    const data = {
-      watermarkEnabled: dto.enabled,
-      watermarkMediaId: dto.mediaId,
-      watermarkOpacity: dto.opacity,
-      watermarkSizePercent: dto.sizePercent,
-      watermarkPosition: dto.position,
-      watermarkOffsetTopPercent: dto.offsetTopPercent,
-      watermarkOffsetRightPercent: dto.offsetRightPercent,
-      watermarkOffsetBottomPercent: dto.offsetBottomPercent,
-      watermarkOffsetLeftPercent: dto.offsetLeftPercent,
-      watermarkMinSizePx: dto.minSizePx,
-      watermarkMaxSizePx: dto.maxSizePx,
-    };
-
-    if (!existing) {
-      return this.prisma.siteSettings.create({
-        data,
-        include: { watermarkMedia: true },
-      });
-    }
-
-    return this.prisma.siteSettings.update({
-      where: { id: existing.id },
-      data,
-      include: { watermarkMedia: true },
-    });
-  }
 
   async updateSiteHeader(dto: UpdateSiteHeaderDto) {
     const existing = await this.prisma.siteHeader.findFirst();
