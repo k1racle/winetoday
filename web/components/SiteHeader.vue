@@ -194,9 +194,9 @@ async function handleLogout() {
 
     <!-- Categories nav (desktop) -->
     <nav class="hidden shadow-sm lg:block">
-      <div>
+      <div class="mx-auto max-w-7xl px-4">
         <ul class="flex w-full items-center justify-between divide-x divide-foreground/10 overflow-x-auto py-2.5 text-[11px] font-bold uppercase tracking-wider text-foreground/80 md:text-xs">
-          <li class="shrink-0 text-center">
+          <li class="shrink-0 text-center first:[&>a]:pl-0 last:[&>a]:pr-0">
             <NuxtLink
               to="/news"
               class="block whitespace-nowrap px-4 py-1 transition hover:text-foreground"
@@ -204,7 +204,7 @@ async function handleLogout() {
               Новости
             </NuxtLink>
           </li>
-          <li v-for="cat in headerCategories" :key="cat.id" class="shrink-0 text-center">
+          <li v-for="cat in headerCategories" :key="cat.id" class="shrink-0 text-center first:[&>a]:pl-0 last:[&>a]:pr-0">
             <NuxtLink
               :to="`/category/${cat.slug}`"
               class="block whitespace-nowrap px-4 py-1 transition hover:text-foreground"
