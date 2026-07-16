@@ -78,7 +78,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
     <div class="mb-4 flex items-center justify-between">
       <button
         type="button"
-        class="flex-1 pb-1 text-center font-heading text-xs font-normal uppercase tracking-wider transition border-b-2"
+        class="flex-1 pb-1 text-center text-xs font-bold uppercase tracking-wider transition border-b-2"
         :class="activeTab === 'popular' ? 'text-foreground border-accent' : 'text-foreground/50 border-transparent hover:text-foreground'"
         @click="activeTab = 'popular'"
       >
@@ -86,7 +86,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
       </button>
       <button
         type="button"
-        class="flex-1 pb-1 text-center font-heading text-xs font-normal uppercase tracking-wider transition border-b-2"
+        class="flex-1 pb-1 text-center text-xs font-bold uppercase tracking-wider transition border-b-2"
         :class="activeTab === 'fresh' ? 'text-foreground border-accent' : 'text-foreground/50 border-transparent hover:text-foreground'"
         @click="activeTab = 'fresh'"
       >
@@ -111,7 +111,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
             </span>
           </div>
           <div class="min-w-0 flex-1">
-            <span class="line-clamp-2 text-sm font-bold leading-snug text-foreground group-hover:text-accent" :class="{ 'font-bold': item.materialLabel === 'important' }">
+            <span class="line-clamp-3 text-sm font-normal leading-snug text-foreground group-hover:text-accent" :class="{ 'font-bold': item.materialLabel === 'important' }">
               {{ truncatedTitle(item.title, !!item.materialLabel) }}
               <MaterialLabelBadge
                 :label="item.materialLabel"

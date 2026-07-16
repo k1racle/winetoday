@@ -65,7 +65,7 @@ function truncatedTitle(title: string, hasLabel: boolean): string {
                 </span>
               </span>
               <div class="min-w-0 flex-1">
-                <p class="text-sm font-bold leading-snug text-foreground group-hover:text-foreground line-clamp-2" :class="{ 'font-bold': item.materialLabel === 'important' }">
+                <p class="text-sm font-normal leading-snug text-foreground group-hover:text-foreground line-clamp-3" :class="{ 'font-bold': item.materialLabel === 'important' }">
                   {{ truncatedTitle(item.title, !!item.materialLabel) }}
                   <MaterialLabelBadge
                     :label="item.materialLabel"

@@ -87,7 +87,7 @@ async function handleLogout() {
 </script>
 
 <template>
-  <header class="bg-background shadow-sm">
+  <header class="bg-background shadow-md">
     <!-- Top bar -->
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
       <!-- Logo -->
@@ -195,19 +195,19 @@ async function handleLogout() {
     <!-- Categories nav (desktop) -->
     <nav class="hidden shadow-sm lg:block">
       <div class="mx-auto max-w-7xl px-4">
-        <ul class="flex w-full items-center divide-x divide-foreground/10 overflow-x-auto py-2.5 text-[11px] font-bold uppercase tracking-wider text-foreground/80 md:text-xs">
-          <li class="min-w-0 flex-1 text-center">
+        <ul class="flex w-full items-center justify-between divide-x divide-foreground/10 overflow-x-auto py-2.5 text-[11px] font-bold uppercase tracking-wider text-foreground/80 md:text-xs">
+          <li class="shrink-0 text-center">
             <NuxtLink
               to="/news"
-              class="block whitespace-nowrap px-2 py-1 transition hover:text-foreground"
+              class="block whitespace-nowrap px-4 py-1 transition hover:text-foreground"
             >
               Новости
             </NuxtLink>
           </li>
-          <li v-for="cat in headerCategories" :key="cat.id" class="min-w-0 flex-1 text-center">
+          <li v-for="cat in headerCategories" :key="cat.id" class="shrink-0 text-center">
             <NuxtLink
               :to="`/category/${cat.slug}`"
-              class="block whitespace-nowrap px-2 py-1 transition hover:text-foreground"
+              class="block whitespace-nowrap px-4 py-1 transition hover:text-foreground"
             >
               {{ cat.name }}
             </NuxtLink>
