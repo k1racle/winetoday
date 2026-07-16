@@ -51,8 +51,9 @@ function editUrl(item: ContentItem) {
       :alt="item.coverMedia?.altText || item.title"
       class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
     />
-    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 via-[20%] to-transparent" />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 via-[25%] to-transparent" />
     <MaterialLabelBadge
+      v-if="size !== 'large'"
       :label="item.materialLabel"
       :type="item.type"
       class="absolute bottom-2 right-2 z-10"

@@ -111,7 +111,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
             </span>
           </div>
           <div class="min-w-0 flex-1">
-            <span class="line-clamp-2 text-sm font-normal leading-snug text-foreground group-hover:text-accent" :class="{ 'font-bold': item.materialLabel === 'important' }">
+            <span class="line-clamp-2 text-sm font-bold leading-snug text-foreground group-hover:text-accent" :class="{ 'font-bold': item.materialLabel === 'important' }">
               {{ truncatedTitle(item.title, !!item.materialLabel) }}
               <MaterialLabelBadge
                 :label="item.materialLabel"
@@ -135,7 +135,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
 
     <NuxtLink
       to="/news"
-      class="mt-4 inline-flex items-center rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent"
+      class="mt-4 inline-flex items-center self-start rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent"
     >
       Все новости
       <span class="ml-1">→</span>

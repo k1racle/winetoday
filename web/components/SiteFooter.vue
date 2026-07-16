@@ -1,7 +1,10 @@
 <script setup lang="ts">
-const { getSiteSettings } = useApi();
+const { getSiteSettings, getSiteHeader } = useApi();
 const { data: siteSettings } = await useAsyncData('footer-site-settings', () =>
   getSiteSettings().catch(() => null),
+);
+const { data: siteHeader } = await useAsyncData('site-header', () =>
+  getSiteHeader().catch(() => null),
 );
 const { headerCategories } = useHeaderCategories();
 
@@ -9,6 +12,10 @@ const socialLinks = computed(() => {
   const links = siteSettings.value?.socialLinks?.links;
   return Array.isArray(links) ? links : [];
 });
+
+const darkLogoUrl = computed(() =>
+  useMediaUrl(siteHeader.value?.darkLogo?.path) || '/logo-dark.png',
+);
 </script>
 
 <template>
@@ -17,9 +24,12 @@ const socialLinks = computed(() => {
       <div class="grid gap-10 md:grid-cols-3 md:gap-8">
         <!-- Logo + socials -->
         <div class="space-y-6">
-          <NuxtLink to="/" class="block font-heading text-2xl font-normal uppercase leading-tight tracking-wider text-white/90">
-            Федеральное отраслевое медиа
-            <span class="block text-3xl md:text-4xl">Виноделие сегодня</span>
+          <NuxtLink to="/" class="block">
+            <img
+              :src="darkLogoUrl"
+              alt="Виноделие Сегодня"
+              class="h-10 w-auto md:h-12"
+            >
           </NuxtLink>
           <div v-if="socialLinks.length" class="grid grid-cols-4 gap-4">
             <a
