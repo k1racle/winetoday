@@ -562,6 +562,7 @@ async function submit(status?: 'draft' | 'published') {
     form.id = res.id;
     message.value = status === 'published' ? 'Материал опубликован' : 'Черновик сохранён';
     emit('saved', res.id);
+    clearNuxtData();
   } catch (e: any) {
     error.value = e?.data?.message || e?.message || 'Ошибка сохранения';
   } finally {
@@ -575,7 +576,7 @@ async function submit(status?: 'draft' | 'published') {
     <!-- Header -->
     <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div>
-        <h2 class="font-heading text-2xl font-bold">Создание материала</h2>
+        <h2 class="font-heading text-2xl font-normal">Создание материала</h2>
         <p class="mt-1 text-sm text-foreground/60">
           Полноценное редактирование контента с блоками и rich text
         </p>
@@ -628,7 +629,7 @@ async function submit(status?: 'draft' | 'published') {
       </div>
       <div class="flex items-center gap-2 text-sm">
         <span class="text-foreground/50">Статус:</span>
-        <span class="font-medium">{{ statusLabels[form.status] }}</span>
+        <span class="font-normal">{{ statusLabels[form.status] }}</span>
       </div>
     </div>
 
@@ -638,18 +639,18 @@ async function submit(status?: 'draft' | 'published') {
       <div class="space-y-6">
         <!-- Main info -->
         <div class="border border-foreground/10 bg-card">
-          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-semibold">
+          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-normal">
             Основная информация
           </div>
           <div class="space-y-4 p-4">
             <div>
-              <label class="mb-1 block text-xs font-medium text-foreground/70">
+              <label class="mb-1 block text-xs font-normal text-foreground/70">
                 Заголовок <span class="text-red-600">*</span>
               </label>
               <input v-model="form.title" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Введите заголовок...">
             </div>
             <div>
-              <label class="mb-1 block text-xs font-medium text-foreground/70">
+              <label class="mb-1 block text-xs font-normal text-foreground/70">
                 Ссылка (slug) <span class="text-foreground/40">необязательно</span>
               </label>
               <input v-model="form.slug" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="slug-materiala">
@@ -658,7 +659,7 @@ async function submit(status?: 'draft' | 'published') {
               ✨ Применить типографику
             </button>
             <div>
-              <label class="mb-1 block text-xs font-medium text-foreground/70">Краткое описание</label>
+              <label class="mb-1 block text-xs font-normal text-foreground/70">Краткое описание</label>
               <textarea v-model="form.excerpt" rows="3" class="w-full resize-y border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Для публикации обязательно..." />
             </div>
           </div>
@@ -666,31 +667,31 @@ async function submit(status?: 'draft' | 'published') {
 
         <!-- Publication settings -->
         <div class="border border-foreground/10 bg-card">
-          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-semibold">
+          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-normal">
             Настройки публикации
           </div>
           <div class="grid gap-4 p-4 sm:grid-cols-2">
             <div>
-              <label class="mb-1 block text-xs font-medium text-foreground/70">Статус</label>
+              <label class="mb-1 block text-xs font-normal text-foreground/70">Статус</label>
               <select v-model="form.status" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                 <option v-for="(label, key) in statusLabels" :key="key" :value="key">{{ label }}</option>
               </select>
             </div>
             <div>
-              <label class="mb-1 block text-xs font-medium text-foreground/70">Метка</label>
+              <label class="mb-1 block text-xs font-normal text-foreground/70">Метка</label>
               <select v-model="form.materialLabel" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                 <option v-for="opt in labelOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
               </select>
             </div>
             <div v-if="form.type !== 'video'">
-              <label class="mb-1 block text-xs font-medium text-foreground/70">Автор</label>
+              <label class="mb-1 block text-xs font-normal text-foreground/70">Автор</label>
               <select v-model="selectedAuthorId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                 <option value="">— Автоматически —</option>
                 <option v-for="a in dedupedAuthors" :key="a.id" :value="a.id">{{ a.name }}</option>
               </select>
             </div>
             <div class="sm:col-span-2">
-              <label class="mb-1 block text-xs font-medium text-foreground/70">Дата публикации</label>
+              <label class="mb-1 block text-xs font-normal text-foreground/70">Дата публикации</label>
               <div class="flex gap-2">
                 <input v-model="form.publishedDate" type="date" class="border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                 <input v-model="form.publishedTime" type="time" class="border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
@@ -705,7 +706,7 @@ async function submit(status?: 'draft' | 'published') {
 
         <!-- Content blocks -->
         <div class="border border-foreground/10 bg-card">
-          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-semibold">
+          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-normal">
             Блоки материала
           </div>
           <div class="space-y-4 p-4">
@@ -715,10 +716,10 @@ async function submit(status?: 'draft' | 'published') {
                 <div class="flex items-center justify-between border-b border-foreground/10 bg-muted px-3 py-2">
                   <div class="flex items-center gap-2">
                     <span class="cursor-grab text-foreground/40">⋮⋮</span>
-                    <span class="rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide" :class="block.type === 'text' ? 'bg-accent/10 text-accent' : 'bg-orange-100 text-orange-700'">
+                    <span class="rounded px-1.5 py-0.5 text-[10px] font-normal uppercase tracking-wide" :class="block.type === 'text' ? 'bg-accent/10 text-accent' : 'bg-orange-100 text-orange-700'">
                       {{ block.type === 'text' ? 'Текст' : block.type === 'image' ? 'Изображение' : block.type === 'slider' ? 'Слайдер' : block.type === 'gallery' ? 'Галерея' : block.type === 'embed' ? 'Embed' : block.type }}
                     </span>
-                    <input v-model="block.title" type="text" class="w-40 border-none bg-transparent text-xs font-medium outline-none placeholder:text-foreground/40" placeholder="Название блока">
+                    <input v-model="block.title" type="text" class="w-40 border-none bg-transparent text-xs font-normal outline-none placeholder:text-foreground/40" placeholder="Название блока">
                   </div>
                   <div class="flex items-center gap-1">
                     <button class="px-1.5 py-1 text-xs hover:bg-foreground/5" @click="moveBlock(index, -1)">↑</button>
@@ -788,20 +789,20 @@ async function submit(status?: 'draft' | 'published') {
 
         <!-- SEO -->
         <div class="border border-foreground/10 bg-card">
-          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-semibold">
+          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-normal">
             SEO-настройки
           </div>
           <div class="space-y-4 p-4">
             <div>
-              <label class="mb-1 block text-xs font-medium text-foreground/70">Meta Title</label>
+              <label class="mb-1 block text-xs font-normal text-foreground/70">Meta Title</label>
               <input v-model="form.seoTitle" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Заголовок для поисковиков">
             </div>
             <div>
-              <label class="mb-1 block text-xs font-medium text-foreground/70">Meta Description</label>
+              <label class="mb-1 block text-xs font-normal text-foreground/70">Meta Description</label>
               <textarea v-model="form.seoDescription" rows="2" class="w-full resize-y border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Краткое описание..." />
             </div>
             <div>
-              <label class="mb-1 block text-xs font-medium text-foreground/70">Keywords</label>
+              <label class="mb-1 block text-xs font-normal text-foreground/70">Keywords</label>
               <input v-model="form.seoKeywords" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="вино, виноделие, виноград">
             </div>
           </div>
@@ -812,7 +813,7 @@ async function submit(status?: 'draft' | 'published') {
       <div class="space-y-6">
         <!-- Cover -->
         <div class="border border-foreground/10 bg-card">
-          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-semibold">
+          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-normal">
             Обложка
           </div>
           <div class="space-y-4 p-4">
@@ -833,18 +834,18 @@ async function submit(status?: 'draft' | 'published') {
                 <button class="btn-secondary w-full text-xs" @click="coverInput?.click()">Загрузить</button>
                 <button class="btn-danger w-full text-xs" :disabled="!form.coverMediaId" @click="removeCover">🗑 Удалить</button>
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-foreground/70">Источник фото</label>
+                  <label class="mb-1 block text-xs font-normal text-foreground/70">Источник фото</label>
                   <input v-model="form.coverSource" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-xs outline-none focus:border-accent" placeholder="Источник обложки">
                 </div>
               </div>
             </div>
             <div v-if="form.type === 'video'" class="mt-3 space-y-3">
               <div>
-                <label class="mb-1 block text-xs font-medium text-foreground/70">Источник видео</label>
+                <label class="mb-1 block text-xs font-normal text-foreground/70">Источник видео</label>
                 <input v-model="form.videoUrl" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="https://youtube.com/...">
               </div>
               <div>
-                <label class="mb-1 block text-xs font-medium text-foreground/70">Продолжительность (чч:мм:сс)</label>
+                <label class="mb-1 block text-xs font-normal text-foreground/70">Продолжительность (чч:мм:сс)</label>
                 <input v-model="durationInput" type="text" inputmode="numeric" pattern="[0-9:]+" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="0:05:30">
               </div>
             </div>
@@ -853,12 +854,12 @@ async function submit(status?: 'draft' | 'published') {
 
         <!-- Categories & tags -->
         <div class="border border-foreground/10 bg-card">
-          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-semibold">
+          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-normal">
             Рубрики и теги
           </div>
           <div class="space-y-4 p-4">
             <div>
-              <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-foreground/50">Рубрики</p>
+              <p class="mb-2 text-xs font-normal uppercase tracking-wide text-foreground/50">Рубрики</p>
               <div v-if="loading" class="text-xs text-foreground/50">Загрузка…</div>
               <div v-else class="flex flex-wrap gap-2">
                 <button
@@ -876,7 +877,7 @@ async function submit(status?: 'draft' | 'published') {
               </div>
             </div>
             <div>
-              <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-foreground/50">Темы</p>
+              <p class="mb-2 text-xs font-normal uppercase tracking-wide text-foreground/50">Темы</p>
               <div v-if="loading" class="text-xs text-foreground/50">Загрузка…</div>
               <div v-else class="flex flex-wrap gap-2">
                 <button
@@ -898,7 +899,7 @@ async function submit(status?: 'draft' | 'published') {
 
         <!-- Sources -->
         <div class="border border-foreground/10 bg-card">
-          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-semibold">
+          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-normal">
             Источники
           </div>
           <div class="space-y-2 p-4">
@@ -932,12 +933,12 @@ async function submit(status?: 'draft' | 'published') {
 
 <style scoped>
 .btn-primary {
-  @apply inline-flex items-center gap-1.5 bg-accent px-4 py-2 text-sm font-medium text-black transition hover:bg-accent/90 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-50;
 }
 .btn-secondary {
-  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-card px-4 py-2 text-sm font-medium text-foreground transition hover:bg-foreground/5 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-card px-4 py-2 text-sm font-normal text-foreground transition hover:bg-foreground/5 disabled:opacity-50;
 }
 .btn-danger {
-  @apply inline-flex items-center gap-1.5 border border-red-200 bg-card px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-50 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 border border-red-200 bg-card px-4 py-2 text-sm font-normal text-red-700 transition hover:bg-red-50 disabled:opacity-50;
 }
 </style>

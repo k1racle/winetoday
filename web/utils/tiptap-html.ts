@@ -1,3 +1,5 @@
+import { getVideoEmbedUrl } from './video-embed';
+
 export function isTiptapJson(content: unknown): boolean {
   if (typeof content !== 'string') return false;
   const trimmed = content.trim();
@@ -47,6 +49,11 @@ function renderNode(node: any): string {
       const src = node.attrs?.src || '';
       const alt = node.attrs?.alt || '';
       return `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" />`;
+    }
+    case 'video': {
+      const src = escapeHtml(node.attrs?.src || '');
+      const embedUrl = getVideoEmbedUrl(src);
+      return `<div data-video class="video-embed aspect-video w-full overflow-hidden bg-black my-4"><iframe src="${escapeHtml(embedUrl)}" class="h-full w-full border-0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>`;
     }
     default:
       return children;

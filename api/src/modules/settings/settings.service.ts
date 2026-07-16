@@ -125,6 +125,12 @@ export class SettingsService {
     if (dto.sitemapEnabled !== undefined) {
       data.sitemapEnabled = dto.sitemapEnabled;
     }
+    if (dto.archiveSeo !== undefined) {
+      data.archiveSeo = dto.archiveSeo as any;
+    }
+    if (dto.pageSeo !== undefined) {
+      data.pageSeo = dto.pageSeo as any;
+    }
 
     if (!existing) {
       return this.prisma.siteSeo.create({

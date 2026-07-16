@@ -378,6 +378,8 @@ model SiteSeo {
   robotsAdditionalSitemaps String? @map("robots_additional_sitemaps")
   sitemapEnabled        Boolean @default(true) @map("sitemap_enabled")
   sitemapExcludePaths   String? @map("sitemap_exclude_paths")
+  archiveSeo            Json?   @map("archive_seo")
+  pageSeo               Json?   @map("page_seo")
   sitemapIncludeArticles Boolean @default(true) @map("sitemap_include_articles")
   sitemapIncludeNews    Boolean @default(true) @map("sitemap_include_news")
   sitemapIncludeVideos  Boolean @default(true) @map("sitemap_include_videos")

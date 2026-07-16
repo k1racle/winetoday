@@ -229,7 +229,112 @@ export class EditorService {
       _count: { type: true },
     });
 
-    return { items, total, counts };
+    const contentIds = items.map((item) => item.id);
+    const [likesCounts, commentsCounts] = await Promise.all([
+      this.prisma.reaction.groupBy({
+        by: ['contentItemId'],
+        where: { contentItemId: { in: contentIds }, type: 'like' },
+        _count: { contentItemId: true },
+      }),
+      this.prisma.comment.groupBy({
+        by: ['contentItemId'],
+        where: { contentItemId: { in: contentIds } },
+        _count: { contentItemId: true },
+      }),
+    ]);
+    const likesById = new Map(likesCounts.map((c) => [c.contentItemId, c._count.contentItemId]));
+    const commentsById = new Map(commentsCounts.map((c) => [c.contentItemId, c._count.contentItemId]));
+
+    const itemsWithCounts = items.map((item) => ({
+      ...item,
+      likesCount: likesById.get(item.id) || 0,
+      commentsCount: commentsById.get(item.id) || 0,
+    }));
+
+    return { items: itemsWithCounts, total, counts };
+  }
+
+  async deleteMaterial(user: RequestUser, id: string) {
+    const item = await this.prisma.contentItem.findUnique({
+      where: { id },
+      select: { id: true, authorId: true },
+    });
+    if (!item) throw new NotFoundException('Material not found');
+    if (item.authorId && !(await this.canEdit(user, item.authorId))) {
+      throw new ForbiddenException();
+    }
+    await this.prisma.contentItem.delete({ where: { id } });
+    return { id, deleted: true };
+  }
+
+  async exportMaterialsCsv(user: RequestUser) {
+    if (user.role !== Role.admin && user.role !== Role.editor) {
+      const authorId = await this.ensureAuthorId(user);
+      const items = await this.prisma.contentItem.findMany({
+        where: { authorId },
+        orderBy: { updatedAt: 'desc' },
+        select: {
+          id: true,
+          type: true,
+          title: true,
+          slug: true,
+          status: true,
+          publishedAt: true,
+          updatedAt: true,
+          viewsTotal: true,
+          author: { select: { name: true } },
+        },
+      });
+      return this.buildCsv(items);
+    }
+
+    const items = await this.prisma.contentItem.findMany({
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        type: true,
+        title: true,
+        slug: true,
+        status: true,
+        publishedAt: true,
+        updatedAt: true,
+        viewsTotal: true,
+        author: { select: { name: true } },
+      },
+    });
+    return this.buildCsv(items);
+  }
+
+  private buildCsv(
+    items: Array<{
+      id: string;
+      type: string;
+      title: string;
+      slug: string;
+      status: string;
+      publishedAt: Date | null;
+      updatedAt: Date;
+      viewsTotal: number;
+      author: { name: string | null } | null;
+    }>,
+  ): string {
+    const headers = ['ID', 'Тип', 'Заголовок', 'Slug', 'Статус', 'Опубликовано', 'Обновлено', 'Просмотры', 'Автор'];
+    const rows = items.map((item) => [
+      item.id,
+      item.type,
+      item.title,
+      item.slug,
+      item.status,
+      item.publishedAt ? item.publishedAt.toISOString() : '',
+      item.updatedAt.toISOString(),
+      String(item.viewsTotal),
+      item.author?.name || '',
+    ]);
+    const escape = (val: string) => {
+      const s = String(val ?? '').replace(/"/g, '""');
+      return /[",\n\r]/.test(s) ? `"${s}"` : s;
+    };
+    return [headers.map(escape).join(','), ...rows.map((row) => row.map(escape).join(','))].join('\n');
   }
 
   async listAuthors() {

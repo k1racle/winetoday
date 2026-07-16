@@ -78,7 +78,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
     <div class="mb-4 flex items-center justify-between">
       <button
         type="button"
-        class="flex-1 pb-1 text-center font-heading text-xs font-bold uppercase tracking-wider transition border-b-2"
+        class="flex-1 pb-1 text-center font-heading text-xs font-normal uppercase tracking-wider transition border-b-2"
         :class="activeTab === 'popular' ? 'text-foreground border-accent' : 'text-foreground/50 border-transparent hover:text-foreground'"
         @click="activeTab = 'popular'"
       >
@@ -86,7 +86,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
       </button>
       <button
         type="button"
-        class="flex-1 pb-1 text-center font-heading text-xs font-bold uppercase tracking-wider transition border-b-2"
+        class="flex-1 pb-1 text-center font-heading text-xs font-normal uppercase tracking-wider transition border-b-2"
         :class="activeTab === 'fresh' ? 'text-foreground border-accent' : 'text-foreground/50 border-transparent hover:text-foreground'"
         @click="activeTab = 'fresh'"
       >
@@ -103,7 +103,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
       >
         <NuxtLink :to="link(item)" class="group flex min-w-0 items-start gap-3 transition-colors duration-200">
           <div class="flex shrink-0 flex-col items-start pt-0.5">
-            <span class="text-sm font-bold text-accent">
+            <span class="text-sm font-normal text-accent">
               {{ formatDay(item.publishedAt || item.createdAt) }}
             </span>
             <span class="text-xs text-foreground/60">
@@ -111,10 +111,11 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
             </span>
           </div>
           <div class="min-w-0 flex-1">
-            <span class="line-clamp-2 text-sm font-medium leading-snug text-foreground group-hover:text-accent">
+            <span class="line-clamp-2 text-sm font-normal leading-snug text-foreground group-hover:text-accent" :class="{ 'font-bold': item.materialLabel === 'important' }">
               {{ truncatedTitle(item.title, !!item.materialLabel) }}
               <MaterialLabelBadge
                 :label="item.materialLabel"
+                :type="item.type"
                 class="ml-1 inline-block whitespace-nowrap align-middle"
               />
             </span>
@@ -126,7 +127,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
     <button
       v-if="hasMobileMore && !isExpanded"
       type="button"
-      class="mt-3 w-full text-center text-sm font-medium text-foreground/70 transition hover:text-foreground md:hidden"
+      class="mt-3 w-full text-center text-sm font-normal text-foreground/70 transition hover:text-foreground md:hidden"
       @click="isExpanded = true"
     >
       Ещё
@@ -134,7 +135,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
 
     <NuxtLink
       to="/news"
-      class="mt-4 inline-flex items-center text-sm font-medium text-foreground/70 transition hover:text-foreground"
+      class="mt-4 inline-flex items-center rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent"
     >
       Все новости
       <span class="ml-1">→</span>

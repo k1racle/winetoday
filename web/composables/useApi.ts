@@ -148,6 +148,10 @@ export function useApi() {
       api(`/editor/drafts/${id}`, { credentials: 'include' }),
     getEditorMaterials: (query?: Record<string, unknown>) =>
       api('/editor/materials', { query, credentials: 'include' }),
+    deleteMaterial: (id: string) =>
+      api(`/editor/materials/${id}`, { method: 'DELETE', credentials: 'include' }),
+    exportMaterialsCsv: () =>
+      api('/editor/materials/export/csv', { credentials: 'include', responseType: 'blob' }),
     getAuthors: () =>
       api('/editor/authors', { credentials: 'include' }),
     getAdminAuthors: () =>

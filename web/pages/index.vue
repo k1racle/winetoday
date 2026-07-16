@@ -24,9 +24,9 @@ const [{ data: homepage }, { data: fresh }, { data: latestByCategory }, { data: 
 
 const topItems = computed<ContentItem[]>(() => {
   const h = homepage.value;
-  if (!h) return [];
-  if (h.lead?.length) return h.lead.slice(0, 3);
-  return h.articles?.slice(0, 3) || [];
+  if (h?.lead?.length) return h.lead.slice(0, 3);
+  const articles = (allMixed.value?.items || []).filter((item) => item.type === 'article');
+  return articles.slice(0, 3);
 });
 
 const freshItems = computed<ContentItem[]>(() => {
@@ -71,8 +71,10 @@ const siteUrl = (useRuntimeConfig().public.siteUrl as string)?.replace(/\/$/, ''
 const firstCoverPath = topItems.value?.[0]?.coverMedia?.path;
 const homeOgImage = firstCoverPath ? useOgImageUrl(useMediaUrl(firstCoverPath)) : '';
 
+useHead({ titleTemplate: '%s' });
+
 useSeoMeta({
-  title: 'Главная',
+  title: 'ВИНОДЕЛИЕ СЕГОДНЯ - Федеральное отраслевое медиа',
   description: 'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.',
   ogTitle: 'ВИНОДЕЛИЕ СЕГОДНЯ - Федеральное отраслевое медиа',
   ogDescription: 'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.',
@@ -132,21 +134,22 @@ useSeoMeta({
                   <svg class="h-5 w-5 fill-current text-accent" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
                   </svg>
-                  <h2 class="font-heading text-xl font-bold uppercase tracking-wider">
+                  <h2 class="font-heading text-xl font-normal uppercase tracking-wider">
                     <span class="rounded bg-accent px-2 py-0.5 text-white dark:text-black">Видео</span>
                   </h2>
                 </div>
                 <NuxtLink
                   to="/videos"
-                  class="text-sm font-medium text-foreground transition hover:text-foreground/80"
+                  class="inline-flex items-center rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent"
                 >
-                  Все видео →
+                  Все видео
+                  <span class="ml-1">→</span>
                 </NuxtLink>
               </div>
 
               <VideoFeatureCard :item="homepage.videos[0]" :show-title="false" :show-play="false">
                 <template #title>
-                  <h3 class="mb-3 font-heading text-lg font-bold leading-snug text-foreground md:text-xl">
+                  <h3 class="mb-3 font-heading text-lg font-normal leading-snug text-foreground md:text-xl">
                     {{ homepage.videos[0].title }}
                   </h3>
                 </template>
@@ -191,7 +194,7 @@ useSeoMeta({
 
           <!-- Latest news: left of sidebar -->
           <div v-if="mixedItems.length" class="pt-2 lg:pt-6">
-            <h2 class="mb-6 font-heading text-2xl font-bold">Последние статьи</h2>
+            <h2 class="mb-6 font-heading text-2xl font-normal">Последние статьи</h2>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <ArticleCard
                 v-for="item in mixedItems"
@@ -207,9 +210,10 @@ useSeoMeta({
                 type="button"
                 :disabled="isLoading || displayLimit >= totalMixedCount"
                 @click="loadMore()"
-                class="text-accent font-heading font-bold text-lg transition hover:text-accent/80 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="inline-flex items-center rounded border border-accent bg-transparent px-5 py-2.5 text-sm font-normal text-accent transition hover:bg-accent hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {{ isLoading ? 'Загрузка...' : 'Еще →' }}
+                {{ isLoading ? 'Загрузка...' : 'Ещё' }}
+                <span class="ml-1">→</span>
               </button>
             </div>
           </div>

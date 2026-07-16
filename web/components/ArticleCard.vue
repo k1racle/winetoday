@@ -15,6 +15,7 @@ const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
 const { date, category } = useContentMeta(props.item);
 const { user } = useAuth();
 const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
+const isImportant = computed(() => props.item.materialLabel === 'important');
 
 function editUrl(item: ContentItem) {
   return `/account?type=${item.type}&id=${item.id}`;
@@ -63,6 +64,7 @@ const link = computed(() => {
       />
       <MaterialLabelBadge
         :label="item.materialLabel"
+        :type="item.type"
         class="absolute bottom-2 right-2"
       />
     </div>
@@ -71,12 +73,12 @@ const link = computed(() => {
       :class="variant === 'compact' ? 'flex flex-1 flex-col p-3' : 'p-4'"
     >
       <div class="mb-1.5 flex flex-wrap items-center gap-2 text-xs text-foreground/50">
-        <span v-if="category">{{ category }}</span>
         <span v-if="date">{{ date }}</span>
+        <span v-if="category">{{ category }}</span>
       </div>
       <h3
-        class="font-heading font-bold leading-snug group-hover:text-foreground"
-        :class="variant === 'compact' ? 'break-words text-[17px] leading-snug line-clamp-3' : 'break-words text-lg'"
+        class="font-heading font-normal leading-snug group-hover:text-foreground"
+        :class="[variant === 'compact' ? 'break-words text-[17px] leading-snug line-clamp-3' : 'break-words text-lg', { 'font-bold': isImportant }]"
       >
         {{ item.title }}
       </h3>
@@ -91,7 +93,7 @@ const link = computed(() => {
     <NuxtLink
       v-if="canEdit"
       :to="editUrl(item)"
-      class="absolute right-2 top-2 z-10 rounded bg-accent px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
+      class="absolute right-2 top-2 z-10 rounded bg-accent px-2 py-1 text-[10px] font-normal uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
     >
       Редактировать
     </NuxtLink>

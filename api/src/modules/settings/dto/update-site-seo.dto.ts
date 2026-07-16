@@ -28,4 +28,12 @@ export class UpdateSiteSeoDto {
   @IsOptional()
   @IsBoolean()
   sitemapEnabled?: boolean;
+
+  @IsOptional()
+  @IsObject()
+  archiveSeo?: Record<string, { title?: string; description?: string; keywords?: string }>;
+
+  @IsOptional()
+  @IsObject()
+  pageSeo?: Record<string, { title?: string; description?: string; keywords?: string }>;
 }

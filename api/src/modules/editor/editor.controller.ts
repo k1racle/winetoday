@@ -1,13 +1,16 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
   Query,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -29,6 +32,14 @@ export class EditorController {
   @Get('drafts/:id')
   getDraft(@Param('id') id: string, @Request() req) {
     return this.editorService.findDraft(req.user as RequestUser, id);
+  }
+
+  @Get('materials/export/csv')
+  async exportCsv(@Request() req, @Res() res: Response) {
+    const csv = await this.editorService.exportMaterialsCsv(req.user as RequestUser);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="materials.csv"');
+    res.send('\uFEFF' + csv);
   }
 
   @Get('materials')
@@ -55,6 +66,11 @@ export class EditorController {
       sort,
       order,
     });
+  }
+
+  @Delete('materials/:id')
+  deleteMaterial(@Param('id') id: string, @Request() req) {
+    return this.editorService.deleteMaterial(req.user as RequestUser, id);
   }
 
   @Get('authors')

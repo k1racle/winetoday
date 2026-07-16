@@ -124,11 +124,11 @@ function selectType(type: string) {
   <aside class="flex h-full flex-col border border-foreground/10 bg-card">
     <!-- User -->
     <div class="flex items-center gap-3 border-b border-foreground/10 p-4">
-      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-bold text-black">
+      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-normal text-black">
         {{ initials }}
       </div>
       <div class="min-w-0">
-        <div class="truncate text-sm font-semibold">
+        <div class="truncate text-sm font-normal">
           {{ user?.displayName || user?.username || user?.email }}
         </div>
         <div class="text-xs text-foreground/50">
@@ -139,7 +139,7 @@ function selectType(type: string) {
 
     <!-- Type list -->
     <div class="px-3 pt-3">
-      <p class="px-2 text-[10px] font-bold uppercase tracking-wider text-foreground/40">
+      <p class="px-2 text-[10px] font-normal uppercase tracking-wider text-foreground/40">
         Тип материала
       </p>
       <div class="mt-2 space-y-1">
@@ -153,7 +153,7 @@ function selectType(type: string) {
           <span>{{ typeLabels[type].icon }}</span>
           <span class="flex-1">{{ typeLabels[type].label }}</span>
           <span
-            class="rounded px-1.5 py-0.5 text-[10px] font-semibold"
+            class="rounded px-1.5 py-0.5 text-[10px] font-normal"
             :class="activeType === type ? 'bg-accent text-black' : 'bg-foreground/5 text-foreground/60'"
           >
             {{ counts[type] || 0 }}
@@ -161,7 +161,7 @@ function selectType(type: string) {
         </button>
       </div>
       <button
-        class="mt-3 w-full rounded bg-accent px-3 py-2 text-sm font-semibold text-black transition hover:bg-accent/90"
+        class="mt-3 w-full rounded bg-accent px-3 py-2 text-sm font-normal text-black transition hover:bg-accent/90"
         @click="emit('newMaterial')"
       >
         ＋ Новый материал
@@ -170,7 +170,7 @@ function selectType(type: string) {
 
     <!-- Recent materials -->
     <div class="flex min-h-0 flex-1 flex-col border-t border-foreground/10 mt-4">
-      <p class="px-5 pt-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-foreground/40">
+      <p class="px-5 pt-3 pb-2 text-[10px] font-normal uppercase tracking-wider text-foreground/40">
         Все материалы
       </p>
       <div class="px-4 pb-2">
@@ -193,7 +193,7 @@ function selectType(type: string) {
             class="w-full rounded px-2 py-2 text-left transition hover:bg-foreground/5"
             @click="emit('selectMaterial', item)"
           >
-            <div class="truncate text-xs font-medium leading-tight">
+            <div class="truncate text-xs font-normal leading-tight">
               {{ item.title }}
             </div>
             <div class="mt-1 flex items-center gap-1.5 text-[10px] text-foreground/50">

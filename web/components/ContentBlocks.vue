@@ -33,7 +33,7 @@ function formatSource(source?: string | null): string {
     <template v-for="block in props.blocks" :key="block.id">
       <div
         v-if="block.type === 'rich-text' || block.type === 'html-editor' || block.type === 'text'"
-        class="prose prose-lg max-w-none text-foreground [&_a]:text-accent [&_a]:underline hover:[&_a]:no-underline [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-bold [&_h3]:mt-5 [&_h3]:mb-3"
+        class="prose prose-lg max-w-none text-foreground [&_a]:text-accent [&_a]:underline hover:[&_a]:no-underline [&_h2]:text-2xl [&_h2]:font-normal [&_h2]:mt-6 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-normal [&_h3]:mt-5 [&_h3]:mb-3"
         v-html="renderContent(block.content)"
       />
 
@@ -92,7 +92,7 @@ function formatSource(source?: string | null): string {
         class="border-l-4 border-accent bg-accent/5 p-6 italic"
       >
         <p class="text-lg">{{ block.text }}</p>
-        <footer v-if="block.author" class="mt-3 text-sm font-medium not-italic">
+        <footer v-if="block.author" class="mt-3 text-sm font-normal not-italic">
           {{ block.author }}<span v-if="block.role">, {{ block.role }}</span>
         </footer>
       </blockquote>

@@ -110,7 +110,7 @@ onMounted(() => {
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
     <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Администрирование</p>
+      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Социальные сети</h1>
     </div>
 
@@ -124,7 +124,7 @@ onMounted(() => {
 
     <div v-if="!loading" class="mt-6 space-y-6">
       <div>
-        <label class="mb-1 block text-xs font-medium text-foreground/70">Заголовок блока</label>
+        <label class="mb-1 block text-xs font-normal text-foreground/70">Заголовок блока</label>
         <input v-model="title" type="text" class="w-full max-w-md border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Например, Мы в соцсетях">
       </div>
 
@@ -135,7 +135,7 @@ onMounted(() => {
       <div class="space-y-4">
         <div v-for="(link, index) in links" :key="index" class="flex flex-col gap-4 rounded border border-foreground/10 bg-foreground/5 p-4 md:flex-row md:items-end">
           <div class="w-full md:w-56">
-            <label class="mb-1 block text-xs font-medium text-foreground/70">Платформа</label>
+            <label class="mb-1 block text-xs font-normal text-foreground/70">Платформа</label>
             <select
               :value="link.platform"
               class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent"
@@ -148,11 +148,11 @@ onMounted(() => {
             </select>
           </div>
           <div class="flex-1">
-            <label class="mb-1 block text-xs font-medium text-foreground/70">Название</label>
+            <label class="mb-1 block text-xs font-normal text-foreground/70">Название</label>
             <input v-model="link.label" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="YouTube">
           </div>
           <div class="flex-[2]">
-            <label class="mb-1 block text-xs font-medium text-foreground/70">Ссылка</label>
+            <label class="mb-1 block text-xs font-normal text-foreground/70">Ссылка</label>
             <input v-model="link.href" type="url" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="https://youtube.com/@channel">
           </div>
           <div class="flex items-center gap-3">
@@ -183,9 +183,9 @@ onMounted(() => {
 
 <style scoped>
 .btn-primary {
-  @apply inline-flex items-center gap-1.5 bg-accent px-4 py-2 text-sm font-medium text-black transition hover:bg-accent/90 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-50;
 }
 .btn-secondary {
-  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-normal text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
 }
 </style>

@@ -25,6 +25,7 @@ const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
 const { shortDate, category } = useContentMeta(props.item);
 const { user } = useAuth();
 const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
+const isImportant = computed(() => props.item.materialLabel === 'important');
 
 function editUrl(item: ContentItem) {
   return `/account?type=${item.type}&id=${item.id}`;
@@ -50,13 +51,18 @@ function editUrl(item: ContentItem) {
       :alt="item.coverMedia?.altText || item.title"
       class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
     />
-    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 via-[20%] to-transparent" />
+    <MaterialLabelBadge
+      :label="item.materialLabel"
+      :type="item.type"
+      class="absolute bottom-2 right-2 z-10"
+    />
     <div class="relative z-10 p-3 text-white md:p-6">
-      <div class="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] font-medium uppercase tracking-wider text-white/80 md:text-xs">
-        <span v-if="category">{{ category }}</span>
+      <div class="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] font-normal uppercase tracking-wider text-white/80 md:text-xs">
         <span v-if="shortDate">{{ shortDate }}</span>
+        <span v-if="category">{{ category }}</span>
       </div>
-      <h3 class="break-words font-heading text-base font-bold leading-snug md:text-xl" :class="{ 'md:text-2xl': size === 'large' }">
+      <h3 class="break-words font-heading text-base font-normal leading-snug md:text-xl" :class="[{ 'md:text-2xl': size === 'large' }, { 'font-bold': isImportant }]">
         {{ item.title }}
       </h3>
       <p v-if="item.excerpt && size === 'large'" class="mt-1 line-clamp-1 text-xs text-white/80 md:mt-2 md:line-clamp-2 md:text-sm">
@@ -67,7 +73,7 @@ function editUrl(item: ContentItem) {
     <NuxtLink
       v-if="canEdit"
       :to="editUrl(item)"
-      class="absolute right-2 top-2 z-20 rounded bg-accent px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
+      class="absolute right-2 top-2 z-20 rounded bg-accent px-2 py-1 text-[10px] font-normal uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
     >
       Редактировать
     </NuxtLink>

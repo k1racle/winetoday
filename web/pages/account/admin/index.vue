@@ -186,7 +186,7 @@ onMounted(() => {
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
     <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Администрирование</p>
+      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Пользователи</h1>
     </div>
 
@@ -255,30 +255,30 @@ onMounted(() => {
           <Transition name="slide">
             <div v-if="showUserModal" class="relative mt-8 w-full max-w-md overflow-hidden rounded-lg border border-foreground/10 bg-foreground/5 shadow-2xl">
               <div class="flex items-center justify-between border-b border-foreground/10 px-6 py-4">
-                <h2 class="text-lg font-bold">{{ editingUser ? 'Редактировать пользователя' : 'Добавить пользователя' }}</h2>
+                <h2 class="text-lg font-normal">{{ editingUser ? 'Редактировать пользователя' : 'Добавить пользователя' }}</h2>
                 <button class="flex h-8 w-8 items-center justify-center rounded text-foreground/60 transition hover:bg-foreground/10 hover:text-red-600" @click="showUserModal = false">✕</button>
               </div>
               <div class="space-y-4 p-6">
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-foreground/70">Email <span class="text-red-600">*</span></label>
+                  <label class="mb-1 block text-xs font-normal text-foreground/70">Email <span class="text-red-600">*</span></label>
                   <input v-model="userForm.email" type="email" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="user@example.com">
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-foreground/70">Логин</label>
+                  <label class="mb-1 block text-xs font-normal text-foreground/70">Логин</label>
                   <input v-model="userForm.username" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="username">
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-foreground/70">Отображаемое имя</label>
+                  <label class="mb-1 block text-xs font-normal text-foreground/70">Отображаемое имя</label>
                   <input v-model="userForm.displayName" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Иван Иванов">
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-foreground/70">Роль</label>
+                  <label class="mb-1 block text-xs font-normal text-foreground/70">Роль</label>
                   <select v-model="userForm.role" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                     <option v-for="role in roles" :key="role" :value="role">{{ roleLabels[role] || role }}</option>
                   </select>
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-foreground/70">Пароль {{ editingUser ? '(оставьте пустым, чтобы не менять)' : '*' }}</label>
+                  <label class="mb-1 block text-xs font-normal text-foreground/70">Пароль {{ editingUser ? '(оставьте пустым, чтобы не менять)' : '*' }}</label>
                   <input v-model="userForm.password" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Минимум 6 символов">
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
@@ -299,7 +299,7 @@ onMounted(() => {
           <Transition name="slide">
             <div v-if="showMaterialsModal" class="relative mt-8 w-full max-w-2xl max-h-[calc(100vh-4rem)] overflow-hidden rounded-lg border border-foreground/10 bg-foreground/5 shadow-2xl">
               <div class="flex items-center justify-between border-b border-foreground/10 px-6 py-4">
-                <h2 class="text-lg font-bold">Материалы: {{ materialsUser?.username || materialsUser?.email }}</h2>
+                <h2 class="text-lg font-normal">Материалы: {{ materialsUser?.username || materialsUser?.email }}</h2>
                 <button class="flex h-8 w-8 items-center justify-center rounded text-foreground/60 transition hover:bg-foreground/10 hover:text-red-600" @click="showMaterialsModal = false">✕</button>
               </div>
               <div class="overflow-y-auto p-6">
@@ -334,10 +334,10 @@ onMounted(() => {
 
 <style scoped>
 .btn-primary {
-  @apply inline-flex items-center gap-1.5 bg-accent px-4 py-2 text-sm font-medium text-black transition hover:bg-accent/90 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-50;
 }
 .btn-secondary {
-  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-normal text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
 }
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }

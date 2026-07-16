@@ -74,14 +74,14 @@ onMounted(() => {
       </div>
       <div
         v-else
-        class="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-sm font-bold uppercase text-white"
+        class="flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-sm font-normal uppercase text-white"
       >
         {{ initials }}
       </div>
     </NuxtLink>
     <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
       <span class="text-foreground/60">Автор:</span>
-      <NuxtLink :to="authorLink" class="font-medium text-foreground hover:text-accent">
+      <NuxtLink :to="authorLink" class="font-normal text-foreground hover:text-accent">
         {{ author.name }}
       </NuxtLink>
       <button

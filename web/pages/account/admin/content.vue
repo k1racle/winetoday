@@ -8,18 +8,21 @@ interface Material {
   updatedAt: string;
   publishedAt?: string | null;
   viewsTotal: number;
+  likesCount?: number;
+  commentsCount?: number;
   authorId?: string | null;
   author?: { id: string; name: string } | null;
 }
 
 const { user, isAuthenticated } = useAuth();
-const { getEditorMaterials } = useApi();
+const { getEditorMaterials, deleteMaterial, exportMaterialsCsv } = useApi();
 
 const materials = ref<Material[]>([]);
 const total = ref(0);
 const counts = ref<any[]>([]);
 const loading = ref(false);
 const error = ref('');
+const deletingId = ref<string | null>(null);
 
 const typeFilter = ref('');
 const statusFilter = ref('');
@@ -73,6 +76,8 @@ const sortableColumns = [
   { field: 'title', label: 'Заголовок' },
   { field: 'author', label: 'Автор' },
   { field: 'viewsTotal', label: 'Просмотры' },
+  { field: 'likesCount', label: 'Лайки' },
+  { field: 'commentsCount', label: 'Комментарии' },
   { field: 'publishedAt', label: 'Опубликовано' },
   { field: 'updatedAt', label: 'Обновлено' },
 ];
@@ -145,6 +150,44 @@ function sortIcon(field: string) {
   return sortOrder.value === 'asc' ? '↑' : '↓';
 }
 
+function editUrl(m: Material) {
+  return `/account?type=${m.type}&id=${m.id}`;
+}
+
+function publicUrl(m: Material) {
+  const prefix = m.type === 'article' ? 'articles' : m.type === 'news' ? 'news' : m.type === 'video' ? 'videos' : 'gallery';
+  return `/${prefix}/${m.slug}`;
+}
+
+async function onDelete(id: string) {
+  if (!confirm('Удалить материал? Это действие нельзя отменить.')) return;
+  deletingId.value = id;
+  try {
+    await deleteMaterial(id);
+    await fetchMaterials();
+  } catch (err: any) {
+    error.value = err?.data?.message || err?.message || 'Ошибка удаления';
+  } finally {
+    deletingId.value = null;
+  }
+}
+
+async function onExportCsv() {
+  try {
+    const blob = await exportMaterialsCsv();
+    const url = URL.createObjectURL(blob as Blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `materials-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err: any) {
+    error.value = err?.data?.message || err?.message || 'Ошибка выгрузки CSV';
+  }
+}
+
 onMounted(() => {
   if (!isAuthenticated.value || user.value?.role !== 'admin') {
     navigateTo('/account');
@@ -157,7 +200,7 @@ onMounted(() => {
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
     <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Администрирование</p>
+      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Материалы</h1>
     </div>
 
@@ -169,30 +212,31 @@ onMounted(() => {
     <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
       <div v-for="opt in typeOptions.filter(o => o.value)" :key="opt.value" class="border border-foreground/10 bg-foreground/5 p-3">
         <p class="text-xs text-foreground/60">{{ opt.label }}</p>
-        <p class="text-xl font-bold">{{ countForType(opt.value) }}</p>
+        <p class="text-xl font-normal">{{ countForType(opt.value) }}</p>
       </div>
     </div>
 
     <!-- Filters -->
     <div class="mt-6 flex flex-wrap items-end gap-3">
       <div>
-        <label class="mb-1 block text-xs font-medium text-foreground/70">Тип</label>
+        <label class="mb-1 block text-xs font-normal text-foreground/70">Тип</label>
         <select v-model="typeFilter" class="border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-accent" @change="fetchMaterials">
           <option v-for="opt in typeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
         </select>
       </div>
       <div>
-        <label class="mb-1 block text-xs font-medium text-foreground/70">Статус</label>
+        <label class="mb-1 block text-xs font-normal text-foreground/70">Статус</label>
         <select v-model="statusFilter" class="border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-accent" @change="fetchMaterials">
           <option v-for="opt in statusOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
         </select>
       </div>
       <div>
-        <label class="mb-1 block text-xs font-medium text-foreground/70">Поиск по заголовку</label>
+        <label class="mb-1 block text-xs font-normal text-foreground/70">Поиск по заголовку</label>
         <input v-model="search" type="text" class="border border-foreground/10 bg-foreground/5 px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Введите заголовок..." @keyup.enter="fetchMaterials">
       </div>
       <button class="btn-primary" @click="fetchMaterials">Найти</button>
       <button class="btn-secondary" @click="resetFilters">Сбросить</button>
+      <button class="btn-secondary ml-auto" @click="onExportCsv">Выгрузить CSV</button>
     </div>
 
     <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
@@ -218,6 +262,7 @@ onMounted(() => {
                 <span class="text-xs text-foreground/40">{{ sortIcon(col.field) }}</span>
               </span>
             </th>
+            <th class="border border-foreground/10 px-4 py-2 text-left">Действия</th>
           </tr>
         </thead>
         <tbody>
@@ -230,7 +275,7 @@ onMounted(() => {
             </td>
             <td class="border border-foreground/10 px-4 py-2">{{ typeLabels[m.type] || m.type }}</td>
             <td class="border border-foreground/10 px-4 py-2">
-              <NuxtLink :to="`/${m.type === 'article' ? 'articles' : m.type === 'news' ? 'news' : m.type === 'video' ? 'videos' : 'gallery'}/${m.slug}`" class="hover:text-foreground hover:underline" target="_blank">
+              <NuxtLink :to="publicUrl(m)" class="hover:text-foreground hover:underline" target="_blank">
                 {{ m.title }}
               </NuxtLink>
             </td>
@@ -245,8 +290,28 @@ onMounted(() => {
               <span v-else>{{ m.author?.name || '—' }}</span>
             </td>
             <td class="border border-foreground/10 px-4 py-2">{{ m.viewsTotal || 0 }}</td>
+            <td class="border border-foreground/10 px-4 py-2">{{ m.likesCount || 0 }}</td>
+            <td class="border border-foreground/10 px-4 py-2">{{ m.commentsCount || 0 }}</td>
             <td class="border border-foreground/10 px-4 py-2">{{ formatDate(m.publishedAt) }}</td>
             <td class="border border-foreground/10 px-4 py-2">{{ formatDate(m.updatedAt) }}</td>
+            <td class="border border-foreground/10 px-4 py-2">
+              <div class="flex items-center gap-2">
+                <NuxtLink
+                  :to="editUrl(m)"
+                  class="rounded bg-accent px-2 py-1 text-xs font-normal text-black transition hover:bg-accent/90"
+                >
+                  Редактировать
+                </NuxtLink>
+                <button
+                  type="button"
+                  class="rounded border border-red-600 px-2 py-1 text-xs font-normal text-red-600 transition hover:bg-red-600 hover:text-white disabled:opacity-50"
+                  :disabled="deletingId === m.id"
+                  @click="onDelete(m.id)"
+                >
+                  Удалить
+                </button>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -287,9 +352,9 @@ onMounted(() => {
 
 <style scoped>
 .btn-primary {
-  @apply inline-flex items-center gap-1.5 bg-accent px-4 py-2 text-sm font-medium text-black transition hover:bg-accent/90 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-50;
 }
 .btn-secondary {
-  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-normal text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
 }
 </style>

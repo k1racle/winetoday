@@ -119,8 +119,8 @@ async function submit() {
           >
             <div class="mb-6 flex items-start justify-between">
               <div>
-                <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Аккаунт</p>
-                <h2 class="mt-1 font-heading text-xl font-bold">Личный кабинет</h2>
+                <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Аккаунт</p>
+                <h2 class="mt-1 font-heading text-xl font-normal">Личный кабинет</h2>
               </div>
               <button
                 type="button"
@@ -138,7 +138,7 @@ async function submit() {
             <div class="mb-6 inline-flex border border-foreground/10">
               <button
                 type="button"
-                class="px-4 py-2 text-sm font-medium transition"
+                class="px-4 py-2 text-sm font-normal transition"
                 :class="activeTab === 'login' ? 'bg-accent text-white' : 'bg-card text-foreground hover:bg-foreground/5'"
                 @click="activeTab = 'login'"
               >
@@ -146,7 +146,7 @@ async function submit() {
               </button>
               <button
                 type="button"
-                class="px-4 py-2 text-sm font-medium transition"
+                class="px-4 py-2 text-sm font-normal transition"
                 :class="activeTab === 'register' ? 'bg-accent text-white' : 'bg-card text-foreground hover:bg-foreground/5'"
                 @click="activeTab = 'register'"
               >
@@ -157,7 +157,7 @@ async function submit() {
             <form class="space-y-4" @submit.prevent="submit">
               <template v-if="activeTab === 'register'">
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium">Логин</label>
+                  <label class="mb-1.5 block text-sm font-normal">Логин</label>
                   <input
                     v-model="username"
                     type="text"
@@ -166,7 +166,7 @@ async function submit() {
                   >
                 </div>
                 <div>
-                  <label class="mb-1.5 block text-sm font-medium">Отображаемое имя</label>
+                  <label class="mb-1.5 block text-sm font-normal">Отображаемое имя</label>
                   <input
                     v-model="displayName"
                     type="text"
@@ -176,7 +176,7 @@ async function submit() {
                 </div>
               </template>
               <div>
-                <label class="mb-1.5 block text-sm font-medium">{{ activeTab === 'login' ? 'Логин или email' : 'Email' }}</label>
+                <label class="mb-1.5 block text-sm font-normal">{{ activeTab === 'login' ? 'Логин или email' : 'Email' }}</label>
                 <input
                   v-model="email"
                   type="text"
@@ -185,7 +185,7 @@ async function submit() {
                 >
               </div>
               <div>
-                <label class="mb-1.5 block text-sm font-medium">Пароль</label>
+                <label class="mb-1.5 block text-sm font-normal">Пароль</label>
                 <input
                   v-model="password"
                   type="password"
@@ -197,7 +197,7 @@ async function submit() {
               <button
                 type="submit"
                 :disabled="loading"
-                class="w-full bg-accent px-4 py-2.5 text-sm font-medium text-white transition hover:bg-accent/90 disabled:opacity-60"
+                class="w-full bg-accent px-4 py-2.5 text-sm font-normal text-white transition hover:bg-accent/90 disabled:opacity-60"
               >
                 {{ activeTab === 'login' ? (loading ? 'Вход...' : 'Войти') : (loading ? 'Регистрация...' : 'Зарегистрироваться') }}
               </button>

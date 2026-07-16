@@ -120,26 +120,9 @@ onMounted(() => {
   loadComments();
 });
 
-async function shareItem() {
-  const url = window.location.href;
-  const title = props.item.title || document.title;
-  shareMessage.value = '';
-  try {
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      await navigator.share({ title, url });
-      return;
-    }
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      await navigator.clipboard.writeText(url);
-      shareMessage.value = 'Ссылка скопирована';
-      setTimeout(() => (shareMessage.value = ''), 2000);
-      return;
-    }
-    shareMessage.value = 'Не удалось поделиться';
-  } catch (err: any) {
-    if (err?.name === 'AbortError') return;
-    shareMessage.value = 'Не удалось поделиться';
-  }
+function shareItem() {
+  const { open } = useShare();
+  open(window.location.href, props.item.title || document.title);
 }
 
 function formatDuration(seconds?: number | null): string {
@@ -196,7 +179,7 @@ const relatedItems = computed(() => {
     <div class="grid gap-8 lg:grid-cols-4">
       <article class="lg:col-span-3">
         <!-- Breadcrumbs -->
-        <nav class="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-foreground/50">
+        <nav class="mb-4 flex items-center gap-2 text-xs font-normal uppercase tracking-wider text-foreground/50">
           <NuxtLink to="/" class="hover:text-foreground">Главная</NuxtLink>
           <span>/</span>
           <NuxtLink :to="typeRoute" class="hover:text-foreground">{{ typeLabel }}</NuxtLink>
@@ -212,7 +195,7 @@ const relatedItems = computed(() => {
         <NuxtLink
           v-if="canEdit"
           :to="editUrl(item)"
-          class="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:text-accent/80"
+          class="mt-3 inline-flex items-center gap-1.5 text-sm font-normal text-accent hover:text-accent/80"
         >
           <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
@@ -240,7 +223,7 @@ const relatedItems = computed(() => {
             :alt="item.coverMedia?.altText || item.title"
             class="aspect-video w-full object-cover"
           />
-          <figcaption v-if="item.coverSource" class="mt-2 text-xs font-medium uppercase tracking-wider text-foreground/50">
+          <figcaption v-if="item.coverSource" class="mt-2 text-xs font-normal uppercase tracking-wider text-foreground/50">
             Источник: {{ item.coverSource }}
           </figcaption>
         </figure>
@@ -298,7 +281,7 @@ const relatedItems = computed(() => {
 
         <!-- Related articles -->
         <div v-if="relatedItems.length" class="mt-10">
-          <h2 class="mb-4 font-heading text-xl font-bold">Читайте также</h2>
+          <h2 class="mb-4 font-heading text-xl font-normal">Читайте также</h2>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <ArticleCard
               v-for="item in relatedItems"
@@ -313,7 +296,7 @@ const relatedItems = computed(() => {
 
         <!-- Comments -->
         <div class="mt-10">
-          <h2 class="mb-4 font-heading text-xl font-bold">Комментарии</h2>
+          <h2 class="mb-4 font-heading text-xl font-normal">Комментарии</h2>
           <div class="border border-foreground/10 bg-card p-4">
             <textarea
               v-model="commentText"
@@ -326,7 +309,7 @@ const relatedItems = computed(() => {
               <span class="text-xs text-foreground/50">{{ commentText.length }} / 3000</span>
               <button
                 type="button"
-                class="rounded bg-accent px-4 py-2 text-sm font-medium text-black transition hover:bg-accent/90 disabled:opacity-60"
+                class="rounded bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-60"
                 :disabled="commentLoading"
                 @click="submitComment"
               >
@@ -343,7 +326,7 @@ const relatedItems = computed(() => {
               class="border border-foreground/10 bg-card p-4"
             >
               <div class="flex items-center justify-between text-xs text-foreground/50">
-                <span class="font-medium text-foreground">{{ comment.author }}</span>
+                <span class="font-normal text-foreground">{{ comment.author }}</span>
                 <span>{{ new Date(comment.createdAt).toLocaleDateString('ru-RU') }}</span>
               </div>
               <p class="mt-2 text-sm leading-relaxed">{{ comment.body }}</p>

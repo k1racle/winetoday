@@ -231,7 +231,7 @@ onMounted(() => {
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
     <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Администрирование</p>
+      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Кабинет автора</h1>
     </div>
 
@@ -239,7 +239,7 @@ onMounted(() => {
 
     <!-- Edit author profile -->
     <div class="mt-6 border border-foreground/10 bg-foreground/5 p-5">
-      <h2 class="mb-4 text-lg font-bold">Редактировать профиль автора</h2>
+      <h2 class="mb-4 text-lg font-normal">Редактировать профиль автора</h2>
       <div class="grid gap-6 md:grid-cols-[120px_1fr]">
         <div>
           <div
@@ -250,7 +250,7 @@ onMounted(() => {
           </div>
           <div
             v-else
-            class="mb-2 flex h-28 w-28 items-center justify-center rounded-full bg-green-600 text-2xl font-bold uppercase text-white"
+            class="mb-2 flex h-28 w-28 items-center justify-center rounded-full bg-green-600 text-2xl font-normal uppercase text-white"
           >
             {{ data?.author.name?.charAt(0).toUpperCase() || 'А' }}
           </div>
@@ -289,7 +289,7 @@ onMounted(() => {
           <div class="flex items-center gap-4">
             <button
               type="button"
-              class="rounded bg-accent px-4 py-2 text-sm font-medium text-black transition hover:bg-accent/90 disabled:opacity-60"
+              class="rounded bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-60"
               :disabled="saving"
               @click="saveAuthor"
             >
@@ -310,7 +310,7 @@ onMounted(() => {
       <!-- Author header -->
       <div class="mt-6 grid gap-6 lg:grid-cols-[320px_1fr]">
         <div class="border border-foreground/10 bg-foreground/5 p-5">
-          <h2 class="mb-4 text-lg font-bold">{{ data.author.name }}</h2>
+          <h2 class="mb-4 text-lg font-normal">{{ data.author.name }}</h2>
           <dl class="space-y-3 text-sm">
             <div>
               <dt class="text-xs text-foreground/60">Slug</dt>
@@ -334,18 +334,18 @@ onMounted(() => {
             </div>
             <div>
               <dt class="text-xs text-foreground/60">Всего материалов</dt>
-              <dd class="text-2xl font-bold">{{ data.materials.length }}</dd>
+              <dd class="text-2xl font-normal">{{ data.materials.length }}</dd>
             </div>
             <div>
               <dt class="text-xs text-foreground/60">Всего просмотров</dt>
-              <dd class="text-2xl font-bold">{{ data.totalViews.toLocaleString('ru-RU') }}</dd>
+              <dd class="text-2xl font-normal">{{ data.totalViews.toLocaleString('ru-RU') }}</dd>
             </div>
           </dl>
         </div>
 
         <!-- Type breakdown -->
         <div class="border border-foreground/10 bg-foreground/5 p-5">
-          <h3 class="mb-4 text-lg font-bold">Материалы по типам</h3>
+          <h3 class="mb-4 text-lg font-normal">Материалы по типам</h3>
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div
               v-for="type in ['article', 'news', 'video', 'gallery']"
@@ -353,11 +353,11 @@ onMounted(() => {
               class="border border-foreground/10 bg-foreground/5 p-3"
             >
               <p class="text-xs text-foreground/60">{{ typeLabels[type] || type }}</p>
-              <p class="text-xl font-bold">{{ typeCounts[type] || 0 }}</p>
+              <p class="text-xl font-normal">{{ typeCounts[type] || 0 }}</p>
             </div>
           </div>
 
-          <h3 class="mb-2 mt-6 text-lg font-bold">Просмотры по датам</h3>
+          <h3 class="mb-2 mt-6 text-lg font-normal">Просмотры по датам</h3>
           <div class="h-48 w-full overflow-hidden border border-foreground/10 bg-foreground/5 p-2">
             <SimpleBarChart v-if="chartData.length" :data="chartData" color="var(--color-accent)" :height="180" />
             <p v-else class="flex h-full items-center justify-center text-sm text-foreground/60">Нет данных о просмотрах по дням</p>
@@ -367,7 +367,7 @@ onMounted(() => {
 
       <!-- Materials table -->
       <div class="mt-8">
-        <h3 class="mb-4 text-lg font-bold">Все записи автора</h3>
+        <h3 class="mb-4 text-lg font-normal">Все записи автора</h3>
         <div class="mb-2 flex flex-wrap items-center justify-between gap-3 text-xs text-foreground/60">
           <p>Всего: {{ data.materials.length }}</p>
           <p>Страница {{ materialsCurrentPage }} из {{ materialsTotalPages }}</p>
@@ -439,6 +439,6 @@ onMounted(() => {
 
 <style scoped>
 .btn-secondary {
-  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-normal text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
 }
 </style>

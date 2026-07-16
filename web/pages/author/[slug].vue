@@ -35,7 +35,7 @@ useSeoMeta({
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8">
     <!-- Breadcrumbs -->
-    <nav class="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-foreground/50">
+    <nav class="mb-4 flex items-center gap-2 text-xs font-normal uppercase tracking-wider text-foreground/50">
       <NuxtLink to="/" class="hover:text-foreground">Главная</NuxtLink>
       <span>/</span>
       <span>Автор</span>
@@ -53,7 +53,7 @@ useSeoMeta({
         </div>
         <div
           v-else
-          class="flex h-40 w-40 items-center justify-center rounded-full bg-green-600 text-4xl font-bold uppercase text-white"
+          class="flex h-40 w-40 items-center justify-center rounded-full bg-green-600 text-4xl font-normal uppercase text-white"
         >
           {{ initials }}
         </div>
@@ -74,7 +74,7 @@ useSeoMeta({
 
     <!-- Publications -->
     <div class="mt-10">
-      <h2 class="mb-6 font-heading text-2xl font-bold">Все публикации автора</h2>
+      <h2 class="mb-6 font-heading text-2xl font-normal">Все публикации автора</h2>
       <div v-if="!items.length" class="text-sm text-foreground/60">
         У автора пока нет публикаций.
       </div>

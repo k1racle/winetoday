@@ -53,7 +53,7 @@ async function onSubmit() {
       </div>
       <div class="relative mx-auto max-w-6xl px-4 py-16 md:py-24">
         <div class="max-w-2xl">
-          <p class="mb-4 text-sm font-medium uppercase tracking-widest text-white/80">
+          <p class="mb-4 text-sm font-normal uppercase tracking-widest text-white/80">
             Редакция
           </p>
           <h1 class="font-heading text-4xl font-bold md:text-5xl lg:text-6xl">
@@ -72,7 +72,7 @@ async function onSubmit() {
         <!-- Contact form -->
         <div class="lg:col-span-3">
           <div class=" border border-foreground/5 bg-card p-6 shadow-sm md:p-10">
-            <h2 class="font-heading text-2xl font-bold text-foreground md:text-3xl">
+            <h2 class="font-heading text-2xl font-normal text-foreground md:text-3xl">
               Написать нам
             </h2>
             <p class="mt-2 text-foreground/70">
@@ -82,7 +82,7 @@ async function onSubmit() {
             <form class="mt-8 space-y-5" @submit.prevent="onSubmit">
               <div class="grid gap-5 md:grid-cols-2">
                 <div>
-                  <label for="name" class="mb-2 block text-sm font-medium">Имя *</label>
+                  <label for="name" class="mb-2 block text-sm font-normal">Имя *</label>
                   <input
                     id="name"
                     v-model="form.name"
@@ -92,7 +92,7 @@ async function onSubmit() {
                   >
                 </div>
                 <div>
-                  <label for="email" class="mb-2 block text-sm font-medium">Email *</label>
+                  <label for="email" class="mb-2 block text-sm font-normal">Email *</label>
                   <input
                     id="email"
                     v-model="form.email"
@@ -104,7 +104,7 @@ async function onSubmit() {
               </div>
 
               <div>
-                <label for="topic" class="mb-2 block text-sm font-medium">Тема обращения</label>
+                <label for="topic" class="mb-2 block text-sm font-normal">Тема обращения</label>
                 <select
                   id="topic"
                   v-model="form.topic"
@@ -116,7 +116,7 @@ async function onSubmit() {
               </div>
 
               <div>
-                <label for="message" class="mb-2 block text-sm font-medium">Сообщение *</label>
+                <label for="message" class="mb-2 block text-sm font-normal">Сообщение *</label>
                 <textarea
                   id="message"
                   v-model="form.message"
@@ -134,7 +134,7 @@ async function onSubmit() {
               <button
                 type="submit"
                 :disabled="submitting"
-                class="inline-flex items-center justify-center  bg-accent px-8 py-3.5 font-medium text-white transition hover:bg-[#0a3320] disabled:opacity-60"
+                class="inline-flex items-center justify-center  bg-accent px-8 py-3.5 font-normal text-white transition hover:bg-[#0a3320] disabled:opacity-60"
               >
                 {{ submitting ? 'Отправка...' : 'Отправить сообщение' }}
               </button>
@@ -146,7 +146,7 @@ async function onSubmit() {
         <div class="space-y-6 lg:col-span-2">
           <!-- Email / phone -->
           <div class=" border border-foreground/5 bg-card p-6 shadow-sm">
-            <h3 class="font-heading text-xl font-bold">Контакты</h3>
+            <h3 class="font-heading text-xl font-normal">Контакты</h3>
             <ul class="mt-5 space-y-4">
               <li class="flex items-start gap-3">
                 <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center  bg-accent/10 text-accent">
@@ -154,7 +154,7 @@ async function onSubmit() {
                 </span>
                 <div>
                   <p class="text-sm text-foreground/60">Email</p>
-                  <a href="mailto:red@winetoday.ru" class="font-medium hover:text-foreground">red@winetoday.ru</a>
+                  <a href="mailto:red@winetoday.ru" class="font-normal hover:text-foreground">red@winetoday.ru</a>
                 </div>
               </li>
               <li class="flex items-start gap-3">
@@ -163,7 +163,7 @@ async function onSubmit() {
                 </span>
                 <div>
                   <p class="text-sm text-foreground/60">Телефон</p>
-                  <a href="tel:+74951234567" class="font-medium hover:text-foreground">+7 (495) 123-45-67</a>
+                  <a href="tel:+74951234567" class="font-normal hover:text-foreground">+7 (495) 123-45-67</a>
                 </div>
               </li>
               <li class="flex items-start gap-3">
@@ -172,7 +172,7 @@ async function onSubmit() {
                 </span>
                 <div>
                   <p class="text-sm text-foreground/60">Адрес</p>
-                  <p class="font-medium">Москва, Россия</p>
+                  <p class="font-normal">Москва, Россия</p>
                 </div>
               </li>
             </ul>
@@ -180,7 +180,7 @@ async function onSubmit() {
 
           <!-- Socials -->
           <div class=" border border-foreground/5 bg-card p-6 shadow-sm">
-            <h3 class="font-heading text-xl font-bold">Мы в соцсетях</h3>
+            <h3 class="font-heading text-xl font-normal">Мы в соцсетях</h3>
             <div class="mt-5 flex flex-wrap gap-3">
               <a
                 href="https://t.me/winetoday"
@@ -214,10 +214,10 @@ async function onSubmit() {
 
           <!-- Press / reprints -->
           <div class=" border border-foreground/5 bg-gradient-to-br from-[#0c3f24] to-[#1a5c3a] p-6 text-white shadow-sm">
-            <h3 class="font-heading text-xl font-bold">Для СМИ и партнёров</h3>
+            <h3 class="font-heading text-xl font-normal">Для СМИ и партнёров</h3>
             <p class="mt-3 text-white/85">
               По вопросам републикации материалов, рекламы и спецпроектов пишите на
-              <a href="mailto:pr@winetoday.ru" class="font-medium underline hover:text-white/90">pr@winetoday.ru</a>.
+              <a href="mailto:pr@winetoday.ru" class="font-normal underline hover:text-white/90">pr@winetoday.ru</a>.
             </p>
           </div>
         </div>
@@ -229,7 +229,7 @@ async function onSubmit() {
           <div class="mb-4 flex h-10 w-10 items-center justify-center  bg-accent/10 text-accent">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" /></svg>
           </div>
-          <h3 class="font-heading text-lg font-bold">Стать автором</h3>
+          <h3 class="font-heading text-lg font-normal">Стать автором</h3>
           <p class="mt-2 text-sm text-foreground/70">
             Присылайте свои тексты и идеи. Мы рады экспертам в виноделии, виноградарстве и ресторанном бизнесе.
           </p>
@@ -238,7 +238,7 @@ async function onSubmit() {
           <div class="mb-4 flex h-10 w-10 items-center justify-center  bg-accent/10 text-accent">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l.473-.177m0 0a2.25 2.25 0 0 1 3.862 1.595v0a2.25 2.25 0 0 1-1.595 3.862v0m0 0a2.25 2.25 0 0 1-3.862-1.595v0a2.25 2.25 0 0 1 1.595-3.862v0" /></svg>
           </div>
-          <h3 class="font-heading text-lg font-bold">Реклама</h3>
+          <h3 class="font-heading text-lg font-normal">Реклама</h3>
           <p class="mt-2 text-sm text-foreground/70">
             Разместим баннеры, нативные материалы и спецпроекты. Подготовим медиакит под ваши задачи.
           </p>
@@ -247,7 +247,7 @@ async function onSubmit() {
           <div class="mb-4 flex h-10 w-10 items-center justify-center  bg-accent/10 text-accent">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
           </div>
-          <h3 class="font-heading text-lg font-bold">Сообщить новость</h3>
+          <h3 class="font-heading text-lg font-normal">Сообщить новость</h3>
           <p class="mt-2 text-sm text-foreground/70">
             Расскажите о событии, релизе вина или важном изменении в отрасли. Мы оперативно публикуем новости.
           </p>

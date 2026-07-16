@@ -49,14 +49,14 @@ function truncatedTitle(title: string, hasLabel: boolean): string {
       <div v-for="group in orderedGroups" :key="group.category.id">
         <NuxtLink
           :to="`/category/${group.category.slug}`"
-          class="mb-3 block text-[12px] font-normal text-foreground uppercase border-b-2 border-accent pb-2 hover:text-foreground/80"
+          class="mb-3 inline-block text-[12px] font-bold uppercase tracking-wider text-foreground border-b-2 border-accent pb-1 hover:text-foreground/80"
         >
           {{ group.category.name }}
         </NuxtLink>
         <ul class="space-y-3">
           <li v-for="item in group.items.slice(0, 10)" :key="item.id">
             <NuxtLink :to="link(item)" class="group flex items-start gap-3">
-              <span class="shrink-0 flex flex-col items-center justify-center text-center text-sm font-bold">
+              <span class="shrink-0 flex flex-col items-center justify-center text-center text-sm font-normal">
                 <span class="text-accent">
                   {{ formatDayMonth(item.publishedAt || item.createdAt) }}
                 </span>
@@ -65,10 +65,11 @@ function truncatedTitle(title: string, hasLabel: boolean): string {
                 </span>
               </span>
               <div class="min-w-0 flex-1">
-                <p class="text-sm font-medium leading-snug text-foreground group-hover:text-foreground line-clamp-2">
+                <p class="text-sm font-normal leading-snug text-foreground group-hover:text-foreground line-clamp-2" :class="{ 'font-bold': item.materialLabel === 'important' }">
                   {{ truncatedTitle(item.title, !!item.materialLabel) }}
                   <MaterialLabelBadge
                     :label="item.materialLabel"
+                    :type="item.type"
                     class="ml-1 inline-block whitespace-nowrap align-middle"
                   />
                 </p>

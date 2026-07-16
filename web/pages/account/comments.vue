@@ -59,7 +59,7 @@ onMounted(() => {
     <h1 class="mb-2 font-heading text-2xl font-bold">Личный кабинет</h1>
     <AccountTabs class="mb-6" />
 
-    <h2 class="mb-4 font-heading text-xl font-bold">Мои комментарии</h2>
+    <h2 class="mb-4 font-heading text-xl font-normal">Мои комментарии</h2>
 
     <p v-if="loading" class="text-sm text-foreground/60">Загрузка...</p>
     <p v-if="error" class="text-sm text-red-500">{{ error }}</p>

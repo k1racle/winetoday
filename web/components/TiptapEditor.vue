@@ -6,6 +6,7 @@ import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import { FontSize } from '~/utils/tiptap-font-size';
+import { Video } from '~/utils/tiptap-video';
 
 const props = defineProps<{
   modelValue?: any;
@@ -31,6 +32,7 @@ const editor = useEditor({
     Color.configure({ types: ['textStyle'] }),
     TextAlign.configure({ types: ['paragraph', 'heading'] }),
     FontSize,
+    Video,
   ],
   editorProps: {
     attributes: {
@@ -52,6 +54,13 @@ watch(
     }
   },
 );
+
+function insertVideo() {
+  if (!editor.value) return;
+  const url = window.prompt('Вставьте ссылку на видео (YouTube, Rutube и т.д.)');
+  if (!url) return;
+  editor.value.chain().focus().setVideo({ src: url }).run();
+}
 
 function setLink() {
   if (!editor.value) return;
@@ -93,7 +102,7 @@ onBeforeUnmount(() => {
     <div class="flex flex-wrap items-center gap-1 border-b border-foreground/10 px-2 py-1">
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         :class="{ 'bg-foreground/20': editor.isActive('bold') }"
         @click="editor.chain().focus().toggleBold().run()"
       >
@@ -101,7 +110,7 @@ onBeforeUnmount(() => {
       </button>
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10 italic"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10 italic"
         :class="{ 'bg-foreground/20': editor.isActive('italic') }"
         @click="editor.chain().focus().toggleItalic().run()"
       >
@@ -109,7 +118,7 @@ onBeforeUnmount(() => {
       </button>
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         :class="{ 'bg-foreground/20': editor.isActive('heading', { level: 2 }) }"
         @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
       >
@@ -117,7 +126,7 @@ onBeforeUnmount(() => {
       </button>
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         :class="{ 'bg-foreground/20': editor.isActive('heading', { level: 3 }) }"
         @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
       >
@@ -128,7 +137,7 @@ onBeforeUnmount(() => {
 
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         :class="{ 'bg-foreground/20': editor.isActive('bulletList') }"
         @click="editor.chain().focus().toggleBulletList().run()"
       >
@@ -136,7 +145,7 @@ onBeforeUnmount(() => {
       </button>
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         :class="{ 'bg-foreground/20': editor.isActive('orderedList') }"
         @click="editor.chain().focus().toggleOrderedList().run()"
       >
@@ -144,18 +153,25 @@ onBeforeUnmount(() => {
       </button>
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         :class="{ 'bg-foreground/20': editor.isActive('blockquote') }"
         @click="editor.chain().focus().toggleBlockquote().run()"
       >
         Цитата
+      </button>
+      <button
+        type="button"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
+        @click="insertVideo"
+      >
+        Видео
       </button>
 
       <span class="mx-1 h-4 w-px bg-foreground/20" />
 
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         :class="{ 'bg-foreground/20': editor.isActive({ textAlign: 'left' }) }"
         @click="editor.chain().focus().setTextAlign('left').run()"
       >
@@ -163,7 +179,7 @@ onBeforeUnmount(() => {
       </button>
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         :class="{ 'bg-foreground/20': editor.isActive({ textAlign: 'center' }) }"
         @click="editor.chain().focus().setTextAlign('center').run()"
       >
@@ -171,7 +187,7 @@ onBeforeUnmount(() => {
       </button>
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         :class="{ 'bg-foreground/20': editor.isActive({ textAlign: 'right' }) }"
         @click="editor.chain().focus().setTextAlign('right').run()"
       >
@@ -179,7 +195,7 @@ onBeforeUnmount(() => {
       </button>
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         :class="{ 'bg-foreground/20': editor.isActive({ textAlign: 'justify' }) }"
         @click="editor.chain().focus().setTextAlign('justify').run()"
       >
@@ -207,7 +223,7 @@ onBeforeUnmount(() => {
 
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         :class="{ 'bg-foreground/20': editor.isActive('link') }"
         @click="setLink"
       >
@@ -221,7 +237,7 @@ onBeforeUnmount(() => {
       >
       <button
         type="button"
-        class="px-2 py-1 text-xs font-medium rounded hover:bg-foreground/10"
+        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
         @click="editor.chain().focus().unsetColor().run()"
       >
         Сбросить цвет

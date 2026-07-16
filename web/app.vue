@@ -6,6 +6,7 @@ declare global {
 }
 
 const route = useRoute();
+useUtm();
 
 useHead({
   script: [
@@ -38,4 +39,5 @@ watch(
   <NuxtLayout>
     <NuxtPage />
   </NuxtLayout>
+  <ShareModal />
 </template>

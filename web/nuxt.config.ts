@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
+      htmlAttrs: { lang: 'ru' },
       title: 'ВИНОДЕЛИЕ СЕГОДНЯ - Федеральное отраслевое медиа',
       titleTemplate: '%s | ВИНОДЕЛИЕ СЕГОДНЯ - Федеральное отраслевое медиа',
       meta: [
@@ -57,12 +58,13 @@ export default defineNuxtConfig({
     provider: 'none',
   },
   routeRules: {
-    '/': { swr: 300 },
+    '/': { swr: 60 },
     '/articles/**': { swr: 300 },
     '/news/**': { swr: 300 },
     '/videos/**': { swr: 300 },
     '/gallery/**': { swr: 300 },
     '/author/**': { swr: 300 },
+    '/category/**': { swr: 300 },
     '/account/**': { ssr: false },
     '/api/og-image': { headers: { 'cache-control': 'public, max-age=31536000, immutable' } },
   },

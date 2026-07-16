@@ -22,18 +22,10 @@ function editUrl(item: ContentItem) {
   return `/account?type=${item.type}&id=${item.id}`;
 }
 const duration = computed(() => {
-  const block = props.item.contentBlocks?.find((b: any) => b.type === 'video-player');
+  const blocks = (props.item as any).contentBlocks;
+  const block = blocks?.find((b: any) => b.type === 'video-player');
   return block?.duration || props.item.duration;
 });
-
-function formatDuration(seconds?: number) {
-  if (!seconds) return '';
-  const total = Math.floor(seconds);
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-}
 </script>
 
 <template>
@@ -42,7 +34,7 @@ function formatDuration(seconds?: number) {
     <NuxtLink
       v-if="canEdit"
       :to="editUrl(item)"
-      class="absolute right-2 top-2 z-20 rounded bg-accent px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
+      class="absolute right-2 top-2 z-20 rounded bg-accent px-2 py-1 text-[10px] font-normal uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
     >
       Редактировать
     </NuxtLink>
@@ -69,12 +61,12 @@ function formatDuration(seconds?: number) {
       </div>
 
       <div v-if="showTitle" class="relative z-10 p-5 text-white md:p-8">
-        <div class="mb-2 flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wider text-white/80">
-          <span v-if="category">{{ category }}</span>
+        <div class="mb-2 flex flex-wrap items-center gap-2 text-xs font-normal uppercase tracking-wider text-white/80">
           <span v-if="date">{{ date }}</span>
+          <span v-if="category">{{ category }}</span>
           <span v-if="duration">{{ formatDuration(duration) }}</span>
         </div>
-        <h3 class="font-heading text-xl font-bold leading-snug md:text-2xl lg:text-3xl">
+        <h3 class="font-heading text-xl font-normal leading-snug md:text-2xl lg:text-3xl">
           {{ item.title }}
         </h3>
         <p v-if="item.excerpt" class="mt-2 line-clamp-2 max-w-2xl text-sm text-white/80 md:text-base">

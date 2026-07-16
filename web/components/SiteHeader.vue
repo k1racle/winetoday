@@ -87,7 +87,7 @@ async function handleLogout() {
 </script>
 
 <template>
-  <header class="border-b border-foreground/10 bg-background">
+  <header class="bg-background shadow-sm">
     <!-- Top bar -->
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
       <!-- Logo -->
@@ -193,13 +193,13 @@ async function handleLogout() {
     </div>
 
     <!-- Categories nav (desktop) -->
-    <nav class="hidden border-t border-foreground/10 lg:block">
+    <nav class="hidden shadow-sm lg:block">
       <div class="mx-auto max-w-7xl px-4">
-        <ul class="flex items-center justify-between overflow-x-auto py-3 text-xs font-medium uppercase tracking-wider text-foreground/80 md:text-sm">
+        <ul class="flex w-full items-center justify-between divide-x divide-foreground/10 overflow-x-auto py-2.5 text-[11px] font-normal uppercase tracking-wider text-foreground/80 md:text-xs">
           <li class="shrink-0">
             <NuxtLink
               to="/news"
-              class="whitespace-nowrap px-2 py-1 transition hover:text-foreground"
+              class="block whitespace-nowrap px-3 py-1 transition hover:text-foreground"
             >
               Новости
             </NuxtLink>
@@ -207,7 +207,7 @@ async function handleLogout() {
           <li v-for="cat in headerCategories" :key="cat.id" class="shrink-0">
             <NuxtLink
               :to="`/category/${cat.slug}`"
-              class="whitespace-nowrap px-2 py-1 transition hover:text-foreground"
+              class="block whitespace-nowrap px-3 py-1 transition hover:text-foreground"
             >
               {{ cat.name }}
             </NuxtLink>
@@ -304,17 +304,8 @@ async function handleLogout() {
         <ul class="space-y-10">
           <li>
             <NuxtLink
-              to="/"
-              class="block py-2 text-left font-heading text-base font-bold uppercase tracking-wider text-foreground transition hover:text-accent"
-              @click="closeMobileMenu"
-            >
-              Главная
-            </NuxtLink>
-          </li>
-          <li>
-            <NuxtLink
               to="/news"
-              class="block py-2 text-left font-heading text-base font-bold uppercase tracking-wider text-foreground transition hover:text-accent"
+              class="block py-2 text-left font-heading text-sm font-normal uppercase tracking-wider text-foreground transition hover:text-accent"
               @click="closeMobileMenu"
             >
               Новости
@@ -323,7 +314,7 @@ async function handleLogout() {
           <li v-for="cat in headerCategories" :key="cat.id">
             <NuxtLink
               :to="`/category/${cat.slug}`"
-              class="block py-2 text-left font-heading text-base font-bold uppercase tracking-wider text-foreground transition hover:text-accent"
+              class="block py-2 text-left font-heading text-sm font-normal uppercase tracking-wider text-foreground transition hover:text-accent"
               @click="closeMobileMenu"
             >
               {{ cat.name }}
@@ -334,7 +325,7 @@ async function handleLogout() {
 
       <!-- Socials -->
       <div v-if="socialLinks.length" class="mt-auto border-t border-foreground/10 pt-6">
-        <div class="flex items-center justify-between">
+        <div class="grid grid-cols-4 gap-4">
           <a
             v-for="link in socialLinks"
             :key="link.href + link.label"
@@ -344,8 +335,8 @@ async function handleLogout() {
             class="text-foreground/70 transition hover:text-accent"
             :aria-label="link.label"
           >
-            <SocialIcon :name="link.icon" :label="link.label" :href="link.href" variant="black" class="h-6 w-6 dark:hidden" />
-            <SocialIcon :name="link.icon" :label="link.label" :href="link.href" variant="dark" class="hidden h-6 w-6 dark:block" />
+            <SocialIcon :name="link.icon" :label="link.label" :href="link.href" variant="black" class="h-8 w-8 dark:hidden" />
+            <SocialIcon :name="link.icon" :label="link.label" :href="link.href" variant="dark" class="hidden h-8 w-8 dark:block" />
           </a>
         </div>
       </div>

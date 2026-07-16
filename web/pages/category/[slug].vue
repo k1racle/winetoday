@@ -34,16 +34,17 @@ const items = computed(() => {
   );
 });
 
+const archiveSeo = useArchiveSeo(slug, category.value?.name);
 useSeoMeta({
-  title: `${category.value?.name || slug} — Виноделие сегодня`,
-  description: `Материалы по рубрике «${category.value?.name || slug}».`,
+  title: archiveSeo.title.value || `${category.value?.name || slug} — Виноделие сегодня`,
+  description: archiveSeo.description.value || `Материалы по рубрике «${category.value?.name || slug}».`,
 });
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8">
     <!-- Breadcrumbs -->
-    <nav class="mb-4 text-xs font-medium uppercase tracking-wider text-foreground/50">
+    <nav class="mb-4 text-xs font-normal uppercase tracking-wider text-foreground/50">
       <NuxtLink to="/" class="hover:text-foreground">Главная</NuxtLink>
       <span class="mx-2">/</span>
       <span>{{ category?.name || slug }}</span>

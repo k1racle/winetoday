@@ -91,7 +91,7 @@ onMounted(() => {
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
     <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Администрирование</p>
+      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Авторы</h1>
     </div>
 
@@ -101,7 +101,7 @@ onMounted(() => {
 
     <div class="mt-6 flex items-center justify-between">
       <button
-        class="bg-accent px-4 py-2 text-sm font-medium text-black transition hover:bg-accent/90"
+        class="bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90"
         @click="showForm = !showForm"
       >
         {{ showForm ? 'Отменить' : 'Добавить автора' }}
@@ -115,7 +115,7 @@ onMounted(() => {
       @submit.prevent="onSubmit"
     >
       <div>
-        <label class="mb-1 block text-sm font-medium">Имя <span class="text-red-600">*</span></label>
+        <label class="mb-1 block text-sm font-normal">Имя <span class="text-red-600">*</span></label>
         <input
           v-model="newAuthor.name"
           type="text"
@@ -125,7 +125,7 @@ onMounted(() => {
         />
       </div>
       <div>
-        <label class="mb-1 block text-sm font-medium">Slug</label>
+        <label class="mb-1 block text-sm font-normal">Slug</label>
         <input
           v-model="newAuthor.slug"
           type="text"
@@ -135,7 +135,7 @@ onMounted(() => {
         <p class="mt-1 text-xs text-foreground/50">Если не указан, будет сгенерирован автоматически.</p>
       </div>
       <div>
-        <label class="mb-1 block text-sm font-medium">Должность</label>
+        <label class="mb-1 block text-sm font-normal">Должность</label>
         <input
           v-model="newAuthor.position"
           type="text"
@@ -144,7 +144,7 @@ onMounted(() => {
         />
       </div>
       <div>
-        <label class="mb-1 block text-sm font-medium">Биография</label>
+        <label class="mb-1 block text-sm font-normal">Биография</label>
         <textarea
           v-model="newAuthor.bio"
           rows="3"
@@ -156,7 +156,7 @@ onMounted(() => {
       <button
         type="submit"
         :disabled="submitLoading"
-        class="bg-accent px-5 py-2.5 text-sm font-medium text-black transition hover:bg-accent/90 disabled:opacity-50"
+        class="bg-accent px-5 py-2.5 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-50"
       >
         {{ submitLoading ? 'Сохранение...' : 'Создать автора' }}
       </button>

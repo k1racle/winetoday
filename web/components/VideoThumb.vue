@@ -18,14 +18,7 @@ const duration = computed(() => {
   return block?.duration || props.item.duration;
 });
 
-function formatDuration(seconds?: number) {
-  if (!seconds) return '';
-  const total = Math.floor(seconds);
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-}
+
 </script>
 
 <template>
@@ -53,7 +46,7 @@ function formatDuration(seconds?: number) {
         {{ formatDuration(duration) }}
       </span>
       <div class="absolute inset-x-0 bottom-0 p-3">
-        <h4 class="line-clamp-2 font-heading text-sm font-bold leading-snug text-white">
+        <h4 class="line-clamp-2 font-heading text-sm font-normal leading-snug text-white">
           {{ item.title }}
         </h4>
       </div>
@@ -62,7 +55,7 @@ function formatDuration(seconds?: number) {
     <NuxtLink
       v-if="canEdit"
       :to="editUrl(item)"
-      class="absolute right-2 top-2 z-10 rounded bg-accent px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
+      class="absolute right-2 top-2 z-10 rounded bg-accent px-2 py-1 text-[10px] font-normal uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
     >
       Редактировать
     </NuxtLink>

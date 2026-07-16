@@ -188,7 +188,7 @@ onMounted(() => {
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
     <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Администрирование</p>
+      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Профиль пользователя</h1>
     </div>
 
@@ -200,7 +200,7 @@ onMounted(() => {
     <div v-if="profile" class="mt-6 grid gap-6 lg:grid-cols-[320px_1fr]">
       <!-- User card -->
       <div class="border border-foreground/10 bg-foreground/5 p-5">
-        <h2 class="mb-4 text-lg font-bold">{{ profile.displayName || profile.username || profile.email }}</h2>
+        <h2 class="mb-4 text-lg font-normal">{{ profile.displayName || profile.username || profile.email }}</h2>
         <dl class="space-y-3 text-sm">
           <div>
             <dt class="text-xs text-foreground/60">Email</dt>
@@ -230,7 +230,7 @@ onMounted(() => {
         <p v-if="analyticsError" class="mb-2 text-sm text-red-600">{{ analyticsError }}</p>
         <div v-if="analytics" class="mb-6 border border-foreground/10 bg-foreground/5 p-5">
           <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h3 class="text-lg font-bold">Статистика автора</h3>
+            <h3 class="text-lg font-normal">Статистика автора</h3>
             <button class="btn-secondary text-xs" @click="downloadStatsCsv">⬇ Скачать CSV</button>
           </div>
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -240,20 +240,20 @@ onMounted(() => {
               class="border border-foreground/10 bg-foreground/5 p-3"
             >
               <p class="text-xs text-foreground/60">{{ typeLabels[type] || type }}</p>
-              <p class="text-xl font-bold">{{ analyticsTypeCounts[type] || 0 }}</p>
+              <p class="text-xl font-normal">{{ analyticsTypeCounts[type] || 0 }}</p>
             </div>
           </div>
           <div class="mt-4 grid grid-cols-2 gap-3">
             <div class="border border-foreground/10 bg-foreground/5 p-3">
               <p class="text-xs text-foreground/60">Всего материалов</p>
-              <p class="text-xl font-bold">{{ analytics.materials.length }}</p>
+              <p class="text-xl font-normal">{{ analytics.materials.length }}</p>
             </div>
             <div class="border border-foreground/10 bg-foreground/5 p-3">
               <p class="text-xs text-foreground/60">Всего просмотров</p>
-              <p class="text-xl font-bold">{{ analytics.totalViews.toLocaleString('ru-RU') }}</p>
+              <p class="text-xl font-normal">{{ analytics.totalViews.toLocaleString('ru-RU') }}</p>
             </div>
           </div>
-          <h4 class="mb-2 mt-6 text-sm font-bold">Просмотры по датам</h4>
+          <h4 class="mb-2 mt-6 text-sm font-normal">Просмотры по датам</h4>
           <div class="h-48 w-full overflow-hidden border border-foreground/10 bg-foreground/5 p-2">
             <SimpleBarChart
               v-if="chartData.length"
@@ -267,7 +267,7 @@ onMounted(() => {
           </div>
         </div>
 
-        <h3 class="mb-4 text-lg font-bold">Записи пользователя</h3>
+        <h3 class="mb-4 text-lg font-normal">Записи пользователя</h3>
         <p v-if="!profile.authorId" class="text-sm text-foreground/60">У пользователя ещё нет автора, записей нет.</p>
         <div v-else-if="!materials.length" class="text-sm text-foreground/60">Нет записей</div>
         <div v-else>
@@ -340,6 +340,6 @@ onMounted(() => {
 
 <style scoped>
 .btn-secondary {
-  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-normal text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
 }
 </style>

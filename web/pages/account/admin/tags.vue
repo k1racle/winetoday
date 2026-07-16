@@ -127,7 +127,7 @@ onMounted(() => {
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
     <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-medium uppercase tracking-wider text-foreground/50">Администрирование</p>
+      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Теги</h1>
     </div>
 
@@ -176,16 +176,16 @@ onMounted(() => {
           <Transition name="slide">
             <div v-if="showModal" class="relative mt-8 w-full max-w-md overflow-hidden rounded-lg border border-foreground/10 bg-foreground/5 shadow-2xl">
               <div class="flex items-center justify-between border-b border-foreground/10 px-6 py-4">
-                <h2 class="text-lg font-bold">{{ editing ? 'Редактировать тег' : 'Добавить тег' }}</h2>
+                <h2 class="text-lg font-normal">{{ editing ? 'Редактировать тег' : 'Добавить тег' }}</h2>
                 <button class="flex h-8 w-8 items-center justify-center rounded text-foreground/60 transition hover:bg-foreground/10 hover:text-red-600" @click="showModal = false">✕</button>
               </div>
               <div class="space-y-4 p-6">
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-foreground/70">Название <span class="text-red-600">*</span></label>
+                  <label class="mb-1 block text-xs font-normal text-foreground/70">Название <span class="text-red-600">*</span></label>
                   <input v-model="form.name" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Например, Крым" @input="fillSlug">
                 </div>
                 <div>
-                  <label class="mb-1 block text-xs font-medium text-foreground/70">Slug <span class="text-red-600">*</span></label>
+                  <label class="mb-1 block text-xs font-normal text-foreground/70">Slug <span class="text-red-600">*</span></label>
                   <input v-model="form.slug" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="krym">
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
@@ -203,10 +203,10 @@ onMounted(() => {
 
 <style scoped>
 .btn-primary {
-  @apply inline-flex items-center gap-1.5 bg-accent px-4 py-2 text-sm font-medium text-black transition hover:bg-accent/90 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-50;
 }
 .btn-secondary {
-  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
+  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-foreground/5 px-4 py-2 text-sm font-normal text-foreground transition hover:bg-foreground/10 disabled:opacity-50;
 }
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
