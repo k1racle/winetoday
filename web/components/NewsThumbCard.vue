@@ -39,17 +39,21 @@ function editUrl(item: ContentItem) {
       :to="link"
       class="flex h-full min-w-0 flex-col overflow-hidden"
     >
-    <LazyImage
-      v-if="coverSrc"
-      :src="coverSrc"
-      :alt="item.coverMedia?.altText || item.title"
-      wrapper-class="w-full aspect-video"
-    />
-    <MaterialLabelBadge
-      :label="item.materialLabel"
-      :type="item.type"
-      class="absolute bottom-2 right-2"
-    />
+    <div class="relative aspect-video overflow-hidden bg-foreground/10">
+      <NuxtImg
+        v-if="coverSrc"
+        :src="coverSrc"
+        :alt="item.coverMedia?.altText || item.title"
+        loading="lazy"
+        decoding="async"
+        class="h-full w-full object-cover"
+      />
+      <MaterialLabelBadge
+        :label="item.materialLabel"
+        :type="item.type"
+        class="absolute bottom-2 right-2"
+      />
+    </div>
     <div class="flex flex-1 flex-col p-3 md:p-4">
       <div class="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] text-foreground/50 md:text-xs">
         <span v-if="shortDate">{{ shortDate }}</span>

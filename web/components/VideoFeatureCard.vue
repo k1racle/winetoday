@@ -43,12 +43,11 @@ const duration = computed(() => {
       :to="`/videos/${item.slug}`"
       class="relative flex w-full flex-col justify-end overflow-hidden bg-foreground/10 aspect-video"
     >
-      <LazyImage
+      <NuxtImg
         v-if="coverSrc"
         :src="coverSrc"
         :alt="item.coverMedia?.altText || item.title"
-        wrapper-class="absolute inset-0"
-        img-class="transition duration-500 group-hover:scale-105"
+        class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
       />
       <div v-if="showTitle" class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 

@@ -30,12 +30,13 @@ const duration = computed(() => {
       class="block"
     >
     <div class="relative aspect-video overflow-hidden bg-foreground/10">
-      <LazyImage
+      <NuxtImg
         v-if="coverSrc"
         :src="coverSrc"
         :alt="item.coverMedia?.altText || item.title"
-        wrapper-class="absolute inset-0"
-        img-class="transition duration-500 group-hover:scale-105"
+        loading="lazy"
+        decoding="async"
+        class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
       />
       <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
       <span
