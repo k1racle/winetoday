@@ -45,11 +45,12 @@ function editUrl(item: ContentItem) {
         'min-h-[280px] md:min-h-[360px]': !size,
       }"
     >
-    <NuxtImg
+    <LazyImage
       v-if="coverSrc"
       :src="coverSrc"
       :alt="item.coverMedia?.altText || item.title"
-      class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+      wrapper-class="absolute inset-0"
+      img-class="transition duration-500 group-hover:scale-105"
     />
     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 via-[25%] to-transparent" />
     <MaterialLabelBadge

@@ -47,27 +47,21 @@ const link = computed(() => {
       class="block"
       :class="variant === 'compact' ? 'flex h-full flex-col' : ''"
     >
-    <div
-      class="relative w-full overflow-hidden bg-foreground/10"
-      :class="{
-        'aspect-square': imageAspect === 'square' && variant !== 'compact',
-        'aspect-video': imageAspect === 'video' || variant === 'compact',
+    <LazyImage
+      v-if="item.coverMedia?.path"
+      :src="coverSrc"
+      :alt="item.coverMedia.altText || item.title"
+      :wrapper-class="{
+        'w-full aspect-square': imageAspect === 'square' && variant !== 'compact',
+        'w-full aspect-video': imageAspect === 'video' || variant === 'compact',
       }"
-    >
-      <NuxtImg
-        v-if="item.coverMedia?.path"
-        :src="coverSrc"
-        :alt="item.coverMedia.altText || item.title"
-        loading="lazy"
-        decoding="async"
-        class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-      />
-      <MaterialLabelBadge
-        :label="item.materialLabel"
-        :type="item.type"
-        class="absolute bottom-2 right-2"
-      />
-    </div>
+      img-class="transition duration-500 group-hover:scale-105"
+    />
+    <MaterialLabelBadge
+      :label="item.materialLabel"
+      :type="item.type"
+      class="absolute bottom-2 right-2"
+    />
     <div
       class="overflow-hidden"
       :class="variant === 'compact' ? 'flex flex-1 flex-col p-3' : 'p-4'"

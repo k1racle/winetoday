@@ -237,10 +237,10 @@ const relatedItems = computed(() => {
 
         <!-- Cover image (hidden for videos so the player appears immediately) -->
         <figure v-else-if="coverSrc && item.type !== 'video'" class="mt-6">
-          <NuxtImg
+          <LazyImage
             :src="coverSrc"
             :alt="item.coverMedia?.altText || item.title"
-            class="aspect-video w-full object-cover"
+            wrapper-class="w-full aspect-video"
           />
           <figcaption v-if="item.coverSource" class="mt-2 text-xs font-normal uppercase tracking-wider text-foreground/50">
             Источник: {{ item.coverSource }}

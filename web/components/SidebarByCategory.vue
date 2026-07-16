@@ -60,7 +60,7 @@ function truncatedTitle(title: string, hasLabel: boolean): string {
                 <span class="text-sm font-normal text-accent">
                   {{ formatDayMonth(item.publishedAt || item.createdAt) }}
                 </span>
-                <span class="text-[10px] font-normal text-foreground/60">
+                <span class="text-xs font-normal text-foreground/60">
                   {{ new Date(item.publishedAt || item.createdAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) }}
                 </span>
               </div>
