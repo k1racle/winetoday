@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_Слой_1" data-name="Слой 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 49.41 13.36">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4eb279;
+      }
+
+      .cls-2 {
+        letter-spacing: .05em;
+      }
+
+      .cls-3 {
+        letter-spacing: .07em;
+      }
+
+      .cls-4 {
+        letter-spacing: .07em;
+      }
+
+      .cls-5, .cls-6 {
+        fill: #005757;
+      }
+
+      .cls-6 {
+        font-family: TTNorms-Medium, 'TT Norms';
+        font-size: 7px;
+        font-weight: 500;
+      }
+    </style>
+  </defs>
+  <rect class="cls-1" width="49.41" height="13.36" rx="1.34" ry="1.34"/>
+  <text class="cls-6" transform="translate(14.97 9.54)"><tspan class="cls-3" x="0" y="0">ВИД</tspan><tspan class="cls-2" x="16.94" y="0">Е</tspan><tspan class="cls-4" x="21.87" y="0">О</tspan></text>
+  <path class="cls-5" d="M6.54,3.91c.1,0,.16,0,.25.02,1.38.72,2.72,1.53,4.06,2.33.31.32.29.82-.04,1.12l-3.8,2.21c-.52.29-1.11-.05-1.15-.63v-4.35c.04-.36.32-.66.69-.7Z"/>
+</svg>

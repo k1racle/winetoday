@@ -483,6 +483,25 @@ function typografText(text: string): string {
     });
 }
 
+function typografNode(node: Node) {
+  if (node.nodeType === Node.TEXT_NODE) {
+    const text = node.textContent || '';
+    const fixed = typografText(text);
+    if (fixed !== text) node.textContent = fixed;
+    return;
+  }
+  node.childNodes.forEach((child) => typografNode(child));
+}
+
+function typografHtml(html: string): string {
+  if (!html) return html;
+  if (typeof DOMParser === 'undefined') return typografText(html);
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  typografNode(doc.body);
+  return doc.body.innerHTML;
+}
+
 function applyTypograf() {
   form.title = typografText(form.title);
   form.excerpt = typografText(form.excerpt);
@@ -491,7 +510,7 @@ function applyTypograf() {
   form.contentBlocks.forEach((b) => {
     if (b.title) b.title = typografText(b.title);
     if (b.type === 'text' && b.content) {
-      b.content = typografText(b.content);
+      b.content = typografHtml(b.content);
       const el = editorEls.get(b.id);
       if (el) el.innerHTML = b.content;
     } else if (b.type === 'image' && b.data) {

@@ -39,6 +39,7 @@ export type ContentItem = {
   tags?: { name: string; slug: string }[];
   videoUrl?: string | null;
   duration?: number | null;
+  sources?: { name?: string | null; url?: string | null }[] | null;
   viewsTotal: number;
   homepageSpecialBlock?: boolean;
   homepageLead?: boolean;

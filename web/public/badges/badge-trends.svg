@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_Слой_1" data-name="Слой 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 59.2 13.36">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: #284a99;
+      }
+
+      .cls-2 {
+        font-family: TTNorms-Medium, 'TT Norms';
+        font-size: 7px;
+        font-weight: 500;
+        letter-spacing: .07em;
+      }
+
+      .cls-3 {
+        fill: #96c679;
+      }
+    </style>
+  </defs>
+  <rect class="cls-3" width="59.2" height="13.36" rx="1.47" ry="1.47"/>
+  <text class="cls-2" transform="translate(5.85 9.54)"><tspan x="0" y="0">ТРЕНДЫ</tspan></text>
+  <path class="cls-1" d="M52.07,6.03c-.06.51,0,1.25.72,1.1.27-.06.44-.34.46-.61.04-.48.07-1.61.03-2.09-.03-.3-.28-.57-.58-.6-.44-.05-1.78-.03-2.23.01s-.7.42-.62.86c.1.53.92.41,1.26.4l-2.13,2.07-.07-.02c-.33-.43-.6-.99-.93-1.41-.29-.36-.67-.43-1.03-.13l-2.92,2.92c-.48.6.21,1.39.87,1l2.4-2.39,1.08,1.59c.3.24.62.25.93.01l2.77-2.73Z"/>
+</svg>

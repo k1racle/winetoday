@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_Слой_1" data-name="Слой 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 63.42 13.36">
+  <defs>
+    <style>
+      .cls-1 {
+        letter-spacing: .03em;
+      }
+
+      .cls-2 {
+        letter-spacing: .05em;
+      }
+
+      .cls-3 {
+        fill: #d3db59;
+      }
+
+      .cls-4 {
+        fill: #fff;
+      }
+
+      .cls-5 {
+        letter-spacing: .07em;
+      }
+
+      .cls-6 {
+        letter-spacing: .07em;
+      }
+
+      .cls-7 {
+        fill: #005757;
+        font-family: TTNorms-Medium, 'TT Norms';
+        font-size: 7px;
+        font-weight: 500;
+      }
+    </style>
+  </defs>
+  <path class="cls-4" d="M52.92,5.93l1.52.73c.1.08.12.22.04.33l-5.04,4.24c-.21.14-.45-.06-.35-.29l2.1-3.5-1.52-.75c-.1-.08-.12-.22-.04-.33l5.03-4.22c.2-.16.45.02.37.26l-2.11,3.53Z"/>
+  <rect class="cls-3" width="63.42" height="13.36" rx="1.52" ry="1.52"/>
+  <text class="cls-7" transform="translate(5.54 9.41)"><tspan class="cls-5" x="0" y="0">Э</tspan><tspan class="cls-1" x="5.81" y="0">К</tspan><tspan class="cls-5" x="10.88" y="0">СКЛ</tspan><tspan class="cls-2" x="27.78" y="0">Ю</tspan><tspan class="cls-6" x="35.69" y="0">ЗИВ</tspan></text>
+</svg>

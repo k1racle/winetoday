@@ -40,9 +40,11 @@ const freshItems = computed<ContentItem[]>(() => {
     .slice(0, 7);
 });
 
+const topItemIds = computed(() => new Set(topItems.value.map((i) => i.id)));
+
 const mixedItems = computed<ContentItem[]>(() => {
   const items = allMixed.value?.items || [];
-  const articles = items.filter((item) => item.type === 'article');
+  const articles = items.filter((item) => item.type === 'article' && !topItemIds.value.has(item.id));
   return articles
     .sort((a, b) => {
       const da = new Date(b.publishedAt || b.createdAt).getTime();
@@ -54,7 +56,7 @@ const mixedItems = computed<ContentItem[]>(() => {
 
 const totalMixedCount = computed(() => {
   const items = allMixed.value?.items || [];
-  return items.filter((item) => item.type === 'article').length;
+  return items.filter((item) => item.type === 'article' && !topItemIds.value.has(item.id)).length;
 });
 
 function loadMore() {

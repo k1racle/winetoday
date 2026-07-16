@@ -225,32 +225,55 @@ export class ContentService {
   }
 
   async findHomepageContent() {
-    const [lead, articles, news, videos, galleries] = await Promise.all([
+    const lead = await this.prisma.contentItem.findMany({
+      where: { homepageSpecialBlock: true, status: ContentStatus.published, publishedAt: { lte: new Date() } },
+      include: contentInclude,
+      orderBy: { publishedAt: 'desc' },
+      take: 5,
+    });
+
+    const leadIds = lead.map((item) => item.id);
+
+    const [articles, news, videos, galleries] = await Promise.all([
       this.prisma.contentItem.findMany({
-        where: { homepageLead: true, status: ContentStatus.published, publishedAt: { lte: new Date() } },
-        include: contentInclude,
-        orderBy: { publishedAt: 'desc' },
-        take: 5,
-      }),
-      this.prisma.contentItem.findMany({
-        where: { type: ContentType.article, status: ContentStatus.published, publishedAt: { lte: new Date() } },
+        where: {
+          type: ContentType.article,
+          status: ContentStatus.published,
+          publishedAt: { lte: new Date() },
+          id: { notIn: leadIds },
+        },
         include: contentInclude,
         orderBy: { publishedAt: 'desc' },
         take: 20,
       }),
       this.prisma.contentItem.findMany({
-        where: { type: ContentType.news, status: ContentStatus.published, publishedAt: { lte: new Date() } },
+        where: {
+          type: ContentType.news,
+          status: ContentStatus.published,
+          publishedAt: { lte: new Date() },
+          id: { notIn: leadIds },
+        },
         include: contentInclude,
         orderBy: { publishedAt: 'desc' },
         take: 40,
       }),
       this.prisma.contentItem.findMany({
-        where: { type: ContentType.video, status: ContentStatus.published, publishedAt: { lte: new Date() } },
+        where: {
+          type: ContentType.video,
+          status: ContentStatus.published,
+          publishedAt: { lte: new Date() },
+          id: { notIn: leadIds },
+        },
         include: contentInclude,
         orderBy: { publishedAt: 'desc' },
       }),
       this.prisma.contentItem.findMany({
-        where: { type: ContentType.gallery, status: ContentStatus.published, publishedAt: { lte: new Date() } },
+        where: {
+          type: ContentType.gallery,
+          status: ContentStatus.published,
+          publishedAt: { lte: new Date() },
+          id: { notIn: leadIds },
+        },
         include: contentInclude,
         orderBy: { publishedAt: 'desc' },
         take: 6,

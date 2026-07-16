@@ -22,7 +22,7 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        heading: ['Lato', 'Inter', 'sans-serif'],
+        heading: ['"TT Norms Condensed Medium"', 'Inter', 'sans-serif'],
       },
     },
   },

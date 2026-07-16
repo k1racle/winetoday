@@ -50,6 +50,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'TT Norms Condensed Medium';
+  src: url('/fonts/tt-norms-condensed-medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -71,6 +79,10 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'TT Norms Condensed Medium', Inter, system-ui, sans-serif;
   }
 }
 

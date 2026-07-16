@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_Слой_1" data-name="Слой 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 46.65 13.36">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #4eb279;
+      }
+
+      .cls-2 {
+        letter-spacing: .03em;
+      }
+
+      .cls-3 {
+        letter-spacing: .07em;
+      }
+
+      .cls-4, .cls-5 {
+        fill: #005757;
+      }
+
+      .cls-5 {
+        font-family: TTNorms-Medium, 'TT Norms';
+        font-size: 7px;
+        font-weight: 500;
+      }
+    </style>
+  </defs>
+  <rect class="cls-1" width="46.65" height="13.36" rx="1.31" ry="1.31"/>
+  <text class="cls-5" transform="translate(17.44 9.43)"><tspan class="cls-3" x="0" y="0">Ф</tspan><tspan class="cls-2" x="6.44" y="0">ОТ</tspan><tspan class="cls-3" x="16.86" y="0">О</tspan></text>
+  <path class="cls-4" d="M12.13,4.39c-.32-.08-.66-.03-.99-.05-.12-.19-.18-.42-.34-.58-.14-.15-.34-.24-.55-.26-.48.02-.99-.03-1.46,0-.21.01-.42.11-.56.26-.16.16-.22.4-.34.58-.35.02-.71-.03-1.06.07-.55.17-.94.66-.99,1.23v2.64c.06.7.63,1.26,1.33,1.3h4.68c.7-.04,1.27-.59,1.33-1.29v-2.64c-.05-.6-.48-1.12-1.06-1.26ZM10.98,7.44c-.38,1.06-1.76,1.35-2.56.56-.84-.84-.45-2.3.69-2.6,1.23-.32,2.3.85,1.87,2.04Z"/>
+</svg>

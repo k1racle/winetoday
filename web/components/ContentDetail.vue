@@ -215,6 +215,25 @@ const relatedItems = computed(() => {
             Продолжительность: {{ formatDuration(item.duration) }}
           </figcaption>
         </figure>
+        <div v-if="item.type === 'video' && item.sources?.length" class="mt-3 w-full text-sm text-foreground/70">
+          <div
+            v-for="(src, idx) in item.sources"
+            :key="idx"
+            class="flex flex-wrap items-center gap-x-2 gap-y-1"
+          >
+            <span class="font-normal uppercase tracking-wider text-foreground/50">Источник:</span>
+            <a
+              v-if="src.url"
+              :href="src.url"
+              target="_blank"
+              rel="noopener"
+              class="break-all text-accent hover:underline"
+            >
+              {{ src.name || src.url }}
+            </a>
+            <span v-else>{{ src.name }}</span>
+          </div>
+        </div>
 
         <!-- Cover image (hidden for videos so the player appears immediately) -->
         <figure v-else-if="coverSrc && item.type !== 'video'" class="mt-6">
