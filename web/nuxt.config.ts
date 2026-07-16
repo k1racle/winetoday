@@ -22,9 +22,8 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap' },
+        { rel: 'preload', href: '/fonts/Lato-Regular.ttf', as: 'font', type: 'font/ttf', crossorigin: '' },
+        { rel: 'preload', href: '/fonts/Lato-Bold.ttf', as: 'font', type: 'font/ttf', crossorigin: '' },
       ],
     },
   },

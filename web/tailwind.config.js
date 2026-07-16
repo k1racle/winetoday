@@ -21,8 +21,8 @@ export default {
         muted: 'hsl(var(--muted))',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        heading: ['"TT Norms Condensed Medium"', 'Inter', 'sans-serif'],
+        sans: ['Lato', 'sans-serif'],
+        heading: ['Lato', 'sans-serif'],
       },
     },
   },
