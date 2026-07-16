@@ -63,7 +63,7 @@ function editUrl(item: ContentItem) {
         <span v-if="shortDate">{{ shortDate }}</span>
         <span v-if="category">{{ category }}</span>
       </div>
-      <h3 class="break-words text-base font-normal leading-snug md:text-xl" :class="[{ 'md:text-2xl': size === 'large' }, { 'font-bold': isImportant }]">
+      <h3 class="break-words font-sans text-base font-normal leading-snug md:text-xl" :class="[{ 'md:text-2xl': size === 'large' }, { 'font-bold': isImportant }]">
         {{ item.title }}
       </h3>
       <p v-if="item.excerpt && size === 'large'" class="mt-1 line-clamp-1 text-xs text-white/80 md:mt-2 md:line-clamp-2 md:text-sm">

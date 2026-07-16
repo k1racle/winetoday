@@ -46,7 +46,7 @@ const duration = computed(() => {
         {{ formatDuration(duration) }}
       </span>
       <div class="absolute inset-x-0 bottom-0 p-3">
-        <h4 class="line-clamp-2 font-heading text-sm font-normal leading-snug text-white">
+        <h4 class="line-clamp-2 font-sans text-sm font-normal leading-snug text-white">
           {{ item.title }}
         </h4>
       </div>
