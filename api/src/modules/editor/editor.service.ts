@@ -580,6 +580,25 @@ export class EditorService {
     });
   }
 
+  async deleteAuthor(id: string) {
+    const existing = await this.prisma.author.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException('Author not found');
+    }
+    await this.prisma.$transaction([
+      this.prisma.memberProfile.updateMany({
+        where: { authorId: id },
+        data: { authorId: null },
+      }),
+      this.prisma.contentItem.updateMany({
+        where: { authorId: id },
+        data: { authorId: null },
+      }),
+      this.prisma.author.delete({ where: { id } }),
+    ]);
+    return { success: true };
+  }
+
   private async ensureAuthorId(user: RequestUser): Promise<string> {
     const profile = await this.prisma.memberProfile.findUnique({
       where: { userId: user.userId },

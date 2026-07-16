@@ -43,7 +43,7 @@ interface Analytics {
 
 const route = useRoute();
 const { user, isAuthenticated } = useAuth();
-const { getAuthorAnalytics, uploadMedia, updateAuthor } = useApi();
+const { getAuthorAnalytics, uploadMedia, updateAuthor, deleteAuthor } = useApi();
 
 const editName = ref('');
 const editBio = ref('');
@@ -52,6 +52,8 @@ const avatarFile = ref<File | null>(null);
 const avatarPreview = ref<string | null>(null);
 const saving = ref(false);
 const saveMessage = ref('');
+const deleting = ref(false);
+const deleteError = ref('');
 
 watch(
   () => data.value?.author,
@@ -100,6 +102,21 @@ async function saveAuthor() {
     saveMessage.value = err?.data?.message || err?.message || 'Ошибка сохранения';
   } finally {
     saving.value = false;
+  }
+}
+
+async function onDeleteAuthor() {
+  if (!confirm('Удалить автора? Связанные материалы останутся без автора.')) {
+    return;
+  }
+  deleting.value = true;
+  deleteError.value = '';
+  try {
+    await deleteAuthor(route.params.id as string);
+    await navigateTo('/account/admin/authors');
+  } catch (err: any) {
+    deleting.value = false;
+    deleteError.value = err?.data?.message || err?.message || 'Ошибка удаления';
   }
 }
 
@@ -286,7 +303,7 @@ onMounted(() => {
               class="w-full resize-none border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent"
             />
           </div>
-          <div class="flex items-center gap-4">
+          <div class="flex flex-wrap items-center gap-4">
             <button
               type="button"
               class="rounded bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-60"
@@ -296,7 +313,16 @@ onMounted(() => {
               {{ saving ? 'Сохранение...' : 'Сохранить' }}
             </button>
             <span v-if="saveMessage" class="text-sm" :class="saveMessage === 'Сохранено' ? 'text-green-500' : 'text-red-500'">{{ saveMessage }}</span>
+            <button
+              type="button"
+              class="ml-auto rounded border border-red-600 px-4 py-2 text-sm font-normal text-red-600 transition hover:bg-red-600 hover:text-white disabled:opacity-60"
+              :disabled="deleting"
+              @click="onDeleteAuthor"
+            >
+              {{ deleting ? 'Удаление...' : 'Удалить автора' }}
+            </button>
           </div>
+          <p v-if="deleteError" class="text-sm text-red-600">{{ deleteError }}</p>
         </div>
       </div>
     </div>
