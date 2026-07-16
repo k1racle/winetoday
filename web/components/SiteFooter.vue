@@ -21,7 +21,7 @@ const socialLinks = computed(() => {
             <img
               src="/logo-footer.svg"
               alt="Виноделие Сегодня"
-              class="h-10 w-auto md:h-12"
+              class="h-24 w-auto max-w-full md:h-28"
             >
           </NuxtLink>
         </div>

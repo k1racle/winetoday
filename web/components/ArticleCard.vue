@@ -77,7 +77,7 @@ const link = computed(() => {
         <span v-if="category">{{ category }}</span>
       </div>
       <h3
-        class="font-heading font-normal leading-snug group-hover:text-foreground"
+        class="font-normal leading-snug group-hover:text-foreground"
         :class="[variant === 'compact' ? 'break-words text-[17px] leading-snug line-clamp-3' : 'break-words text-lg', { 'font-bold': isImportant }]"
       >
         {{ item.title }}

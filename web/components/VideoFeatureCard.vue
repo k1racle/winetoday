@@ -66,7 +66,7 @@ const duration = computed(() => {
           <span v-if="category">{{ category }}</span>
           <span v-if="duration">{{ formatDuration(duration) }}</span>
         </div>
-        <h3 class="font-heading text-xl font-normal leading-snug md:text-2xl lg:text-3xl">
+        <h3 class="text-xl font-normal leading-snug md:text-2xl lg:text-3xl">
           {{ item.title }}
         </h3>
         <p v-if="item.excerpt" class="mt-2 line-clamp-2 max-w-2xl text-sm text-white/80 md:text-base">

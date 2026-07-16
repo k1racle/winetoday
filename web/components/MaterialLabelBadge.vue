@@ -13,16 +13,16 @@ const config = computed<BadgeConfig | null>(() => {
   const effective = props.label || (props.type === 'video' ? 'video' : props.type === 'gallery' ? 'photo' : null);
   switch (effective) {
     case 'important':
-      return { text: 'Важное', image: '/badges/badge-important.svg' };
+      return { text: 'Важное', image: '/badges/badge-important.png' };
     case 'exclusive':
-      return { text: 'Эксклюзив', image: '/badges/badge-exclusive.svg' };
+      return { text: 'Эксклюзив', image: '/badges/badge-exclusive.png' };
     case 'trends':
     case 'hot':
-      return { text: 'Тренды', image: '/badges/badge-trends.svg' };
+      return { text: 'Тренды', image: '/badges/badge-trends.png' };
     case 'photo':
-      return { text: 'Фото', image: '/badges/badge-photo.svg' };
+      return { text: 'Фото', image: '/badges/badge-photo.png' };
     case 'video':
-      return { text: 'Видео', image: '/badges/badge-video.svg' };
+      return { text: 'Видео', image: '/badges/badge-video.png' };
     default:
       return null;
   }
