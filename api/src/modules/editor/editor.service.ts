@@ -63,6 +63,12 @@ export class EditorService {
     const contentBlocks = Array.isArray(dto.contentBlocks) ? dto.contentBlocks : [];
 
     const isPublishing = dto.status === ContentStatus.published;
+    const isScheduling = dto.status === ContentStatus.scheduled;
+
+    if (isScheduling && !dto.publishedAt) {
+      throw new BadRequestException('Scheduled publication requires a date and time');
+    }
+
     const publishedAt = dto.publishedAt
       ? new Date(dto.publishedAt)
       : isPublishing

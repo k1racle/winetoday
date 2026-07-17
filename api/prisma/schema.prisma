@@ -26,6 +26,7 @@ enum ContentStatus {
   draft
   in_review
   published
+  scheduled
   rejected
 }
 

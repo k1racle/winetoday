@@ -101,6 +101,7 @@ const statusMeta: Record<string, { label: string; color: string }> = {
   draft: { label: 'Черновик', color: 'bg-orange-500' },
   in_review: { label: 'На проверке', color: 'bg-blue-500' },
   published: { label: 'Опубликовано', color: 'bg-accent' },
+  scheduled: { label: 'Запланировано', color: 'bg-blue-500' },
   rejected: { label: 'Отклонено', color: 'bg-red-600' },
 };
 

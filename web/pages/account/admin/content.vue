@@ -46,6 +46,7 @@ const statusOptions = [
   { value: 'draft', label: 'Черновик' },
   { value: 'in_review', label: 'На проверке' },
   { value: 'published', label: 'Опубликовано' },
+  { value: 'scheduled', label: 'Запланировано' },
   { value: 'rejected', label: 'Отклонено' },
 ];
 
@@ -60,6 +61,7 @@ const statusLabels: Record<string, string> = {
   draft: 'Черновик',
   in_review: 'На проверке',
   published: 'Опубликовано',
+  scheduled: 'Запланировано',
   rejected: 'Отклонено',
 };
 
@@ -67,6 +69,7 @@ const statusColors: Record<string, string> = {
   draft: 'bg-orange-500',
   in_review: 'bg-yellow-500',
   published: 'bg-accent',
+  scheduled: 'bg-blue-500',
   rejected: 'bg-red-600',
 };
 
@@ -275,9 +278,15 @@ onMounted(() => {
             </td>
             <td class="border border-foreground/10 px-4 py-2">{{ typeLabels[m.type] || m.type }}</td>
             <td class="border border-foreground/10 px-4 py-2">
-              <NuxtLink :to="publicUrl(m)" class="hover:text-foreground hover:underline" target="_blank">
+              <NuxtLink
+                v-if="m.status === 'published'"
+                :to="publicUrl(m)"
+                class="hover:text-foreground hover:underline"
+                target="_blank"
+              >
                 {{ m.title }}
               </NuxtLink>
+              <span v-else>{{ m.title }}</span>
             </td>
             <td class="border border-foreground/10 px-4 py-2">
               <NuxtLink

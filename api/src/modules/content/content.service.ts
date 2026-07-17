@@ -107,8 +107,13 @@ export class ContentService {
       throw new NotFoundException(`${type} not found`);
     }
 
-    if (!options?.preview && item.status !== ContentStatus.published) {
-      throw new NotFoundException(`${type} not found`);
+    if (!options?.preview) {
+      if (item.status !== ContentStatus.published) {
+        throw new NotFoundException(`${type} not found`);
+      }
+      if (item.publishedAt && item.publishedAt > new Date()) {
+        throw new NotFoundException(`${type} not found`);
+      }
     }
 
     return item;

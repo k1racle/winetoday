@@ -23,6 +23,7 @@ const statusLabels: Record<string, string> = {
   draft: 'Черновик',
   in_review: 'На проверке',
   published: 'Опубликовано',
+  scheduled: 'Запланировано',
   rejected: 'Отклонено',
 };
 
@@ -41,7 +42,7 @@ function emptyForm() {
     title: '',
     slug: '',
     excerpt: '',
-    status: 'draft' as 'draft' | 'in_review' | 'published' | 'rejected',
+    status: 'draft' as 'draft' | 'in_review' | 'published' | 'scheduled' | 'rejected',
     publishedDate: '',
     publishedTime: '',
     materialLabel: '',
@@ -140,13 +141,25 @@ const typeRouteMap: Record<string, string> = {
   gallery: 'gallery',
 };
 
+const scheduledDate = computed(() => {
+  if (!form.publishedDate) return null;
+  const time = form.publishedTime || '00:00';
+  return new Date(`${form.publishedDate}T${time}`);
+});
+
+const isFuturePublishedAt = computed(() => {
+  return !!scheduledDate.value && scheduledDate.value.getTime() > Date.now();
+});
+
 const publicUrl = computed(() => {
-  if (form.status !== 'published' || !form.slug) return '';
+  if ((form.status !== 'published' && form.status !== 'scheduled') || !form.slug) return '';
+  if (form.status === 'scheduled' || isFuturePublishedAt.value) return '';
   return `/${typeRouteMap[form.type]}/${form.slug}`;
 });
 
 const previewUrl = computed(() => {
-  if (form.status === 'published' || !form.slug) return '';
+  if (!form.slug) return '';
+  if (form.status === 'published' && !isFuturePublishedAt.value) return '';
   return `/${typeRouteMap[form.type]}/${form.slug}?preview=1`;
 });
 
@@ -530,7 +543,7 @@ function publishedAtISO(): string | undefined {
   return new Date(`${form.publishedDate}T${time}`).toISOString();
 }
 
-function buildBody(status?: 'draft' | 'published'): Record<string, unknown> {
+function buildBody(status?: 'draft' | 'published' | 'scheduled'): Record<string, unknown> {
   const blocks = form.contentBlocks.map((b) => {
     const base: any = { id: b.id, type: b.type, title: b.title };
     if (b.type === 'text') {
@@ -540,16 +553,29 @@ function buildBody(status?: 'draft' | 'published'): Record<string, unknown> {
     }
     return base;
   });
+
+  let finalStatus = status || form.status;
+  let publishedAt: string | undefined;
+
+  if (finalStatus === 'published' && !form.publishedDate) {
+    publishedAt = new Date().toISOString();
+  } else {
+    publishedAt = publishedAtISO();
+  }
+
+  // If the user chooses a future date/time, store it as scheduled so it auto-publishes later.
+  if (finalStatus === 'published' && publishedAt && new Date(publishedAt).getTime() > Date.now()) {
+    finalStatus = 'scheduled';
+  }
+
   return {
     id: form.id || undefined,
     type: form.type,
     title: form.title,
     slug: form.slug || undefined,
     excerpt: form.excerpt,
-    status: status || form.status,
-    publishedAt: status === 'published' && !form.publishedDate
-      ? new Date().toISOString()
-      : publishedAtISO(),
+    status: finalStatus,
+    publishedAt,
     materialLabel: form.materialLabel || undefined,
     featured: form.featured,
     homepageSpecialBlock: form.homepageSpecialBlock,
@@ -570,7 +596,7 @@ function buildBody(status?: 'draft' | 'published'): Record<string, unknown> {
   };
 }
 
-async function submit(status?: 'draft' | 'published') {
+async function submit(status?: 'draft' | 'published' | 'scheduled') {
   saving.value = true;
   error.value = '';
   message.value = '';
@@ -579,7 +605,13 @@ async function submit(status?: 'draft' | 'published') {
     const body = buildBody(status);
     const res: any = await saveDraft(body);
     form.id = res.id;
-    message.value = status === 'published' ? 'Материал опубликован' : 'Черновик сохранён';
+    if (body.status === 'scheduled') {
+      message.value = 'Материал запланирован';
+    } else if (body.status === 'published') {
+      message.value = 'Материал опубликован';
+    } else {
+      message.value = 'Черновик сохранён';
+    }
     emit('saved', res.id);
     clearNuxtData();
   } catch (e: any) {
@@ -610,8 +642,21 @@ async function submit(status?: 'draft' | 'published') {
         <button class="btn-secondary" @click="submit('draft')" :disabled="saving">
           💾 {{ saving ? 'Сохранение…' : 'Сохранить' }}
         </button>
-        <button class="btn-primary" @click="submit('published')" :disabled="saving">
-          🚀 Опубликовать
+        <button
+          v-if="isFuturePublishedAt"
+          class="btn-primary"
+          :disabled="saving"
+          @click="submit('scheduled')"
+        >
+          📅 {{ saving ? 'Сохранение…' : 'Запланировать' }}
+        </button>
+        <button
+          v-else
+          class="btn-primary"
+          :disabled="saving"
+          @click="submit('published')"
+        >
+          🚀 {{ saving ? 'Сохранение…' : 'Опубликовать' }}
         </button>
         <NuxtLink
           v-if="publicUrl"
@@ -940,8 +985,21 @@ async function submit(status?: 'draft' | 'published') {
         <button class="btn-secondary" :disabled="saving" @click="submit('draft')">
           💾 {{ saving ? 'Сохранение…' : 'Сохранить' }}
         </button>
-        <button class="btn-primary" :disabled="saving" @click="submit('published')">
-          🚀 Создать материал
+        <button
+          v-if="isFuturePublishedAt"
+          class="btn-primary"
+          :disabled="saving"
+          @click="submit('scheduled')"
+        >
+          📅 {{ saving ? 'Сохранение…' : 'Запланировать' }}
+        </button>
+        <button
+          v-else
+          class="btn-primary"
+          :disabled="saving"
+          @click="submit('published')"
+        >
+          🚀 {{ saving ? 'Сохранение…' : 'Опубликовать' }}
         </button>
       </div>
     </div>
