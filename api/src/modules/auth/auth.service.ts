@@ -82,7 +82,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    return this.generateTokens(user.id, user.email, user.role);
+    return await this.generateTokens(user.id, user.email, user.role);
   }
 
   async refresh(userId: string, tokenJti: string) {
@@ -105,7 +105,7 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    return this.generateTokens(user.id, user.email, user.role);
+    return await this.generateTokens(user.id, user.email, user.role);
   }
 
   async logout(tokenJti?: string) {
@@ -201,7 +201,7 @@ export class AuthService {
     }));
   }
 
-  private generateTokens(userId: string, email: string, role: Role): TokenPair {
+  private async generateTokens(userId: string, email: string, role: Role): Promise<TokenPair> {
     const payload = { sub: userId, email, role };
 
     const access_token = this.jwt.sign(payload, {
