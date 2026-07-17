@@ -178,6 +178,7 @@ onMounted(() => {
             <th class="border border-foreground/10 px-4 py-2 text-left">Должность</th>
             <th class="border border-foreground/10 px-4 py-2 text-left">Материалов</th>
             <th class="border border-foreground/10 px-4 py-2 text-left">Пользователь</th>
+            <th class="border border-foreground/10 px-4 py-2 text-left">Действия</th>
           </tr>
         </thead>
         <tbody>
@@ -199,6 +200,14 @@ onMounted(() => {
                 {{ a.user.username || a.user.email }}
               </NuxtLink>
               <span v-else class="text-foreground/50">—</span>
+            </td>
+            <td class="border border-foreground/10 px-4 py-2">
+              <NuxtLink
+                :to="`/account/admin/authors/${a.id}`"
+                class="inline-flex items-center rounded border border-accent/30 bg-accent/10 px-3 py-1 text-xs text-accent transition hover:bg-accent hover:text-black"
+              >
+                Редактировать
+              </NuxtLink>
             </td>
           </tr>
         </tbody>
