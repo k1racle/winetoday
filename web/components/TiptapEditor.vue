@@ -16,7 +16,7 @@ const emit = defineEmits<{
 }>();
 
 const editor = useEditor({
-  content: props.modelValue || '<p></p>',
+  content: stripTextColor(props.modelValue || '<p></p>'),
   extensions: [
     StarterKit.configure({
       heading: { levels: [2, 3] },
@@ -49,8 +49,9 @@ watch(
   (value) => {
     if (!editor.value) return;
     const current = editor.value.getHTML();
-    if (current !== (value || '<p></p>')) {
-      editor.value.commands.setContent(value || '<p></p>', false);
+    const cleanValue = stripTextColor(value || '<p></p>');
+    if (current !== cleanValue) {
+      editor.value.commands.setContent(cleanValue, false);
     }
   },
 );
