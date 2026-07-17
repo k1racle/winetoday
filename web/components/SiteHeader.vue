@@ -195,7 +195,7 @@ async function handleLogout() {
     <!-- Categories nav (desktop) -->
     <nav class="hidden shadow-sm lg:block">
       <div class="mx-auto max-w-7xl px-4">
-        <ul class="flex w-full items-center overflow-x-auto py-2.5 text-[11px] font-bold uppercase tracking-wider text-foreground/80 md:text-xs">
+        <ul class="grid w-full auto-cols-[minmax(min-content,1fr)] grid-flow-col items-center overflow-x-auto py-2.5 text-[11px] font-bold uppercase tracking-wider text-foreground/80 md:text-xs">
           <li
             v-for="(item, index) in [{ name: 'Новости', to: '/news' }, ...headerCategories.map((c) => ({ name: c.name, to: `/category/${c.slug}` }))]"
             :key="item.to"
