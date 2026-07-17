@@ -85,7 +85,6 @@ useSeoMeta({
           :item="item"
           image-aspect="video"
           variant="compact"
-          class="h-[320px]"
         />
       </div>
     </div>

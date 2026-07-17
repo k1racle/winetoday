@@ -45,7 +45,6 @@ useSeoMeta({
             :item="item"
             imageAspect="video"
             variant="compact"
-            class="h-[320px]"
           />
         </div>
         <div v-if="items.length < total" class="mt-8">

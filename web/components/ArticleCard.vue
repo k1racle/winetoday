@@ -40,7 +40,7 @@ const link = computed(() => {
 <template>
   <div
     class="group relative min-w-0 overflow-hidden border border-foreground/10 bg-card"
-    :class="variant === 'compact' ? 'flex h-[320px] flex-col' : 'block'"
+    :class="variant === 'compact' ? 'flex min-h-[320px] flex-col' : 'block'"
   >
     <NuxtLink
       :to="link"
