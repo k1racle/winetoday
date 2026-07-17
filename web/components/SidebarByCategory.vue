@@ -77,6 +77,13 @@ function truncatedTitle(title: string, hasLabel: boolean): string {
             </NuxtLink>
           </li>
         </ul>
+        <NuxtLink
+          :to="`/category/${group.category.slug}`"
+          class="mt-4 inline-flex items-center rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent"
+        >
+          Ещё
+          <span class="ml-1">→</span>
+        </NuxtLink>
       </div>
     </div>
   </div>
