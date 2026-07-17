@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, computed } from 'vue';
 
-const { getSiteSettings, getSiteHeader } = useApi();
-const { data: siteSettings } = await useAsyncData('site-settings', () =>
-  getSiteSettings().catch(() => null),
-);
+const { getSiteHeader } = useApi();
+const { siteSettings } = useSharedSiteSettings();
 const { data: siteHeader } = await useAsyncData('site-header', () =>
   getSiteHeader().catch(() => null),
 );

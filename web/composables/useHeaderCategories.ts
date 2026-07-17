@@ -6,10 +6,7 @@ import {
 } from '~/utils/sidebar-categories';
 
 export function useHeaderCategories() {
-  const { getCategories } = useApi();
-  const { data: categories } = useAsyncData('categories', () =>
-    getCategories().catch(() => []),
-  );
+  const { categories } = useSharedCategories();
 
   const headerCategories = computed(() => {
     if (!categories.value) return [];

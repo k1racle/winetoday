@@ -59,7 +59,7 @@ function formatDayMonth(date?: string | null) {
                 </span>
               </div>
               <div class="min-w-0 flex-1">
-                <p class="text-sm leading-snug text-foreground transition-colors group-hover:text-accent line-clamp-3" :class="item.materialLabel === 'important' ? 'font-bold' : 'font-normal'">
+                <p class="text-sm leading-snug text-foreground transition-colors group-hover:text-accent" :class="item.materialLabel === 'important' ? 'font-bold' : 'font-normal'">
                   {{ truncateTitle(item.title) }}
                   <MaterialLabelBadge
                     :label="item.materialLabel"

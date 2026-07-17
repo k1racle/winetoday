@@ -105,7 +105,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
             </span>
           </div>
           <div class="min-w-0 flex-1">
-            <span class="line-clamp-3 text-sm leading-snug text-foreground group-hover:text-accent" :class="item.materialLabel === 'important' ? 'font-bold' : 'font-normal'">
+            <span class="text-sm leading-snug text-foreground group-hover:text-accent" :class="item.materialLabel === 'important' ? 'font-bold' : 'font-normal'">
               {{ truncateTitle(item.title) }}
               <MaterialLabelBadge
                 :label="item.materialLabel"

@@ -11,6 +11,7 @@ import {
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -25,11 +26,13 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @Throttle({ auth: { limit: 10, ttl: 60000 } })
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
   @Post('login')
+  @Throttle({ auth: { limit: 10, ttl: 60000 } })
   async login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
@@ -40,6 +43,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @Throttle({ auth: { limit: 10, ttl: 60000 } })
   async refresh(
     @Request() req,
     @Res({ passthrough: true }) res: Response,

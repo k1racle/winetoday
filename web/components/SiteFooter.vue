@@ -1,8 +1,5 @@
 <script setup lang="ts">
-const { getSiteSettings } = useApi();
-const { data: siteSettings } = await useAsyncData('footer-site-settings', () =>
-  getSiteSettings().catch(() => null),
-);
+const { siteSettings } = useSharedSiteSettings();
 const { headerCategories } = useHeaderCategories();
 
 const socialLinks = computed(() => {

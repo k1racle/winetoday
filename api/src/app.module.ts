@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { HealthController } from './health.controller';
+import { RedisThrottlerStorage } from './common/throttler/redis-throttler.storage';
 import { AuthModule } from './modules/auth/auth.module';
 import { ContentModule } from './modules/content/content.module';
 import { EditorModule } from './modules/editor/editor.module';
@@ -16,6 +19,25 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        throttlers: [
+          {
+            name: 'default',
+            ttl: 60000,
+            limit: 100,
+          },
+          {
+            name: 'auth',
+            ttl: 60000,
+            limit: 10,
+          },
+        ],
+        storage: new RedisThrottlerStorage(config.get('REDIS_URL') || 'redis://localhost:6379'),
+      }),
+    }),
     PrismaModule,
     AuthModule,
     ContentModule,
@@ -29,5 +51,11 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
     UsersModule,
   ],
   controllers: [HealthController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

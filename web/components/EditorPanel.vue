@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { reactive, ref, computed, onMounted, nextTick, watch } from 'vue';
+import { reactive, ref, computed, onMounted, nextTick, watch, defineAsyncComponent } from 'vue';
 import { isTiptapJson, tiptapToHtml } from '~/utils/tiptap-html';
+
+const TiptapEditor = defineAsyncComponent(() => import('~/components/TiptapEditor.vue'));
 
 const props = defineProps<{
   type?: 'article' | 'news' | 'video' | 'gallery';
@@ -842,7 +844,7 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
                 <div class="p-3">
                   <!-- Text block -->
                   <div v-if="block.type === 'text'">
-                    <TiptapEditor v-model="block.content" />
+                    <component :is="TiptapEditor" v-model="block.content" />
                   </div>
 
                   <!-- Image block -->
