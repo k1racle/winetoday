@@ -72,7 +72,7 @@ const socialLinks = computed(() => {
               class="text-white/70 transition hover:text-white"
               :aria-label="link.label"
             >
-              <SocialIcon :name="link.icon" :label="link.label" :href="link.href" inverted class="h-8 w-8" />
+              <SocialIcon :name="link.icon" :label="link.label" :href="link.href" variant="white" class="h-8 w-8" />
             </a>
           </div>
         </div>

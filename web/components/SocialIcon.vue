@@ -15,12 +15,8 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  inverted: {
-    type: Boolean,
-    default: false,
-  },
   variant: {
-    type: String as PropType<'default' | 'black' | 'dark'>,
+    type: String as PropType<'default' | 'black' | 'white' | 'dark'>,
     default: 'default',
   },
 });
@@ -40,7 +36,6 @@ const iconUrl = computed(() =>
       :src="iconUrl"
       alt=""
       class="h-full w-full object-contain"
-      :class="inverted ? 'brightness-0 invert' : ''"
     />
   </span>
 </template>

@@ -162,7 +162,7 @@ onMounted(() => {
                 :name="link.platform"
                 :label="link.label"
                 :href="link.href"
-                inverted
+                variant="white"
                 class="h-full w-full"
               />
             </div>

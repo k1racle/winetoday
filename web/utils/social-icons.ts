@@ -7,29 +7,38 @@ const ICON_FILES: Record<string, string> = {
   dzen: 'dzen-1.svg',
   max: 'max-1.svg',
   instagram: 'instagram-1.svg',
+  ok: 'ok-white.svg',
+  odnoklassniki: 'ok-white.svg',
 };
 
 const ICON_FILES_BLACK: Record<string, string> = {
-  youtube: 'youtube-1-black.svg',
-  vk: 'vkontakte-1-black.svg',
-  vkontakte: 'vkontakte-1-black.svg',
-  telegram: 'telegram-1-black.svg',
-  rutube: 'rutube-1-black.svg',
-  dzen: 'dzen-1-black.svg',
-  max: 'max-1.svg',
-  instagram: 'instagram-1.svg',
+  youtube: 'youtube-black.svg',
+  vk: 'vk-black.svg',
+  vkontakte: 'vk-black.svg',
+  telegram: 'telegram-black.svg',
+  rutube: 'rutube-black.svg',
+  dzen: 'dzen-black.svg',
+  max: 'max-black.svg',
+  instagram: 'instagram-black.svg',
+  ok: 'ok-black.svg',
+  odnoklassniki: 'ok-black.svg',
 };
 
-const ICON_FILES_DARK: Record<string, string> = {
-  youtube: 'youtube-1-dark.svg',
-  vk: 'vkontakte-1-dark.svg',
-  vkontakte: 'vkontakte-1-dark.svg',
-  telegram: 'telegram-1-dark.svg',
-  rutube: 'rutube-1-dark.svg',
-  dzen: 'dzen-1-dark.svg',
-  max: 'max-1-dark.svg',
-  instagram: 'instagram-1.svg',
+const ICON_FILES_WHITE: Record<string, string> = {
+  youtube: 'youtube-white.svg',
+  vk: 'vk-white.svg',
+  vkontakte: 'vk-white.svg',
+  telegram: 'telegram-white.svg',
+  rutube: 'rutube-white.svg',
+  dzen: 'dzen-white.svg',
+  max: 'max-white.svg',
+  instagram: 'instagram-white.svg',
+  ok: 'ok-white.svg',
+  odnoklassniki: 'ok-white.svg',
 };
+
+// The "dark" variant is used on light-themed cards/buttons in dark mode, so it needs a white icon.
+const ICON_FILES_DARK: Record<string, string> = { ...ICON_FILES_WHITE };
 
 export function normalizeSocialIconInput(icon?: string | null): string | null {
   if (!icon) {
@@ -124,6 +133,15 @@ export function resolveSocialIconKey(
     return 'instagram';
   }
 
+  if (
+    normalizedHref.includes('ok.ru') ||
+    normalizedHref.includes('odnoklassniki') ||
+    normalizedLabel.includes('одноклассники') ||
+    normalizedLabel.includes('однокласники')
+  ) {
+    return 'ok';
+  }
+
   return null;
 }
 
@@ -131,14 +149,20 @@ export function getSocialIconUrl(
   icon?: string | null,
   label?: string | null,
   href?: string | null,
-  variant: 'default' | 'black' = 'default',
+  variant: 'default' | 'black' | 'white' | 'dark' = 'default',
 ): string | null {
   const key = resolveSocialIconKey(icon, label, href);
   if (!key) {
     return null;
   }
   const map =
-    variant === 'black' ? ICON_FILES_BLACK : variant === 'dark' ? ICON_FILES_DARK : ICON_FILES;
+    variant === 'black'
+      ? ICON_FILES_BLACK
+      : variant === 'white'
+        ? ICON_FILES_WHITE
+        : variant === 'dark'
+          ? ICON_FILES_DARK
+          : ICON_FILES;
   const file = map[key];
   return file ? `/icons/${file}` : null;
 }
@@ -151,6 +175,7 @@ export const SOCIAL_PLATFORMS = [
   { id: 'rutube', label: 'Rutube' },
   { id: 'dzen', label: 'Дзен' },
   { id: 'max', label: 'MAX' },
+  { id: 'ok', label: 'Одноклассники' },
 ] as const;
 
 export function resolveSavedSocialIcon(
