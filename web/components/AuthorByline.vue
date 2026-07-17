@@ -88,7 +88,7 @@ onMounted(() => {
         v-if="!hideSubscribe"
         type="button"
         :disabled="loading"
-        class="text-sm text-accent transition hover:text-accent/80 disabled:opacity-60"
+        class="inline-flex items-center rounded border border-foreground/20 bg-transparent px-3 py-1 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent disabled:opacity-60"
         @click="toggleSubscribe"
       >
         {{ subscribed ? 'Вы подписаны' : 'Подписаться' }}

@@ -48,15 +48,11 @@ useSeoMeta({
           />
         </div>
         <div v-if="items.length < total" class="mt-8">
-          <button
-            type="button"
-            :disabled="isLoading"
-            class="inline-flex items-center rounded border border-accent bg-transparent px-5 py-2.5 text-sm font-normal text-accent transition hover:bg-accent hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="loadMore"
-          >
-            {{ isLoading ? 'Загрузка...' : 'Ещё' }}
-            <span class="ml-1">→</span>
-          </button>
+          <LoadMoreButton
+            :loading="isLoading"
+            :has-more="items.length < total"
+            @load="loadMore"
+          />
         </div>
       </div>
       <aside class="lg:col-span-1">

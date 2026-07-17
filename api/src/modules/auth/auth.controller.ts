@@ -46,6 +46,11 @@ export class AuthController {
   ) {
     const refreshToken = req.cookies?.refresh_token;
     const payload = this.verifyRefresh(refreshToken);
+    if (!payload.jti) {
+      res.clearCookie('access_token');
+      res.clearCookie('refresh_token');
+      throw new UnauthorizedException();
+    }
     const tokens = await this.authService.refresh(payload.sub, payload.jti);
     this.setCookies(res, tokens);
     return { ok: true };

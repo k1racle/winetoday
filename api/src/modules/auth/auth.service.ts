@@ -86,6 +86,9 @@ export class AuthService {
   }
 
   async refresh(userId: string, tokenJti: string) {
+    if (!tokenJti) {
+      throw new UnauthorizedException();
+    }
     const stored = await this.prisma.refreshToken.findUnique({
       where: { jti: tokenJti },
     });

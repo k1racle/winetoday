@@ -113,7 +113,7 @@ useSeoMeta({
         <button
           type="button"
           :disabled="subLoading"
-          class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent disabled:opacity-60 md:w-auto"
+          class="mt-4 inline-flex w-40 items-center justify-center gap-2 rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent disabled:opacity-60 mx-auto md:mx-0"
           @click="toggleSubscribe"
         >
           <svg v-if="!subscribed" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">

@@ -4,8 +4,6 @@ import type { ContentItem } from '~/types/content';
 const { getHomepage, getContent, getLatestByCategory } = useApi();
 
 const itemsPerPage = 24;
-const displayLimit = ref(itemsPerPage);
-const isLoading = ref(false);
 
 const [{ data: homepage }, { data: fresh }, { data: latestByCategory }, { data: allMixed }] = await Promise.all([
   useAsyncData('homepage', () =>
@@ -18,7 +16,7 @@ const [{ data: homepage }, { data: fresh }, { data: latestByCategory }, { data: 
     getLatestByCategory(10).catch(() => []),
   ),
   useAsyncData('all-mixed', () =>
-    getContent({ limit: 100 }).catch(() => ({ items: [] })),
+    getContent({ type: 'article', limit: 100 }).catch(() => ({ items: [] })),
   ),
 ]);
 
@@ -42,26 +40,34 @@ const freshItems = computed<ContentItem[]>(() => {
 
 const topItemIds = computed(() => new Set(topItems.value.map((i) => i.id)));
 
-const mixedItems = computed<ContentItem[]>(() => {
-  const items = allMixed.value?.items || [];
-  const articles = items.filter((item) => item.type === 'article' && !topItemIds.value.has(item.id));
-  return articles
-    .sort((a, b) => {
-      const da = new Date(b.publishedAt || b.createdAt).getTime();
-      const db = new Date(a.publishedAt || a.createdAt).getTime();
-      return da - db;
-    })
-    .slice(0, displayLimit.value);
-});
+const { data: initialArticles } = await useAsyncData('home-articles', () =>
+  getContent({ type: 'article', limit: itemsPerPage }).catch(() => ({ items: [], total: 0 })),
+);
 
-const totalMixedCount = computed(() => {
-  const items = allMixed.value?.items || [];
-  return items.filter((item) => item.type === 'article' && !topItemIds.value.has(item.id)).length;
-});
+const articles = ref<ContentItem[]>(initialArticles.value?.items || []);
+const articlesTotal = ref(initialArticles.value?.total || 0);
+const articlesOffset = ref(itemsPerPage);
+const isLoading = ref(false);
 
-function loadMore() {
-  displayLimit.value += itemsPerPage;
+async function loadMore() {
+  if (isLoading.value || articles.value.length >= articlesTotal.value) return;
+  isLoading.value = true;
+  try {
+    const next = await getContent({ type: 'article', limit: itemsPerPage, offset: articlesOffset.value }).catch(() => ({ items: [], total: 0 }));
+    articles.value.push(...(next.items || []));
+    articlesTotal.value = next.total ?? articlesTotal.value;
+    articlesOffset.value += itemsPerPage;
+  } finally {
+    isLoading.value = false;
+  }
 }
+
+const mixedItems = computed<ContentItem[]>(() => {
+  const topIds = topItemIds.value;
+  return articles.value.filter((item) => !topIds.has(item.id));
+});
+
+const totalMixedCount = computed(() => articlesTotal.value);
 
 const thumbScroll = ref<HTMLDivElement | null>(null);
 
@@ -207,15 +213,11 @@ useSeoMeta({
               />
             </div>
             <div class="mt-8">
-              <button
-                type="button"
-                :disabled="isLoading || displayLimit >= totalMixedCount"
-                @click="loadMore()"
-                class="inline-flex items-center rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {{ isLoading ? 'Загрузка...' : 'Ещё' }}
-                <span class="ml-1">→</span>
-              </button>
+              <LoadMoreButton
+                :loading="isLoading"
+                :has-more="mixedItems.length < totalMixedCount"
+                @load="loadMore"
+              />
             </div>
           </div>
         </div>

@@ -1,15 +1,33 @@
 <script setup>
 const { getNews, getLatestByCategory } = useApi();
 
-const { data: news } = await useAsyncData('news-list', () =>
-  getNews({ limit: 100 }).catch(() => ({ items: [], total: 0 })),
+const itemsPerPage = 24;
+const isLoading = ref(false);
+
+const { data: initialNews } = await useAsyncData('news-list', () =>
+  getNews({ limit: itemsPerPage }).catch(() => ({ items: [], total: 0 })),
 );
 
 const { data: latestByCategory } = await useAsyncData('latest-by-category-news', () =>
   getLatestByCategory(10).catch(() => []),
 );
 
-const items = computed(() => news.value?.items || []);
+const items = ref(initialNews.value?.items || []);
+const total = ref(initialNews.value?.total || 0);
+const offset = ref(itemsPerPage);
+
+async function loadMore() {
+  if (isLoading.value || items.value.length >= total.value) return;
+  isLoading.value = true;
+  try {
+    const next = await getNews({ limit: itemsPerPage, offset: offset.value }).catch(() => ({ items: [], total: 0 }));
+    items.value.push(...(next.items || []));
+    total.value = next.total ?? total.value;
+    offset.value += itemsPerPage;
+  } finally {
+    isLoading.value = false;
+  }
+}
 
 useSeoMeta({
   title: 'Новости',
@@ -29,6 +47,13 @@ useSeoMeta({
             :item="item"
             image-aspect="video"
             variant="compact"
+          />
+        </div>
+        <div v-if="items.length < total" class="mt-8">
+          <LoadMoreButton
+            :loading="isLoading"
+            :has-more="items.length < total"
+            @load="loadMore"
           />
         </div>
       </div>
