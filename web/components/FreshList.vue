@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ContentItem } from '~/types/content';
+import { truncateTitle } from '~/utils/truncate-title';
 
 const props = defineProps<{
   items: ContentItem[];
@@ -51,11 +52,7 @@ function category(item: ContentItem) {
   return item.categories?.[0]?.name || '';
 }
 
-function truncatedTitle(title: string, hasLabel: boolean): string {
-  const max = hasLabel ? 40 : 200;
-  if (title.length <= max) return title;
-  return title.slice(0, max).trim().replace(/[\s.,!?;:]$/, '') + '…';
-}
+
 
 const ITEM_LIMIT = 7;
 
@@ -109,7 +106,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
           </div>
           <div class="min-w-0 flex-1">
             <span class="line-clamp-3 text-sm leading-snug text-foreground group-hover:text-accent" :class="item.materialLabel === 'important' ? 'font-bold' : 'font-normal'">
-              {{ truncatedTitle(item.title, !!item.materialLabel) }}
+              {{ truncateTitle(item.title) }}
               <MaterialLabelBadge
                 :label="item.materialLabel"
                 :type="item.type"

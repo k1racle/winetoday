@@ -1,14 +1,14 @@
 -- CreateIndex
-CREATE INDEX "content_items_type_status_published_at_idx" ON "content_items"("type", "status", "published_at");
+CREATE INDEX IF NOT EXISTS "content_items_type_status_published_at_idx" ON "content_items"("type", "status", "published_at");
 
 -- CreateIndex
-CREATE INDEX "content_items_author_id_status_published_at_idx" ON "content_items"("author_id", "status", "published_at");
+CREATE INDEX IF NOT EXISTS "content_items_author_id_status_published_at_idx" ON "content_items"("authorId", "status", "published_at");
 
 -- CreateIndex
-CREATE INDEX "categories_parent_id_idx" ON "categories"("parent_id");
+CREATE INDEX IF NOT EXISTS "categories_parent_id_idx" ON "categories"("parentId");
 
 -- CreateIndex
-CREATE INDEX "comments_content_item_id_status_created_at_idx" ON "comments"("content_item_id", "status", "created_at");
+CREATE INDEX IF NOT EXISTS "comments_content_item_id_status_created_at_idx" ON "comments"("contentItemId", "status", "createdAt");
 
 -- CreateIndex
-CREATE INDEX "reactions_content_item_id_type_idx" ON "reactions"("content_item_id", "type");
+CREATE INDEX IF NOT EXISTS "reactions_content_item_id_type_idx" ON "reactions"("contentItemId", "type");

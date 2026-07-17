@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ContentItem } from '~/types/content';
 import { sortBySidebarCategoryOrder, resolveSidebarCategoryLabel } from '~/utils/sidebar-categories';
+import { truncateTitle } from '~/utils/truncate-title';
 
 const props = defineProps<{
   groups: { category: { id: string; name: string; slug: string }; items: ContentItem[] }[];
@@ -36,11 +37,7 @@ function formatDayMonth(date?: string | null) {
   return new Date(date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
 }
 
-function truncatedTitle(title: string, hasLabel: boolean): string {
-  const max = hasLabel ? 40 : 200;
-  if (title.length <= max) return title;
-  return title.slice(0, max).trim().replace(/[\s.,!?;:]$/, '') + '…';
-}
+
 </script>
 
 <template>
@@ -63,7 +60,7 @@ function truncatedTitle(title: string, hasLabel: boolean): string {
               </div>
               <div class="min-w-0 flex-1">
                 <p class="text-sm leading-snug text-foreground transition-colors group-hover:text-accent line-clamp-3" :class="item.materialLabel === 'important' ? 'font-bold' : 'font-normal'">
-                  {{ truncatedTitle(item.title, !!item.materialLabel) }}
+                  {{ truncateTitle(item.title) }}
                   <MaterialLabelBadge
                     :label="item.materialLabel"
                     :type="item.type"
