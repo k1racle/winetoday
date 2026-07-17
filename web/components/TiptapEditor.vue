@@ -33,7 +33,7 @@ const editor = useEditor({
   ],
   editorProps: {
     attributes: {
-      class: 'min-h-[200px] px-3 py-2 text-sm leading-relaxed outline-none prose prose-sm max-w-none text-foreground',
+      class: 'min-h-[200px] px-3 py-2 text-sm leading-relaxed outline-none prose prose-sm max-w-none text-foreground dark:prose-invert',
     },
     transformPastedHTML(html) {
       return stripTextColor(html);
