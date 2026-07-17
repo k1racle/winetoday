@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { CacheModule } from '@nestjs/cache-manager';
+import KeyvRedis from '@keyv/redis';
 import { HealthController } from './health.controller';
 import { RedisThrottlerStorage } from './common/throttler/redis-throttler.storage';
 import { AuthModule } from './modules/auth/auth.module';
@@ -38,6 +39,17 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
         storage: new RedisThrottlerStorage(config.get('REDIS_URL') || 'redis://localhost:6379'),
       }),
     }),
+    CacheModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        stores: [
+          new KeyvRedis(config.get('REDIS_URL') || 'redis://localhost:6379'),
+        ],
+        ttl: 60_000,
+      }),
+      isGlobal: true,
+    }),
     PrismaModule,
     AuthModule,
     ContentModule,
@@ -51,11 +63,5 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
     UsersModule,
   ],
   controllers: [HealthController],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
 })
 export class AppModule {}
