@@ -31,6 +31,26 @@ const authOpen = ref(false);
 const subscribed = ref(profile.value?.isSubscribed ?? false);
 const subLoading = ref(false);
 
+const lightboxOpen = ref(false);
+
+function onLightboxKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') {
+    lightboxOpen.value = false;
+  }
+}
+
+watch(lightboxOpen, (open) => {
+  if (open) {
+    window.addEventListener('keydown', onLightboxKeydown);
+  } else {
+    window.removeEventListener('keydown', onLightboxKeydown);
+  }
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onLightboxKeydown);
+});
+
 async function toggleSubscribe() {
   if (!isAuthenticated.value) {
     authOpen.value = true;
@@ -71,13 +91,19 @@ useSeoMeta({
     <div class="grid gap-6 border-b border-foreground/10 pb-8 md:grid-cols-[160px_1fr_220px]">
       <!-- Photo -->
       <div class="shrink-0">
-        <div v-if="avatarSrc" class="mx-auto h-40 w-40 overflow-hidden rounded-full md:mx-0">
+        <button
+          v-if="avatarSrc"
+          type="button"
+          class="mx-auto block h-40 w-40 cursor-zoom-in overflow-hidden rounded-full md:mx-0"
+          :aria-label="`Увеличить фото: ${profile?.name || 'автор'}`"
+          @click="lightboxOpen = true"
+        >
           <NuxtImg
             :src="avatarSrc"
             :alt="profile?.name || ''"
             class="h-full w-full object-cover"
           />
-        </div>
+        </button>
         <div
           v-else
           class="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-accent text-4xl font-normal uppercase text-black md:mx-0"
@@ -87,10 +113,13 @@ useSeoMeta({
         <button
           type="button"
           :disabled="subLoading"
-          class="mt-4 w-full rounded bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-60 md:w-auto"
+          class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent disabled:opacity-60 md:w-auto"
           @click="toggleSubscribe"
         >
-          {{ subscribed ? 'Вы подписаны' : 'Подписаться на автора' }}
+          <svg v-if="!subscribed" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12.784 12.784 0 0 1-.52-3.369c0-1.242.2-2.489.58-3.628M5.904 18.5H10.5m-4.596 0v-9.75m0 9.75v2.25" />
+          </svg>
+          {{ subscribed ? 'Вы подписаны' : 'Подписаться' }}
         </button>
       </div>
 
@@ -147,4 +176,43 @@ useSeoMeta({
   </div>
 
   <AuthDrawer v-model="authOpen" />
+
+  <!-- Avatar lightbox -->
+  <Teleport to="body">
+    <Transition name="lightbox">
+      <div
+        v-if="lightboxOpen && avatarSrc"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+        @click="lightboxOpen = false"
+      >
+        <button
+          type="button"
+          class="absolute right-4 top-4 text-white/70 transition hover:text-white"
+          aria-label="Закрыть"
+          @click="lightboxOpen = false"
+        >
+          <svg class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <img
+          :src="avatarSrc"
+          :alt="profile?.name || ''"
+          class="max-h-full max-w-full object-contain"
+          @click.stop
+        >
+      </div>
+    </Transition>
+  </Teleport>
 </template>
+
+<style scoped>
+.lightbox-enter-active,
+.lightbox-leave-active {
+  transition: opacity 0.2s ease;
+}
+.lightbox-enter-from,
+.lightbox-leave-to {
+  opacity: 0;
+}
+</style>

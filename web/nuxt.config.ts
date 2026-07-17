@@ -5,19 +5,19 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'ru' },
-      title: 'ВИНОДЕЛИЕ СЕГОДНЯ - Федеральное отраслевое медиа',
-      titleTemplate: '%s | ВИНОДЕЛИЕ СЕГОДНЯ - Федеральное отраслевое медиа',
+      title: 'ВИНОДЕЛИЕ СЕГОДНЯ — Федеральное отраслевое медиа',
+      titleTemplate: '%s | ВИНОДЕЛИЕ СЕГОДНЯ — Федеральное отраслевое медиа',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.' },
-        { property: 'og:site_name', content: 'ВИНОДЕЛИЕ СЕГОДНЯ - Федеральное отраслевое медиа' },
-        { property: 'og:title', content: 'ВИНОДЕЛИЕ СЕГОДНЯ - Федеральное отраслевое медиа' },
+        { property: 'og:site_name', content: 'ВИНОДЕЛИЕ СЕГОДНЯ — Федеральное отраслевое медиа' },
+        { property: 'og:title', content: 'ВИНОДЕЛИЕ СЕГОДНЯ — Федеральное отраслевое медиа' },
         { property: 'og:description', content: 'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.' },
         { property: 'og:type', content: 'website' },
         { property: 'og:locale', content: 'ru_RU' },
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:title', content: 'ВИНОДЕЛИЕ СЕГОДНЯ - Федеральное отраслевое медиа' },
+        { name: 'twitter:title', content: 'ВИНОДЕЛИЕ СЕГОДНЯ — Федеральное отраслевое медиа' },
         { name: 'twitter:description', content: 'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.' },
       ],
       link: [
