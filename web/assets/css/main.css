@@ -40,6 +40,25 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--accent));
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--accent) / 0.8);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--accent)) hsl(var(--muted));
+  }
 }
 
 @layer components {

@@ -59,7 +59,7 @@ function editUrl(item: ContentItem) {
         <span v-if="shortDate">{{ shortDate }}</span>
         <span v-if="category">{{ category }}</span>
       </div>
-      <h3 class="font-sans text-base font-normal leading-snug text-foreground group-hover:text-foreground line-clamp-3 break-words md:text-lg" :class="{ 'font-bold': isImportant }">
+      <h3 class="font-sans text-base font-normal leading-snug text-foreground group-hover:text-foreground line-clamp-3 break-words md:text-[17px]" :class="{ 'font-bold': isImportant }">
         {{ item.title }}
       </h3>
     </div>
