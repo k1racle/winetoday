@@ -55,6 +55,10 @@ const saveMessage = ref('');
 const deleting = ref(false);
 const deleteError = ref('');
 
+const data = ref<Analytics | null>(null);
+const loading = ref(false);
+const error = ref('');
+
 watch(
   () => data.value?.author,
   (author) => {
@@ -119,10 +123,6 @@ async function onDeleteAuthor() {
     deleteError.value = err?.data?.message || err?.message || 'Ошибка удаления';
   }
 }
-
-const data = ref<Analytics | null>(null);
-const loading = ref(false);
-const error = ref('');
 
 const materialsLimit = 20;
 const materialsOffset = ref(0);
