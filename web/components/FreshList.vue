@@ -103,9 +103,6 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
       >
         <NuxtLink :to="link(item)" class="group flex min-w-0 items-start gap-3 transition-colors duration-200">
           <div class="flex shrink-0 flex-col items-start pt-0.5">
-            <span class="text-sm font-normal text-accent">
-              {{ formatDay(item.publishedAt || item.createdAt) }}
-            </span>
             <span class="text-xs text-foreground/60">
               {{ formatTime(item.publishedAt || item.createdAt) }}
             </span>

@@ -128,6 +128,7 @@ model Category {
   children Category[] @relation("CategoryParent")
   contentItems ContentItem[]
 
+  @@index([parentId])
   @@map("categories")
 }
 
@@ -217,6 +218,8 @@ model ContentItem {
   @@unique([type, slug])
   @@unique([type, id])
   @@index([status, publishedAt])
+  @@index([type, status, publishedAt])
+  @@index([authorId, status, publishedAt])
   @@index([homepageLead])
   @@index([homepageSpecialBlock])
   @@map("content_items")
@@ -234,6 +237,7 @@ model Comment {
   contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
   user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
 
+  @@index([contentItemId, status, createdAt])
   @@map("comments")
 }
 
@@ -250,6 +254,7 @@ model Reaction {
 
   @@unique([contentItemId, userId])
   @@unique([contentItemId, viewerId])
+  @@index([contentItemId, type])
   @@map("reactions")
 }
 

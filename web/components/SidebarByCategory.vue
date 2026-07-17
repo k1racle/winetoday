@@ -58,7 +58,7 @@ function truncatedTitle(title: string, hasLabel: boolean): string {
             <NuxtLink :to="link(item)" class="group flex items-start gap-3">
               <div class="flex shrink-0 flex-col items-start pt-0.5">
                 <span class="text-xs font-normal text-foreground/60">
-                  {{ new Date(item.publishedAt || item.createdAt).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) }}
+                  {{ formatDayMonth(item.publishedAt || item.createdAt) }}
                 </span>
               </div>
               <div class="min-w-0 flex-1">
