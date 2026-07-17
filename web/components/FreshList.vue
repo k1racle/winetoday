@@ -105,14 +105,14 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
             </span>
           </div>
           <div class="min-w-0 flex-1">
-            <span class="text-sm leading-snug text-foreground group-hover:text-accent" :class="item.materialLabel === 'important' ? 'font-bold' : 'font-normal'">
+            <p class="text-sm leading-snug text-foreground transition-colors group-hover:text-accent" :class="item.materialLabel === 'important' ? 'font-bold' : 'font-normal'">
               {{ truncateTitle(item.title) }}
               <MaterialLabelBadge
                 :label="item.materialLabel"
                 :type="item.type"
                 class="ml-1 inline-block whitespace-nowrap align-middle"
               />
-            </span>
+            </p>
           </div>
         </NuxtLink>
       </li>
