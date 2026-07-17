@@ -12,13 +12,6 @@ const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || 
 function editUrl(item: ContentItem) {
   return `/account?type=${item.type}&id=${item.id}`;
 }
-
-const duration = computed(() => {
-  const block = props.item.contentBlocks?.find((b: any) => b.type === 'video-player');
-  return block?.duration || props.item.duration;
-});
-
-
 </script>
 
 <template>
@@ -39,12 +32,6 @@ const duration = computed(() => {
         class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
       />
       <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-      <span
-        v-if="duration"
-        class="absolute left-2 top-2 rounded bg-black/70 px-1.5 py-0.5 text-xs text-white"
-      >
-        {{ formatDuration(duration) }}
-      </span>
       <div class="absolute inset-x-0 bottom-0 p-3">
         <h4 class="line-clamp-2 font-sans text-sm font-normal leading-snug text-white">
           {{ item.title }}

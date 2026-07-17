@@ -196,7 +196,7 @@ useSeoMeta({
 
           <!-- Latest news: left of sidebar -->
           <div v-if="mixedItems.length" class="pt-2 lg:pt-6">
-            <h2 class="mb-6 font-heading text-2xl font-normal">Последние статьи</h2>
+            <h2 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-2xl font-normal">Последние статьи</h2>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <ArticleCard
                 v-for="item in mixedItems"
