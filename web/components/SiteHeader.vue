@@ -196,24 +196,17 @@ async function handleLogout() {
     <nav class="hidden shadow-sm lg:block">
       <div class="mx-auto max-w-7xl px-4">
         <ul class="flex w-full items-center overflow-x-auto py-2.5 text-[11px] font-bold uppercase tracking-wider text-foreground/80 md:text-xs">
-          <li class="relative flex-1 shrink-0 text-center after:absolute after:right-0 after:top-1/2 after:h-4 after:w-px after:-translate-y-1/2 after:bg-foreground/10 last:after:hidden">
-            <NuxtLink
-              to="/news"
-              class="block whitespace-nowrap py-1 transition hover:text-foreground"
-            >
-              Новости
-            </NuxtLink>
-          </li>
           <li
-            v-for="cat in headerCategories"
-            :key="cat.id"
-            class="relative flex-1 shrink-0 text-center after:absolute after:right-0 after:top-1/2 after:h-4 after:w-px after:-translate-y-1/2 after:bg-foreground/10 last:after:hidden"
+            v-for="(item, index) in [{ name: 'Новости', to: '/news' }, ...headerCategories.map((c) => ({ name: c.name, to: `/category/${c.slug}` }))]"
+            :key="item.to"
+            class="relative flex-1 shrink-0 after:absolute after:right-0 after:top-1/2 after:h-4 after:w-px after:-translate-y-1/2 after:bg-foreground/10 last:after:hidden"
           >
             <NuxtLink
-              :to="`/category/${cat.slug}`"
+              :to="item.to"
               class="block whitespace-nowrap py-1 transition hover:text-foreground"
+              :class="index === 0 ? 'text-left' : index === headerCategories.length ? 'text-right' : 'text-center'"
             >
-              {{ cat.name }}
+              {{ item.name }}
             </NuxtLink>
           </li>
         </ul>
