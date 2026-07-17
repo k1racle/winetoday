@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -28,16 +29,24 @@ export class MediaController {
   list(
     @Query('limit') limit?: string,
     @Query('offset') offset?: string,
+    @Query('type') type?: string,
+    @Query('search') search?: string,
   ) {
     return this.mediaService.findAll(
       limit ? parseInt(limit, 10) : 50,
       offset ? parseInt(offset, 10) : 0,
+      { type: type as any, search },
     );
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return this.mediaService.findById(id);
+  }
+
+  @Get(':id/usage')
+  async usage(@Param('id') id: string) {
+    return this.mediaService.getUsage(id);
   }
 
   @Get(':id/file')
@@ -47,6 +56,13 @@ export class MediaController {
       throw new NotFoundException('Media not found');
     }
     return res.redirect(media.path);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.admin, Role.editor)
+  async delete(@Param('id') id: string) {
+    return this.mediaService.delete(id);
   }
 
   @Post('upload')

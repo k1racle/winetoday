@@ -8,6 +8,39 @@ const saving = ref(false);
 const error = ref('');
 const message = ref('');
 
+const pickerOpen = ref(false);
+const pickerTarget = ref<'light' | 'dark' | 'og' | 'twitter' | null>(null);
+
+function openPicker(target: 'light' | 'dark' | 'og' | 'twitter') {
+  pickerTarget.value = target;
+  pickerOpen.value = true;
+}
+
+async function onMediaSelected(media: any) {
+  if (!pickerTarget.value) return;
+  saving.value = true;
+  error.value = '';
+  message.value = '';
+  try {
+    if (pickerTarget.value === 'light' || pickerTarget.value === 'dark') {
+      const body: any = {};
+      body[pickerTarget.value === 'light' ? 'lightLogoMediaId' : 'darkLogoMediaId'] = media.id;
+      siteHeader.value = await updateSiteHeader(body);
+      message.value = pickerTarget.value === 'light' ? 'Светлый логотип сохранён' : 'Тёмный логотип сохранён';
+    } else {
+      const body: any = {};
+      body[pickerTarget.value === 'og' ? 'openGraphImageMediaId' : 'twitterImageMediaId'] = media.id;
+      siteSeo.value = await updateSiteSeo(body);
+      message.value = pickerTarget.value === 'og' ? 'OG-изображение сохранёно' : 'Twitter-изображение сохранёно';
+    }
+  } catch (err: any) {
+    error.value = err?.data?.message || err?.message || 'Ошибка выбора файла';
+  } finally {
+    saving.value = false;
+    pickerTarget.value = null;
+  }
+}
+
 const lightLogoUrl = computed(() =>
   useMediaUrl(siteHeader.value?.lightLogo?.path),
 );
@@ -232,6 +265,14 @@ onMounted(() => {
                 {{ saving ? 'Сохранение...' : 'Загрузить' }}
               </label>
               <button
+                type="button"
+                class="btn-secondary text-xs"
+                :disabled="saving"
+                @click="openPicker('light')"
+              >
+                Выбрать
+              </button>
+              <button
                 v-if="siteHeader?.lightLogo"
                 class="text-sm text-red-600 hover:underline"
                 :disabled="saving"
@@ -262,6 +303,14 @@ onMounted(() => {
                 >
                 {{ saving ? 'Сохранение...' : 'Загрузить' }}
               </label>
+              <button
+                type="button"
+                class="btn-secondary text-xs"
+                :disabled="saving"
+                @click="openPicker('dark')"
+              >
+                Выбрать
+              </button>
               <button
                 v-if="siteHeader?.darkLogo"
                 class="text-sm text-red-600 hover:underline"
@@ -322,6 +371,14 @@ onMounted(() => {
                   {{ saving ? 'Сохранение...' : 'Загрузить' }}
                 </label>
                 <button
+                  type="button"
+                  class="btn-secondary text-xs"
+                  :disabled="saving"
+                  @click="openPicker('og')"
+                >
+                  Выбрать
+                </button>
+                <button
                   v-if="siteSeo?.openGraphImage"
                   class="text-sm text-red-600 hover:underline"
                   :disabled="saving"
@@ -352,6 +409,14 @@ onMounted(() => {
                   >
                   {{ saving ? 'Сохранение...' : 'Загрузить' }}
                 </label>
+                <button
+                  type="button"
+                  class="btn-secondary text-xs"
+                  :disabled="saving"
+                  @click="openPicker('twitter')"
+                >
+                  Выбрать
+                </button>
                 <button
                   v-if="siteSeo?.twitterImage"
                   class="text-sm text-red-600 hover:underline"
@@ -489,6 +554,8 @@ onMounted(() => {
       </div>
     </div>
   </div>
+
+  <MediaPicker v-model="pickerOpen" @select="onMediaSelected" />
 </template>
 
 <style scoped>

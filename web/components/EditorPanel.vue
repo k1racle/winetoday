@@ -10,7 +10,10 @@ const emit = defineEmits<{ (e: 'saved', id: string): void }>();
 
 const config = useRuntimeConfig();
 const { getCategories, getTags, uploadMedia, uploadCoverMedia, saveDraft, getDraft, getAuthors, getMediaById } = useApi();
+const { user } = useAuth();
 const coverBaseUrl = (config.public.mediaBaseUrl || (config.public.apiUrl as string).replace('/api', '') || 'http://localhost:4000').replace(/\/$/, '');
+
+const canPublish = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
 
 const typeLabels: Record<string, string> = {
   article: 'Статья',
@@ -133,6 +136,44 @@ const message = ref('');
 const error = ref('');
 const coverInput = ref<HTMLInputElement | null>(null);
 const helpOpen = ref(false);
+
+const coverPickerOpen = ref(false);
+const imageBlockTarget = ref<any>(null);
+const imagePickerOpen = ref(false);
+const sliderBlockTarget = ref<any>(null);
+const sliderPickerOpen = ref(false);
+
+function selectMediaForImage(block: any) {
+  imageBlockTarget.value = block;
+  imagePickerOpen.value = true;
+}
+
+function selectMediaForSlider(block: any) {
+  sliderBlockTarget.value = block;
+  sliderPickerOpen.value = true;
+}
+
+function onCoverSelectedFromLibrary(media: any) {
+  form.coverMediaId = media.id;
+  form.coverPath = media.path;
+}
+
+function onImageSelectedFromLibrary(media: any) {
+  const block = imageBlockTarget.value;
+  if (!block) return;
+  if (!block.data) block.data = {};
+  block.data.mediaId = media.id;
+  block.data.path = media.path;
+  imageBlockTarget.value = null;
+}
+
+function onSliderSelectedFromLibrary(media: any) {
+  const block = sliderBlockTarget.value;
+  if (!block) return;
+  if (!block.data) block.data = { items: [] };
+  if (!Array.isArray(block.data.items)) block.data.items = [];
+  block.data.items.push({ mediaId: media.id, path: media.path, source: '' });
+}
 
 const typeRouteMap: Record<string, string> = {
   article: 'articles',
@@ -642,22 +683,24 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
         <button class="btn-secondary" @click="submit('draft')" :disabled="saving">
           💾 {{ saving ? 'Сохранение…' : 'Сохранить' }}
         </button>
-        <button
-          v-if="isFuturePublishedAt"
-          class="btn-primary"
-          :disabled="saving"
-          @click="submit('scheduled')"
-        >
-          📅 {{ saving ? 'Сохранение…' : 'Запланировать' }}
-        </button>
-        <button
-          v-else
-          class="btn-primary"
-          :disabled="saving"
-          @click="submit('published')"
-        >
-          🚀 {{ saving ? 'Сохранение…' : 'Опубликовать' }}
-        </button>
+        <template v-if="canPublish">
+          <button
+            v-if="isFuturePublishedAt"
+            class="btn-primary"
+            :disabled="saving"
+            @click="submit('scheduled')"
+          >
+            📅 {{ saving ? 'Сохранение…' : 'Запланировать' }}
+          </button>
+          <button
+            v-else
+            class="btn-primary"
+            :disabled="saving"
+            @click="submit('published')"
+          >
+            🚀 {{ saving ? 'Сохранение…' : 'Опубликовать' }}
+          </button>
+        </template>
         <NuxtLink
           v-if="publicUrl"
           :to="publicUrl"
@@ -737,9 +780,14 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
           <div class="grid gap-4 p-4 sm:grid-cols-2">
             <div>
               <label class="mb-1 block text-xs font-normal text-foreground/70">Статус</label>
-              <select v-model="form.status" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
+              <select
+                v-if="canPublish"
+                v-model="form.status"
+                class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent"
+              >
                 <option v-for="(label, key) in statusLabels" :key="key" :value="key">{{ label }}</option>
               </select>
+              <div v-else class="text-sm text-foreground/60">{{ statusLabels[form.status] }}</div>
             </div>
             <div>
               <label class="mb-1 block text-xs font-normal text-foreground/70">Метка</label>
@@ -803,10 +851,13 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
                       <img :src="`${coverBaseUrl}${block.data.path}`" class="max-h-48 rounded border border-foreground/10 object-contain" alt="">
                       <button class="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white" @click="block.data.mediaId = ''; block.data.path = ''">✕</button>
                     </div>
-                    <label v-else class="flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-foreground/10 px-4 py-8 text-xs text-foreground/50 transition hover:border-accent hover:text-foreground">
-                      <input type="file" accept="image/*" class="hidden" @change="uploadBlockImage($event, block)">
-                      🖼 Нажмите, чтобы загрузить изображение
-                    </label>
+                    <div v-else class="flex flex-col gap-2">
+                      <label class="flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-foreground/10 px-4 py-6 text-xs text-foreground/50 transition hover:border-accent hover:text-foreground">
+                        <input type="file" accept="image/*" class="hidden" @change="uploadBlockImage($event, block)">
+                        🖼 Нажмите, чтобы загрузить изображение
+                      </label>
+                      <button type="button" class="btn-secondary w-full text-xs" @click="selectMediaForImage(block)">Выбрать из библиотеки</button>
+                    </div>
                     <input v-model="block.data.caption" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-xs outline-none focus:border-accent" placeholder="Подпись к изображению">
                     <input v-model="block.data.source" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-xs outline-none focus:border-accent" placeholder="Источник фото">
                   </div>
@@ -822,10 +873,13 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
                         <input v-model="item.source" type="text" class="w-full border border-foreground/10 bg-card px-2 py-1.5 text-[11px] outline-none focus:border-accent" placeholder="Источник фото">
                       </div>
                     </div>
-                    <label class="flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-foreground/10 px-4 py-6 text-xs text-foreground/50 transition hover:border-accent hover:text-foreground">
-                      <input type="file" accept="image/*" multiple class="hidden" @change="addMediaItems($event, block)">
-                      🖼 Добавить изображения
-                    </label>
+                    <div class="flex flex-col gap-2">
+                      <label class="flex cursor-pointer flex-col items-center justify-center gap-2 border-2 border-dashed border-foreground/10 px-4 py-6 text-xs text-foreground/50 transition hover:border-accent hover:text-foreground">
+                        <input type="file" accept="image/*" multiple class="hidden" @change="addMediaItems($event, block)">
+                        🖼 Добавить изображения
+                      </label>
+                      <button type="button" class="btn-secondary w-full text-xs" @click="selectMediaForSlider(block)">Выбрать из библиотеки</button>
+                    </div>
                   </div>
 
                   <!-- Embed block -->
@@ -896,6 +950,7 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
               <div class="flex flex-1 flex-col gap-2">
                 <input ref="coverInput" type="file" accept="image/*" class="hidden" @change="onCoverSelected">
                 <button class="btn-secondary w-full text-xs" @click="coverInput?.click()">Загрузить</button>
+                <button class="btn-secondary w-full text-xs" @click="coverPickerOpen = true">Выбрать из библиотеки</button>
                 <button class="btn-danger w-full text-xs" :disabled="!form.coverMediaId" @click="removeCover">🗑 Удалить</button>
                 <div>
                   <label class="mb-1 block text-xs font-normal text-foreground/70">Источник фото</label>
@@ -985,27 +1040,33 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
         <button class="btn-secondary" :disabled="saving" @click="submit('draft')">
           💾 {{ saving ? 'Сохранение…' : 'Сохранить' }}
         </button>
-        <button
-          v-if="isFuturePublishedAt"
-          class="btn-primary"
-          :disabled="saving"
-          @click="submit('scheduled')"
-        >
-          📅 {{ saving ? 'Сохранение…' : 'Запланировать' }}
-        </button>
-        <button
-          v-else
-          class="btn-primary"
-          :disabled="saving"
-          @click="submit('published')"
-        >
-          🚀 {{ saving ? 'Сохранение…' : 'Опубликовать' }}
-        </button>
+        <template v-if="canPublish">
+          <button
+            v-if="isFuturePublishedAt"
+            class="btn-primary"
+            :disabled="saving"
+            @click="submit('scheduled')"
+          >
+            📅 {{ saving ? 'Сохранение…' : 'Запланировать' }}
+          </button>
+          <button
+            v-else
+            class="btn-primary"
+            :disabled="saving"
+            @click="submit('published')"
+          >
+            🚀 {{ saving ? 'Сохранение…' : 'Опубликовать' }}
+          </button>
+        </template>
       </div>
     </div>
   </div>
 
   <EditorHelpModal v-model="helpOpen" />
+
+  <MediaPicker v-model="coverPickerOpen" @select="onCoverSelectedFromLibrary" />
+  <MediaPicker v-model="imagePickerOpen" @select="onImageSelectedFromLibrary" />
+  <MediaPicker v-model="sliderPickerOpen" @select="onSliderSelectedFromLibrary" />
 </template>
 
 <style scoped>

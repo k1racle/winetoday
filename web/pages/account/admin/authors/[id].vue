@@ -50,6 +50,8 @@ const editBio = ref('');
 const editPosition = ref('');
 const avatarFile = ref<File | null>(null);
 const avatarPreview = ref<string | null>(null);
+const selectedAvatarMedia = ref<any>(null);
+const avatarPickerOpen = ref(false);
 const saving = ref(false);
 const saveMessage = ref('');
 const deleting = ref(false);
@@ -77,7 +79,14 @@ function onAvatarChange(e: Event) {
   if (file) {
     avatarFile.value = file;
     avatarPreview.value = URL.createObjectURL(file);
+    selectedAvatarMedia.value = null;
   }
+}
+
+function onAvatarSelectedFromLibrary(media: any) {
+  selectedAvatarMedia.value = media;
+  avatarFile.value = null;
+  avatarPreview.value = null;
 }
 
 async function saveAuthor() {
@@ -88,6 +97,8 @@ async function saveAuthor() {
     if (avatarFile.value) {
       const uploaded = await uploadMedia(avatarFile.value);
       avatarMediaId = (uploaded as any).id;
+    } else if (selectedAvatarMedia.value) {
+      avatarMediaId = selectedAvatarMedia.value.id;
     }
 
     const body: Record<string, unknown> = {
@@ -260,14 +271,14 @@ onMounted(() => {
       <div class="grid gap-6 md:grid-cols-[120px_1fr]">
         <div>
           <div
-            v-if="avatarPreview"
+            v-if="avatarPreview || selectedAvatarMedia"
             class="mb-2 h-28 w-28 overflow-hidden rounded-full"
           >
-            <img :src="avatarPreview" alt="Аватар" class="h-full w-full object-cover" />
+            <img :src="avatarPreview || useMediaUrl(selectedAvatarMedia.path)" alt="Аватар" class="h-full w-full object-cover" />
           </div>
           <div
             v-else
-            class="mb-2 flex h-28 w-28 items-center justify-center rounded-full bg-green-600 text-2xl font-normal uppercase text-white"
+            class="mb-2 flex h-28 w-28 items-center justify-center rounded-full bg-accent text-2xl font-normal uppercase text-black"
           >
             {{ data?.author.name?.charAt(0).toUpperCase() || 'А' }}
           </div>
@@ -276,7 +287,14 @@ onMounted(() => {
             accept="image/*"
             class="block w-full text-xs text-foreground/70 file:mr-2 file:rounded file:border-0 file:bg-accent file:px-2 file:py-1 file:text-xs file:text-black"
             @change="onAvatarChange"
-          />
+          >
+          <button
+            type="button"
+            class="mt-2 w-full rounded border border-foreground/10 bg-card px-2 py-1 text-xs text-foreground transition hover:bg-foreground/5"
+            @click="avatarPickerOpen = true"
+          >
+            Выбрать из библиотеки
+          </button>
         </div>
         <div class="space-y-4">
           <div>
@@ -461,6 +479,8 @@ onMounted(() => {
       </div>
     </template>
   </div>
+
+  <MediaPicker v-model="avatarPickerOpen" @select="onAvatarSelectedFromLibrary" />
 </template>
 
 <style scoped>

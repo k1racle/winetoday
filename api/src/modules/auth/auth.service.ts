@@ -98,21 +98,31 @@ export class AuthService {
   }
 
   async me(userId: string) {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        role: true,
-        createdAt: true,
+      include: {
         memberProfile: {
-          select: {
-            displayName: true,
+          include: {
+            author: {
+              include: { avatarMedia: true },
+            },
           },
         },
       },
     });
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      displayName: user.memberProfile?.displayName,
+      avatarMedia: user.memberProfile?.author?.avatarMedia || null,
+    };
   }
 
   async getSubscriptions(userId: string) {

@@ -3,7 +3,8 @@ import type { AuthorProfile, ContentItem } from '~/types/content';
 
 const route = useRoute();
 const slug = route.params.slug as string;
-const { getAuthor, getAuthorContent } = useApi();
+const { getAuthor, getAuthorContent, subscribeToAuthor, unsubscribeFromAuthor } = useApi();
+const { isAuthenticated } = useAuth();
 
 const [{ data: author }, { data: content }] = await Promise.all([
   useAsyncData(`author-${slug}`, () =>
@@ -26,6 +27,31 @@ const initials = computed(() => {
   return name.trim().charAt(0).toUpperCase() || 'А';
 });
 
+const authOpen = ref(false);
+const subscribed = ref(profile.value?.isSubscribed ?? false);
+const subLoading = ref(false);
+
+async function toggleSubscribe() {
+  if (!isAuthenticated.value) {
+    authOpen.value = true;
+    return;
+  }
+  subLoading.value = true;
+  try {
+    if (subscribed.value) {
+      await unsubscribeFromAuthor(slug);
+      subscribed.value = false;
+    } else {
+      await subscribeToAuthor(slug);
+      subscribed.value = true;
+    }
+  } catch {
+    // ignore
+  } finally {
+    subLoading.value = false;
+  }
+}
+
 useSeoMeta({
   title: `${profile.value?.name || slug} — Автор`,
   description: profile.value?.bio || `Материалы автора ${profile.value?.name || slug}`,
@@ -42,9 +68,10 @@ useSeoMeta({
     </nav>
 
     <!-- Author header -->
-    <div class="grid gap-6 border-b border-foreground/10 pb-8 md:grid-cols-[160px_1fr]">
+    <div class="grid gap-6 border-b border-foreground/10 pb-8 md:grid-cols-[160px_1fr_220px]">
+      <!-- Photo -->
       <div class="shrink-0">
-        <div v-if="avatarSrc" class="h-40 w-40 overflow-hidden rounded-full">
+        <div v-if="avatarSrc" class="mx-auto h-40 w-40 overflow-hidden rounded-full md:mx-0">
           <NuxtImg
             :src="avatarSrc"
             :alt="profile?.name || ''"
@@ -53,12 +80,21 @@ useSeoMeta({
         </div>
         <div
           v-else
-          class="flex h-40 w-40 items-center justify-center rounded-full bg-green-600 text-4xl font-normal uppercase text-white"
+          class="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-accent text-4xl font-normal uppercase text-black md:mx-0"
         >
           {{ initials }}
         </div>
+        <button
+          type="button"
+          :disabled="subLoading"
+          class="mt-4 w-full rounded bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-60 md:w-auto"
+          @click="toggleSubscribe"
+        >
+          {{ subscribed ? 'Вы подписаны' : 'Подписаться на автора' }}
+        </button>
       </div>
 
+      <!-- Bio -->
       <div class="flex flex-col justify-center">
         <h1 class="font-heading text-3xl font-bold md:text-4xl">
           {{ profile?.name }}
@@ -69,6 +105,26 @@ useSeoMeta({
         <p v-if="profile?.bio" class="mt-4 max-w-3xl text-base leading-relaxed text-foreground/80">
           {{ profile.bio }}
         </p>
+      </div>
+
+      <!-- Stats -->
+      <div class="flex flex-col gap-3">
+        <div class="border border-foreground/10 bg-card p-4 text-center">
+          <div class="font-heading text-3xl font-bold text-accent">
+            {{ profile?.articlesCount ?? 0 }}
+          </div>
+          <div class="mt-1 text-sm text-foreground/60">
+            {{ (profile?.articlesCount ?? 0) === 1 ? 'Статья' : (profile?.articlesCount ?? 0) >= 2 && (profile?.articlesCount ?? 0) <= 4 ? 'Статьи' : 'Статей' }}
+          </div>
+        </div>
+        <div class="border border-foreground/10 bg-card p-4 text-center">
+          <div class="font-heading text-3xl font-bold text-accent">
+            {{ profile?.newsCount ?? 0 }}
+          </div>
+          <div class="mt-1 text-sm text-foreground/60">
+            {{ (profile?.newsCount ?? 0) === 1 ? 'Новость' : (profile?.newsCount ?? 0) >= 2 && (profile?.newsCount ?? 0) <= 4 ? 'Новости' : 'Новостей' }}
+          </div>
+        </div>
       </div>
     </div>
 
@@ -89,4 +145,6 @@ useSeoMeta({
       </div>
     </div>
   </div>
+
+  <AuthDrawer v-model="authOpen" />
 </template>

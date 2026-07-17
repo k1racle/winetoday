@@ -35,7 +35,7 @@ export class AuthorsService {
       throw new NotFoundException('Author not found');
     }
 
-    const [subscriberCount, subscription] = await Promise.all([
+    const [subscriberCount, subscription, articlesCount, newsCount] = await Promise.all([
       this.prisma.authorSubscription.count({ where: { authorId: author.id } }),
       userId
         ? this.prisma.authorSubscription.findUnique({
@@ -47,12 +47,30 @@ export class AuthorsService {
             },
           })
         : null,
+      this.prisma.contentItem.count({
+        where: {
+          authorId: author.id,
+          status: ContentStatus.published,
+          publishedAt: { lte: new Date() },
+          type: 'article',
+        },
+      }),
+      this.prisma.contentItem.count({
+        where: {
+          authorId: author.id,
+          status: ContentStatus.published,
+          publishedAt: { lte: new Date() },
+          type: 'news',
+        },
+      }),
     ]);
 
     return {
       ...author,
       subscriberCount,
       isSubscribed: !!subscription,
+      articlesCount,
+      newsCount,
     };
   }
 

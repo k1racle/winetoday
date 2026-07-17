@@ -124,6 +124,12 @@ export function useApi() {
       api(`/admin/users/${id}/role`, { method: 'PATCH', body: { role }, credentials: 'include' }),
     getMediaById: (id: string) =>
       api(`/media/${id}`, { credentials: 'include' }),
+    getMediaList: (query?: { limit?: number; offset?: number; type?: string; search?: string }) =>
+      api('/media', { query, credentials: 'include' }),
+    getMediaUsage: (id: string) =>
+      api(`/media/${id}/usage`, { credentials: 'include' }),
+    deleteMedia: (id: string) =>
+      api(`/media/${id}`, { method: 'DELETE', credentials: 'include' }),
     uploadMedia: (file: File) => {
       const formData = new FormData();
       formData.append('file', file);

@@ -308,23 +308,38 @@ const relatedItems = computed(() => {
         <div class="mt-10">
           <h2 class="mb-4 font-heading text-xl font-normal">Комментарии</h2>
           <div class="border border-foreground/10 bg-card p-4">
-            <textarea
-              v-model="commentText"
-              rows="4"
-              placeholder="Поделитесь мнением о материале"
-              maxlength="3000"
-              class="w-full resize-none border border-foreground/10 bg-card p-3 text-sm outline-none transition focus:border-accent"
-            />
-            <div class="mt-3 flex items-center justify-between">
-              <span class="text-xs text-foreground/50">{{ commentText.length }} / 3000</span>
+            <div class="relative">
+              <textarea
+                v-model="commentText"
+                rows="4"
+                placeholder="Поделитесь мнением о материале"
+                maxlength="3000"
+                class="w-full resize-none border border-foreground/10 bg-card p-3 pr-10 text-sm outline-none transition focus:border-accent"
+              />
               <button
                 type="button"
-                class="rounded bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-60"
+                class="absolute bottom-2 right-2 flex h-8 w-8 items-center justify-center rounded bg-accent text-black transition hover:bg-accent/90 disabled:opacity-60"
                 :disabled="commentLoading"
+                :title="commentLoading ? 'Отправка...' : 'Отправить'"
+                aria-label="Отправить"
                 @click="submitComment"
               >
-                {{ commentLoading ? 'Отправка...' : 'Отправить' }}
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M22 2 11 13" />
+                  <path d="m22 2-7 20-4-9-9-4 20-7z" />
+                </svg>
               </button>
+            </div>
+            <div class="mt-3 flex items-center justify-between">
+              <span class="text-xs text-foreground/50">{{ commentText.length }} / 3000</span>
             </div>
             <p v-if="commentError" class="mt-2 text-xs text-red-500">{{ commentError }}</p>
             <p v-if="commentSuccess" class="mt-2 text-xs text-green-500">{{ commentSuccess }}</p>

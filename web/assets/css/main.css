@@ -69,4 +69,12 @@
   .prose blockquote::after {
     content: '';
   }
+
+  /* Acid-green buttons must have black text */
+  button.bg-accent,
+  a.bg-accent,
+  [type='button'].bg-accent,
+  [type='submit'].bg-accent {
+    @apply text-black;
+  }
 }

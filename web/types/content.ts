@@ -23,6 +23,8 @@ export type Author = {
 export type AuthorProfile = Author & {
   subscriberCount: number;
   isSubscribed: boolean;
+  articlesCount: number;
+  newsCount: number;
 };
 
 export type ContentItem = {

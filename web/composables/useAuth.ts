@@ -6,6 +6,7 @@ export interface AuthUser {
   username?: string | null;
   displayName?: string | null;
   role: string;
+  avatarMedia?: { id?: string; path?: string | null } | null;
 }
 
 export interface RegisterBody {

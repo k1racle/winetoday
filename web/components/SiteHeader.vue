@@ -21,6 +21,12 @@ const darkLogoUrl = computed(() =>
 const { user, isAuthenticated, signOut } = useAuth();
 const { headerCategories } = useHeaderCategories();
 
+const userAvatar = computed(() => useMediaUrl(user.value?.avatarMedia?.path));
+const userInitials = computed(() => {
+  const name = user.value?.displayName || user.value?.username || user.value?.email || '';
+  return name.trim().charAt(0).toUpperCase() || 'П';
+});
+
 const menuItems = computed(() => [
   { name: 'Новости', to: '/news' },
   ...headerCategories.value.map((c) => ({ name: c.name, to: `/category/${c.slug}` })),
@@ -139,6 +145,8 @@ async function handleLogout() {
           </button>
         </div>
 
+        <HeaderSocialMenu :links="socialLinks" />
+
         <button
           type="button"
           class="text-foreground/70 hover:text-foreground"
@@ -156,31 +164,40 @@ async function handleLogout() {
         <template v-if="isAuthenticated && user">
           <NuxtLink
             to="/account"
-            class="max-w-[160px] truncate text-sm text-foreground/80 hover:text-foreground"
+            class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-accent text-black transition hover:opacity-90"
+            :title="user.displayName || user.username || user.email"
           >
-            {{ user.displayName || user.username || user.email }}
+            <NuxtImg
+              v-if="userAvatar"
+              :src="userAvatar"
+              alt=""
+              class="h-full w-full object-cover"
+            />
+            <span v-else class="text-sm font-bold uppercase">{{ userInitials }}</span>
           </NuxtLink>
           <button
             type="button"
-            class="flex items-center gap-1.5 text-sm text-foreground/80 hover:text-foreground"
+            class="flex h-9 w-9 items-center justify-center text-foreground/80 transition hover:text-foreground"
+            :title="'Выйти'"
+            aria-label="Выйти"
             @click="handleLogout"
           >
             <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M18 12h3m0 0-3-3m3 3-3 3" />
             </svg>
-            <span>Выйти</span>
           </button>
         </template>
         <button
           v-else
           type="button"
-          class="flex items-center gap-1.5 text-sm text-foreground/80 hover:text-foreground"
+          class="flex h-9 w-9 items-center justify-center text-foreground/80 transition hover:text-foreground"
+          aria-label="Войти"
+          :title="'Войти'"
           @click="authOpen = true"
         >
           <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
           </svg>
-          <span>Войти</span>
         </button>
       </div>
 
@@ -205,7 +222,7 @@ async function handleLogout() {
             <li class="shrink-0">
               <NuxtLink
                 :to="item.to"
-                class="block whitespace-nowrap py-1 transition hover:text-foreground"
+                class="block whitespace-nowrap border-b-2 border-transparent pb-0.5 transition hover:border-accent hover:text-foreground"
               >
                 {{ item.name }}
               </NuxtLink>
@@ -258,12 +275,16 @@ async function handleLogout() {
           <template v-if="isAuthenticated && user">
             <NuxtLink
               to="/account"
-              class="text-foreground/70 hover:text-foreground"
+              class="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-accent text-black"
               @click="closeMobileMenu"
             >
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-              </svg>
+              <NuxtImg
+                v-if="userAvatar"
+                :src="userAvatar"
+                alt=""
+                class="h-full w-full object-cover"
+              />
+              <span v-else class="text-sm font-bold uppercase">{{ userInitials }}</span>
             </NuxtLink>
           </template>
           <button
@@ -311,7 +332,7 @@ async function handleLogout() {
           <li>
             <NuxtLink
               to="/news"
-              class="block py-2 text-left font-heading text-sm font-bold uppercase tracking-wider text-foreground transition hover:text-accent"
+              class="block border-b-2 border-transparent py-2 text-left font-heading text-sm font-bold uppercase tracking-wider text-foreground transition hover:border-accent hover:text-accent"
               @click="closeMobileMenu"
             >
               Новости
@@ -320,7 +341,7 @@ async function handleLogout() {
           <li v-for="cat in headerCategories" :key="cat.id">
             <NuxtLink
               :to="`/category/${cat.slug}`"
-              class="block py-2 text-left font-heading text-sm font-bold uppercase tracking-wider text-foreground transition hover:text-accent"
+              class="block border-b-2 border-transparent py-2 text-left font-heading text-sm font-bold uppercase tracking-wider text-foreground transition hover:border-accent hover:text-accent"
               @click="closeMobileMenu"
             >
               {{ cat.name }}

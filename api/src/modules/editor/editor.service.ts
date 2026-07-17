@@ -65,6 +65,12 @@ export class EditorService {
     const isPublishing = dto.status === ContentStatus.published;
     const isScheduling = dto.status === ContentStatus.scheduled;
 
+    // Authors can only save drafts
+    if (user.role === Role.author) {
+      dto.status = ContentStatus.draft;
+      dto.publishedAt = undefined;
+    }
+
     if (isScheduling && !dto.publishedAt) {
       throw new BadRequestException('Scheduled publication requires a date and time');
     }
