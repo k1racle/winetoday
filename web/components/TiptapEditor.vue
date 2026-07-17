@@ -2,9 +2,8 @@
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
-import TextStyle from '@tiptap/extension-text-style';
-import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
+import { stripTextColor } from '~/utils/html-sanitize';
 import { FontSize } from '~/utils/tiptap-font-size';
 import { Video } from '~/utils/tiptap-video';
 
@@ -28,8 +27,6 @@ const editor = useEditor({
       openOnClick: false,
       HTMLAttributes: { class: 'text-accent underline hover:no-underline' },
     }),
-    TextStyle,
-    Color.configure({ types: ['textStyle'] }),
     TextAlign.configure({ types: ['paragraph', 'heading'] }),
     FontSize,
     Video,
@@ -38,9 +35,12 @@ const editor = useEditor({
     attributes: {
       class: 'min-h-[200px] px-3 py-2 text-sm leading-relaxed outline-none prose prose-sm max-w-none text-foreground',
     },
+    transformPastedHTML(html) {
+      return stripTextColor(html);
+    },
   },
   onUpdate: ({ editor }) => {
-    emit('update:modelValue', editor.getHTML());
+    emit('update:modelValue', stripTextColor(editor.getHTML()));
   },
 });
 
@@ -229,19 +229,7 @@ onBeforeUnmount(() => {
       >
         Ссылка
       </button>
-      <input
-        type="color"
-        class="h-6 w-8 cursor-pointer border-0 bg-transparent p-0"
-        :value="editor.getAttributes('textStyle').color || '#000000'"
-        @input="editor.chain().focus().setColor(($event.target as HTMLInputElement).value).run()"
-      >
-      <button
-        type="button"
-        class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"
-        @click="editor.chain().focus().unsetColor().run()"
-      >
-        Сбросить цвет
-      </button>
+
     </div>
     <EditorContent :editor="editor" />
   </div>

@@ -2,6 +2,7 @@
 import type { ContentItem } from '~/types/content';
 import { isTiptapJson, tiptapToHtml } from '~/utils/tiptap-html';
 import { getVideoEmbedUrl } from '~/utils/video-embed';
+import { stripTextColor } from '~/utils/html-sanitize';
 
 const props = defineProps<{
   blocks: any[];
@@ -10,8 +11,8 @@ const props = defineProps<{
 
 function renderContent(content: unknown): string {
   if (typeof content !== 'string') return '';
-  if (isTiptapJson(content)) return tiptapToHtml(content);
-  return content;
+  const html = isTiptapJson(content) ? tiptapToHtml(content) : content;
+  return stripTextColor(html);
 }
 
 function getEmbedUrl(url?: string) {
