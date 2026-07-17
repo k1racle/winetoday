@@ -14,11 +14,11 @@ const [{ data: homepage }, { data: fresh }, { data: latestByCategory }, { data: 
   useAsyncData('fresh', () =>
     getContent({ limit: 7 }).catch(() => ({ items: [] })),
   ),
-  useAsyncData('latest-by-category', () =>
+  useAsyncData('latest-by-category-home', () =>
     getLatestByCategory(10).catch(() => []),
   ),
   useAsyncData('all-mixed', () =>
-    getContent({ limit: 1000 }).catch(() => ({ items: [] })),
+    getContent({ limit: 100 }).catch(() => ({ items: [] })),
   ),
 ]);
 
@@ -211,7 +211,7 @@ useSeoMeta({
                 type="button"
                 :disabled="isLoading || displayLimit >= totalMixedCount"
                 @click="loadMore()"
-                class="inline-flex items-center rounded border border-accent bg-transparent px-5 py-2.5 text-sm font-normal text-accent transition hover:bg-accent hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                class="inline-flex items-center rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {{ isLoading ? 'Загрузка...' : 'Ещё' }}
                 <span class="ml-1">→</span>

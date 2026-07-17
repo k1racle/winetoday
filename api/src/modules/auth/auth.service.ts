@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
+import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -84,7 +85,17 @@ export class AuthService {
     return this.generateTokens(user.id, user.email, user.role);
   }
 
-  async refresh(userId: string) {
+  async refresh(userId: string, tokenJti: string) {
+    const stored = await this.prisma.refreshToken.findUnique({
+      where: { jti: tokenJti },
+    });
+
+    if (!stored || stored.userId !== userId || stored.expiresAt < new Date()) {
+      throw new UnauthorizedException();
+    }
+
+    await this.prisma.refreshToken.delete({ where: { jti: tokenJti } });
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, email: true, role: true },
@@ -95,6 +106,16 @@ export class AuthService {
     }
 
     return this.generateTokens(user.id, user.email, user.role);
+  }
+
+  async logout(tokenJti?: string) {
+    if (tokenJti) {
+      await this.prisma.refreshToken.deleteMany({ where: { jti: tokenJti } });
+    }
+  }
+
+  async revokeAllUserTokens(userId: string) {
+    await this.prisma.refreshToken.deleteMany({ where: { userId } });
   }
 
   async me(userId: string) {
@@ -188,13 +209,25 @@ export class AuthService {
       expiresIn: '15m',
     });
 
+    const jti = uuidv4();
+    const refreshExpiresInSeconds = 7 * 24 * 60 * 60;
+
     const refresh_token = this.jwt.sign(
-      { sub: userId },
+      { sub: userId, jti },
       {
         secret: this.config.getOrThrow<string>('JWT_REFRESH_SECRET'),
-        expiresIn: '7d',
+        expiresIn: refreshExpiresInSeconds,
       },
     );
+
+    const expiresAt = new Date(Date.now() + refreshExpiresInSeconds * 1000);
+    await this.prisma.refreshToken.create({
+      data: {
+        userId,
+        jti,
+        expiresAt,
+      },
+    });
 
     return { access_token, refresh_token };
   }

@@ -39,10 +39,12 @@ function formatSource(source?: string | null): string {
       />
 
       <figure v-else-if="block.type === 'image-highlight'" class="my-6">
-        <NuxtImg
+        <img
           v-if="block.imageId"
           :src="`/api/media/${block.imageId}/file`"
           :alt="block.caption || ''"
+          loading="lazy"
+          decoding="async"
           class="w-full"
         />
         <figcaption v-if="block.caption || block.credit" class="mt-2 text-sm text-foreground/60">
@@ -53,12 +55,13 @@ function formatSource(source?: string | null): string {
       </figure>
 
       <figure v-else-if="block.type === 'image'" class="my-6">
-        <img
+        <NuxtImg
           v-if="block.data?.path"
           :src="useMediaUrl(block.data.path)"
           :alt="block.data.caption || ''"
+          loading="lazy"
           class="w-full"
-        >
+        />
         <figcaption v-if="block.data?.caption || block.data?.source" class="mt-2 text-sm text-foreground/60">
           <span v-if="block.data.caption">{{ block.data.caption }}</span>
           <span v-if="block.data.caption && block.data.source"> / </span>
@@ -75,12 +78,13 @@ function formatSource(source?: string | null): string {
       <div v-else-if="block.type === 'gallery'" class="my-6">
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <figure v-for="(item, i) in block.data?.items" :key="i">
-            <img
+            <NuxtImg
               v-if="item.path"
               :src="useMediaUrl(item.path)"
               :alt="item.source || ''"
+              loading="lazy"
               class="w-full"
-            >
+            />
             <figcaption v-if="item.source" class="mt-1 text-xs text-foreground/60">
               {{ formatSource(item.source) }}
             </figcaption>

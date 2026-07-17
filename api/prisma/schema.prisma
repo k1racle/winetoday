@@ -49,6 +49,7 @@ model User {
   comments            Comment[]
   reactions           Reaction[]
   authorSubscriptions AuthorSubscription[]
+  refreshTokens       RefreshToken[]
 
   @@map("users")
 }
@@ -64,6 +65,20 @@ model OAuthAccount {
 
   @@unique([provider, providerAccountId])
   @@map("oauth_accounts")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  jti       String   @unique @map("jti")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
 }
 
 model MemberProfile {

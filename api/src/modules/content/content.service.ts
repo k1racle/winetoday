@@ -271,6 +271,7 @@ export class ContentService {
         },
         include: contentInclude,
         orderBy: { publishedAt: 'desc' },
+        take: 10,
       }),
       this.prisma.contentItem.findMany({
         where: {

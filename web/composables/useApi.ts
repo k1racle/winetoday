@@ -1,14 +1,25 @@
+const fetcherCache = new Map<string, ReturnType<typeof $fetch.create>>();
+
 export function useApi() {
   const config = useRuntimeConfig();
 
   const baseURL = import.meta.server ? config.apiUrl : config.public.apiUrl;
-  const headers = import.meta.server ? useRequestHeaders(['cookie']) : {};
 
-  const api = $fetch.create({
-    baseURL,
-    credentials: 'include',
-    headers,
-  });
+  if (!fetcherCache.has(baseURL)) {
+    fetcherCache.set(baseURL, $fetch.create({
+      baseURL,
+      credentials: 'include',
+    }));
+  }
+
+  const fetcher = fetcherCache.get(baseURL)!;
+
+  const api = (path: string, opts: any = {}) => {
+    if (import.meta.server) {
+      opts.headers = { ...useRequestHeaders(['cookie']), ...opts.headers };
+    }
+    return fetcher(path, opts);
+  };
 
   return {
     api,

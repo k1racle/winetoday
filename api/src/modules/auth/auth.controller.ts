@@ -46,13 +46,24 @@ export class AuthController {
   ) {
     const refreshToken = req.cookies?.refresh_token;
     const payload = this.verifyRefresh(refreshToken);
-    const tokens = await this.authService.refresh(payload.sub);
+    const tokens = await this.authService.refresh(payload.sub, payload.jti);
     this.setCookies(res, tokens);
     return { ok: true };
   }
 
   @Post('logout')
-  logout(@Res({ passthrough: true }) res: Response) {
+  logout(@Request() req, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies?.refresh_token;
+    let jti: string | undefined;
+    try {
+      const payload = this.jwtService.verify(refreshToken, {
+        secret: this.config.getOrThrow<string>('JWT_REFRESH_SECRET'),
+      });
+      jti = payload.jti;
+    } catch {
+      // ignore invalid token
+    }
+    this.authService.logout(jti);
     res.clearCookie('access_token');
     res.clearCookie('refresh_token');
     return { ok: true };
