@@ -9,6 +9,7 @@ const ICON_FILES: Record<string, string> = {
   instagram: 'instagram-1.svg',
   ok: 'ok-white.svg',
   odnoklassniki: 'ok-white.svg',
+  whatsapp: 'whatsapp-white.svg',
 };
 
 const ICON_FILES_BLACK: Record<string, string> = {
@@ -22,6 +23,7 @@ const ICON_FILES_BLACK: Record<string, string> = {
   instagram: 'instagram-black.svg',
   ok: 'ok-black.svg',
   odnoklassniki: 'ok-black.svg',
+  whatsapp: 'whatsapp-black.svg',
 };
 
 const ICON_FILES_WHITE: Record<string, string> = {
@@ -35,6 +37,7 @@ const ICON_FILES_WHITE: Record<string, string> = {
   instagram: 'instagram-white.svg',
   ok: 'ok-white.svg',
   odnoklassniki: 'ok-white.svg',
+  whatsapp: 'whatsapp-white.svg',
 };
 
 // The "dark" variant is used on light-themed cards/buttons in dark mode, so it needs a white icon.
@@ -142,6 +145,16 @@ export function resolveSocialIconKey(
     return 'ok';
   }
 
+  if (
+    normalizedHref.includes('wa.me') ||
+    normalizedHref.includes('whatsapp') ||
+    normalizedLabel.includes('whatsapp') ||
+    normalizedLabel.includes('ватсап') ||
+    normalizedLabel.includes('вотсап')
+  ) {
+    return 'whatsapp';
+  }
+
   return null;
 }
 
@@ -176,6 +189,7 @@ export const SOCIAL_PLATFORMS = [
   { id: 'dzen', label: 'Дзен' },
   { id: 'max', label: 'MAX' },
   { id: 'ok', label: 'Одноклассники' },
+  { id: 'whatsapp', label: 'WhatsApp' },
 ] as const;
 
 export function resolveSavedSocialIcon(

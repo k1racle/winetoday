@@ -24,6 +24,34 @@ const socialLinks = computed(() => {
               class="h-24 w-auto max-w-full md:h-28"
             >
           </NuxtLink>
+
+          <div class="mt-6 rounded-lg border border-white/10 bg-white/5 p-4">
+            <div class="space-y-3">
+              <a
+                href="mailto:info@winemaking-today.ru"
+                class="group block"
+              >
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-white/50">
+                  По вопросам сотрудничества
+                </span>
+                <span class="block text-sm font-medium text-white/90 transition group-hover:text-accent">
+                  info@winemaking-today.ru
+                </span>
+              </a>
+              <div class="h-px bg-white/10" />
+              <a
+                href="mailto:journalist@winemaking-today.ru"
+                class="group block"
+              >
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-white/50">
+                  Редакция
+                </span>
+                <span class="block text-sm font-medium text-white/90 transition group-hover:text-accent">
+                  journalist@winemaking-today.ru
+                </span>
+              </a>
+            </div>
+          </div>
         </div>
 
         <!-- Categories -->
@@ -84,6 +112,9 @@ const socialLinks = computed(() => {
       <div class="mx-auto max-w-7xl px-4 py-5">
         <p class="text-xs font-normal text-white/50">
           Все права защищены. Копирование и иное использование материалов возможны только с письменного согласия правообладателя и с обязательным указанием источника.
+        </p>
+        <p class="mt-2 text-[10px] font-normal leading-relaxed text-white/40">
+          Instagram, Facebook, WhatsApp принадлежат компании Meta, признанной экстремистской на территории Российской Федерации.
         </p>
       </div>
     </div>
