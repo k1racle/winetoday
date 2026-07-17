@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: 'ru' },
-      title: 'ВИНОДЕЛИЕ СЕГОДНЯ — Федеральное отраслевое медиа',
+      title: 'ВИНОДЕЛИЕ СЕГОДНЯ — федеральное отраслевое медиа',
       titleTemplate: '%s | ВИНОДЕЛИЕ СЕГОДНЯ — Федеральное отраслевое медиа',
       meta: [
         { charset: 'utf-8' },

@@ -26,31 +26,17 @@ const socialLinks = computed(() => {
           </NuxtLink>
 
           <div class="mt-6 rounded-lg border border-white/10 bg-white/5 p-4">
-            <div class="space-y-3">
-              <a
-                href="mailto:info@winemaking-today.ru"
-                class="group block"
-              >
-                <span class="block text-[10px] font-bold uppercase tracking-wider text-white/50">
-                  По вопросам сотрудничества
-                </span>
-                <span class="block text-sm font-medium text-white/90 transition group-hover:text-accent">
-                  info@winemaking-today.ru
-                </span>
-              </a>
-              <div class="h-px bg-white/10" />
-              <a
-                href="mailto:journalist@winemaking-today.ru"
-                class="group block"
-              >
-                <span class="block text-[10px] font-bold uppercase tracking-wider text-white/50">
-                  Редакция
-                </span>
-                <span class="block text-sm font-medium text-white/90 transition group-hover:text-accent">
-                  journalist@winemaking-today.ru
-                </span>
-              </a>
-            </div>
+            <a
+              href="mailto:info@winemaking-today.ru"
+              class="group block"
+            >
+              <span class="block text-[10px] font-bold uppercase tracking-wider text-white/50">
+                По вопросам сотрудничества
+              </span>
+              <span class="block text-sm font-medium text-white/90 transition group-hover:text-accent">
+                info@winemaking-today.ru
+              </span>
+            </a>
           </div>
         </div>
 

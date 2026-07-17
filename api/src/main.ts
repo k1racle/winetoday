@@ -14,6 +14,8 @@ import { createMediaAvifMiddleware } from './modules/media/media-avif.middleware
 const UPLOADS_DIR = '/app/uploads';
 const BACKEND_UPLOADS_DIR = '/app/public/uploads';
 
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
@@ -34,6 +36,7 @@ async function bootstrap() {
       forbidNonWhitelisted: false,
     }),
   );
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   const corsOrigin = process.env.CORS_ORIGIN;
   app.enableCors({

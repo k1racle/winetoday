@@ -49,6 +49,10 @@ async function loadMore() {
   }
 }
 
+const { data: latestByCategory } = await useAsyncData(`latest-by-category-${slug}`, () =>
+  getLatestByCategory(10).catch(() => []),
+);
+
 const category = computed(() =>
   (categories.value || []).find((c: any) => c.slug === slug),
 );
