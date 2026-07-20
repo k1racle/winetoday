@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
 import { UpdateSiteHeaderDto } from './dto/update-site-header.dto';
 import { UpdateSiteSeoDto } from './dto/update-site-seo.dto';
+import { UpdateStaticPageDto } from './dto/update-static-page.dto';
 
 const singletonInclude = {
   logoMedia: true,
@@ -143,6 +144,36 @@ export class SettingsService {
       where: { id: existing.id },
       data,
       include: seoInclude,
+    });
+  }
+
+  async staticPage(slug: string) {
+    return this.prisma.staticPage.findUnique({
+      where: { slug },
+    });
+  }
+
+  async updateStaticPage(slug: string, dto: UpdateStaticPageDto) {
+    const existing = await this.prisma.staticPage.findUnique({ where: { slug } });
+    const data: any = {};
+    if (dto.title !== undefined) data.title = dto.title;
+    if (dto.contentBlocks !== undefined) data.contentBlocks = dto.contentBlocks;
+    if (dto.seo !== undefined) data.seo = dto.seo;
+
+    if (!existing) {
+      return this.prisma.staticPage.create({
+        data: {
+          slug,
+          title: data.title || slug,
+          contentBlocks: data.contentBlocks || [],
+          seo: data.seo || null,
+        },
+      });
+    }
+
+    return this.prisma.staticPage.update({
+      where: { slug },
+      data,
     });
   }
 }

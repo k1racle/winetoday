@@ -90,9 +90,6 @@ function onSearch() {
   }
 }
 
-async function handleLogout() {
-  await signOut();
-}
 </script>
 
 <template>
@@ -133,7 +130,7 @@ async function handleLogout() {
           </Transition>
           <button
             type="button"
-            class="flex h-9 w-9 items-center justify-center text-foreground/60 transition hover:text-foreground"
+            class="flex h-9 w-9 items-center justify-center text-foreground/70 transition hover:text-foreground"
             aria-label="Поиск"
             @click="searchOpen = !searchOpen"
           >
@@ -173,22 +170,11 @@ async function handleLogout() {
             />
             <span v-else class="text-sm font-bold uppercase">{{ userInitials }}</span>
           </NuxtLink>
-          <button
-            type="button"
-            class="flex h-9 w-9 items-center justify-center text-foreground/80 transition hover:text-foreground"
-            :title="'Выйти'"
-            aria-label="Выйти"
-            @click="handleLogout"
-          >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M18 12h3m0 0-3-3m3 3-3 3" />
-            </svg>
-          </button>
         </template>
         <button
           v-else
           type="button"
-          class="flex h-9 w-9 items-center justify-center text-foreground/80 transition hover:text-foreground"
+          class="flex h-9 w-9 items-center justify-center text-foreground/70 transition hover:text-foreground"
           aria-label="Войти"
           :title="'Войти'"
           @click="authOpen = true"
@@ -247,6 +233,18 @@ async function handleLogout() {
       <!-- Top bar: actions + close -->
       <div class="mb-6 flex items-center justify-between border-b border-foreground/10 pb-4">
         <div class="flex items-center gap-4">
+          <NuxtLink to="/" class="mr-2" @click="closeMobileMenu">
+            <img
+              :src="lightLogoUrl"
+              alt="Виноделие Сегодня"
+              class="block h-7 w-auto dark:hidden"
+            />
+            <img
+              :src="darkLogoUrl"
+              alt="Виноделие Сегодня"
+              class="hidden h-7 w-auto dark:block"
+            />
+          </NuxtLink>
           <button
             type="button"
             class="text-foreground/70 hover:text-foreground"
@@ -325,8 +323,8 @@ async function handleLogout() {
       </form>
 
       <!-- Links -->
-      <nav class="flex-1 overflow-y-auto">
-        <ul class="space-y-10">
+      <nav class="mt-auto overflow-y-auto">
+        <ul class="space-y-4">
           <li>
             <NuxtLink
               to="/news"

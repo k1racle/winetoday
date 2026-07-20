@@ -64,6 +64,7 @@
 @layer components {
   .prose blockquote {
     quotes: none;
+    border-left-color: hsl(var(--accent));
   }
   .prose blockquote::before,
   .prose blockquote::after {

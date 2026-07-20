@@ -100,7 +100,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div v-if="editor" class="rounded border border-foreground/10 bg-card">
-    <div class="flex flex-wrap items-center gap-1 border-b border-foreground/10 px-2 py-1">
+    <div class="flex flex-nowrap items-center gap-1 overflow-x-auto border-b border-foreground/10 px-2 py-1 md:flex-wrap md:overflow-visible [&>*]:shrink-0">
       <button
         type="button"
         class="px-2 py-1 text-xs font-normal rounded hover:bg-foreground/10"

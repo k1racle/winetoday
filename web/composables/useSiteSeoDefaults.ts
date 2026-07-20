@@ -23,13 +23,20 @@ export function useSiteSeoDefaults() {
   const defaultImagePath = siteSeo.value?.openGraphImage?.path || siteSeo.value?.twitterImage?.path;
   const defaultImageUrl = useOgImageUrl(defaultImagePath ? useMediaUrl(defaultImagePath) : '');
 
-  useSeoMeta({
-    title: siteSeo.value?.defaultSeo?.title || undefined,
-    description: siteSeo.value?.defaultSeo?.description || undefined,
+  const seo: Record<string, any> = {
     ogImage: defaultImageUrl,
     ogImageWidth: defaultImageUrl ? 1200 : undefined,
     ogImageHeight: defaultImageUrl ? 630 : undefined,
     ogImageType: defaultImageUrl ? 'image/jpeg' : undefined,
     twitterImage: defaultImageUrl,
-  });
+  };
+
+  if (siteSeo.value?.defaultSeo?.title) {
+    seo.title = siteSeo.value.defaultSeo.title;
+  }
+  if (siteSeo.value?.defaultSeo?.description) {
+    seo.description = siteSeo.value.defaultSeo.description;
+  }
+
+  useSeoMeta(seo);
 }

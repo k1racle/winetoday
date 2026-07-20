@@ -72,16 +72,16 @@ const link = computed(() => {
       class="overflow-hidden"
       :class="variant === 'compact' ? 'flex flex-1 flex-col p-3' : 'p-4'"
     >
-      <div class="mb-1.5 flex flex-wrap items-center gap-2 text-xs text-foreground/50">
-        <span v-if="date">{{ date }}</span>
-        <span v-if="category">{{ category }}</span>
-      </div>
       <h3
         class="font-sans font-normal leading-snug group-hover:text-foreground"
         :class="[variant === 'compact' ? 'break-words text-[17px] leading-snug line-clamp-3' : 'break-words text-base md:text-lg line-clamp-3', { 'font-bold': isImportant }]"
       >
         {{ item.title }}
       </h3>
+      <div class="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-foreground/50">
+        <span v-if="date">{{ date }}</span>
+        <span v-if="category">{{ category }}</span>
+      </div>
       <p
         v-if="item.excerpt && variant !== 'compact' && !hideExcerpt"
         class="mt-2 line-clamp-2 text-sm opacity-80"

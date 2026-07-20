@@ -88,13 +88,13 @@ useSeoMeta({
     </nav>
 
     <!-- Author header -->
-    <div class="grid gap-6 border-b border-foreground/10 pb-8 md:grid-cols-[160px_1fr_220px]">
+    <div class="grid grid-cols-[96px_1fr] gap-4 border-b border-foreground/10 pb-8 md:grid-cols-[160px_1fr_220px] md:gap-6">
       <!-- Photo -->
       <div class="shrink-0">
         <button
           v-if="avatarSrc"
           type="button"
-          class="mx-auto block h-40 w-40 cursor-zoom-in overflow-hidden rounded-full md:mx-0"
+          class="mx-auto block h-24 w-24 cursor-zoom-in overflow-hidden rounded-full md:mx-0 md:h-40 md:w-40"
           :aria-label="`Увеличить фото: ${profile?.name || 'автор'}`"
           @click="lightboxOpen = true"
         >
@@ -106,14 +106,14 @@ useSeoMeta({
         </button>
         <div
           v-else
-          class="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-accent text-4xl font-normal uppercase text-black md:mx-0"
+          class="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-accent text-2xl font-normal uppercase text-black md:mx-0 md:h-40 md:w-40 md:text-4xl"
         >
           {{ initials }}
         </div>
         <button
           type="button"
           :disabled="subLoading"
-          class="mt-4 inline-flex w-40 items-center justify-center gap-2 rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent disabled:opacity-60 mx-auto md:mx-0"
+          class="mt-4 hidden w-40 items-center justify-center gap-2 rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent disabled:opacity-60 md:inline-flex"
           @click="toggleSubscribe"
         >
           <svg v-if="!subscribed" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -125,32 +125,43 @@ useSeoMeta({
 
       <!-- Bio -->
       <div class="flex flex-col justify-center">
-        <h1 class="font-heading text-3xl font-bold md:text-4xl">
+        <h1 class="font-heading text-2xl font-bold md:text-4xl">
           {{ profile?.name }}
         </h1>
-        <p v-if="profile?.position" class="mt-1 text-sm text-foreground/60">
+        <p v-if="profile?.position" class="mt-1 text-xs text-foreground/60 md:text-sm">
           {{ profile.position }}
         </p>
-        <p v-if="profile?.bio" class="mt-4 max-w-3xl text-base leading-relaxed text-foreground/80">
+        <button
+          type="button"
+          :disabled="subLoading"
+          class="mt-3 inline-flex items-center justify-center gap-2 rounded border border-foreground/20 bg-transparent px-3 py-1.5 text-xs font-normal text-foreground/80 transition hover:border-accent hover:text-accent disabled:opacity-60 md:hidden"
+          @click="toggleSubscribe"
+        >
+          <svg v-if="!subscribed" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12.784 12.784 0 0 1-.52-3.369c0-1.242.2-2.489.58-3.628M5.904 18.5H10.5m-4.596 0v-9.75m0 9.75v2.25" />
+          </svg>
+          {{ subscribed ? 'Вы подписаны' : 'Подписаться' }}
+        </button>
+        <p v-if="profile?.bio" class="mt-4 max-w-3xl text-sm leading-relaxed text-foreground/80 md:text-base">
           {{ profile.bio }}
         </p>
       </div>
 
       <!-- Stats -->
-      <div class="flex flex-col gap-3">
-        <div class="border border-foreground/10 bg-card p-4 text-center">
-          <div class="font-heading text-3xl font-bold text-accent">
+      <div class="col-span-2 grid grid-cols-2 gap-3 md:col-span-1 md:flex md:flex-col">
+        <div class="border border-foreground/10 bg-card p-3 text-center md:p-4">
+          <div class="font-heading text-2xl font-bold text-accent md:text-3xl">
             {{ profile?.articlesCount ?? 0 }}
           </div>
-          <div class="mt-1 text-sm text-foreground/60">
+          <div class="mt-1 text-xs text-foreground/60 md:text-sm">
             {{ (profile?.articlesCount ?? 0) === 1 ? 'Статья' : (profile?.articlesCount ?? 0) >= 2 && (profile?.articlesCount ?? 0) <= 4 ? 'Статьи' : 'Статей' }}
           </div>
         </div>
-        <div class="border border-foreground/10 bg-card p-4 text-center">
-          <div class="font-heading text-3xl font-bold text-accent">
+        <div class="border border-foreground/10 bg-card p-3 text-center md:p-4">
+          <div class="font-heading text-2xl font-bold text-accent md:text-3xl">
             {{ profile?.newsCount ?? 0 }}
           </div>
-          <div class="mt-1 text-sm text-foreground/60">
+          <div class="mt-1 text-xs text-foreground/60 md:text-sm">
             {{ (profile?.newsCount ?? 0) === 1 ? 'Новость' : (profile?.newsCount ?? 0) >= 2 && (profile?.newsCount ?? 0) <= 4 ? 'Новости' : 'Новостей' }}
           </div>
         </div>

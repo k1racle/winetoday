@@ -8,6 +8,7 @@ const tabs = [
   { label: 'Рубрики', to: '/account/admin/categories' },
   { label: 'Теги', to: '/account/admin/tags' },
   { label: 'Соцсети', to: '/account/admin/socials' },
+  { label: 'Страницы', to: '/account/admin/pages' },
   { label: 'Настройки', to: '/account/admin/settings' },
 ];
 
@@ -20,12 +21,12 @@ function isActive(to: string) {
 </script>
 
 <template>
-  <nav class="flex gap-2 border-b border-foreground/10">
+  <nav class="flex gap-2 overflow-x-auto whitespace-nowrap border-b border-foreground/10">
     <NuxtLink
       v-for="tab in tabs"
       :key="tab.to"
       :to="tab.to"
-      class="px-4 py-2 text-sm font-normal transition"
+      class="shrink-0 px-4 py-2 text-sm font-normal transition"
       :class="isActive(tab.to) ? 'border-b-2 border-accent text-accent' : 'text-foreground/60 hover:text-foreground'"
     >
       {{ tab.label }}

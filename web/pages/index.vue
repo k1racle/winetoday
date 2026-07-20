@@ -136,7 +136,7 @@ useSeoMeta({
             </div>
 
             <!-- Video block -->
-            <div v-if="homepage?.videos?.length" class="w-full">
+            <div v-if="homepage?.videos?.length" class="mt-1 w-full">
               <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <svg class="h-5 w-5 fill-current text-accent" viewBox="0 0 24 24">
@@ -201,7 +201,7 @@ useSeoMeta({
           </template>
 
           <!-- Latest news: left of sidebar -->
-          <div v-if="mixedItems.length" class="pt-2 lg:pt-6">
+          <div v-if="mixedItems.length" class="mt-1 pt-2 lg:pt-6">
             <h2 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-2xl font-normal">Последние статьи</h2>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <ArticleCard

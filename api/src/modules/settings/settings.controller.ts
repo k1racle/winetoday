@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 
 @Controller()
@@ -28,6 +28,11 @@ export class SettingsController {
   @Get('site-seo')
   siteSeo() {
     return this.settingsService.siteSeo();
+  }
+
+  @Get('pages/:slug')
+  staticPage(@Param('slug') slug: string) {
+    return this.settingsService.staticPage(slug);
   }
 
 }

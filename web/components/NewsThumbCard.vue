@@ -55,13 +55,13 @@ function editUrl(item: ContentItem) {
       />
     </div>
     <div class="flex flex-1 flex-col p-3 md:p-4">
-      <div class="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] text-foreground/50 md:text-xs">
-        <span v-if="shortDate">{{ shortDate }}</span>
-        <span v-if="category">{{ category }}</span>
-      </div>
       <h3 class="font-sans text-base font-normal leading-snug text-foreground group-hover:text-foreground line-clamp-3 break-words md:text-[17px]" :class="{ 'font-bold': isImportant }">
         {{ item.title }}
       </h3>
+      <div class="mt-1.5 flex flex-wrap items-center gap-2 text-[10px] text-foreground/50 md:text-xs">
+        <span v-if="shortDate">{{ shortDate }}</span>
+        <span v-if="category">{{ category }}</span>
+      </div>
     </div>
     </NuxtLink>
     <NuxtLink

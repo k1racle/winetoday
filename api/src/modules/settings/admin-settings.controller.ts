@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -7,6 +7,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
 import { UpdateSiteHeaderDto } from './dto/update-site-header.dto';
 import { UpdateSiteSeoDto } from './dto/update-site-seo.dto';
+import { UpdateStaticPageDto } from './dto/update-static-page.dto';
 
 @Controller()
 export class AdminSettingsController {
@@ -51,5 +52,12 @@ export class AdminSettingsController {
   @Roles(Role.admin)
   updateSiteSeo(@Body() dto: UpdateSiteSeoDto) {
     return this.settingsService.updateSiteSeo(dto);
+  }
+
+  @Patch('admin/pages/:slug')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.admin, Role.editor)
+  updateStaticPage(@Param('slug') slug: string, @Body() dto: UpdateStaticPageDto) {
+    return this.settingsService.updateStaticPage(slug, dto);
   }
 }

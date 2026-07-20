@@ -95,6 +95,10 @@ export function useApi() {
       api('/admin/site-header', { credentials: 'include' }),
     updateSiteHeader: (body: { lightLogoMediaId?: string; darkLogoMediaId?: string }) =>
       api('/admin/site-header', { method: 'PATCH', body, credentials: 'include' }),
+    getStaticPage: (slug: string) =>
+      api(`/pages/${slug}`),
+    updateStaticPage: (slug: string, body: Record<string, unknown>) =>
+      api(`/admin/pages/${slug}`, { method: 'PATCH', body, credentials: 'include' }),
     incrementView: (body: Record<string, unknown>) =>
       api('/views/increment', { method: 'POST', body }),
     getReactions: (contentItemId: string, viewerId?: string) =>

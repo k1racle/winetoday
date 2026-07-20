@@ -51,14 +51,13 @@ function editUrl(item: ContentItem) {
       :alt="item.coverMedia?.altText || item.title"
       class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
     />
-    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 via-[25%] to-transparent" />
     <MaterialLabelBadge
       v-if="size !== 'large'"
       :label="item.materialLabel"
       :type="item.type"
       class="absolute bottom-2 right-2 z-10"
     />
-    <div class="relative z-10 p-3 text-white md:p-6">
+    <div class="relative z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-white md:p-6">
       <div class="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] font-normal uppercase tracking-wider text-white/80 md:text-xs">
         <span v-if="shortDate">{{ shortDate }}</span>
         <span v-if="category">{{ category }}</span>
