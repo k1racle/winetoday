@@ -298,7 +298,7 @@ function onSearch() {
       <!-- Mobile logo -->
       <NuxtLink
         to="/"
-        class="mb-6 flex flex-col"
+        class="mb-6 flex flex-col items-start"
         @click="closeMobileMenu"
       >
         <img
