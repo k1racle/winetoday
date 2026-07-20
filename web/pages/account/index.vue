@@ -1,35 +1,9 @@
 <script setup lang="ts">
-const { user, isAuthenticated } = useAuth();
+const { user } = useAuth();
 const { getMySubscriptions, getMyLikes, getMyComments } = useApi();
-const route = useRoute();
-
-const canCreate = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
 
 const stats = ref({ subscriptions: 0, likes: 0, comments: 0 });
 const statsLoading = ref(false);
-
-const activeType = ref('all');
-const editingId = ref('');
-const sidebarRef = ref<any>(null);
-
-function selectType(type: string) {
-  activeType.value = type;
-  editingId.value = '';
-}
-
-function newMaterial() {
-  editingId.value = '';
-}
-
-function selectMaterial(item: any) {
-  activeType.value = item.type;
-  editingId.value = item.id;
-}
-
-function onSaved(id: string) {
-  editingId.value = id;
-  sidebarRef.value?.load();
-}
 
 async function loadStats() {
   statsLoading.value = true;
@@ -51,19 +25,11 @@ async function loadStats() {
 
 onMounted(() => {
   loadStats();
-  const editId = route.query.id;
-  if (editId && typeof editId === 'string') {
-    editingId.value = editId;
-    const editType = route.query.type;
-    if (editType && typeof editType === 'string') {
-      activeType.value = editType;
-    }
-  }
 });
 </script>
 
 <template>
-  <div class="mx-auto max-w-[1600px] px-4 py-10">
+  <div class="mx-auto max-w-[1600px] overflow-x-hidden px-4 py-10">
     <div v-if="user" class="space-y-8">
       <div>
         <h1 class="mb-2 font-heading text-2xl font-bold">Личный кабинет</h1>
@@ -94,20 +60,6 @@ onMounted(() => {
           <p class="mt-2 font-heading text-3xl font-normal">{{ statsLoading ? '...' : stats.comments }}</p>
         </NuxtLink>
       </div>
-      <!-- Editor workspace -->
-      <div v-if="canCreate" class="grid gap-6 lg:grid-cols-[260px_1fr] items-start">
-        <EditorSidebar
-          ref="sidebarRef"
-          :active-type="activeType"
-          @select-type="selectType"
-          @new-material="newMaterial"
-          @select-material="selectMaterial"
-        />
-        <section class="border border-foreground/10 bg-card p-4 shadow-sm md:p-6">
-          <EditorPanel :type="activeType === 'all' ? undefined : activeType" :draft-id="editingId" @saved="onSaved" />
-        </section>
-      </div>
-
       <div class="grid gap-8 md:grid-cols-3">
         <!-- Profile -->
         <section class="border border-foreground/10 bg-card p-6 shadow-sm md:col-span-2">

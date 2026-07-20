@@ -11,7 +11,7 @@ const props = defineProps<{
 const emit = defineEmits<{ (e: 'saved', id: string): void }>();
 
 const config = useRuntimeConfig();
-const { getCategories, getTags, uploadMedia, uploadCoverMedia, saveDraft, getDraft, getAuthors, getMediaById } = useApi();
+const { getCategories, getTags, uploadMedia, uploadCoverMedia, saveDraft, getDraft, getAuthors, getMediaById, deleteMaterial } = useApi();
 const { user } = useAuth();
 const coverBaseUrl = (config.public.mediaBaseUrl || (config.public.apiUrl as string).replace('/api', '') || 'http://localhost:4000').replace(/\/$/, '');
 
@@ -639,6 +639,25 @@ function buildBody(status?: 'draft' | 'published' | 'scheduled'): Record<string,
   };
 }
 
+async function removeMaterial() {
+  if (!form.id) return;
+  if (!confirm('Удалить материал? Это действие нельзя отменить.')) return;
+  saving.value = true;
+  error.value = '';
+  message.value = '';
+  try {
+    await deleteMaterial(form.id);
+    message.value = 'Материал удалён';
+    setTimeout(() => {
+      navigateTo('/account');
+    }, 500);
+  } catch (e: any) {
+    error.value = e?.data?.message || e?.message || 'Ошибка удаления';
+  } finally {
+    saving.value = false;
+  }
+}
+
 async function submit(status?: 'draft' | 'published' | 'scheduled') {
   saving.value = true;
   error.value = '';
@@ -675,20 +694,20 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
           Полноценное редактирование контента с блоками и rich text
         </p>
       </div>
-      <div class="flex flex-wrap items-center gap-2">
-        <button class="btn-secondary" @click="helpOpen = true">? Помощь</button>
-        <select v-model="form.type" class="border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
+      <div class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+        <button class="btn-secondary w-full justify-center sm:w-auto" @click="helpOpen = true">? Помощь</button>
+        <select v-model="form.type" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent sm:w-auto">
           <option v-for="(label, key) in typeLabels" :key="key" :value="key">
             {{ label }}
           </option>
         </select>
-        <button class="btn-secondary" @click="submit('draft')" :disabled="saving">
+        <button class="btn-secondary w-full justify-center sm:w-auto" @click="submit('draft')" :disabled="saving">
           💾 {{ saving ? 'Сохранение…' : 'Сохранить' }}
         </button>
         <template v-if="canPublish">
           <button
             v-if="isFuturePublishedAt"
-            class="btn-primary"
+            class="btn-primary w-full justify-center sm:w-auto"
             :disabled="saving"
             @click="submit('scheduled')"
           >
@@ -696,7 +715,7 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
           </button>
           <button
             v-else
-            class="btn-primary"
+            class="btn-primary w-full justify-center sm:w-auto"
             :disabled="saving"
             @click="submit('published')"
           >
@@ -707,7 +726,7 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
           v-if="publicUrl"
           :to="publicUrl"
           target="_blank"
-          class="btn-secondary"
+          class="btn-secondary w-full justify-center sm:w-auto"
         >
           🔗 На сайте
         </NuxtLink>
@@ -715,7 +734,7 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
           v-else-if="previewUrl"
           :to="previewUrl"
           target="_blank"
-          class="btn-secondary"
+          class="btn-secondary w-full justify-center sm:w-auto"
         >
           👁 Предпросмотр
         </NuxtLink>
@@ -1037,7 +1056,7 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
 
     <!-- Bottom bar -->
     <div class="flex flex-wrap items-center justify-between gap-3 border-t border-foreground/10 pt-4">
-      <button class="btn-danger" @click="form.status = 'draft'">🗑 Удалить материал</button>
+      <button class="btn-danger" :disabled="!form.id || saving" @click="removeMaterial">🗑 Удалить материал</button>
       <div class="flex gap-2">
         <button class="btn-secondary" :disabled="saving" @click="submit('draft')">
           💾 {{ saving ? 'Сохранение…' : 'Сохранить' }}

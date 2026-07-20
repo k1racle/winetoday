@@ -1,11 +1,22 @@
 <script setup lang="ts">
 const route = useRoute();
-const tabs = [
-  { label: 'Профиль', to: '/account' },
-  { label: 'Подписки', to: '/account/subscriptions' },
-  { label: 'Понравилось', to: '/account/liked' },
-  { label: 'Комментарии', to: '/account/comments' },
-];
+const { user } = useAuth();
+
+const canCreate = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
+
+const tabs = computed(() => {
+  const list: { label: string; to: string }[] = [];
+  if (canCreate.value) {
+    list.push({ label: 'Редактор материалов', to: '/account/editor' });
+  }
+  list.push({ label: 'Профиль', to: '/account' });
+  list.push(
+    { label: 'Подписки', to: '/account/subscriptions' },
+    { label: 'Понравилось', to: '/account/liked' },
+    { label: 'Комментарии', to: '/account/comments' },
+  );
+  return list;
+});
 
 function isActive(to: string) {
   if (to === '/account') {

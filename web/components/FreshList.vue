@@ -126,6 +126,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
         @click="isExpanded = true"
       >
         Ещё
+        <span class="ml-1">↓</span>
       </button>
 
       <NuxtLink

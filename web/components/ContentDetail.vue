@@ -34,7 +34,7 @@ const publishedTime = computed(() => {
 });
 
 function editUrl(item: ContentItem) {
-  return `/account?type=${item.type}&id=${item.id}`;
+  return `/account/editor?type=${item.type}&id=${item.id}`;
 }
 const commentText = ref('');
 const shareUrl = computed(() => (typeof window !== 'undefined' ? window.location.href : ''));
@@ -45,6 +45,25 @@ const commentLoading = ref(false);
 const commentError = ref('');
 const commentSuccess = ref('');
 const reactionError = ref('');
+const readIds = ref<Set<string>>(new Set());
+
+function loadReadIds() {
+  try {
+    const ids = JSON.parse(sessionStorage.getItem('vino_read_ids') || '[]');
+    readIds.value = new Set(Array.isArray(ids) ? ids : []);
+  } catch {
+    readIds.value = new Set();
+  }
+}
+
+function markAsRead(id: string) {
+  try {
+    readIds.value.add(id);
+    sessionStorage.setItem('vino_read_ids', JSON.stringify([...readIds.value]));
+  } catch {
+    // ignore
+  }
+}
 
 function ensureViewerId(): string {
   if (viewerId.value) return viewerId.value;
@@ -122,6 +141,8 @@ async function submitComment() {
 
 onMounted(() => {
   ensureViewerId();
+  loadReadIds();
+  markAsRead(props.item.id);
   loadReactions();
   loadComments();
 });
@@ -145,16 +166,17 @@ const bodyBlocks = computed(() => {
 const relatedItems = computed(() => {
   const currentId = props.item.id;
   const currentType = props.item.type;
+  const excludeIds = new Set([currentId, ...readIds.value]);
+  const typeFilter = (i: ContentItem) => !excludeIds.has(i.id);
 
   if (currentType === 'video') {
-    const videos = (relatedVideosList.value?.items || []).filter((i: ContentItem) => i.id !== currentId);
+    const videos = (relatedVideosList.value?.items || []).filter(typeFilter);
     return videos.slice(0, 3);
   }
 
   const groups = categoryGroups.value || [];
   if (!groups.length) return [];
   const categoryId = props.item.categories?.[0]?.id;
-  const typeFilter = (i: ContentItem) => i.id !== currentId;
 
   let items: ContentItem[] = [];
   if (categoryId) {

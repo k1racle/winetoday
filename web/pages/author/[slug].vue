@@ -89,8 +89,8 @@ useSeoMeta({
 
     <!-- Author header -->
     <div class="grid grid-cols-[96px_1fr] gap-4 border-b border-foreground/10 pb-8 md:grid-cols-[160px_1fr_220px] md:gap-6">
-      <!-- Photo -->
-      <div class="shrink-0">
+      <!-- Photo + desktop subscribe -->
+      <div class="order-1 shrink-0 md:col-start-1">
         <button
           v-if="avatarSrc"
           type="button"
@@ -123,8 +123,8 @@ useSeoMeta({
         </button>
       </div>
 
-      <!-- Name / position / subscribe -->
-      <div class="order-2 flex flex-col justify-center">
+      <!-- Name / position / bio -->
+      <div class="order-2 flex flex-col justify-center md:col-start-2 md:row-span-2 md:justify-start">
         <h1 class="font-heading text-2xl font-bold md:text-4xl">
           {{ profile?.name }}
         </h1>
@@ -142,18 +142,13 @@ useSeoMeta({
           </svg>
           {{ subscribed ? 'Вы подписаны' : 'Подписаться' }}
         </button>
-      </div>
-
-      <!-- Bio -->
-      <div
-        v-if="profile?.bio"
-        class="order-3 col-span-2 mt-4 text-sm leading-relaxed text-foreground/80 md:order-4 md:col-span-1 md:col-start-2 md:mt-0 md:text-base"
-      >
-        {{ profile.bio }}
+        <p v-if="profile?.bio" class="mt-4 text-sm leading-relaxed text-foreground/80 md:mt-6 md:text-base">
+          {{ profile.bio }}
+        </p>
       </div>
 
       <!-- Stats -->
-      <div class="order-4 col-span-2 grid grid-cols-2 gap-3 md:order-3 md:col-span-1 md:flex md:flex-col">
+      <div class="order-3 col-span-2 grid grid-cols-2 gap-3 md:order-2 md:col-span-1 md:col-start-3 md:row-span-2 md:flex md:flex-col">
         <div class="border border-foreground/10 bg-card p-3 text-center md:p-4">
           <div class="font-heading text-2xl font-bold text-accent md:text-3xl">
             {{ profile?.articlesCount ?? 0 }}

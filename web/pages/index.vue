@@ -136,7 +136,7 @@ useSeoMeta({
             </div>
 
             <!-- Video block -->
-            <div v-if="homepage?.videos?.length" class="mt-1 w-full">
+            <div v-if="homepage?.videos?.length" class="mt-5 w-full">
               <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <svg class="h-5 w-5 fill-current text-accent" viewBox="0 0 24 24">
