@@ -15,10 +15,6 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "db:seed": "ts-node src/migration/seed.ts",
-    "db:etl": "ts-node src/migration/etl.ts",
-    "db:migrate-users": "ts-node src/migration/migrate-users.ts",
-    "db:migrate-v2": "ts-node src/migration/migrate-v2.ts",
     "convert-images-to-avif": "ts-node scripts/convert-existing-images-to-avif.ts",
     "deduplicate-categories": "ts-node scripts/deduplicate-categories.ts"
   },

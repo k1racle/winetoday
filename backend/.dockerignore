@@ -1,7 +1,0 @@
-dist
-.cache
-.strapi
-node_modules
-npm-debug.log
-.git
-.gitignore
