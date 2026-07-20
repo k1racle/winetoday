@@ -27,6 +27,12 @@ const meta = computed(() => useContentMeta(props.item));
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
 const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
 
+const publishedTime = computed(() => {
+  const d = props.item.publishedAt || props.item.createdAt;
+  if (!d) return '';
+  return new Date(d).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+});
+
 function editUrl(item: ContentItem) {
   return `/account?type=${item.type}&id=${item.id}`;
 }
@@ -185,6 +191,12 @@ const relatedItems = computed(() => {
         <h1 class="font-heading text-3xl font-bold leading-tight md:text-4xl">
           {{ item.title }}
         </h1>
+
+        <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/50">
+          <span v-if="meta.date">{{ meta.date }}</span>
+          <span v-if="publishedTime">{{ publishedTime }}</span>
+          <span v-if="meta.category">{{ meta.category }}</span>
+        </div>
 
         <AuthorByline v-if="item.author && item.type !== 'video'" :author="item.author" class="mt-4" />
 

@@ -347,7 +347,7 @@ function onSearch() {
       </nav>
 
       <!-- Socials -->
-      <div v-if="socialLinks.length" class="mt-auto -mx-4 border-t border-foreground/10 py-6">
+      <div v-if="socialLinks.length" class="-mx-4 border-t border-foreground/10 py-6">
         <div class="grid grid-cols-4 gap-y-6">
           <a
             v-for="link in socialLinks"

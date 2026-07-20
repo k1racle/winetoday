@@ -118,21 +118,23 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
       </li>
     </ul>
 
-    <button
-      v-if="hasMobileMore && !isExpanded"
-      type="button"
-      class="mt-3 w-full text-center text-sm font-normal text-foreground/70 transition hover:text-foreground md:hidden"
-      @click="isExpanded = true"
-    >
-      Ещё
-    </button>
+    <div class="mt-4 flex gap-2">
+      <button
+        v-if="hasMobileMore && !isExpanded"
+        type="button"
+        class="flex-1 text-center text-sm font-normal text-foreground/70 transition hover:text-foreground md:hidden"
+        @click="isExpanded = true"
+      >
+        Ещё
+      </button>
 
-    <NuxtLink
-      to="/news"
-      class="mt-4 inline-flex items-center self-start rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent"
-    >
-      Все новости
-      <span class="ml-1">→</span>
-    </NuxtLink>
+      <NuxtLink
+        to="/news"
+        class="inline-flex items-center self-start rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent"
+      >
+        Все новости
+        <span class="ml-1">→</span>
+      </NuxtLink>
+    </div>
   </div>
 </template>

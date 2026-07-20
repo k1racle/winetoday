@@ -142,9 +142,6 @@ useSeoMeta({
           </svg>
           {{ subscribed ? 'Вы подписаны' : 'Подписаться' }}
         </button>
-        <p v-if="profile?.bio" class="mt-4 max-w-3xl text-sm leading-relaxed text-foreground/80 md:text-base">
-          {{ profile.bio }}
-        </p>
       </div>
 
       <!-- Stats -->
@@ -167,6 +164,11 @@ useSeoMeta({
         </div>
       </div>
     </div>
+
+    <!-- Bio -->
+    <p v-if="profile?.bio" class="mt-4 text-sm leading-relaxed text-foreground/80 md:text-base">
+      {{ profile.bio }}
+    </p>
 
     <!-- Publications -->
     <div class="mt-10">
