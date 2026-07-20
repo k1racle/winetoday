@@ -8,7 +8,7 @@ export function useContentMeta(item: ContentItem) {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
-    });
+    }).replace(' г.', '');
   });
 
   const shortDate = computed(() => {
@@ -18,7 +18,7 @@ export function useContentMeta(item: ContentItem) {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-    });
+    }).replace(' г.', '');
   });
 
   const category = computed(() => {
