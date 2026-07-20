@@ -18,7 +18,7 @@ const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || 
 const isImportant = computed(() => props.item.materialLabel === 'important');
 
 function editUrl(item: ContentItem) {
-  return `/account?type=${item.type}&id=${item.id}`;
+  return `/account/editor?type=${item.type}&id=${item.id}`;
 }
 
 const link = computed(() => {

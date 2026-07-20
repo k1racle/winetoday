@@ -216,7 +216,7 @@ function onSearch() {
               class="flex min-w-0 flex-1 items-center justify-center"
               aria-hidden="true"
             >
-              <span class="h-4 w-px bg-foreground/10" />
+              <span class="h-4 w-px bg-foreground/20 dark:bg-foreground/40" />
             </li>
           </template>
         </ul>
@@ -302,14 +302,9 @@ function onSearch() {
         @click="closeMobileMenu"
       >
         <img
-          :src="lightLogoUrl"
+          src="/logo-footer.svg"
           alt="Виноделие Сегодня"
-          class="block h-8 w-auto dark:hidden"
-        />
-        <img
-          :src="darkLogoUrl"
-          alt="Виноделие Сегодня"
-          class="hidden h-8 w-auto dark:block"
+          class="block h-8 w-auto"
         />
       </NuxtLink>
 

@@ -154,7 +154,7 @@ function sortIcon(field: string) {
 }
 
 function editUrl(m: Material) {
-  return `/account?type=${m.type}&id=${m.id}`;
+  return `/account/editor?type=${m.type}&id=${m.id}`;
 }
 
 function publicUrl(m: Material) {

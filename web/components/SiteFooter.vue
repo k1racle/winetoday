@@ -13,7 +13,7 @@ const socialLinks = computed(() => {
     <div class="mx-auto max-w-7xl px-4 py-12 md:py-16">
       <div class="grid gap-10 md:grid-cols-3 md:gap-8">
         <!-- Logo -->
-        <div>
+        <div class="max-w-[240px] md:max-w-[280px]">
           <NuxtLink to="/" class="block">
             <img
               src="/logo-footer.svg"
@@ -22,7 +22,7 @@ const socialLinks = computed(() => {
             >
           </NuxtLink>
 
-          <div class="mt-6 rounded-lg border border-white/10 bg-white/5 p-4">
+          <div class="mt-[30px] rounded-lg border border-white/10 bg-white/5 p-4">
             <a
               href="mailto:info@winemaking-today.ru"
               class="group block"

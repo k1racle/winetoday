@@ -10,7 +10,7 @@ const { user } = useAuth();
 const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
 
 function editUrl(item: ContentItem) {
-  return `/account?type=${item.type}&id=${item.id}`;
+  return `/account/editor?type=${item.type}&id=${item.id}`;
 }
 </script>
 
