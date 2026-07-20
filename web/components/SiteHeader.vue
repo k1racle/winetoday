@@ -233,18 +233,6 @@ function onSearch() {
       <!-- Top bar: actions + close -->
       <div class="mb-6 flex items-center justify-between border-b border-foreground/10 pb-4">
         <div class="flex items-center gap-4">
-          <NuxtLink to="/" class="mr-2" @click="closeMobileMenu">
-            <img
-              :src="lightLogoUrl"
-              alt="Виноделие Сегодня"
-              class="block h-7 w-auto dark:hidden"
-            />
-            <img
-              :src="darkLogoUrl"
-              alt="Виноделие Сегодня"
-              class="hidden h-7 w-auto dark:block"
-            />
-          </NuxtLink>
           <button
             type="button"
             class="text-foreground/70 hover:text-foreground"
@@ -306,6 +294,24 @@ function onSearch() {
           </svg>
         </button>
       </div>
+
+      <!-- Mobile logo -->
+      <NuxtLink
+        to="/"
+        class="mb-6 flex flex-col"
+        @click="closeMobileMenu"
+      >
+        <img
+          :src="lightLogoUrl"
+          alt="Виноделие Сегодня"
+          class="block h-8 w-auto dark:hidden"
+        />
+        <img
+          :src="darkLogoUrl"
+          alt="Виноделие Сегодня"
+          class="hidden h-8 w-auto dark:block"
+        />
+      </NuxtLink>
 
       <!-- Mobile search -->
       <form

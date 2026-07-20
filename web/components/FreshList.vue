@@ -122,7 +122,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
       <button
         v-if="hasMobileMore && !isExpanded"
         type="button"
-        class="flex-1 text-center text-sm font-normal text-foreground/70 transition hover:text-foreground md:hidden"
+        class="inline-flex flex-1 items-center justify-center rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent md:hidden"
         @click="isExpanded = true"
       >
         Ещё
@@ -130,7 +130,7 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
 
       <NuxtLink
         to="/news"
-        class="inline-flex items-center self-start rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent"
+        class="inline-flex flex-1 items-center justify-center rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent md:flex-none md:self-start"
       >
         Все новости
         <span class="ml-1">→</span>
