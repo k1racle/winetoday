@@ -28,10 +28,8 @@ async function loadPage(slug: string) {
   try {
     const page = await getStaticPage(slug);
     title.value = page?.title || '';
-    const blocks = Array.isArray(page?.content) ? page.content : [];
-    const textBlock = blocks.find(
-      (b: any) => b?.__component === 'blocks.html-editor' || b?.__component === 'blocks.rich-text',
-    );
+    const blocks = Array.isArray(page?.contentBlocks) ? page.contentBlocks : [];
+    const textBlock = blocks.find((b: any) => b.type === 'text');
     content.value = textBlock?.content || '';
     seoDescription.value = page?.seo?.description || '';
   } catch (err: any) {
@@ -55,9 +53,10 @@ async function savePage() {
   try {
     await updateStaticPage(activeSlug.value, {
       title: title.value || activePageLabel.value,
-      content: [
+      contentBlocks: [
         {
-          __component: 'blocks.html-editor',
+          id: crypto.randomUUID(),
+          type: 'text',
           content: content.value,
         },
       ],

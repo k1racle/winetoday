@@ -209,11 +209,11 @@ export class AuthService {
 
     const access_token = this.jwt.sign(payload, {
       secret: this.config.getOrThrow<string>('JWT_SECRET'),
-      expiresIn: '15m',
+      expiresIn: '7d',
     });
 
     const jti = uuidv4();
-    const refreshExpiresInSeconds = 7 * 24 * 60 * 60;
+    const refreshExpiresInSeconds = 30 * 24 * 60 * 60;
 
     const refresh_token = this.jwt.sign(
       { sub: userId, jti },

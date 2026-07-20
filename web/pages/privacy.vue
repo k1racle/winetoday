@@ -7,11 +7,10 @@ const { data: page } = await useAsyncData('static-page-privacy', () =>
 
 const title = computed(() => page.value?.title || 'Политика в отношении обработки персональных данных');
 const contentHtml = computed(() => {
-  const blocks = page.value?.content;
+  const blocks = page.value?.contentBlocks;
   if (!Array.isArray(blocks)) return '';
   return blocks
-    .filter((block: any) => block?.__component === 'blocks.html-editor' || block?.__component === 'blocks.rich-text')
-    .map((block: any) => block.content || '')
+    .map((block: any) => (block.type === 'text' ? block.content : ''))
     .join('');
 });
 

@@ -6,10 +6,10 @@ const canCreate = computed(() => ['admin', 'editor', 'author'].includes(user.val
 
 const tabs = computed(() => {
   const list: { label: string; to: string }[] = [];
+  list.push({ label: 'Профиль', to: '/account' });
   if (canCreate.value) {
     list.push({ label: 'Редактор материалов', to: '/account/editor' });
   }
-  list.push({ label: 'Профиль', to: '/account' });
   list.push(
     { label: 'Подписки', to: '/account/subscriptions' },
     { label: 'Понравилось', to: '/account/liked' },
