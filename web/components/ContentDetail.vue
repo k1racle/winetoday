@@ -19,7 +19,7 @@ const { data: relatedVideosList } = await useAsyncData(
   `related-videos-${props.item.id}`,
   () =>
     props.item.type === 'video'
-      ? getVideos({ limit: 4 }).catch(() => ({ items: [] }))
+      ? getVideos({ limit: 10 }).catch(() => ({ items: [] }))
       : Promise.resolve({ items: [] }),
 );
 
@@ -206,7 +206,7 @@ const relatedItems = computed(() => {
 
   if (currentType === 'video') {
     const videos = (relatedVideosList.value?.items || []).filter(typeFilter);
-    return videos.slice(0, 3);
+    return videos;
   }
 
   const groups = categoryGroups.value || [];
@@ -218,18 +218,23 @@ const relatedItems = computed(() => {
     const group = groups.find((g) => g.category.id === categoryId);
     if (group) items = group.items.filter(typeFilter);
   }
-  if (items.length < 3) {
-    const existingIds = new Set(items.map((i) => i.id));
-    const allItems = groups.flatMap((g) => g.items).filter(typeFilter);
-    for (const item of allItems) {
-      if (!existingIds.has(item.id)) {
-        items.push(item);
-        if (items.length >= 3) break;
-      }
+  const existingIds = new Set(items.map((i) => i.id));
+  const allItems = groups.flatMap((g) => g.items).filter(typeFilter);
+  for (const item of allItems) {
+    if (!existingIds.has(item.id)) {
+      items.push(item);
     }
   }
-  return items.slice(0, 3);
+  return items;
 });
+
+const relatedLimit = ref(3);
+const displayedRelatedItems = computed(() => relatedItems.value.slice(0, relatedLimit.value));
+const hasMoreRelated = computed(() => relatedLimit.value < relatedItems.value.length);
+
+function loadMoreRelated() {
+  relatedLimit.value += 3;
+}
 
 </script>
 
@@ -361,11 +366,18 @@ const relatedItems = computed(() => {
           </h2>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <ArticleCard
-              v-for="item in relatedItems"
+              v-for="item in displayedRelatedItems"
               :key="item.id"
               :item="item"
               image-aspect="video"
               variant="compact"
+            />
+          </div>
+          <div v-if="hasMoreRelated" class="mt-6">
+            <LoadMoreButton
+              :loading="false"
+              :has-more="true"
+              @load="loadMoreRelated"
             />
           </div>
         </div>
