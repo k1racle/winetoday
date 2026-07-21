@@ -3,8 +3,6 @@ import type { ContentItem } from '~/types/content';
 
 const { getHomepage, getContent, getLatestByCategory } = useApi();
 
-const itemsPerPage = 24;
-
 const [{ data: homepage }, { data: fresh }, { data: latestByCategory }, { data: allMixed }] = await Promise.all([
   useAsyncData('homepage', () =>
     getHomepage().catch(() => ({ lead: [], articles: [], news: [], videos: [], galleries: [] })),
@@ -40,34 +38,11 @@ const freshItems = computed<ContentItem[]>(() => {
 
 const topItemIds = computed(() => new Set(topItems.value.map((i) => i.id)));
 
-const { data: initialArticles } = await useAsyncData('home-articles', () =>
-  getContent({ type: 'article', limit: itemsPerPage }).catch(() => ({ items: [], total: 0 })),
+const { items: articles, total: articlesTotal, isLoading, loadMore } = await useArchivePagination(
+  ({ limit, offset }) => getContent({ type: 'article', limit, offset }),
+  'home-articles',
+  { excludeIds: topItemIds },
 );
-
-const articles = ref<ContentItem[]>(initialArticles.value?.items || []);
-const articlesTotal = ref(initialArticles.value?.total || 0);
-const articlesOffset = ref(itemsPerPage);
-const isLoading = ref(false);
-
-async function loadMore() {
-  if (isLoading.value || articles.value.length >= articlesTotal.value) return;
-  isLoading.value = true;
-  try {
-    const next = await getContent({ type: 'article', limit: itemsPerPage, offset: articlesOffset.value }).catch(() => ({ items: [], total: 0 }));
-    articles.value.push(...(next.items || []));
-    articlesTotal.value = next.total ?? articlesTotal.value;
-    articlesOffset.value += itemsPerPage;
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const mixedItems = computed<ContentItem[]>(() => {
-  const topIds = topItemIds.value;
-  return articles.value.filter((item) => !topIds.has(item.id));
-});
-
-const totalMixedCount = computed(() => articlesTotal.value);
 
 const thumbScroll = ref<HTMLDivElement | null>(null);
 
@@ -97,7 +72,7 @@ useSeoMeta({
 <template>
   <div class="pb-16">
     <!-- Main content + sidebar -->
-    <section v-if="topItems.length || mixedItems.length" class="mx-auto max-w-7xl px-4 py-4">
+    <section v-if="topItems.length || articles.length" class="mx-auto max-w-7xl px-4 py-4">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
         <div class="lg:hidden mb-4">
           <FreshList v-if="freshItems.length" :items="freshItems" />
@@ -201,11 +176,11 @@ useSeoMeta({
           </template>
 
           <!-- Latest news: left of sidebar -->
-          <div v-if="mixedItems.length" class="mt-1 pt-2 lg:pt-6">
+          <div v-if="articles.length" class="mt-1 pt-2 lg:pt-6">
             <h2 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-2xl font-normal">Последние статьи</h2>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               <ArticleCard
-                v-for="item in mixedItems"
+                v-for="item in articles"
                 :key="item.id"
                 :item="item"
                 image-aspect="video"
@@ -215,7 +190,7 @@ useSeoMeta({
             <div class="mt-8">
               <LoadMoreButton
                 :loading="isLoading"
-                :has-more="mixedItems.length < totalMixedCount"
+                :has-more="articles.length < articlesTotal"
                 @load="loadMore"
               />
             </div>

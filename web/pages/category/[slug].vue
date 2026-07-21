@@ -6,48 +6,14 @@ const slug = route.params.slug as string;
 
 const { getContent, getCategories, getLatestByCategory } = useApi();
 
-const itemsPerPage = 24;
-const isLoading = ref(false);
+const { items, total, isLoading, loadMore, error: contentError } = await useArchivePagination(
+  ({ limit, offset }) => getContent({ categorySlug: slug, limit, offset }),
+  `category-content-${slug}`,
+);
 
 const { data: categories } = await useAsyncData('categories', () =>
   getCategories().catch(() => []),
 );
-
-const { data: content, error: contentError } = await useAsyncData(`category-content-${slug}`, () =>
-  getContent({ categorySlug: slug, limit: itemsPerPage }).catch((err) => {
-    console.error('Failed to load category content:', err);
-    return { items: [], total: 0 };
-  }),
-);
-
-const items = ref<ContentItem[]>((content.value?.items || []).sort(
-  (a, b) =>
-    new Date(b.publishedAt || b.createdAt).getTime() -
-    new Date(a.publishedAt || a.createdAt).getTime(),
-));
-const total = ref(content.value?.total || 0);
-const offset = ref(itemsPerPage);
-
-async function loadMore() {
-  if (isLoading.value || items.value.length >= total.value) return;
-  isLoading.value = true;
-  try {
-    const next = await getContent({ categorySlug: slug, limit: itemsPerPage, offset: offset.value }).catch((err) => {
-      console.error('Failed to load category content:', err);
-      return { items: [], total: 0 };
-    });
-    const sorted = (next.items || []).sort(
-      (a, b) =>
-        new Date(b.publishedAt || b.createdAt).getTime() -
-        new Date(a.publishedAt || a.createdAt).getTime(),
-    );
-    items.value.push(...sorted);
-    total.value = next.total ?? total.value;
-    offset.value += itemsPerPage;
-  } finally {
-    isLoading.value = false;
-  }
-}
 
 const { data: latestByCategory } = await useAsyncData(`latest-by-category-${slug}`, () =>
   getLatestByCategory(10).catch(() => []),

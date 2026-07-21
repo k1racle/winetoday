@@ -1,33 +1,14 @@
 <script setup>
 const { getNews, getLatestByCategory } = useApi();
 
-const itemsPerPage = 24;
-const isLoading = ref(false);
-
-const { data: initialNews } = await useAsyncData('news-list', () =>
-  getNews({ limit: itemsPerPage }).catch(() => ({ items: [], total: 0 })),
+const { items, total, isLoading, loadMore } = await useArchivePagination(
+  ({ limit, offset }) => getNews({ limit, offset }),
+  'news-list',
 );
 
 const { data: latestByCategory } = await useAsyncData('latest-by-category-news', () =>
   getLatestByCategory(10).catch(() => []),
 );
-
-const items = ref(initialNews.value?.items || []);
-const total = ref(initialNews.value?.total || 0);
-const offset = ref(itemsPerPage);
-
-async function loadMore() {
-  if (isLoading.value || items.value.length >= total.value) return;
-  isLoading.value = true;
-  try {
-    const next = await getNews({ limit: itemsPerPage, offset: offset.value }).catch(() => ({ items: [], total: 0 }));
-    items.value.push(...(next.items || []));
-    total.value = next.total ?? total.value;
-    offset.value += itemsPerPage;
-  } finally {
-    isLoading.value = false;
-  }
-}
 
 useSeoMeta({
   title: 'Новости',

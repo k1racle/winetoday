@@ -1,31 +1,14 @@
 <script setup>
 const { getVideos, getLatestByCategory } = useApi();
 
-const itemsPerPage = 24;
-const isLoading = ref(false);
-
-const { data: list } = await useAsyncData('videos-list', () =>
-  getVideos({ limit: itemsPerPage }).catch(() => ({ items: [], total: 0 })),
+const { items, total, isLoading, loadMore } = await useArchivePagination(
+  ({ limit, offset }) => getVideos({ limit, offset }),
+  'videos-list',
 );
 
 const { data: latestByCategory } = await useAsyncData('latest-by-category-videos', () =>
   getLatestByCategory(10).catch(() => []),
 );
-
-const items = computed(() => list.value?.items || []);
-const total = computed(() => list.value?.total || 0);
-
-async function loadMore() {
-  if (isLoading.value || items.value.length >= total.value) return;
-  isLoading.value = true;
-  try {
-    const next = await getVideos({ limit: itemsPerPage, offset: items.value.length });
-    list.value.items.push(...(next.items || []));
-    list.value.total = next.total ?? list.value.total;
-  } finally {
-    isLoading.value = false;
-  }
-}
 
 useSeoMeta({
   title: 'Видео — Виноделие сегодня',
