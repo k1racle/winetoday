@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseBoolPipe,
@@ -123,5 +124,11 @@ export class ContentController {
   @UseGuards(JwtAuthGuard)
   createComment(@Param('id') id: string, @Request() req, @Body() dto: CreateCommentDto) {
     return this.contentService.createComment(id, req.user.userId, dto.body);
+  }
+
+  @Delete('content/:id/comments/:commentId')
+  @UseGuards(JwtAuthGuard)
+  deleteComment(@Param('id') _id: string, @Param('commentId') commentId: string, @Request() req) {
+    return this.contentService.deleteComment(commentId, req.user.userId);
   }
 }

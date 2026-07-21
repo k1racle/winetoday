@@ -109,6 +109,8 @@ export function useApi() {
       api(`/content/${contentItemId}/comments`),
     createComment: (contentItemId: string, body: string) =>
       api(`/content/${contentItemId}/comments`, { method: 'POST', body: { body }, credentials: 'include' }),
+    deleteComment: (contentItemId: string, commentId: string) =>
+      api(`/content/${contentItemId}/comments/${commentId}`, { method: 'DELETE', credentials: 'include' }),
     login: (body: { login: string; password: string }) =>
       api('/auth/login', { method: 'POST', body }),
     register: (body: { username: string; displayName?: string; email: string; password: string }) =>

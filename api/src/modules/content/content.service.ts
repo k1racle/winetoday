@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ContentStatus, ContentType, Prisma, ReactionType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListContentDto } from './dto/list-content.dto';
@@ -429,7 +429,27 @@ export class ContentService {
       body: c.body,
       createdAt: c.createdAt,
       author: c.user?.memberProfile?.displayName || c.user?.username || 'Аноним',
+      userId: c.userId,
     }));
+  }
+
+  async deleteComment(commentId: string, userId: string) {
+    const comment = await this.prisma.comment.findUnique({
+      where: { id: commentId },
+      select: { userId: true, contentItemId: true },
+    });
+    if (!comment) throw new NotFoundException('Comment not found');
+    if (comment.userId !== userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { role: true },
+      });
+      if (!user || !['admin', 'editor'].includes(user.role)) {
+        throw new ForbiddenException('Not allowed to delete this comment');
+      }
+    }
+    await this.prisma.comment.delete({ where: { id: commentId } });
+    return this.getComments(comment.contentItemId);
   }
 
   async createComment(contentItemId: string, userId: string, body: string) {

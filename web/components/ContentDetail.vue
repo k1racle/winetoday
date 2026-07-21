@@ -8,7 +8,7 @@ const props = defineProps<{
   typeRoute: string;
 }>();
 
-const { getLatestByCategory, getVideos, getReactions, react, getComments, createComment } = useApi();
+const { getLatestByCategory, getVideos, getReactions, react, getComments, createComment, deleteComment } = useApi();
 const { user, isAuthenticated } = useAuth();
 const viewerId = ref('');
 const { data: categoryGroups } = await useAsyncData('latest-by-category-detail', () =>
@@ -37,6 +37,9 @@ function editUrl(item: ContentItem) {
   return `/account/editor?type=${item.type}&id=${item.id}`;
 }
 const commentText = ref('');
+const commentsSection = ref<HTMLDivElement | null>(null);
+const commentTextarea = ref<HTMLTextAreaElement | null>(null);
+const replyTo = ref<any | null>(null);
 const shareUrl = computed(() => (typeof window !== 'undefined' ? window.location.href : ''));
 
 const reactions = ref({ likes: 0, dislikes: 0, userReaction: null as 'like' | 'dislike' | null });
@@ -128,14 +131,46 @@ async function submitComment() {
   }
   commentLoading.value = true;
   try {
-    await createComment(props.item.id, commentText.value.trim());
+    const body = replyTo.value
+      ? `@${replyTo.value.author} ${commentText.value.trim()}`
+      : commentText.value.trim();
+    await createComment(props.item.id, body);
     commentText.value = '';
+    replyTo.value = null;
     commentSuccess.value = 'Комментарий отправлен';
     await loadComments();
   } catch (e: any) {
     commentError.value = e?.data?.message || 'Не удалось отправить комментарий';
   } finally {
     commentLoading.value = false;
+  }
+}
+
+function scrollToComments() {
+  commentsSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  nextTick(() => commentTextarea.value?.focus());
+}
+
+function startReply(comment: any) {
+  replyTo.value = comment;
+  nextTick(() => commentTextarea.value?.focus());
+}
+
+function cancelReply() {
+  replyTo.value = null;
+}
+
+const canDeleteComment = (comment: any) => {
+  if (!user.value) return false;
+  if (['admin', 'editor'].includes(user.value.role)) return true;
+  return comment.userId && comment.userId === user.value.id;
+};
+
+async function removeComment(commentId: string) {
+  try {
+    comments.value = await deleteComment(props.item.id, commentId);
+  } catch (e: any) {
+    commentError.value = e?.data?.message || 'Не удалось удалить комментарий';
   }
 }
 
@@ -300,10 +335,16 @@ const relatedItems = computed(() => {
               </svg>
               <span v-if="reactions.likes > 0" class="text-xl">{{ reactions.likes }}</span>
             </button>
-            <button type="button" class="flex items-center gap-2 text-foreground/60 transition hover:text-foreground" aria-label="Комментарии">
+            <button
+              type="button"
+              class="flex items-center gap-2 text-foreground/60 transition hover:text-foreground"
+              aria-label="Комментарии"
+              @click="scrollToComments"
+            >
               <svg class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.76c0 1.6 1.123 2.994 2.707 3.227 1.068.16 2.185.283 3.293.369V21l4.076-4.076a1.526 1.526 0 0 1 1.037-.443 48.282 48.282 0 0 0 5.68-.494c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
               </svg>
+              <span v-if="comments.length > 0" class="text-sm font-normal">{{ comments.length }}</span>
             </button>
           </div>
           <div class="flex items-center gap-4">
@@ -330,14 +371,19 @@ const relatedItems = computed(() => {
         </div>
 
         <!-- Comments -->
-        <div class="mt-10">
+        <div ref="commentsSection" class="mt-10 scroll-mt-20">
           <h2 class="mb-4 font-heading text-xl font-normal">Комментарии</h2>
           <div class="border border-foreground/10 bg-card p-4">
+            <div v-if="replyTo" class="mb-2 flex items-center justify-between text-xs text-foreground/70">
+              <span>Ответ для <span class="text-foreground">@{{ replyTo.author }}</span></span>
+              <button type="button" class="text-accent hover:underline" @click="cancelReply">Отменить</button>
+            </div>
             <div class="relative">
               <textarea
+                ref="commentTextarea"
                 v-model="commentText"
                 rows="4"
-                placeholder="Поделитесь мнением о материале"
+                :placeholder="replyTo ? `Ответ для @${replyTo.author}` : 'Поделитесь мнением о материале'"
                 maxlength="3000"
                 class="w-full resize-none border border-foreground/10 bg-card p-3 pr-10 text-sm outline-none transition focus:border-accent"
               />
@@ -380,6 +426,23 @@ const relatedItems = computed(() => {
                 <span>{{ new Date(comment.createdAt).toLocaleDateString('ru-RU') }}</span>
               </div>
               <p class="mt-2 text-sm leading-relaxed">{{ comment.body }}</p>
+              <div class="mt-3 flex items-center gap-4">
+                <button
+                  type="button"
+                  class="text-xs text-foreground/60 transition hover:text-accent"
+                  @click="startReply(comment)"
+                >
+                  Ответить
+                </button>
+                <button
+                  v-if="canDeleteComment(comment)"
+                  type="button"
+                  class="text-xs text-red-500 transition hover:text-red-400"
+                  @click="removeComment(comment.id)"
+                >
+                  Удалить
+                </button>
+              </div>
             </div>
           </div>
           <p v-else-if="!commentLoading" class="mt-6 text-sm text-foreground/50">Пока нет комментариев</p>
