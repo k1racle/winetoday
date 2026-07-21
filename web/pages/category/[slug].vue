@@ -6,7 +6,7 @@ const slug = route.params.slug as string;
 
 const { getContent, getCategories, getLatestByCategory } = useApi();
 
-const { items, total, isLoading, loadMore, error: contentError } = await useArchivePagination(
+const { items, total, isLoading, loadMore, error: contentError } = useArchivePagination(
   ({ limit, offset }) => getContent({ categorySlug: slug, limit, offset }),
   `category-content-${slug}`,
 );

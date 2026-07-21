@@ -1,7 +1,7 @@
 <script setup>
 const { getNews, getLatestByCategory } = useApi();
 
-const { items, total, isLoading, loadMore } = await useArchivePagination(
+const { items, total, isLoading, loadMore } = useArchivePagination(
   ({ limit, offset }) => getNews({ limit, offset }),
   'news-list',
 );

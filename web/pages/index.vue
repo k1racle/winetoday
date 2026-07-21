@@ -3,20 +3,21 @@ import type { ContentItem } from '~/types/content';
 
 const { getHomepage, getContent, getLatestByCategory } = useApi();
 
-const [{ data: homepage }, { data: fresh }, { data: latestByCategory }, { data: allMixed }] = await Promise.all([
-  useAsyncData('homepage', () =>
-    getHomepage().catch(() => ({ lead: [], articles: [], news: [], videos: [], galleries: [] })),
-  ),
-  useAsyncData('fresh', () =>
-    getContent({ limit: 7 }).catch(() => ({ items: [] })),
-  ),
-  useAsyncData('latest-by-category-home', () =>
-    getLatestByCategory(10).catch(() => []),
-  ),
-  useAsyncData('all-mixed', () =>
-    getContent({ type: 'article', limit: 100 }).catch(() => ({ items: [] })),
-  ),
-]);
+const { data: homepage } = useAsyncData('homepage', () =>
+  getHomepage().catch(() => ({ lead: [], articles: [], news: [], videos: [], galleries: [] })),
+);
+
+const { data: fresh } = useAsyncData('fresh', () =>
+  getContent({ limit: 7 }).catch(() => ({ items: [] })),
+);
+
+const { data: latestByCategory } = useAsyncData('latest-by-category-home', () =>
+  getLatestByCategory(10).catch(() => []),
+);
+
+const { data: allMixed } = useAsyncData('all-mixed', () =>
+  getContent({ type: 'article', limit: 100 }).catch(() => ({ items: [] })),
+);
 
 const topItems = computed<ContentItem[]>(() => {
   const h = homepage.value;
@@ -38,7 +39,7 @@ const freshItems = computed<ContentItem[]>(() => {
 
 const topItemIds = computed(() => new Set(topItems.value.map((i) => i.id)));
 
-const { items: articles, total: articlesTotal, isLoading, loadMore } = await useArchivePagination(
+const { items: articles, total: articlesTotal, isLoading, loadMore } = useArchivePagination(
   ({ limit, offset }) => getContent({ type: 'article', limit, offset }),
   'home-articles',
   { excludeIds: topItemIds },
