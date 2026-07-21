@@ -37,12 +37,9 @@ const freshItems = computed<ContentItem[]>(() => {
     .slice(0, 7);
 });
 
-const topItemIds = computed(() => new Set(topItems.value.map((i) => i.id)));
-
 const { items: articles, total: articlesTotal, isLoading, loadMore } = useArchivePagination(
   ({ limit, offset }) => getContent({ type: 'article', limit, offset }),
   'home-articles',
-  { excludeIds: topItemIds, itemsPerPage: 27 },
 );
 
 const thumbScroll = ref<HTMLDivElement | null>(null);
