@@ -40,7 +40,7 @@ const freshItems = computed<ContentItem[]>(() => {
 const topItemIds = computed(() => new Set(topItems.value.map((i) => i.id)));
 
 const { items: articles, total: articlesTotal, isLoading, loadMore } = useArchivePagination(
-  ({ limit, offset }) => getContent({ type: 'article', limit, offset }),
+  ({ limit, offset }) => getContent({ type: 'article', homepageLead: false, limit, offset }),
   'home-articles',
   { excludeIds: topItemIds },
 );
