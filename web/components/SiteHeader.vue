@@ -304,7 +304,7 @@ function onSearch() {
         <img
           src="/logo-footer.svg"
           alt="Виноделие Сегодня"
-          class="block h-8 w-auto"
+          class="block h-20 w-auto max-w-full"
         />
       </NuxtLink>
 
