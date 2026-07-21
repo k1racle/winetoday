@@ -43,9 +43,9 @@ useSeoMeta({
       {{ category?.name || slug }}
     </h1>
 
-    <div class="grid gap-8 lg:grid-cols-4">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
       <!-- Main grid -->
-      <div class="lg:col-span-3">
+      <div class="w-full lg:w-3/4">
         <div v-if="contentError" class="rounded border border-red-200 bg-red-50 px-4 py-8 text-center text-sm text-red-700">
           Ошибка загрузки материалов рубрики.
         </div>
@@ -71,7 +71,7 @@ useSeoMeta({
       </div>
 
       <!-- Sidebar -->
-      <aside class="lg:col-span-1">
+      <aside class="order-last flex w-full flex-col gap-4 lg:w-1/4">
         <SidebarByCategory :groups="latestByCategory || []" />
       </aside>
     </div>

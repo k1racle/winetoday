@@ -200,8 +200,8 @@ const relatedItems = computed(() => {
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8">
-    <div class="grid gap-8 lg:grid-cols-4">
-      <article class="lg:col-span-3">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
+      <article class="w-full lg:w-3/4">
         <!-- Breadcrumbs -->
         <nav class="mb-4 flex items-center gap-2 text-xs font-normal uppercase tracking-wider text-foreground/50">
           <NuxtLink to="/" class="hover:text-foreground">Главная</NuxtLink>
@@ -384,7 +384,7 @@ const relatedItems = computed(() => {
         </div>
       </article>
 
-      <aside class="lg:col-span-1">
+      <aside class="order-last flex w-full flex-col gap-4 lg:w-1/4">
         <SidebarByCategory :groups="categoryGroups || []" />
       </aside>
     </div>

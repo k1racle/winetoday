@@ -19,8 +19,8 @@ useSeoMeta({
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8">
     <h1 class="mb-8 font-heading text-3xl font-bold">Статьи</h1>
-    <div class="grid gap-8 lg:grid-cols-4">
-      <div class="lg:col-span-3">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
+      <div class="w-full lg:w-3/4">
         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <ArticleCard
             v-for="article in items"
@@ -38,7 +38,7 @@ useSeoMeta({
           />
         </div>
       </div>
-      <aside class="lg:col-span-1">
+      <aside class="order-last flex w-full flex-col gap-4 lg:w-1/4">
         <SidebarByCategory :groups="latestByCategory || []" />
       </aside>
     </div>
