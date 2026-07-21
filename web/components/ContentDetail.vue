@@ -315,7 +315,9 @@ const relatedItems = computed(() => {
 
         <!-- Related articles -->
         <div v-if="relatedItems.length" class="mt-10">
-          <h2 class="mb-4 font-heading text-xl font-normal">Читайте также</h2>
+          <h2 class="mb-4 font-heading text-xl font-normal">
+            {{ item.type === 'video' ? 'Смотрите ещё' : 'Читайте также' }}
+          </h2>
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <ArticleCard
               v-for="item in relatedItems"
