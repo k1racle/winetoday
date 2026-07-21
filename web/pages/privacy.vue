@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { getStaticPage, getLatestByCategory, getContent } = useApi();
+const { getStaticPage, getLatestByCategory } = useApi();
 
 const { data: page } = await useAsyncData('static-page-privacy', () =>
   getStaticPage('privacy').catch(() => null),
@@ -8,12 +8,6 @@ const { data: page } = await useAsyncData('static-page-privacy', () =>
 const { data: latestByCategory } = await useAsyncData('latest-by-category-privacy', () =>
   getLatestByCategory(10).catch(() => []),
 );
-
-const { data: fresh } = await useAsyncData('fresh-privacy', () =>
-  getContent({ limit: 7 }).catch(() => ({ items: [] })),
-);
-
-const freshItems = computed(() => fresh.value?.items || []);
 
 const title = computed(() => page.value?.title || 'Политика в отношении обработки персональных данных');
 const contentHtml = computed(() => {
@@ -47,7 +41,6 @@ useSeoMeta({
         </div>
       </div>
       <aside class="order-last flex w-full flex-col gap-4 lg:w-1/4">
-        <FreshList v-if="freshItems.length" :items="freshItems" />
         <SidebarByCategory v-if="latestByCategory?.length" :groups="latestByCategory" />
       </aside>
     </div>
