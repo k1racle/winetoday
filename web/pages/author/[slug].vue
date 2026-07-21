@@ -123,8 +123,8 @@ useSeoMeta({
         </button>
       </div>
 
-      <!-- Name / position / bio -->
-      <div class="order-2 flex flex-col justify-center md:col-start-2 md:row-span-2 md:justify-start">
+      <!-- Name / position / mobile subscribe -->
+      <div class="order-2 flex flex-col justify-center md:col-start-2 md:row-start-1 md:justify-start">
         <h1 class="font-heading text-2xl font-bold md:text-4xl">
           {{ profile?.name }}
         </h1>
@@ -142,13 +142,17 @@ useSeoMeta({
           </svg>
           {{ subscribed ? 'Вы подписаны' : 'Подписаться' }}
         </button>
+      </div>
+
+      <!-- Bio -->
+      <div class="order-3 col-span-2 flex flex-col justify-start md:col-span-1 md:col-start-2 md:row-start-2">
         <p v-if="profile?.bio" class="mt-4 text-sm leading-relaxed text-foreground/80 md:mt-6 md:text-base">
           {{ profile.bio }}
         </p>
       </div>
 
       <!-- Stats -->
-      <div class="order-3 col-span-2 grid grid-cols-2 gap-3 md:order-2 md:col-span-1 md:col-start-3 md:row-span-2 md:flex md:flex-col">
+      <div class="order-4 col-span-2 grid grid-cols-2 gap-3 md:order-3 md:col-span-1 md:col-start-3 md:row-span-2 md:flex md:flex-col">
         <div class="border border-foreground/10 bg-card p-3 text-center md:p-4">
           <div class="font-heading text-2xl font-bold text-accent md:text-3xl">
             {{ profile?.articlesCount ?? 0 }}
