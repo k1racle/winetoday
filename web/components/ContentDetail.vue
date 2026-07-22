@@ -361,9 +361,9 @@ function loadMoreRelated() {
             />
           </div>
           <div v-if="hasMoreRelated" class="mt-6">
-            <InfiniteScrollTrigger
+            <LoadMoreButton
               :loading="false"
-              :has-more="hasMoreRelated"
+              :has-more="true"
               @load="loadMoreRelated"
             />
           </div>
