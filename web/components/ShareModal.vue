@@ -2,27 +2,29 @@
 const { active, url, title, close } = useShare();
 const copied = ref(false);
 
-const encodedUrl = computed(() => encodeURIComponent(url.value));
 const encodedTitle = computed(() => encodeURIComponent(title.value || document.title));
-const encodedText = computed(() => encodeURIComponent(`${title.value || document.title}\n${url.value}`));
+
+function shareUrl(source: string, medium: string) {
+  return appendUtm(url.value, source, medium);
+}
 
 const networks = computed(() => [
   {
     id: 'telegram',
     name: 'Telegram',
-    href: `https://t.me/share/url?url=${encodedUrl.value}&text=${encodedTitle.value}`,
+    href: `https://t.me/share/url?url=${encodeURIComponent(shareUrl('telegram', 'messenger'))}&text=${encodedTitle.value}`,
     icon: 'telegram',
   },
   {
     id: 'vk',
     name: 'ВКонтакте',
-    href: `https://vk.com/share.php?url=${encodedUrl.value}&title=${encodedTitle.value}`,
+    href: `https://vk.com/share.php?url=${encodeURIComponent(shareUrl('vk', 'social'))}&title=${encodedTitle.value}`,
     icon: 'vk',
   },
   {
     id: 'max',
     name: 'Макс',
-    href: `https://max.ru/:share?text=${encodedText.value}`,
+    href: `https://max.ru/:share?text=${encodeURIComponent(`${title.value || document.title}\n${shareUrl('max', 'messenger')}`)}`,
     icon: 'max',
   },
   {
@@ -34,13 +36,13 @@ const networks = computed(() => [
   {
     id: 'x',
     name: 'X',
-    href: `https://twitter.com/intent/tweet?url=${encodedUrl.value}&text=${encodedTitle.value}`,
+    href: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl('x', 'social'))}&text=${encodedTitle.value}`,
     svg: true,
   },
   {
     id: 'email',
     name: 'Email',
-    href: `mailto:?subject=${encodedTitle.value}&body=${encodedText.value}`,
+    href: `mailto:?subject=${encodedTitle.value}&body=${encodeURIComponent(`${title.value || document.title}\n${url.value}`)}`,
     svg: true,
   },
 ]);

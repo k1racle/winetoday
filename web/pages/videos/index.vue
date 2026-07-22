@@ -31,7 +31,7 @@ useSeoMeta({
           />
         </div>
         <div v-if="items.length < total" class="mt-8">
-          <LoadMoreButton
+          <InfiniteScrollTrigger
             :loading="isLoading"
             :has-more="items.length < total"
             @load="loadMore"

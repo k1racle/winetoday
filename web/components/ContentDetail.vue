@@ -182,16 +182,6 @@ onMounted(() => {
   loadComments();
 });
 
-
-function formatDuration(seconds?: number | null): string {
-  if (!seconds || seconds <= 0) return '';
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  const parts = h > 0 ? [h, m, s] : [m, s];
-  return parts.map((n) => String(n).padStart(2, '0')).join(':');
-}
-
 const bodyBlocks = computed(() => {
   const blocks = props.item.contentBlocks || [];
   if (props.item.type !== 'video') return blocks;
@@ -281,9 +271,6 @@ function loadMoreRelated() {
               <div class="aspect-video w-full bg-black" aria-hidden="true" />
             </template>
           </ClientOnly>
-          <figcaption v-if="item.duration" class="mt-2 text-xs text-foreground/50">
-            Продолжительность: {{ formatDuration(item.duration) }}
-          </figcaption>
         </figure>
         <div v-if="item.type === 'video' && item.sources?.length" class="mt-3 w-full text-sm text-foreground/70">
           <div
@@ -374,9 +361,9 @@ function loadMoreRelated() {
             />
           </div>
           <div v-if="hasMoreRelated" class="mt-6">
-            <LoadMoreButton
+            <InfiniteScrollTrigger
               :loading="false"
-              :has-more="true"
+              :has-more="hasMoreRelated"
               @load="loadMoreRelated"
             />
           </div>

@@ -57,7 +57,6 @@ function emptyForm() {
     coverPath: '',
     coverSource: '',
     videoUrl: '',
-    duration: 0,
     authorId: '',
     categoryIds: [] as string[],
     tagIds: [] as string[],
@@ -70,30 +69,6 @@ function emptyForm() {
 }
 
 const form = reactive(emptyForm());
-
-function formatDurationInput(seconds: number): string {
-  const total = Math.max(0, Math.floor(Number(seconds) || 0));
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-}
-
-function parseDurationInput(value: string): number {
-  const parts = value
-    .split(':')
-    .map((p) => parseInt(p.trim(), 10))
-    .filter((n) => !isNaN(n));
-  if (parts.length === 0) return 0;
-  if (parts.length === 1) return Math.max(0, parts[0] || 0);
-  if (parts.length === 2) return Math.max(0, (parts[0] || 0) * 60 + (parts[1] || 0));
-  return Math.max(0, (parts[0] || 0) * 3600 + (parts[1] || 0) * 60 + (parts[2] || 0));
-}
-
-const durationInput = computed({
-  get: () => formatDurationInput(form.duration),
-  set: (value: string) => { form.duration = parseDurationInput(value); },
-});
 
 const categories = ref<Array<{ id: string; name: string; slug: string }>>([]);
 const tags = ref<Array<{ id: string; name: string; slug: string }>>([]);
@@ -313,7 +288,6 @@ async function loadDraft(id: string) {
       coverPath: res.coverMedia?.path || '',
       coverSource: res.coverSource || '',
       videoUrl: res.videoUrl || '',
-      duration: res.duration || 0,
       authorId: res.authorId || '',
       categoryIds: (res.categories || []).map((c: any) => c.id),
       tagIds: (res.tags || []).map((t: any) => t.id),
@@ -628,7 +602,6 @@ function buildBody(status?: 'draft' | 'published' | 'scheduled'): Record<string,
     tagIds: form.tagIds,
     authorId: form.authorId || undefined,
     videoUrl: form.type === 'video' ? form.videoUrl || undefined : undefined,
-    duration: form.type === 'video' ? form.duration || undefined : undefined,
     contentBlocks: blocks,
     sources: form.sources.filter((s) => s.name.trim() || s.url.trim()),
     seo: {
@@ -983,10 +956,6 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
               <div>
                 <label class="mb-1 block text-xs font-normal text-foreground/70">Источник видео</label>
                 <input v-model="form.videoUrl" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="https://youtube.com/...">
-              </div>
-              <div>
-                <label class="mb-1 block text-xs font-normal text-foreground/70">Продолжительность (чч:мм:сс)</label>
-                <input v-model="durationInput" type="text" inputmode="numeric" pattern="[0-9:]+" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="0:05:30">
               </div>
             </div>
           </div>

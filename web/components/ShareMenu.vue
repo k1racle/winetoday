@@ -9,7 +9,6 @@ const triggerRef = ref<HTMLButtonElement | null>(null);
 const panelRef = ref<HTMLDivElement | null>(null);
 const copied = ref(false);
 
-const encodedUrl = computed(() => encodeURIComponent(props.url));
 const encodedTitle = computed(() =>
   encodeURIComponent(props.title || (typeof document !== 'undefined' ? document.title : '')),
 );
@@ -19,41 +18,45 @@ const encodedText = computed(() =>
   ),
 );
 
+function shareUrl(source: string, medium: string) {
+  return appendUtm(props.url, source, medium);
+}
+
 const items = computed(() => [
   { id: 'copy', label: 'Скопировать ссылку', type: 'copy' as const },
   {
     id: 'max',
     label: 'MAX',
     type: 'link' as const,
-    href: `https://max.ru/:share?text=${encodedText.value}`,
+    href: `https://max.ru/:share?text=${encodeURIComponent(`${props.title || (typeof document !== 'undefined' ? document.title : '')}\n${shareUrl('max', 'messenger')}`)}`,
     icon: 'max',
   },
   {
     id: 'vk',
     label: 'ВКонтакте',
     type: 'link' as const,
-    href: `https://vk.com/share.php?url=${encodedUrl.value}&title=${encodedTitle.value}`,
+    href: `https://vk.com/share.php?url=${encodeURIComponent(shareUrl('vk', 'social'))}&title=${encodedTitle.value}`,
     icon: 'vk',
   },
   {
     id: 'telegram',
     label: 'Telegram',
     type: 'link' as const,
-    href: `https://t.me/share/url?url=${encodedUrl.value}&text=${encodedTitle.value}`,
+    href: `https://t.me/share/url?url=${encodeURIComponent(shareUrl('telegram', 'messenger'))}&text=${encodedTitle.value}`,
     icon: 'telegram',
   },
   {
     id: 'whatsapp',
     label: 'WhatsApp',
     type: 'link' as const,
-    href: `https://wa.me/?text=${encodedText.value}`,
+    href: `https://wa.me/?text=${encodeURIComponent(`${props.title || (typeof document !== 'undefined' ? document.title : '')}\n${shareUrl('whatsapp', 'messenger')}`)}`,
     icon: 'whatsapp',
   },
   {
     id: 'ok',
     label: 'Одноклассники',
     type: 'link' as const,
-    href: `https://connect.ok.ru/offer?url=${encodedUrl.value}&title=${encodedTitle.value}`,
+    href: `https://connect.ok.ru/offer?url=${encodeURIComponent(shareUrl('ok', 'social'))}&title=${encodedTitle.value}`,
     icon: 'ok',
   },
 ]);

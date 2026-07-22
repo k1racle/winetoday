@@ -185,8 +185,8 @@ useSeoMeta({
                 variant="compact"
               />
             </div>
-            <div class="mt-8">
-              <LoadMoreButton
+            <div v-if="articles.length < articlesTotal" class="mt-8">
+              <InfiniteScrollTrigger
                 :loading="isLoading"
                 :has-more="articles.length < articlesTotal"
                 @load="loadMore"

@@ -21,11 +21,6 @@ const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || 
 function editUrl(item: ContentItem) {
   return `/account/editor?type=${item.type}&id=${item.id}`;
 }
-const duration = computed(() => {
-  const blocks = (props.item as any).contentBlocks;
-  const block = blocks?.find((b: any) => b.type === 'video-player');
-  return block?.duration || props.item.duration;
-});
 </script>
 
 <template>
@@ -64,7 +59,6 @@ const duration = computed(() => {
         <div class="mb-2 flex flex-wrap items-center gap-2 text-xs font-normal uppercase tracking-wider text-white/80">
           <span v-if="date">{{ date }}</span>
           <span v-if="category">{{ category }}</span>
-          <span v-if="duration">{{ formatDuration(duration) }}</span>
         </div>
         <h3 class="font-sans text-xl font-normal leading-snug md:text-2xl lg:text-3xl">
           {{ item.title }}

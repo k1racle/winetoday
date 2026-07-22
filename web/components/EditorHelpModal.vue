@@ -177,20 +177,6 @@ function close() {
                       <p class="text-xs text-accent">https://www.youtube.com/watch?v=...</p>
                     </div>
                   </div>
-
-                  <div class="grid gap-4 rounded border border-foreground/10 bg-muted sm:grid-cols-2">
-                    <div class="border-b border-foreground/10 p-4 sm:border-b-0 sm:border-r">
-                      <div class="mb-1 flex items-center gap-2">
-                        <span class="h-4 w-1 rounded bg-accent" />
-                        <span class="text-sm font-normal">Продолжительность</span>
-                      </div>
-                      <p class="text-xs leading-relaxed text-foreground/70">Длительность видео в формате чч:мм:сс. Например, 1:05:30 означает 1 час 5 минут 30 секунд.</p>
-                    </div>
-                    <div class="p-4">
-                      <p class="mb-1 text-[10px] font-normal uppercase tracking-wider text-accent">Пример</p>
-                      <p class="text-xs text-accent">0:05:30</p>
-                    </div>
-                  </div>
                 </div>
               </div>
 
