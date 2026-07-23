@@ -82,9 +82,9 @@ async function loadSubscription() {
   }
 }
 
-onMounted(() => {
-  loadSubscription();
-});
+watch(isAuthenticated, (auth) => {
+  if (auth) loadSubscription();
+}, { immediate: true });
 
 useSeoMeta({
   title: `${profile.value?.name || slug} — Автор`,

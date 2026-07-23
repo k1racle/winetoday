@@ -57,9 +57,9 @@ async function toggleSubscribe() {
   }
 }
 
-onMounted(() => {
-  loadSubscription();
-});
+watch(isAuthenticated, (auth) => {
+  if (auth) loadSubscription();
+}, { immediate: true });
 </script>
 
 <template>
