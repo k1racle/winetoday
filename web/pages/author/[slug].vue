@@ -3,7 +3,7 @@ import type { AuthorProfile, ContentItem } from '~/types/content';
 
 const route = useRoute();
 const slug = route.params.slug as string;
-const { getAuthor, getAuthorContent, subscribeToAuthor, unsubscribeFromAuthor } = useApi();
+const { getAuthor, getAuthorContent, subscribeToAuthor, unsubscribeFromAuthor, getAuthorSubscription } = useApi();
 const { isAuthenticated } = useAuth();
 
 const [{ data: author }, { data: content }] = await Promise.all([
@@ -71,6 +71,20 @@ async function toggleSubscribe() {
     subLoading.value = false;
   }
 }
+
+async function loadSubscription() {
+  if (!isAuthenticated.value) return;
+  try {
+    const res = await getAuthorSubscription(slug);
+    subscribed.value = (res as any).subscribed ?? false;
+  } catch {
+    subscribed.value = profile.value?.isSubscribed ?? false;
+  }
+}
+
+onMounted(() => {
+  loadSubscription();
+});
 
 useSeoMeta({
   title: `${profile.value?.name || slug} — Автор`,
