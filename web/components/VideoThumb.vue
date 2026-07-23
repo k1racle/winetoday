@@ -29,7 +29,7 @@ function editUrl(item: ContentItem) {
         :alt="item.coverMedia?.altText || item.title"
         loading="lazy"
         decoding="async"
-        class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+        class="h-full w-full object-cover transition duration-500 group-hover:brightness-95"
       />
       <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
       <div class="absolute inset-x-0 bottom-0 p-3">

@@ -49,7 +49,7 @@ function editUrl(item: ContentItem) {
       v-if="coverSrc"
       :src="coverSrc"
       :alt="item.coverMedia?.altText || item.title"
-      class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+      class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:brightness-95"
     />
     <MaterialLabelBadge
       v-if="size !== 'large'"

@@ -60,7 +60,7 @@ const link = computed(() => {
         :alt="item.coverMedia.altText || item.title"
         loading="lazy"
         decoding="async"
-        class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+        class="h-full w-full object-cover transition duration-500 group-hover:brightness-95"
       />
       <MaterialLabelBadge
         :label="item.materialLabel"
