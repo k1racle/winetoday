@@ -16,6 +16,7 @@ export class AuthorsController {
   constructor(private readonly authorsService: AuthorsService) {}
 
   @Get(':slug')
+  @UseGuards(OptionalJwtAuthGuard)
   async findBySlug(@Param('slug') slug: string, @Request() req) {
     return this.authorsService.findAuthorBySlug(slug, req.user?.userId);
   }
