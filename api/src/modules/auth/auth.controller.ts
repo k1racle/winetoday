@@ -120,7 +120,7 @@ export class AuthController {
     res.cookie('oauth_yandex_state', state, this.oauthCookieOptions());
     res.cookie('oauth_yandex_redirect', redirectAfter || '', this.oauthCookieOptions());
 
-    const url = new URL('https://oauth.yandex.com/authorize');
+    const url = new URL('https://oauth.yandex.ru/authorize');
     url.searchParams.set('response_type', 'code');
     url.searchParams.set('client_id', clientId);
     url.searchParams.set('redirect_uri', redirectUri);
@@ -155,7 +155,7 @@ export class AuthController {
     const redirectUri = this.redirectUri(req, 'yandex');
 
     try {
-      const tokenRes = await fetch('https://oauth.yandex.com/token', {
+      const tokenRes = await fetch('https://oauth.yandex.ru/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
