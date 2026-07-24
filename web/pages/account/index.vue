@@ -34,7 +34,7 @@ async function signOutAndRedirect() {
 </script>
 
 <template>
-  <div class="mx-auto max-w-[1600px] overflow-x-hidden px-4 py-10">
+  <div class="py-10">
     <div v-if="user" class="space-y-8">
       <div>
         <div class="mb-2 flex items-start justify-between gap-4">
