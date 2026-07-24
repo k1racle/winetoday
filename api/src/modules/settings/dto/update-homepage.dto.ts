@@ -10,4 +10,8 @@ export class UpdateHomepageDto {
   @IsArray()
   @IsUUID('all', { each: true })
   videoItemIds?: string[];
+
+  @IsOptional()
+  @IsUUID()
+  leadArchiveCoverMediaId?: string | null;
 }

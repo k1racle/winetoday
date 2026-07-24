@@ -49,10 +49,6 @@ export class CreateDraftDto {
   coverMediaId?: string;
 
   @IsOptional()
-  @IsUUID()
-  archiveCoverMediaId?: string;
-
-  @IsOptional()
   @IsString()
   coverSource?: string;
 

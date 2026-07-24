@@ -101,7 +101,7 @@ export function useApi() {
       api(`/admin/pages/${slug}`, { method: 'PATCH', body, credentials: 'include' }),
     getAdminHomepage: () =>
       api('/admin/homepage', { credentials: 'include' }),
-    updateAdminHomepage: (body: { leadItemIds?: string[]; videoItemIds?: string[] }) =>
+    updateAdminHomepage: (body: { leadItemIds?: string[]; videoItemIds?: string[]; leadArchiveCoverMediaId?: string | null }) =>
       api('/admin/homepage', { method: 'PATCH', body, credentials: 'include' }),
     incrementView: (body: Record<string, unknown>) =>
       api('/views/increment', { method: 'POST', body }),

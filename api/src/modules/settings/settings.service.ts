@@ -98,14 +98,26 @@ export class SettingsService {
       data.videoItemIds = dto.videoItemIds;
     }
 
-    if (!existing) {
-      return this.prisma.homepage.create({ data });
+    const result = !existing
+      ? await this.prisma.homepage.create({ data })
+      : await this.prisma.homepage.update({
+          where: { id: existing.id },
+          data,
+        });
+
+    if (
+      dto.leadArchiveCoverMediaId !== undefined &&
+      dto.leadItemIds?.length
+    ) {
+      await this.prisma.contentItem.update({
+        where: { id: dto.leadItemIds[0] },
+        data: {
+          archiveCoverMediaId: dto.leadArchiveCoverMediaId || null,
+        },
+      });
     }
 
-    return this.prisma.homepage.update({
-      where: { id: existing.id },
-      data,
-    });
+    return result;
   }
 
 

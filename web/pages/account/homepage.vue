@@ -2,7 +2,7 @@
 import type { ContentItem } from '~/types/content';
 
 const { user, isAuthenticated } = useAuth();
-const { getAdminHomepage, updateAdminHomepage, getContent } = useApi();
+const { getAdminHomepage, updateAdminHomepage, getContent, uploadArchiveCoverMedia, getMediaById } = useApi();
 
 const loading = ref(false);
 const saving = ref(false);
@@ -20,6 +20,22 @@ const searchVideo = ref('');
 const videoResults = ref<ContentItem[]>([]);
 const videoLoading = ref(false);
 
+const leadArchiveCoverMediaId = ref('');
+const leadArchiveCoverPath = ref('');
+const leadArchiveCoverPickerOpen = ref(false);
+const leadArchiveCoverInput = ref<HTMLInputElement | null>(null);
+
+function syncLeadArchiveCover() {
+  const item = leadItems.value[0];
+  if (item?.archiveCoverMedia) {
+    leadArchiveCoverMediaId.value = item.archiveCoverMedia.id;
+    leadArchiveCoverPath.value = item.archiveCoverMedia.path;
+  } else {
+    leadArchiveCoverMediaId.value = '';
+    leadArchiveCoverPath.value = '';
+  }
+}
+
 async function fetchConfig() {
   loading.value = true;
   error.value = '';
@@ -27,6 +43,7 @@ async function fetchConfig() {
     const res: any = await getAdminHomepage();
     leadItems.value = Array.isArray(res?.lead) ? res.lead : [];
     videoItems.value = Array.isArray(res?.videos) ? res.videos : [];
+    syncLeadArchiveCover();
   } catch (err: any) {
     error.value = err?.data?.message || err?.message || 'Ошибка загрузки настроек главной';
   } finally {
@@ -61,10 +78,12 @@ function selectLead(index: number, item: ContentItem) {
   leadItems.value[index] = item;
   searchLead.value[index] = '';
   leadResults.value[index] = [];
+  if (index === 0) syncLeadArchiveCover();
 }
 
 function removeLead(index: number) {
   leadItems.value[index] = undefined;
+  if (index === 0) syncLeadArchiveCover();
 }
 
 async function onVideoSearch() {
@@ -86,6 +105,30 @@ function removeVideo(index: number) {
   videoItems.value.splice(index, 1);
 }
 
+async function onLeadArchiveCoverSelected(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const res: any = await uploadArchiveCoverMedia(file);
+    leadArchiveCoverMediaId.value = res.id;
+    leadArchiveCoverPath.value = res.path;
+  } catch (e: any) {
+    error.value = e?.data?.message || 'Ошибка загрузки обложки';
+  }
+}
+
+function onLeadArchiveCoverSelectedFromLibrary(media: any) {
+  leadArchiveCoverMediaId.value = media.id;
+  leadArchiveCoverPath.value = media.path;
+}
+
+function removeLeadArchiveCover() {
+  leadArchiveCoverMediaId.value = '';
+  leadArchiveCoverPath.value = '';
+  if (leadArchiveCoverInput.value) leadArchiveCoverInput.value.value = '';
+}
+
 function moveVideo(index: number, dir: number) {
   const newIndex = index + dir;
   if (newIndex < 0 || newIndex >= videoItems.value.length) return;
@@ -104,6 +147,7 @@ async function save() {
     await updateAdminHomepage({
       leadItemIds: leadItems.value.filter(Boolean).map((item) => item!.id),
       videoItemIds: videoItems.value.map((item) => item.id).filter(Boolean),
+      leadArchiveCoverMediaId: leadArchiveCoverMediaId.value || null,
     });
     message.value = 'Главная страница сохранена';
   } catch (err: any) {
@@ -185,6 +229,22 @@ onMounted(() => {
               >
                 Убрать
               </button>
+
+              <div v-if="i === 1" class="space-y-2 border-t border-foreground/10 pt-3">
+                <p class="text-xs text-foreground/50">Обложка большой карточки (ПК)</p>
+                <img
+                  v-if="leadArchiveCoverPath"
+                  :src="useMediaUrl(leadArchiveCoverPath)"
+                  alt=""
+                  class="h-24 w-full rounded object-cover"
+                >
+                <div class="flex flex-wrap gap-2">
+                  <input ref="leadArchiveCoverInput" type="file" accept="image/*" class="hidden" @change="onLeadArchiveCoverSelected">
+                  <button type="button" class="btn-secondary text-xs" @click="leadArchiveCoverInput?.click()">Загрузить</button>
+                  <button type="button" class="btn-secondary text-xs" @click="leadArchiveCoverPickerOpen = true">Выбрать</button>
+                  <button type="button" class="btn-danger text-xs" :disabled="!leadArchiveCoverMediaId" @click="removeLeadArchiveCover">Удалить</button>
+                </div>
+              </div>
             </div>
 
             <div v-else class="space-y-2">
@@ -308,4 +368,15 @@ onMounted(() => {
       </button>
     </div>
   </div>
+
+  <MediaPicker v-model="leadArchiveCoverPickerOpen" @select="onLeadArchiveCoverSelectedFromLibrary" />
 </template>
+
+<style scoped>
+.btn-secondary {
+  @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-card px-3 py-1.5 text-xs font-normal text-foreground transition hover:bg-foreground/5 disabled:opacity-50;
+}
+.btn-danger {
+  @apply inline-flex items-center gap-1.5 border border-red-600 bg-transparent px-3 py-1.5 text-xs font-normal text-red-600 transition hover:bg-red-600 hover:text-white disabled:opacity-50;
+}
+</style>

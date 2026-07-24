@@ -91,7 +91,6 @@ export class EditorService {
       materialLabel: dto.materialLabel || null,
       featured: dto.featured ?? false,
       coverMediaId: dto.coverMediaId || null,
-      archiveCoverMediaId: dto.archiveCoverMediaId || null,
       coverSource: dto.coverSource?.trim() || null,
       videoUrl: dto.videoUrl || null,
       duration: dto.duration ?? null,
