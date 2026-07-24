@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { user } = useAuth();
+const { user, signOut } = useAuth();
 const { getMySubscriptions, getMyLikes, getMyComments } = useApi();
 
 const stats = ref({ subscriptions: 0, likes: 0, comments: 0 });
@@ -26,13 +26,27 @@ async function loadStats() {
 onMounted(() => {
   loadStats();
 });
+
+async function signOutAndRedirect() {
+  await signOut();
+  navigateTo('/');
+}
 </script>
 
 <template>
   <div class="mx-auto max-w-[1600px] overflow-x-hidden px-4 py-10">
     <div v-if="user" class="space-y-8">
       <div>
-        <h1 class="mb-2 font-heading text-2xl font-bold">Личный кабинет</h1>
+        <div class="mb-2 flex items-start justify-between gap-4">
+          <h1 class="font-heading text-2xl font-bold">Личный кабинет</h1>
+          <button
+            type="button"
+            class="shrink-0 text-sm text-foreground/60 transition hover:text-foreground"
+            @click="signOutAndRedirect"
+          >
+            Выйти из аккаунта
+          </button>
+        </div>
         <AccountTabs class="mb-6" />
       </div>
 

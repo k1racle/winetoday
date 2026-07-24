@@ -89,6 +89,15 @@ async function remove(media: MediaAsset) {
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const uploading = ref(false);
+const previewMedia = ref<MediaAsset | null>(null);
+
+function openPreview(media: MediaAsset) {
+  previewMedia.value = media;
+}
+
+function closePreview() {
+  previewMedia.value = null;
+}
 
 async function onFileSelected(e: Event) {
   const input = e.target as HTMLInputElement;
@@ -179,7 +188,7 @@ onMounted(() => {
         class="group relative overflow-hidden border border-foreground/10 bg-card transition hover:border-accent"
         @mouseenter="loadUsage(media)"
       >
-        <div class="relative aspect-square bg-muted">
+        <div class="relative aspect-square bg-muted" @click="openPreview(media)">
           <NuxtImg
             v-if="isImage(media)"
             :src="useMediaUrl(media.path)"
@@ -201,7 +210,7 @@ onMounted(() => {
           </div>
 
           <!-- Overlay actions -->
-          <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 transition group-hover:opacity-100">
+          <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 transition group-hover:opacity-100" @click.stop>
             <button
               v-if="picker"
               type="button"
@@ -216,6 +225,7 @@ onMounted(() => {
                 download
                 class="rounded bg-card px-3 py-1.5 text-sm text-foreground transition hover:bg-white"
                 title="Скачать"
+                @click.stop
               >
                 ⬇
               </a>
@@ -223,7 +233,7 @@ onMounted(() => {
                 type="button"
                 class="rounded bg-red-600 px-3 py-1.5 text-sm text-white transition hover:bg-red-700 disabled:opacity-60"
                 :disabled="deleting[media.id]"
-                @click="remove(media)"
+                @click.stop="remove(media)"
               >
                 {{ deleting[media.id] ? '…' : '✕' }}
               </button>
@@ -250,24 +260,74 @@ onMounted(() => {
 
     <!-- Pagination -->
     <div v-if="totalPages() > 1" class="flex items-center justify-center gap-2 pt-4">
-      <button
-        type="button"
-        class="px-3 py-1 text-sm text-foreground/70 transition hover:text-foreground disabled:opacity-40"
-        :disabled="currentPage() <= 1"
-        @click="goToPage(currentPage() - 1)"
-      >
-        ← Назад
-      </button>
-      <span class="text-sm text-foreground/60">{{ currentPage() }} / {{ totalPages() }}</span>
-      <button
-        type="button"
-        class="px-3 py-1 text-sm text-foreground/70 transition hover:text-foreground disabled:opacity-40"
-        :disabled="currentPage() >= totalPages()"
-        @click="goToPage(currentPage() + 1)"
-      >
-        Вперёд →
-      </button>
+      ...
     </div>
+
+    <!-- Preview modal -->
+    <Teleport to="body">
+      <Transition name="media-preview">
+        <div
+          v-if="previewMedia"
+          class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4"
+          @click.self="closePreview"
+        >
+          <div class="flex max-h-[90vh] max-w-[90vw] flex-col rounded-lg border border-foreground/10 bg-card shadow-xl">
+            <div class="flex items-center justify-between border-b border-foreground/10 px-4 py-3">
+              <h3 class="max-w-[60vw] truncate font-heading text-base font-normal">
+                {{ fileName(previewMedia.path) }}
+              </h3>
+              <button
+                type="button"
+                class="text-foreground/60 transition hover:text-foreground"
+                aria-label="Закрыть"
+                @click="closePreview"
+              >
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div class="overflow-auto p-4">
+              <img
+                v-if="isImage(previewMedia)"
+                :src="useMediaUrl(previewMedia.path)"
+                :alt="fileName(previewMedia.path)"
+                class="max-h-[70vh] max-w-full object-contain"
+              >
+              <div v-else class="flex h-48 flex-col items-center justify-center gap-2 text-foreground/60">
+                <svg class="h-12 w-12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+                <span class="text-sm">Предпросмотр недоступен для этого типа файла</span>
+                <a
+                  :href="useMediaUrl(previewMedia.path)"
+                  download
+                  class="text-sm text-accent hover:underline"
+                >
+                  Скачать файл
+                </a>
+              </div>
+            </div>
+            <div class="flex items-center justify-end gap-2 border-t border-foreground/10 px-4 py-3">
+              <a
+                :href="useMediaUrl(previewMedia.path)"
+                download
+                class="rounded bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90"
+              >
+                Скачать
+              </a>
+              <button
+                type="button"
+                class="rounded border border-foreground/10 bg-card px-4 py-2 text-sm text-foreground transition hover:bg-foreground/5"
+                @click="closePreview"
+              >
+                Закрыть
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
