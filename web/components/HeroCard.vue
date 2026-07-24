@@ -22,6 +22,7 @@ const link = computed(() => {
 });
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
+const archiveSrc = computed(() => useMediaUrl(props.item.archiveCoverMedia?.path));
 const { shortDate, category } = useContentMeta(props.item);
 const { user } = useAuth();
 const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
@@ -45,12 +46,18 @@ function editUrl(item: ContentItem) {
         'min-h-[280px] md:min-h-[360px]': !size,
       }"
     >
-    <NuxtImg
-      v-if="coverSrc"
-      :src="coverSrc"
-      :alt="item.coverMedia?.altText || item.title"
-      class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:brightness-95"
-    />
+    <picture v-if="coverSrc || archiveSrc" class="absolute inset-0 h-full w-full">
+      <source
+        v-if="size === 'large' && archiveSrc"
+        media="(min-width: 1024px)"
+        :srcset="archiveSrc"
+      >
+      <img
+        :src="coverSrc || archiveSrc"
+        :alt="item.archiveCoverMedia?.altText || item.coverMedia?.altText || item.title"
+        class="h-full w-full object-cover transition duration-500 group-hover:brightness-95"
+      >
+    </picture>
     <MaterialLabelBadge
       v-if="size !== 'large'"
       :label="item.materialLabel"

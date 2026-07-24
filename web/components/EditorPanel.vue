@@ -11,7 +11,7 @@ const props = defineProps<{
 const emit = defineEmits<{ (e: 'saved', id: string): void }>();
 
 const config = useRuntimeConfig();
-const { getCategories, getTags, uploadMedia, uploadCoverMedia, saveDraft, getDraft, getAuthors, getMediaById, deleteMaterial } = useApi();
+const { getCategories, getTags, uploadMedia, uploadCoverMedia, uploadArchiveCoverMedia, saveDraft, getDraft, getAuthors, getMediaById, deleteMaterial } = useApi();
 const { user } = useAuth();
 const coverBaseUrl = (config.public.mediaBaseUrl || (config.public.apiUrl as string).replace('/api', '') || 'http://localhost:4000').replace(/\/$/, '');
 
@@ -52,9 +52,10 @@ function emptyForm() {
     publishedTime: '',
     materialLabel: '',
     featured: false,
-    homepageSpecialBlock: false,
     coverMediaId: '',
     coverPath: '',
+    archiveCoverMediaId: '',
+    archiveCoverPath: '',
     coverSource: '',
     videoUrl: '',
     authorId: '',
@@ -112,9 +113,11 @@ const saving = ref(false);
 const message = ref('');
 const error = ref('');
 const coverInput = ref<HTMLInputElement | null>(null);
+const archiveCoverInput = ref<HTMLInputElement | null>(null);
 const helpOpen = ref(false);
 
 const coverPickerOpen = ref(false);
+const archiveCoverPickerOpen = ref(false);
 const imageBlockTarget = ref<any>(null);
 const imagePickerOpen = ref(false);
 const sliderBlockTarget = ref<any>(null);
@@ -283,9 +286,10 @@ async function loadDraft(id: string) {
       publishedTime: res.publishedAt ? new Date(res.publishedAt).toTimeString().slice(0, 5) : '',
       materialLabel: res.materialLabel || '',
       featured: res.featured,
-      homepageSpecialBlock: res.homepageSpecialBlock,
       coverMediaId: res.coverMediaId || '',
       coverPath: res.coverMedia?.path || '',
+      archiveCoverMediaId: res.archiveCoverMediaId || '',
+      archiveCoverPath: res.archiveCoverMedia?.path || '',
       coverSource: res.coverSource || '',
       videoUrl: res.videoUrl || '',
       authorId: res.authorId || '',
@@ -463,6 +467,30 @@ function removeCover() {
   if (coverInput.value) coverInput.value.value = '';
 }
 
+async function onArchiveCoverSelected(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  try {
+    const res: any = await uploadArchiveCoverMedia(file);
+    form.archiveCoverMediaId = res.id;
+    form.archiveCoverPath = res.path;
+  } catch (e: any) {
+    error.value = e?.data?.message || 'Ошибка загрузки обложки спецблока';
+  }
+}
+
+function onArchiveCoverSelectedFromLibrary(media: any) {
+  form.archiveCoverMediaId = media.id;
+  form.archiveCoverPath = media.path;
+}
+
+function removeArchiveCover() {
+  form.archiveCoverMediaId = '';
+  form.archiveCoverPath = '';
+  if (archiveCoverInput.value) archiveCoverInput.value.value = '';
+}
+
 async function uploadBlockImage(e: Event, block: typeof form.contentBlocks[0]) {
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -595,8 +623,8 @@ function buildBody(status?: 'draft' | 'published' | 'scheduled'): Record<string,
     publishedAt,
     materialLabel: form.materialLabel || undefined,
     featured: form.featured,
-    homepageSpecialBlock: form.homepageSpecialBlock,
     coverMediaId: form.coverMediaId || undefined,
+    archiveCoverMediaId: form.archiveCoverMediaId || undefined,
     coverSource: form.coverSource || undefined,
     categoryIds: form.categoryIds,
     tagIds: form.tagIds,
@@ -803,10 +831,6 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
                 <input v-model="form.publishedTime" type="time" class="border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
               </div>
             </div>
-            <label class="flex cursor-pointer items-center gap-2 text-sm text-foreground/80 sm:col-span-2">
-              <input v-model="form.homepageSpecialBlock" type="checkbox" class="h-4 w-4 accent-accent">
-              Вывести на главную в спецблок
-            </label>
           </div>
         </div>
 
@@ -961,6 +985,34 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
           </div>
         </div>
 
+        <!-- Archive cover (desktop special block large card) -->
+        <div class="border border-foreground/10 bg-card">
+          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-normal">
+            Обложка для большой карточки на главной
+          </div>
+          <div class="space-y-4 p-4">
+            <div class="flex gap-4">
+              <div
+                class="flex h-24 w-36 shrink-0 cursor-pointer flex-col items-center justify-center border-2 border-dashed border-foreground/10 text-center text-xs text-foreground/50 transition hover:border-accent hover:text-foreground"
+                @click="archiveCoverInput?.click()"
+              >
+                <template v-if="form.archiveCoverPath">
+                  <img :src="`${coverBaseUrl}${form.archiveCoverPath}`" class="h-full w-full object-cover" alt="">
+                </template>
+                <template v-else>
+                  🖼<br>Нет файла
+                </template>
+              </div>
+              <div class="flex flex-1 flex-col gap-2">
+                <input ref="archiveCoverInput" type="file" accept="image/*" class="hidden" @change="onArchiveCoverSelected">
+                <button class="btn-secondary w-full text-xs" @click="archiveCoverInput?.click()">Загрузить</button>
+                <button class="btn-secondary w-full text-xs" @click="archiveCoverPickerOpen = true">Выбрать из библиотеки</button>
+                <button class="btn-danger w-full text-xs" :disabled="!form.archiveCoverMediaId" @click="removeArchiveCover">🗑 Удалить</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Categories & tags -->
         <div class="border border-foreground/10 bg-card">
           <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-normal">
@@ -1055,6 +1107,7 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
   <EditorHelpModal v-model="helpOpen" />
 
   <MediaPicker v-model="coverPickerOpen" @select="onCoverSelectedFromLibrary" />
+  <MediaPicker v-model="archiveCoverPickerOpen" @select="onArchiveCoverSelectedFromLibrary" />
   <MediaPicker v-model="imagePickerOpen" @select="onImageSelectedFromLibrary" />
   <MediaPicker v-model="sliderPickerOpen" @select="onSliderSelectedFromLibrary" />
 </template>

@@ -45,12 +45,12 @@ export class CreateDraftDto {
   featured?: boolean;
 
   @IsOptional()
-  @IsBoolean()
-  homepageSpecialBlock?: boolean;
+  @IsUUID()
+  coverMediaId?: string;
 
   @IsOptional()
   @IsUUID()
-  coverMediaId?: string;
+  archiveCoverMediaId?: string;
 
   @IsOptional()
   @IsString()

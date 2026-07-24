@@ -99,6 +99,10 @@ export function useApi() {
       api(`/pages/${slug}`),
     updateStaticPage: (slug: string, body: Record<string, unknown>) =>
       api(`/admin/pages/${slug}`, { method: 'PATCH', body, credentials: 'include' }),
+    getAdminHomepage: () =>
+      api('/admin/homepage', { credentials: 'include' }),
+    updateAdminHomepage: (body: { leadItemIds?: string[]; videoItemIds?: string[] }) =>
+      api('/admin/homepage', { method: 'PATCH', body, credentials: 'include' }),
     incrementView: (body: Record<string, unknown>) =>
       api('/views/increment', { method: 'POST', body }),
     getReactions: (contentItemId: string, viewerId?: string) =>
@@ -160,6 +164,15 @@ export function useApi() {
       const formData = new FormData();
       formData.append('file', file);
       return api('/media/cover', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+    },
+    uploadArchiveCoverMedia: (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      return api('/media/archive-cover', {
         method: 'POST',
         body: formData,
         credentials: 'include',

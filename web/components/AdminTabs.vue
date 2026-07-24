@@ -4,6 +4,7 @@ const tabs = [
   { label: 'Пользователи', to: '/account/admin' },
   { label: 'Авторы', to: '/account/admin/authors' },
   { label: 'Материалы', to: '/account/admin/content' },
+  { label: 'Главная', to: '/account/admin/homepage' },
   { label: 'Медиа', to: '/account/admin/media' },
   { label: 'Рубрики', to: '/account/admin/categories' },
   { label: 'Теги', to: '/account/admin/tags' },

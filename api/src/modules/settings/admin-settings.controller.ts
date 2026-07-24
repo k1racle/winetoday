@@ -8,6 +8,7 @@ import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
 import { UpdateSiteHeaderDto } from './dto/update-site-header.dto';
 import { UpdateSiteSeoDto } from './dto/update-site-seo.dto';
 import { UpdateStaticPageDto } from './dto/update-static-page.dto';
+import { UpdateHomepageDto } from './dto/update-homepage.dto';
 
 @Controller()
 export class AdminSettingsController {
@@ -59,5 +60,19 @@ export class AdminSettingsController {
   @Roles(Role.admin, Role.editor)
   updateStaticPage(@Param('slug') slug: string, @Body() dto: UpdateStaticPageDto) {
     return this.settingsService.updateStaticPage(slug, dto);
+  }
+
+  @Get('admin/homepage')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.admin, Role.editor)
+  adminHomepage() {
+    return this.settingsService.adminHomepage();
+  }
+
+  @Patch('admin/homepage')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.admin, Role.editor)
+  updateHomepage(@Body() dto: UpdateHomepageDto) {
+    return this.settingsService.updateHomepage(dto);
   }
 }

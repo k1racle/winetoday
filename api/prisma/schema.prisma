@@ -356,6 +356,8 @@ model Homepage {
   description String?
   infographicCards Json? @map("infographic_cards")
   blocks      Json?
+  leadItemIds  String[] @map("lead_item_ids") @db.Uuid
+  videoItemIds String[] @map("video_item_ids") @db.Uuid
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
 

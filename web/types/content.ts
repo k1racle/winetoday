@@ -36,6 +36,7 @@ export type ContentItem = {
   status: ContentStatus;
   publishedAt?: string | null;
   coverMedia?: MediaAsset | null;
+  archiveCoverMedia?: MediaAsset | null;
   author?: Author | null;
   categories?: { name: string; slug: string }[];
   tags?: { name: string; slug: string }[];

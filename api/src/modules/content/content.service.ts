@@ -230,22 +230,61 @@ export class ContentService {
   }
 
   async findHomepageContent() {
-    const lead = await this.prisma.contentItem.findMany({
-      where: { homepageSpecialBlock: true, status: ContentStatus.published, publishedAt: { lte: new Date() } },
-      include: contentInclude,
-      orderBy: { publishedAt: 'desc' },
-      take: 5,
-    });
+    const homepage = await this.prisma.homepage.findFirst();
+
+    const fetchOrdered = async (
+      ids: string[],
+      extraWhere: Record<string, unknown> = {},
+    ) => {
+      if (!ids.length) return [];
+      const items = await this.prisma.contentItem.findMany({
+        where: {
+          id: { in: ids },
+          status: ContentStatus.published,
+          publishedAt: { lte: new Date() },
+          ...extraWhere,
+        },
+        include: contentInclude,
+      });
+      const map = new Map(items.map((item) => [item.id, item]));
+      return ids.map((id) => map.get(id)).filter(Boolean) as ContentItemWithRelations[];
+    };
+
+    const lead = homepage?.leadItemIds?.length
+      ? await fetchOrdered(homepage.leadItemIds)
+      : await this.prisma.contentItem.findMany({
+          where: { homepageSpecialBlock: true, status: ContentStatus.published, publishedAt: { lte: new Date() } },
+          include: contentInclude,
+          orderBy: { publishedAt: 'desc' },
+          take: 5,
+        });
 
     const leadIds = lead.map((item) => item.id);
 
-    const [articles, news, videos, galleries] = await Promise.all([
+    const videos = homepage?.videoItemIds?.length
+      ? await fetchOrdered(homepage.videoItemIds, { type: ContentType.video })
+      : await this.prisma.contentItem.findMany({
+          where: {
+            type: ContentType.video,
+            status: ContentStatus.published,
+            publishedAt: { lte: new Date() },
+            id: { notIn: leadIds },
+          },
+          include: contentInclude,
+          orderBy: { publishedAt: 'desc' },
+          take: 10,
+        });
+
+    const videoIds = videos.map((item) => item.id);
+    const excludeIds = Array.from(new Set([...leadIds, ...videoIds]));
+
+    const [articles, news, galleries] = await Promise.all([
       this.prisma.contentItem.findMany({
         where: {
           type: ContentType.article,
           status: ContentStatus.published,
           publishedAt: { lte: new Date() },
-          id: { notIn: leadIds },
+          id: { notIn: excludeIds },
         },
         include: contentInclude,
         orderBy: { publishedAt: 'desc' },
@@ -256,7 +295,7 @@ export class ContentService {
           type: ContentType.news,
           status: ContentStatus.published,
           publishedAt: { lte: new Date() },
-          id: { notIn: leadIds },
+          id: { notIn: excludeIds },
         },
         include: contentInclude,
         orderBy: { publishedAt: 'desc' },
@@ -264,21 +303,10 @@ export class ContentService {
       }),
       this.prisma.contentItem.findMany({
         where: {
-          type: ContentType.video,
-          status: ContentStatus.published,
-          publishedAt: { lte: new Date() },
-          id: { notIn: leadIds },
-        },
-        include: contentInclude,
-        orderBy: { publishedAt: 'desc' },
-        take: 10,
-      }),
-      this.prisma.contentItem.findMany({
-        where: {
           type: ContentType.gallery,
           status: ContentStatus.published,
           publishedAt: { lte: new Date() },
-          id: { notIn: leadIds },
+          id: { notIn: excludeIds },
         },
         include: contentInclude,
         orderBy: { publishedAt: 'desc' },

@@ -90,8 +90,8 @@ export class EditorService {
       publishedAt,
       materialLabel: dto.materialLabel || null,
       featured: dto.featured ?? false,
-      homepageSpecialBlock: dto.homepageSpecialBlock ?? false,
       coverMediaId: dto.coverMediaId || null,
+      archiveCoverMediaId: dto.archiveCoverMediaId || null,
       coverSource: dto.coverSource?.trim() || null,
       videoUrl: dto.videoUrl || null,
       duration: dto.duration ?? null,
@@ -122,6 +122,7 @@ export class EditorService {
           include: {
             author: true,
             coverMedia: true,
+            archiveCoverMedia: true,
             categories: true,
             tags: true,
           },
@@ -135,6 +136,7 @@ export class EditorService {
           include: {
             author: true,
             coverMedia: true,
+            archiveCoverMedia: true,
             categories: true,
             tags: true,
           },
@@ -146,7 +148,7 @@ export class EditorService {
   async findDraft(user: RequestUser, id: string) {
     const item = await this.prisma.contentItem.findUnique({
       where: { id },
-      include: { author: true, coverMedia: true, categories: true, tags: true },
+      include: { author: true, coverMedia: true, archiveCoverMedia: true, categories: true, tags: true },
     });
     if (!item) throw new NotFoundException('Draft not found');
     if (item.authorId && !(await this.canEdit(user, item.authorId))) {

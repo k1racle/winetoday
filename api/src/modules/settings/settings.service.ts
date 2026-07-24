@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { ContentStatus, ContentType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
 import { UpdateSiteHeaderDto } from './dto/update-site-header.dto';
 import { UpdateSiteSeoDto } from './dto/update-site-seo.dto';
 import { UpdateStaticPageDto } from './dto/update-static-page.dto';
+import { UpdateHomepageDto } from './dto/update-homepage.dto';
 
 const singletonInclude = {
   logoMedia: true,
@@ -46,6 +48,63 @@ export class SettingsService {
   async siteSeo() {
     return this.prisma.siteSeo.findFirst({
       include: seoInclude,
+    });
+  }
+
+  private homepageContentInclude = {
+    author: { include: { avatarMedia: true } },
+    coverMedia: true,
+    archiveCoverMedia: true,
+    categories: true,
+    tags: true,
+  } as const;
+
+  async adminHomepage() {
+    const homepage = await this.prisma.homepage.findFirst();
+
+    const fetchOrdered = async (
+      ids: string[],
+      extraWhere: Record<string, unknown> = {},
+    ) => {
+      if (!ids.length) return [];
+      const items = await this.prisma.contentItem.findMany({
+        where: {
+          id: { in: ids },
+          status: ContentStatus.published,
+          publishedAt: { lte: new Date() },
+          ...extraWhere,
+        },
+        include: this.homepageContentInclude,
+      });
+      const map = new Map(items.map((item) => [item.id, item]));
+      return ids.map((id) => map.get(id)).filter(Boolean);
+    };
+
+    const [lead, videos] = await Promise.all([
+      fetchOrdered(homepage?.leadItemIds ?? []),
+      fetchOrdered(homepage?.videoItemIds ?? [], { type: ContentType.video }),
+    ]);
+
+    return { homepage, lead, videos };
+  }
+
+  async updateHomepage(dto: UpdateHomepageDto) {
+    const existing = await this.prisma.homepage.findFirst();
+    const data: Record<string, unknown> = {};
+    if (dto.leadItemIds !== undefined) {
+      data.leadItemIds = dto.leadItemIds;
+    }
+    if (dto.videoItemIds !== undefined) {
+      data.videoItemIds = dto.videoItemIds;
+    }
+
+    if (!existing) {
+      return this.prisma.homepage.create({ data });
+    }
+
+    return this.prisma.homepage.update({
+      where: { id: existing.id },
+      data,
     });
   }
 
