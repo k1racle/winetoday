@@ -170,13 +170,6 @@ async function submit() {
             <!-- Social login -->
             <div class="mb-4 space-y-2">
               <a
-                :href="socialUrl('vk')"
-                class="flex w-full items-center justify-center gap-2 rounded bg-[#0077FF] px-4 py-2.5 text-sm font-normal text-white transition hover:bg-[#0066dd]"
-              >
-                <img src="/icons/vk.png" alt="VK" class="h-5 w-5 object-contain">
-                Войти через VK
-              </a>
-              <a
                 :href="socialUrl('yandex')"
                 class="flex w-full items-center justify-center gap-2 rounded bg-[#FC3F1D] px-4 py-2.5 text-sm font-normal text-white transition hover:bg-[#e63617]"
               >
