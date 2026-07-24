@@ -25,6 +25,10 @@ const leadArchiveCoverPath = ref('');
 const leadArchiveCoverPickerOpen = ref(false);
 const leadArchiveCoverInput = ref<HTMLInputElement | null>(null);
 
+function setLeadArchiveCoverInputRef(el: any) {
+  if (el) leadArchiveCoverInput.value = el as HTMLInputElement;
+}
+
 function syncLeadArchiveCover() {
   const item = leadItems.value[0];
   if (item?.archiveCoverMedia) {
@@ -239,7 +243,7 @@ onMounted(() => {
                   class="h-24 w-full rounded object-cover"
                 >
                 <div class="flex flex-wrap gap-2">
-                  <input ref="leadArchiveCoverInput" type="file" accept="image/*" class="hidden" @change="onLeadArchiveCoverSelected">
+                  <input :ref="setLeadArchiveCoverInputRef" type="file" accept="image/*" class="hidden" @change="onLeadArchiveCoverSelected">
                   <button type="button" class="btn-secondary text-xs" @click="leadArchiveCoverInput?.click()">Загрузить</button>
                   <button type="button" class="btn-secondary text-xs" @click="leadArchiveCoverPickerOpen = true">Выбрать</button>
                   <button type="button" class="btn-danger text-xs" :disabled="!leadArchiveCoverMediaId" @click="removeLeadArchiveCover">Удалить</button>
