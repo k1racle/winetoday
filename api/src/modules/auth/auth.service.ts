@@ -204,6 +204,66 @@ export class AuthService {
     }));
   }
 
+  async oauthLoginOrRegister(input: {
+    provider: 'vk' | 'yandex';
+    providerAccountId: string;
+    email?: string | null;
+    name?: string;
+  }): Promise<TokenPair> {
+    let user = await this.prisma.user.findFirst({
+      where: {
+        oauthAccounts: {
+          some: {
+            provider: input.provider,
+            providerAccountId: input.providerAccountId,
+          },
+        },
+      },
+    });
+
+    if (!user && input.email) {
+      user = await this.prisma.user.findUnique({
+        where: { email: input.email },
+      });
+      if (user) {
+        await this.prisma.oAuthAccount.create({
+          data: {
+            provider: input.provider,
+            providerAccountId: input.providerAccountId,
+            userId: user.id,
+          },
+        });
+      }
+    }
+
+    if (!user) {
+      const username = `${input.provider}_${input.providerAccountId.slice(0, 16)}_${Date.now().toString(36)}`;
+      const displayName = input.name || username;
+      const email = input.email || `${input.provider}_${input.providerAccountId}@social.local`;
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          username,
+          passwordHash: null,
+          role: Role.member,
+          memberProfile: {
+            create: {
+              displayName,
+            },
+          },
+          oauthAccounts: {
+            create: {
+              provider: input.provider,
+              providerAccountId: input.providerAccountId,
+            },
+          },
+        },
+      });
+    }
+
+    return this.generateTokens(user.id, user.email, user.role);
+  }
+
   private async generateTokens(userId: string, email: string, role: Role): Promise<TokenPair> {
     const payload = { sub: userId, email, role };
 
