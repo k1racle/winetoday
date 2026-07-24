@@ -46,6 +46,9 @@ services:
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000,http://localhost:3001}
+      YANDEX_CLIENT_ID: ${YANDEX_CLIENT_ID:-}
+      YANDEX_CLIENT_SECRET: ${YANDEX_CLIENT_SECRET:-}
+      FRONTEND_URL: ${FRONTEND_URL:-${SITE_URL:-http://localhost}}
 
     ports:
       - "4000:4000"
