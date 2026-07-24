@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   modelValue: boolean;
+  startTab?: 'login' | 'register';
 }>();
 
 const emit = defineEmits<{
@@ -15,6 +16,12 @@ const isOpen = computed({
 const { signIn, signUp } = useAuth();
 
 const activeTab = ref<'login' | 'register'>('login');
+
+watch(() => props.modelValue, (open) => {
+  if (open && props.startTab) {
+    activeTab.value = props.startTab;
+  }
+});
 const username = ref('');
 const displayName = ref('');
 const email = ref('');

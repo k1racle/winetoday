@@ -50,6 +50,22 @@ const commentSuccess = ref('');
 const reactionError = ref('');
 const readIds = ref<Set<string>>(new Set());
 
+const authOpen = ref(false);
+const authTab = ref<'login' | 'register'>('login');
+const showAuthPrompt = ref(false);
+
+function openAuthLogin() {
+  authTab.value = 'login';
+  authOpen.value = true;
+  showAuthPrompt.value = false;
+}
+
+function openAuthRegister() {
+  authTab.value = 'register';
+  authOpen.value = true;
+  showAuthPrompt.value = false;
+}
+
 function loadReadIds() {
   try {
     const ids = JSON.parse(sessionStorage.getItem('vino_read_ids') || '[]');
@@ -122,7 +138,7 @@ async function submitComment() {
   commentError.value = '';
   commentSuccess.value = '';
   if (!isAuthenticated.value) {
-    commentError.value = 'Чтобы оставить комментарий, войдите в аккаунт';
+    showAuthPrompt.value = true;
     return;
   }
   if (!commentText.value.trim()) {
@@ -408,6 +424,12 @@ function loadMoreRelated() {
               <span class="text-xs text-foreground/50">{{ commentText.length }} / 3000</span>
             </div>
             <p v-if="commentError" class="mt-2 text-xs text-red-500">{{ commentError }}</p>
+            <p v-if="showAuthPrompt" class="mt-2 text-xs text-foreground/70">
+              Чтобы оставить комментарий,
+              <button type="button" class="text-accent hover:underline" @click="openAuthLogin">войдите</button>
+              или
+              <button type="button" class="text-accent hover:underline" @click="openAuthRegister">зарегистрируйтесь</button>.
+            </p>
             <p v-if="commentSuccess" class="mt-2 text-xs text-green-500">{{ commentSuccess }}</p>
           </div>
           <div v-if="comments.length" class="mt-6 space-y-4">
@@ -443,6 +465,8 @@ function loadMoreRelated() {
           <p v-else-if="!commentLoading" class="mt-6 text-sm text-foreground/50">Пока нет комментариев</p>
         </div>
       </article>
+
+      <AuthDrawer v-model="authOpen" :start-tab="authTab" />
 
       <aside class="order-last flex w-full flex-col gap-4 lg:w-1/4">
         <SidebarByCategory :groups="categoryGroups || []" />
