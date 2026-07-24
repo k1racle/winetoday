@@ -12,7 +12,7 @@ const tabs = computed(() => {
     list.push({ label: 'Редактор материалов', to: '/account/editor' });
   }
   if (canManageHomepage.value) {
-    list.push({ label: 'Главная', to: '/account/admin/homepage' });
+    list.push({ label: 'Главная', to: '/account/homepage' });
   }
   list.push(
     { label: 'Подписки', to: '/account/subscriptions' },

@@ -137,17 +137,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
-      <h1 class="mt-2 font-heading text-2xl font-bold">Главная страница</h1>
+  <div class="py-10">
+    <div class="mb-6">
+      <h1 class="font-heading text-2xl font-bold">Личный кабинет</h1>
+      <AccountTabs class="mb-6" />
     </div>
 
-    <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
+    <h2 class="mb-6 font-heading text-xl font-normal">Главная страница</h2>
 
-    <AdminTabs class="mt-6" />
-
-    <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
+    <p v-if="loading" class="text-sm text-foreground/60">Загрузка...</p>
     <p v-if="error" class="mt-6 text-sm text-red-600">{{ error }}</p>
     <p v-if="message" class="mt-6 text-sm text-green-600">{{ message }}</p>
 
