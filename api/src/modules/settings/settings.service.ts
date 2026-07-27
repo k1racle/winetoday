@@ -80,12 +80,35 @@ export class SettingsService {
       return ids.map((id) => map.get(id)).filter(Boolean);
     };
 
-    const [lead, videos] = await Promise.all([
-      fetchOrdered(homepage?.leadItemIds ?? []),
-      fetchOrdered(homepage?.videoItemIds ?? [], { type: ContentType.video }),
-    ]);
+    const lead = await fetchOrdered(homepage?.leadItemIds ?? []);
+    const leadIds = lead.map((item) => item.id);
 
-    return { homepage, lead, videos };
+    const featuredId = homepage?.videoItemIds?.[0];
+    const [featured] = featuredId
+      ? await this.prisma.contentItem.findMany({
+          where: {
+            id: featuredId,
+            type: ContentType.video,
+            status: ContentStatus.published,
+            publishedAt: { lte: new Date() },
+          },
+          include: this.homepageContentInclude,
+        })
+      : [];
+
+    const autoVideos = await this.prisma.contentItem.findMany({
+      where: {
+        type: ContentType.video,
+        status: ContentStatus.published,
+        publishedAt: { lte: new Date() },
+        id: { notIn: [...leadIds, featuredId].filter(Boolean) as string[] },
+      },
+      include: this.homepageContentInclude,
+      orderBy: { publishedAt: 'desc' },
+      take: 10,
+    });
+
+    return { homepage, lead, featuredVideo: featured || null, autoVideos };
   }
 
   async updateHomepage(dto: UpdateHomepageDto) {
@@ -94,8 +117,8 @@ export class SettingsService {
     if (dto.leadItemIds !== undefined) {
       data.leadItemIds = dto.leadItemIds;
     }
-    if (dto.videoItemIds !== undefined) {
-      data.videoItemIds = dto.videoItemIds;
+    if (dto.featuredVideoId !== undefined) {
+      data.videoItemIds = dto.featuredVideoId ? [dto.featuredVideoId] : [];
     }
 
     const result = !existing

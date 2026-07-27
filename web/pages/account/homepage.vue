@@ -10,15 +10,16 @@ const error = ref('');
 const message = ref('');
 
 const leadItems = ref<(ContentItem | undefined)[]>([]);
-const videoItems = ref<ContentItem[]>([]);
+const featuredVideo = ref<ContentItem | null>(null);
+const autoVideos = ref<ContentItem[]>([]);
 
 const searchLead = ref(['', '', '']);
 const leadResults = ref<ContentItem[][]>([[], [], []]);
 const leadLoading = ref([false, false, false]);
 
-const searchVideo = ref('');
-const videoResults = ref<ContentItem[]>([]);
-const videoLoading = ref(false);
+const searchFeaturedVideo = ref('');
+const featuredVideoResults = ref<ContentItem[]>([]);
+const featuredVideoLoading = ref(false);
 
 const leadArchiveCoverMediaId = ref('');
 const leadArchiveCoverPath = ref('');
@@ -46,7 +47,8 @@ async function fetchConfig() {
   try {
     const res: any = await getAdminHomepage();
     leadItems.value = Array.isArray(res?.lead) ? res.lead : [];
-    videoItems.value = Array.isArray(res?.videos) ? res.videos : [];
+    featuredVideo.value = res?.featuredVideo || null;
+    autoVideos.value = Array.isArray(res?.autoVideos) ? res.autoVideos : [];
     syncLeadArchiveCover();
   } catch (err: any) {
     error.value = err?.data?.message || err?.message || 'Ошибка загрузки настроек главной';
@@ -90,23 +92,22 @@ function removeLead(index: number) {
   if (index === 0) syncLeadArchiveCover();
 }
 
-async function onVideoSearch() {
-  videoResults.value = [];
-  if (!searchVideo.value.trim()) return;
-  videoLoading.value = true;
-  videoResults.value = await searchContent(searchVideo.value, 'video');
-  videoLoading.value = false;
+async function onFeaturedVideoSearch() {
+  featuredVideoResults.value = [];
+  if (!searchFeaturedVideo.value.trim()) return;
+  featuredVideoLoading.value = true;
+  featuredVideoResults.value = await searchContent(searchFeaturedVideo.value, 'video');
+  featuredVideoLoading.value = false;
 }
 
-function addVideo(item: ContentItem) {
-  if (videoItems.value.find((v) => v.id === item.id)) return;
-  videoItems.value.push(item);
-  searchVideo.value = '';
-  videoResults.value = [];
+function selectFeaturedVideo(item: ContentItem) {
+  featuredVideo.value = item;
+  searchFeaturedVideo.value = '';
+  featuredVideoResults.value = [];
 }
 
-function removeVideo(index: number) {
-  videoItems.value.splice(index, 1);
+function removeFeaturedVideo() {
+  featuredVideo.value = null;
 }
 
 async function onLeadArchiveCoverSelected(e: Event) {
@@ -133,16 +134,6 @@ function removeLeadArchiveCover() {
   if (leadArchiveCoverInput.value) leadArchiveCoverInput.value.value = '';
 }
 
-function moveVideo(index: number, dir: number) {
-  const newIndex = index + dir;
-  if (newIndex < 0 || newIndex >= videoItems.value.length) return;
-  const arr = videoItems.value.slice();
-  const temp = arr[index];
-  arr[index] = arr[newIndex];
-  arr[newIndex] = temp;
-  videoItems.value = arr;
-}
-
 async function save() {
   saving.value = true;
   error.value = '';
@@ -150,7 +141,7 @@ async function save() {
   try {
     await updateAdminHomepage({
       leadItemIds: leadItems.value.filter(Boolean).map((item) => item!.id),
-      videoItemIds: videoItems.value.map((item) => item.id).filter(Boolean),
+      featuredVideoId: featuredVideo.value?.id || null,
       leadArchiveCoverMediaId: leadArchiveCoverMediaId.value || null,
     });
     message.value = 'Главная страница сохранена';
@@ -283,27 +274,27 @@ onMounted(() => {
         <div>
           <h2 class="text-lg font-normal">Видео на главной</h2>
           <p class="text-sm text-foreground/60">
-            Добавьте видео в нужном порядке. Первое видео будет большим, остальные — в ленте.
+            Выберите главное видео. Остальные видео на главной подберутся автоматически по дате публикации.
           </p>
         </div>
 
         <div class="rounded border border-foreground/10 bg-foreground/5 p-4">
           <div class="relative mb-4">
             <input
-              v-model="searchVideo"
+              v-model="searchFeaturedVideo"
               type="text"
               class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent"
-              placeholder="Найти видео по заголовку..."
-              @input="onVideoSearch"
+              placeholder="Найти главное видео по заголовку..."
+              @input="onFeaturedVideoSearch"
             >
-            <p v-if="videoLoading" class="mt-1 text-xs text-foreground/50">Поиск...</p>
-            <div v-else-if="videoResults.length" class="absolute z-10 mt-1 w-full rounded border border-foreground/10 bg-card shadow-lg">
+            <p v-if="featuredVideoLoading" class="mt-1 text-xs text-foreground/50">Поиск...</p>
+            <div v-else-if="featuredVideoResults.length" class="absolute z-10 mt-1 w-full rounded border border-foreground/10 bg-card shadow-lg">
               <button
-                v-for="item in videoResults"
+                v-for="item in featuredVideoResults"
                 :key="item.id"
                 type="button"
                 class="flex w-full items-center gap-3 border-b border-foreground/10 p-2 text-left text-sm transition hover:bg-foreground/5 last:border-b-0"
-                @click="addVideo(item)"
+                @click="selectFeaturedVideo(item)"
               >
                 <img
                   v-if="itemCover(item)"
@@ -314,51 +305,49 @@ onMounted(() => {
                 <span class="truncate">{{ item.title }}</span>
               </button>
             </div>
-            <p v-else-if="searchVideo.trim()" class="mt-1 text-xs text-foreground/50">Ничего не найдено</p>
+            <p v-else-if="searchFeaturedVideo.trim()" class="mt-1 text-xs text-foreground/50">Ничего не найдено</p>
           </div>
 
-          <div v-if="videoItems.length" class="space-y-2">
-            <div
-              v-for="(item, index) in videoItems"
-              :key="item.id"
-              class="flex items-center gap-3 rounded border border-foreground/10 bg-card p-2"
-            >
-              <span class="w-6 text-center text-sm text-foreground/50">{{ index + 1 }}</span>
+          <div v-if="featuredVideo" class="space-y-4">
+            <div class="flex items-center gap-3 rounded border border-foreground/10 bg-card p-2">
+              <span class="w-6 text-center text-sm font-normal text-accent">1</span>
               <img
-                v-if="itemCover(item)"
-                :src="itemCover(item)"
+                v-if="itemCover(featuredVideo)"
+                :src="itemCover(featuredVideo)"
                 alt=""
                 class="h-12 w-16 shrink-0 rounded object-cover"
               >
-              <span class="flex-1 truncate text-sm">{{ item.title }}</span>
-              <div class="flex items-center gap-1">
-                <button
-                  type="button"
-                  class="px-2 py-1 text-xs hover:bg-foreground/10 disabled:opacity-30"
-                  :disabled="index === 0"
-                  @click="moveVideo(index, -1)"
+              <span class="flex-1 truncate text-sm">{{ featuredVideo.title }}</span>
+              <button
+                type="button"
+                class="px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+                @click="removeFeaturedVideo"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div v-if="autoVideos.length">
+              <p class="mb-2 text-xs text-foreground/50">Автоматически добавленные видео</p>
+              <div class="space-y-2">
+                <div
+                  v-for="(item, index) in autoVideos"
+                  :key="item.id"
+                  class="flex items-center gap-3 rounded border border-foreground/10 bg-card p-2 opacity-70"
                 >
-                  ↑
-                </button>
-                <button
-                  type="button"
-                  class="px-2 py-1 text-xs hover:bg-foreground/10 disabled:opacity-30"
-                  :disabled="index === videoItems.length - 1"
-                  @click="moveVideo(index, 1)"
-                >
-                  ↓
-                </button>
-                <button
-                  type="button"
-                  class="px-2 py-1 text-xs text-red-600 hover:bg-red-50"
-                  @click="removeVideo(index)"
-                >
-                  ✕
-                </button>
+                  <span class="w-6 text-center text-sm text-foreground/50">{{ index + 2 }}</span>
+                  <img
+                    v-if="itemCover(item)"
+                    :src="itemCover(item)"
+                    alt=""
+                    class="h-12 w-16 shrink-0 rounded object-cover"
+                  >
+                  <span class="flex-1 truncate text-sm">{{ item.title }}</span>
+                </div>
               </div>
             </div>
           </div>
-          <p v-else class="text-sm text-foreground/50">Видео не выбраны</p>
+          <p v-else class="text-sm text-foreground/50">Главное видео не выбрано</p>
         </div>
       </div>
 

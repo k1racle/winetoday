@@ -261,19 +261,32 @@ export class ContentService {
 
     const leadIds = lead.map((item) => item.id);
 
-    const videos = homepage?.videoItemIds?.length
-      ? await fetchOrdered(homepage.videoItemIds, { type: ContentType.video })
-      : await this.prisma.contentItem.findMany({
+    const featuredId = homepage?.videoItemIds?.[0];
+    const [featured] = featuredId
+      ? await this.prisma.contentItem.findMany({
           where: {
+            id: featuredId,
             type: ContentType.video,
             status: ContentStatus.published,
             publishedAt: { lte: new Date() },
-            id: { notIn: leadIds },
           },
           include: contentInclude,
-          orderBy: { publishedAt: 'desc' },
-          take: 10,
-        });
+        })
+      : [];
+
+    const autoVideos = await this.prisma.contentItem.findMany({
+      where: {
+        type: ContentType.video,
+        status: ContentStatus.published,
+        publishedAt: { lte: new Date() },
+        id: { notIn: [...leadIds, featuredId].filter(Boolean) as string[] },
+      },
+      include: contentInclude,
+      orderBy: { publishedAt: 'desc' },
+      take: 10,
+    });
+
+    const videos = featured ? [featured, ...autoVideos] : autoVideos;
 
     const videoIds = videos.map((item) => item.id);
     const excludeIds = Array.from(new Set([...leadIds, ...videoIds]));

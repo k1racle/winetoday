@@ -7,9 +7,8 @@ export class UpdateHomepageDto {
   leadItemIds?: string[];
 
   @IsOptional()
-  @IsArray()
-  @IsUUID('all', { each: true })
-  videoItemIds?: string[];
+  @IsUUID()
+  featuredVideoId?: string | null;
 
   @IsOptional()
   @IsUUID()
