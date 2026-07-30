@@ -38,6 +38,18 @@ export type RequestUser = {
   role: Role;
 };
 
+const CONTENT_PATH_PREFIX: Partial<Record<ContentType, string>> = {
+  article: '/articles',
+  news: '/news',
+  video: '/videos',
+  gallery: '/gallery',
+};
+
+function contentPath(type: ContentType, slug: string): string | null {
+  const prefix = CONTENT_PATH_PREFIX[type];
+  return prefix ? `${prefix}/${slug}` : null;
+}
+
 @Injectable()
 export class EditorService {
   constructor(
@@ -110,6 +122,13 @@ export class EditorService {
         ? { connect: dto.tagIds.map((id) => ({ id })) }
         : undefined;
 
+    const previous = dto.id
+      ? await this.prisma.contentItem.findUnique({
+          where: { id: dto.id },
+          select: { slug: true, status: true },
+        })
+      : null;
+
     const result = dto.id
       ? await this.prisma.contentItem.update({
           where: { id: dto.id },
@@ -140,6 +159,22 @@ export class EditorService {
             tags: true,
           },
         });
+
+    if (
+      previous &&
+      previous.slug !== result.slug &&
+      (previous.status === ContentStatus.published || result.status === ContentStatus.published)
+    ) {
+      const fromPath = contentPath(result.type, previous.slug);
+      const toPath = contentPath(result.type, result.slug);
+      if (fromPath && toPath && fromPath !== toPath) {
+        await this.prisma.slugRedirect.upsert({
+          where: { fromPath },
+          update: { toPath },
+          create: { fromPath, toPath },
+        });
+      }
+    }
 
     return result;
   }

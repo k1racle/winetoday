@@ -16,6 +16,8 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { UsersModule } from './modules/users/users.module';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
+import { RedirectsModule } from './modules/redirects/redirects.module';
+import { NewsletterModule } from './modules/newsletter/newsletter.module';
 
 @Module({
   imports: [
@@ -59,6 +61,8 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
     CommunityModule,
     AnalyticsModule,
     SchedulerModule,
+    RedirectsModule,
+    NewsletterModule,
 
     UsersModule,
   ],

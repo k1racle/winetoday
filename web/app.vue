@@ -34,10 +34,42 @@ useHead({
     : [],
 });
 
+// Lazy Metrika init: if the page was loaded directly on /account (init script
+// skipped in useHead), inject tag.js and run init once on the first navigation
+// to a public route, then keep sending hits as usual.
+let ymLazyInited = false;
+
+function lazyInitMetrika() {
+  if (ymLazyInited) return;
+  ymLazyInited = true;
+  const w = window as any;
+  w.ym = w.ym || function (...args: any[]) {
+    (w.ym.a = w.ym.a || []).push(args);
+  };
+  w.ym.l = Date.now();
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://mc.yandex.ru/metrika/tag.js?id=${ymId}`;
+  document.head.appendChild(script);
+  window.ym!(ymId, 'init', {
+    ssr: false,
+    webvisor: true,
+    clickmap: true,
+    referrer: document.referrer,
+    url: location.href,
+    accurateTrackBounce: true,
+    trackLinks: true,
+  });
+}
+
 watch(
   () => route.fullPath,
   () => {
-    if (import.meta.client && !isAccountRoute() && window.ym) {
+    if (import.meta.client && !isAccountRoute()) {
+      if (!window.ym) {
+        lazyInitMetrika();
+        return;
+      }
       window.ym(ymId, 'hit', location.href, {
         title: document.title,
         referer: document.referrer,

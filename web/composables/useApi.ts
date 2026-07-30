@@ -204,5 +204,12 @@ export function useApi() {
       api(`/admin/authors/${id}/analytics`, { credentials: 'include' }),
     deleteAuthor: (id: string) =>
       api(`/admin/authors/${id}`, { method: 'DELETE', credentials: 'include' }),
+    // Newsletter
+    subscribeNewsletter: (email: string) =>
+      api('/newsletter/subscribe', { method: 'POST', body: { email } }),
+    unsubscribeNewsletter: (token: string) =>
+      api('/newsletter/unsubscribe', { query: { token } }),
+    getNewsletterSubscribers: () =>
+      api('/admin/newsletter/subscribers', { credentials: 'include' }),
   };
 }

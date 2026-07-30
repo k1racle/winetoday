@@ -460,6 +460,25 @@ model ArchiveSettings {
   @@map("archive_settings")
 }
 
+model SlugRedirect {
+  id        String   @id @default(uuid()) @db.Uuid
+  fromPath  String   @unique @map("from_path")
+  toPath    String   @map("to_path")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("slug_redirects")
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  token     String   @unique @default(uuid())
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("newsletter_subscribers")
+}
+
 model StaticPage {
   id            String    @id @default(uuid()) @db.Uuid
   title         String

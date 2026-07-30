@@ -72,6 +72,17 @@ export default defineEventHandler(async (event) => {
     // ignore
   }
 
+  // Теги: /tags/{slug} (публичный список GET /tags)
+  try {
+    const tags: any[] = await $fetch(`${apiUrl}/tags`);
+    for (const tag of tags || []) {
+      if (!tag?.slug) continue;
+      entries.push(urlEntry(`${siteUrl}/tags/${tag.slug}`));
+    }
+  } catch {
+    // ignore
+  }
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${entries.join('\n')}

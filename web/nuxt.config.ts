@@ -22,6 +22,7 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'alternate', type: 'application/rss+xml', title: 'RSS', href: '/rss.xml' },
         { rel: 'preload', href: '/fonts/Lato-Regular.woff2', as: 'font', type: 'font/woff2', crossorigin: '' },
         { rel: 'preload', href: '/fonts/Lato-Bold.woff2', as: 'font', type: 'font/woff2', crossorigin: '' },
       ],

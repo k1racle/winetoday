@@ -1,11 +1,34 @@
 <script setup lang="ts">
 const { siteSettings } = useSharedSiteSettings();
 const { headerCategories } = useHeaderCategories();
+const { subscribeNewsletter } = useApi();
 
 const socialLinks = computed(() => {
   const links = siteSettings.value?.socialLinks?.links;
   return Array.isArray(links) ? links : [];
 });
+
+const subscribeEmail = ref('');
+const subscribeLoading = ref(false);
+const subscribeSuccess = ref('');
+const subscribeError = ref('');
+
+async function onSubscribe() {
+  const email = subscribeEmail.value.trim();
+  if (!email || subscribeLoading.value) return;
+  subscribeLoading.value = true;
+  subscribeSuccess.value = '';
+  subscribeError.value = '';
+  try {
+    await subscribeNewsletter(email);
+    subscribeSuccess.value = 'Вы подписаны на рассылку';
+    subscribeEmail.value = '';
+  } catch (err: any) {
+    subscribeError.value = err?.data?.message || err?.message || 'Не удалось оформить подписку';
+  } finally {
+    subscribeLoading.value = false;
+  }
+}
 </script>
 
 <template>
@@ -34,6 +57,30 @@ const socialLinks = computed(() => {
                 info@winemaking-today.ru
               </span>
             </a>
+          </div>
+
+          <div class="mt-4 rounded-lg border border-white/10 bg-white/5 p-4">
+            <span class="block text-[10px] font-bold uppercase tracking-wider text-white/50">
+              Подписка на рассылку
+            </span>
+            <form class="mt-3" @submit.prevent="onSubscribe">
+              <input
+                v-model="subscribeEmail"
+                type="email"
+                required
+                placeholder="Ваш e-mail"
+                class="w-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/90 outline-none transition placeholder:text-white/40 focus:border-accent"
+              >
+              <button
+                type="submit"
+                :disabled="subscribeLoading"
+                class="mt-2 w-full bg-accent px-3 py-2 text-sm font-bold text-black transition hover:bg-accent/90 disabled:opacity-50"
+              >
+                {{ subscribeLoading ? 'Отправка...' : 'Подписаться' }}
+              </button>
+            </form>
+            <p v-if="subscribeSuccess" class="mt-2 text-xs text-green-400">{{ subscribeSuccess }}</p>
+            <p v-if="subscribeError" class="mt-2 text-xs text-red-400">{{ subscribeError }}</p>
           </div>
         </div>
 
