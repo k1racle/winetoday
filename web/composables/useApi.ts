@@ -47,6 +47,12 @@ export function useApi() {
       api('/tags'),
     getLatestByCategory: (limit?: number) =>
       api('/latest-by-category', { query: limit ? { limit } : undefined }),
+    getRelated: (type: string, slug: string) =>
+      api(`/content/related/${type}/${slug}`),
+    getNeighbors: (type: string, slug: string) =>
+      api(`/content/neighbors/${type}/${slug}`),
+    getAuthorsList: () =>
+      api('/authors'),
     getAuthor: (slug: string) =>
       api(`/authors/${slug}`),
     getAuthorContent: (slug: string) =>

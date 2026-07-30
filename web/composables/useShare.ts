@@ -13,10 +13,13 @@ const state = reactive<ShareState>({
 });
 
 export function useShare() {
+  const { goal } = useYm();
+
   function open(url: string, title: string = '') {
     state.url = url;
     state.title = title;
     state.active = true;
+    goal('share');
   }
 
   function close() {

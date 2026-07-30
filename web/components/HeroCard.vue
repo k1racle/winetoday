@@ -52,11 +52,14 @@ function editUrl(item: ContentItem) {
         media="(min-width: 1024px)"
         :srcset="archiveSrc"
       >
-      <img
+      <NuxtImg
         :src="coverSrc || archiveSrc"
         :alt="item.archiveCoverMedia?.altText || item.coverMedia?.altText || item.title"
+        loading="eager"
+        fetchpriority="high"
+        sizes="xs:100vw sm:100vw md:100vw lg:100vw xl:66vw xxl:66vw"
         class="h-full w-full object-cover transition duration-500 group-hover:brightness-95"
-      >
+      />
     </picture>
     <MaterialLabelBadge
       v-if="size !== 'large'"

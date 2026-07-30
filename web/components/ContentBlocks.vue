@@ -9,6 +9,26 @@ const props = defineProps<{
   item: ContentItem;
 }>();
 
+// image-highlight blocks store only a media id; resolve real paths via the API
+// to avoid the /api/media/:id/file 302 redirect on every image.
+const { getMediaById } = useApi();
+const highlightIds = Array.from(
+  new Set(
+    props.blocks
+      .filter((b) => b.type === 'image-highlight' && b.imageId)
+      .map((b) => String(b.imageId)),
+  ),
+);
+const highlightUrls: Record<string, string> = {};
+if (highlightIds.length) {
+  const mediaItems = await Promise.all(
+    highlightIds.map((id) => getMediaById(id).catch(() => null)),
+  );
+  mediaItems.forEach((media, i) => {
+    if (media?.path) highlightUrls[highlightIds[i]] = useMediaUrl(media.path);
+  });
+}
+
 function renderContent(content: unknown): string {
   if (typeof content !== 'string') return '';
   const html = isTiptapJson(content) ? tiptapToHtml(content) : content;
@@ -40,8 +60,8 @@ function formatSource(source?: string | null): string {
 
       <figure v-else-if="block.type === 'image-highlight'" class="my-6">
         <img
-          v-if="block.imageId"
-          :src="`/api/media/${block.imageId}/file`"
+          v-if="highlightUrls[String(block.imageId)]"
+          :src="highlightUrls[String(block.imageId)]"
           :alt="block.caption || ''"
           loading="lazy"
           decoding="async"

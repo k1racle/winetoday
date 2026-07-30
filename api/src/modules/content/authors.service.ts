@@ -25,6 +25,38 @@ export class AuthorsService {
     return author.id;
   }
 
+  async findAll() {
+    const authors = await this.prisma.author.findMany({
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        position: true,
+        avatarMedia: { select: { path: true } },
+        _count: {
+          select: {
+            contentItems: {
+              where: {
+                status: ContentStatus.published,
+                publishedAt: { lte: new Date() },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return authors.map((author) => ({
+      id: author.id,
+      slug: author.slug,
+      name: author.name,
+      position: author.position,
+      avatarMedia: author.avatarMedia,
+      count: author._count.contentItems,
+    }));
+  }
+
   async findAuthorBySlug(slug: string, userId?: string) {
     const author = await this.prisma.author.findUnique({
       where: { slug },

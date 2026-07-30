@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseBoolPipe,
+  ParseEnumPipe,
   Post,
   Query,
   Request,
@@ -101,6 +102,22 @@ export class ContentController {
   @Get('homepage')
   homepage() {
     return this.contentService.findHomepageContent();
+  }
+
+  @Get('content/related/:type/:slug')
+  related(
+    @Param('type', new ParseEnumPipe(ContentType)) type: ContentType,
+    @Param('slug') slug: string,
+  ) {
+    return this.contentService.findRelated(type, slug);
+  }
+
+  @Get('content/neighbors/:type/:slug')
+  neighbors(
+    @Param('type', new ParseEnumPipe(ContentType)) type: ContentType,
+    @Param('slug') slug: string,
+  ) {
+    return this.contentService.findNeighbors(type, slug);
   }
 
   @Get('content/:id/reactions')

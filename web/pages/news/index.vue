@@ -10,6 +10,8 @@ const { data: latestByCategory } = await useAsyncData('latest-by-category-news',
   getLatestByCategory(10).catch(() => []),
 );
 
+useCanonical();
+
 useSeoMeta({
   title: 'Новости',
   description: 'Последние новости виноделия и виноградарства.',

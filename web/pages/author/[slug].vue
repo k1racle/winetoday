@@ -5,6 +5,8 @@ const route = useRoute();
 const slug = route.params.slug as string;
 const { getAuthor, getAuthorContent, subscribeToAuthor, unsubscribeFromAuthor, getAuthorSubscription } = useApi();
 const { isAuthenticated } = useAuth();
+const { goal } = useYm();
+useCanonical();
 
 const [{ data: author }, { data: content }] = await Promise.all([
   useAsyncData(`author-${slug}`, () =>
@@ -64,6 +66,7 @@ async function toggleSubscribe() {
     } else {
       await subscribeToAuthor(slug);
       subscribed.value = true;
+      goal('subscribe');
     }
   } catch {
     // ignore

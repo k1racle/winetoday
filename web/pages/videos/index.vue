@@ -10,6 +10,8 @@ const { data: latestByCategory } = await useAsyncData('latest-by-category-videos
   getLatestByCategory(10).catch(() => []),
 );
 
+useCanonical();
+
 useSeoMeta({
   title: 'Видео — Виноделие сегодня',
   description: 'Видеоматериалы о вине, виноделии и виноградарстве.',

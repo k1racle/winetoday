@@ -58,6 +58,8 @@ const link = computed(() => {
         v-if="item.coverMedia?.path"
         :src="coverSrc"
         :alt="item.coverMedia.altText || item.title"
+        :width="400"
+        :height="imageAspect === 'video' || variant === 'compact' ? 225 : 400"
         loading="lazy"
         decoding="async"
         class="h-full w-full object-cover transition duration-500 group-hover:brightness-95"

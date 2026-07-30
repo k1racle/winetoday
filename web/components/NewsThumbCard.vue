@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import type { ContentItem } from '~/types/content';
 
-const props = defineProps<{
-  item: ContentItem;
-}>();
+const props = withDefaults(
+  defineProps<{
+    item: ContentItem;
+    priority?: boolean;
+  }>(),
+  { priority: false },
+);
 
 const link = computed(() => {
   switch (props.item.type) {
@@ -44,7 +48,10 @@ function editUrl(item: ContentItem) {
         v-if="coverSrc"
         :src="coverSrc"
         :alt="item.coverMedia?.altText || item.title"
-        loading="lazy"
+        :width="360"
+        :height="203"
+        :loading="priority ? 'eager' : 'lazy'"
+        :fetchpriority="priority ? 'high' : undefined"
         decoding="async"
         class="h-full w-full object-cover"
       />

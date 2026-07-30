@@ -61,6 +61,8 @@ const items = computed(() => [
   },
 ]);
 
+const { goal } = useYm();
+
 function toggle() {
   open.value = !open.value;
 }
@@ -69,11 +71,17 @@ function close() {
   open.value = false;
 }
 
+function onShareClick() {
+  goal('share');
+  close();
+}
+
 async function copyLink() {
   if (!props.url) return;
   try {
     await navigator.clipboard.writeText(props.url);
     copied.value = true;
+    goal('share');
     setTimeout(() => (copied.value = false), 2000);
   } catch {
     // ignore
@@ -127,7 +135,7 @@ onClickOutside(panelRef, close, { ignore: [triggerRef] });
               target="_blank"
               rel="noopener"
               class="flex items-center gap-3 rounded-lg px-3 py-2.5 transition hover:bg-accent/10"
-              @click="close"
+              @click="onShareClick"
             >
               <SocialIcon
                 :name="item.icon"

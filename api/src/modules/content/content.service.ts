@@ -67,6 +67,9 @@ export class ContentService {
       where.OR = [
         { title: { contains: term, mode: 'insensitive' } },
         { excerpt: { contains: term, mode: 'insensitive' } },
+        { author: { name: { contains: term, mode: 'insensitive' } } },
+        { tags: { some: { name: { contains: term, mode: 'insensitive' } } } },
+        { categories: { some: { name: { contains: term, mode: 'insensitive' } } } },
       ];
     }
 
@@ -117,6 +120,115 @@ export class ContentService {
     }
 
     return item;
+  }
+
+  async findRelated(type: ContentType, slug: string) {
+    const current = await this.prisma.contentItem.findUnique({
+      where: { type_slug: { type, slug } },
+      include: { tags: { select: { id: true } }, categories: { select: { id: true } } },
+    });
+
+    if (!current) {
+      throw new NotFoundException(`${type} not found`);
+    }
+
+    const publishedWhere: Prisma.ContentItemWhereInput = {
+      type,
+      status: ContentStatus.published,
+      publishedAt: { lte: new Date() },
+      id: { not: current.id },
+    };
+
+    const tagIds = current.tags.map((tag) => tag.id);
+    const categoryIds = current.categories.map((category) => category.id);
+
+    if (!tagIds.length && !categoryIds.length) {
+      const items = await this.prisma.contentItem.findMany({
+        where: publishedWhere,
+        include: contentInclude,
+        orderBy: { publishedAt: 'desc' },
+        take: 8,
+      });
+      return { items };
+    }
+
+    const candidates = await this.prisma.contentItem.findMany({
+      where: {
+        ...publishedWhere,
+        OR: [
+          ...(tagIds.length ? [{ tags: { some: { id: { in: tagIds } } } }] : []),
+          ...(categoryIds.length
+            ? [{ categories: { some: { id: { in: categoryIds } } } }]
+            : []),
+        ],
+      },
+      include: contentInclude,
+      orderBy: { publishedAt: 'desc' },
+      take: 60,
+    });
+
+    const tagIdSet = new Set(tagIds);
+    const categoryIdSet = new Set(categoryIds);
+
+    const scored = candidates.map((item) => ({
+      item,
+      tagMatches: item.tags.filter((tag) => tagIdSet.has(tag.id)).length,
+      categoryMatches: item.categories.filter((category) => categoryIdSet.has(category.id)).length,
+    }));
+
+    scored.sort((a, b) => {
+      if (b.tagMatches !== a.tagMatches) return b.tagMatches - a.tagMatches;
+      if (b.categoryMatches !== a.categoryMatches) return b.categoryMatches - a.categoryMatches;
+      return (b.item.publishedAt?.getTime() || 0) - (a.item.publishedAt?.getTime() || 0);
+    });
+
+    return { items: scored.slice(0, 8).map((entry) => entry.item) };
+  }
+
+  async findNeighbors(type: ContentType, slug: string) {
+    const current = await this.prisma.contentItem.findUnique({
+      where: { type_slug: { type, slug } },
+      select: { id: true, publishedAt: true, status: true },
+    });
+
+    if (
+      !current ||
+      current.status !== ContentStatus.published ||
+      (current.publishedAt && current.publishedAt > new Date())
+    ) {
+      throw new NotFoundException(`${type} not found`);
+    }
+
+    const neighborSelect = {
+      id: true,
+      title: true,
+      slug: true,
+      type: true,
+      coverMedia: true,
+    } satisfies Prisma.ContentItemSelect;
+
+    const baseWhere: Prisma.ContentItemWhereInput = {
+      type,
+      status: ContentStatus.published,
+      id: { not: current.id },
+    };
+
+    const referenceDate = current.publishedAt || new Date();
+
+    const [next, prev] = await Promise.all([
+      this.prisma.contentItem.findFirst({
+        where: { ...baseWhere, publishedAt: { gt: referenceDate, lte: new Date() } },
+        select: neighborSelect,
+        orderBy: { publishedAt: 'asc' },
+      }),
+      this.prisma.contentItem.findFirst({
+        where: { ...baseWhere, publishedAt: { lt: referenceDate } },
+        select: neighborSelect,
+        orderBy: { publishedAt: 'desc' },
+      }),
+    ]);
+
+    return { prev, next };
   }
 
   async findCategories() {

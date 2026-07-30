@@ -16,7 +16,7 @@ const { data: latestByCategory } = useAsyncData('latest-by-category-home', () =>
 );
 
 const { data: allMixed } = useAsyncData('all-mixed', () =>
-  getContent({ type: 'article', limit: 100 }).catch(() => ({ items: [] })),
+  getContent({ type: 'article', limit: 3 }).catch(() => ({ items: [] })),
 );
 
 const topItems = computed<ContentItem[]>(() => {
@@ -49,8 +49,8 @@ function scrollThumbs(direction: number) {
 }
 
 const siteUrl = (useRuntimeConfig().public.siteUrl as string)?.replace(/\/$/, '') || '';
-const firstCoverPath = topItems.value?.[0]?.coverMedia?.path;
-const homeOgImage = firstCoverPath ? useOgImageUrl(useMediaUrl(firstCoverPath)) : '';
+const firstCoverPath = computed(() => topItems.value?.[0]?.coverMedia?.path);
+const homeOgImage = computed(() => (firstCoverPath.value ? useOgImageUrl(useMediaUrl(firstCoverPath.value)) : ''));
 
 useHead({ titleTemplate: '%s' });
 
@@ -81,9 +81,10 @@ useSeoMeta({
             <!-- Mobile: top 3 items look the same (photo on top, text below) -->
             <div class="flex flex-col gap-4 lg:hidden">
               <NewsThumbCard
-                v-for="item in topItems.slice(0, 3)"
+                v-for="(item, index) in topItems.slice(0, 3)"
                 :key="`mob-${item.id}`"
                 :item="item"
+                :priority="index === 0"
               />
             </div>
 

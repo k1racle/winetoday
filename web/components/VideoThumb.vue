@@ -27,6 +27,8 @@ function editUrl(item: ContentItem) {
         v-if="coverSrc"
         :src="coverSrc"
         :alt="item.coverMedia?.altText || item.title"
+        :width="288"
+        :height="162"
         loading="lazy"
         decoding="async"
         class="h-full w-full object-cover transition duration-500 group-hover:brightness-95"

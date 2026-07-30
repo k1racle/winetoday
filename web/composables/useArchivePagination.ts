@@ -10,12 +10,46 @@ interface FetchResult<T> {
   total?: number;
 }
 
+interface SavedPosition {
+  count: number;
+  scrollY: number;
+}
+
 export interface UseArchivePaginationResult<T> {
   items: ComputedRef<T[]>;
   total: Ref<number>;
   isLoading: Ref<boolean>;
   error: Ref<any>;
   loadMore: () => Promise<void>;
+}
+
+const STORAGE_PREFIX = 'archive-pagination:';
+
+function readSavedPosition(key: string): SavedPosition | null {
+  if (!import.meta.client) return null;
+  try {
+    const raw = sessionStorage.getItem(STORAGE_PREFIX + key);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (typeof parsed?.count === 'number' && parsed.count > 0) {
+      return {
+        count: parsed.count,
+        scrollY: typeof parsed.scrollY === 'number' ? parsed.scrollY : 0,
+      };
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+function clearSavedPosition(key: string) {
+  if (!import.meta.client) return;
+  try {
+    sessionStorage.removeItem(STORAGE_PREFIX + key);
+  } catch {
+    // ignore
+  }
 }
 
 export function useArchivePagination<T extends { id: string | number }>(
@@ -34,6 +68,7 @@ export function useArchivePagination<T extends { id: string | number }>(
   const error = ref<any>(null);
   const allItems = ref<T[]>([]);
   const total = ref<number>(0);
+  const restoredScrollY = ref<number | null>(null);
 
   const getExcludeIds = () => {
     if (!options.excludeIds) return new Set<string | number>();
@@ -44,42 +79,6 @@ export function useArchivePagination<T extends { id: string | number }>(
     const exclude = getExcludeIds();
     return allItems.value.filter((i) => !exclude.has(i.id));
   });
-
-  const { data: initialData, error: initialError } = useAsyncData(key, async () => {
-    const first = await fetcher({ limit: itemsPerPage, offset: 0 }).catch(() => ({
-      items: [] as T[],
-      total: undefined,
-    }));
-    allItems.value = first.items || [];
-    total.value = first.total ?? 0;
-
-    async function fetchChunk(limit: number, offset: number): Promise<FetchResult<T>> {
-      return fetcher({ limit, offset }).catch(() => ({ items: [] as T[], total: undefined }));
-    }
-
-    async function fillToRow() {
-      while (filteredItems.value.length < total.value && filteredItems.value.length % rowSize !== 0) {
-        const needed = rowSize - (filteredItems.value.length % rowSize);
-        const next = await fetchChunk(needed, allItems.value.length);
-        const newItems = next.items || [];
-        if (!newItems.length) break;
-        allItems.value.push(...newItems);
-        total.value = next.total ?? total.value;
-      }
-    }
-
-    await fillToRow();
-    return { items: allItems.value, total: total.value };
-  });
-
-  watchEffect(() => {
-    if (initialData.value) {
-      allItems.value = initialData.value.items || [];
-      total.value = initialData.value.total || 0;
-    }
-  });
-
-  error.value = initialError.value;
 
   async function fetchChunk(limit: number, offset: number): Promise<FetchResult<T>> {
     return fetcher({ limit, offset }).catch(() => ({ items: [] as T[], total: undefined }));
@@ -96,6 +95,41 @@ export function useArchivePagination<T extends { id: string | number }>(
     }
   }
 
+  // Догружает элементы, если при уходе со страницы было загружено больше,
+  // чтобы вернуть список в то же состояние (см. onBeforeUnmount ниже).
+  async function restoreSavedPosition() {
+    const saved = readSavedPosition(key);
+    if (!saved) return;
+    while (allItems.value.length < saved.count && allItems.value.length < total.value) {
+      const next = await fetchChunk(itemsPerPage, allItems.value.length);
+      const newItems = next.items || [];
+      if (!newItems.length) break;
+      allItems.value.push(...newItems);
+      total.value = next.total ?? total.value;
+    }
+    restoredScrollY.value = saved.scrollY;
+    clearSavedPosition(key);
+  }
+
+  const { data: initialData, error: initialError } = useAsyncData(key, async () => {
+    const first = await fetchChunk(itemsPerPage, 0);
+    allItems.value = first.items || [];
+    total.value = first.total ?? 0;
+
+    await restoreSavedPosition();
+    await fillToRow();
+    return { items: allItems.value, total: total.value };
+  });
+
+  watchEffect(() => {
+    if (initialData.value) {
+      allItems.value = initialData.value.items || [];
+      total.value = initialData.value.total || 0;
+    }
+  });
+
+  error.value = initialError.value;
+
   async function loadMore() {
     if (isLoading.value || filteredItems.value.length >= total.value) return;
     isLoading.value = true;
@@ -108,6 +142,33 @@ export function useArchivePagination<T extends { id: string | number }>(
       isLoading.value = false;
     }
   }
+
+  // Скролл восстанавливаем через watch, а не onMounted: useAsyncData не await-ится
+  // в вызывающих страницах, поэтому restoredScrollY может появиться после монтирования.
+  if (import.meta.client) {
+    const stop = watch(restoredScrollY, (y) => {
+      if (y == null || y <= 0) return;
+      stop();
+      restoredScrollY.value = null;
+      nextTick(() => {
+        window.scrollTo(0, y);
+        // Вторая попытка после отрисовки картинок, которые могут сдвинуть layout.
+        setTimeout(() => window.scrollTo(0, y), 300);
+      });
+    });
+  }
+
+  onBeforeUnmount(() => {
+    if (!import.meta.client) return;
+    try {
+      sessionStorage.setItem(
+        STORAGE_PREFIX + key,
+        JSON.stringify({ count: allItems.value.length, scrollY: window.scrollY }),
+      );
+    } catch {
+      // ignore
+    }
+  });
 
   return {
     items: filteredItems,

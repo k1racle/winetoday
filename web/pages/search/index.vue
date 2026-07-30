@@ -1,32 +1,56 @@
 <script setup lang="ts">
+// Пересоздаём страницу при смене query, чтобы пагинация инициализировалась заново.
+definePageMeta({
+  key: (route) => route.fullPath,
+});
+
 const route = useRoute();
-const router = useRouter();
 const { getContent } = useApi();
 
 const query = computed(() => (route.query.q as string) || '');
 
-const { data: result, pending } = useAsyncData(
-  () => `search-${query.value}`,
-  async () => {
+const { goal } = useYm();
+
+const searched = ref(false);
+let goalTracked = false;
+
+const { items, total, isLoading, loadMore } = useArchivePagination(
+  async ({ limit, offset }) => {
     if (!query.value) {
-      return { primary: { items: [], total: 0 }, alternate: null, altQuery: '' };
+      searched.value = true;
+      return { items: [], total: 0 };
     }
-    const altQuery = convertKeyboardLayout(query.value, 'auto');
-    const [primary, alternate] = await Promise.all([
-      getContent({ search: query.value, limit: 24 }).catch(() => ({ items: [], total: 0 })),
-      altQuery !== query.value
-        ? getContent({ search: altQuery, limit: 24 }).catch(() => ({ items: [], total: 0 }))
-        : Promise.resolve(null),
-    ]);
-    return { primary, alternate, altQuery };
+    try {
+      const res = await getContent({ search: query.value, limit, offset });
+      if (offset === 0 && !goalTracked) {
+        goalTracked = true;
+        goal('search');
+      }
+      return res;
+    } catch {
+      return { items: [], total: 0 };
+    } finally {
+      searched.value = true;
+    }
   },
-  { watch: [query] },
+  `search-${query.value}`,
+  { itemsPerPage: 12, rowSize: 3 },
 );
 
-const items = computed(() => result.value?.primary?.items || []);
-const total = computed(() => result.value?.primary?.total || 0);
-const altQuery = computed(() => result.value?.altQuery || '');
-const altTotal = computed(() => result.value?.alternate?.total || 0);
+const pending = computed(() => Boolean(query.value) && !searched.value);
+
+// Альтернативная раскладка запроса («зdjghc» → «запрос») — только для подсказки.
+const altQuery = computed(() => (query.value ? convertKeyboardLayout(query.value, 'auto') : ''));
+
+const { data: altResult } = useAsyncData(
+  `search-alt-${query.value}`,
+  () =>
+    query.value && altQuery.value !== query.value
+      ? getContent({ search: altQuery.value, limit: 1 }).catch(() => ({ items: [], total: 0 }))
+      : Promise.resolve(null),
+);
+
+const altTotal = computed(() => altResult.value?.total || 0);
 const showAltSuggestion = computed(() => total.value === 0 && altTotal.value > 0);
 
 useSeoMeta({
@@ -70,7 +94,14 @@ useSeoMeta({
           hideExcerpt
         />
       </div>
-      <div v-else-if="query && !showAltSuggestion" class="py-12 text-center text-foreground/60">
+      <div v-if="items.length < total" class="mt-8">
+        <InfiniteScrollTrigger
+          :loading="isLoading"
+          :has-more="items.length < total"
+          @load="loadMore"
+        />
+      </div>
+      <div v-else-if="query && !items.length && !showAltSuggestion" class="py-12 text-center text-foreground/60">
         Ничего не найдено.
       </div>
     </template>

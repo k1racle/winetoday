@@ -8,19 +8,19 @@ const props = defineProps<{
   typeRoute: string;
 }>();
 
-const { getLatestByCategory, getVideos, getReactions, react, getComments, createComment, deleteComment } = useApi();
+const { getLatestByCategory, getRelated, getNeighbors, getReactions, react, getComments, createComment, deleteComment } = useApi();
 const { user, isAuthenticated } = useAuth();
 const viewerId = ref('');
 const { data: categoryGroups } = await useAsyncData('latest-by-category-detail', () =>
   getLatestByCategory(10).catch(() => []),
 );
 
-const { data: relatedVideosList } = await useAsyncData(
-  `related-videos-${props.item.id}`,
-  () =>
-    props.item.type === 'video'
-      ? getVideos({ limit: 10 }).catch(() => ({ items: [] }))
-      : Promise.resolve({ items: [] }),
+const { data: relatedList } = await useAsyncData(`related-${props.item.id}`, () =>
+  getRelated(props.item.type, props.item.slug).catch(() => []),
+);
+
+const { data: neighbors } = await useAsyncData(`neighbors-${props.item.id}`, () =>
+  getNeighbors(props.item.type, props.item.slug).catch(() => ({ prev: null, next: null })),
 );
 
 const meta = computed(() => useContentMeta(props.item));
@@ -205,34 +205,68 @@ const bodyBlocks = computed(() => {
 });
 
 const relatedItems = computed(() => {
-  const currentId = props.item.id;
-  const currentType = props.item.type;
-  const excludeIds = new Set([currentId, ...readIds.value]);
-  const typeFilter = (i: ContentItem) => !excludeIds.has(i.id);
+  const excludeIds = new Set([props.item.id, ...readIds.value]);
+  const raw = relatedList.value;
+  const list: ContentItem[] = Array.isArray(raw) ? raw : ((raw as any)?.items || []);
+  return list.filter((i) => i && !excludeIds.has(i.id));
+});
 
-  if (currentType === 'video') {
-    const videos = (relatedVideosList.value?.items || []).filter(typeFilter);
-    return videos;
+function itemUrl(item: ContentItem) {
+  switch (item.type) {
+    case 'article':
+      return `/articles/${item.slug}`;
+    case 'news':
+      return `/news/${item.slug}`;
+    case 'video':
+      return `/videos/${item.slug}`;
+    case 'gallery':
+      return `/gallery/${item.slug}`;
+    default:
+      return '/';
   }
+}
 
-  const groups = categoryGroups.value || [];
-  if (!groups.length) return [];
-  const categoryId = props.item.categories?.[0]?.id;
+const prevItem = computed<ContentItem | null>(() => (neighbors.value as any)?.prev || null);
+const nextItem = computed<ContentItem | null>(() => (neighbors.value as any)?.next || null);
 
-  let items: ContentItem[] = [];
-  if (categoryId) {
-    const group = groups.find((g) => g.category.id === categoryId);
-    if (group) items = group.items.filter(typeFilter);
+// Для галерей архив живёт на /gallery, для остальных типов берём typeRoute из пропсов.
+const archiveRoute = computed(() => (props.item.type === 'gallery' ? '/gallery' : props.typeRoute));
+
+const firstCategory = computed(() => props.item.categories?.[0] || null);
+
+const runtimeConfig = useRuntimeConfig();
+const route = useRoute();
+const siteUrl = ((runtimeConfig.public.siteUrl as string) || '').replace(/\/$/, '');
+
+const breadcrumbItems = computed(() => {
+  const items: { name: string; url: string }[] = [
+    { name: 'Главная', url: '/' },
+    { name: props.typeLabel, url: archiveRoute.value },
+  ];
+  if (firstCategory.value) {
+    items.push({ name: firstCategory.value.name, url: `/category/${firstCategory.value.slug}` });
   }
-  const existingIds = new Set(items.map((i) => i.id));
-  const allItems = groups.flatMap((g) => g.items).filter(typeFilter);
-  for (const item of allItems) {
-    if (!existingIds.has(item.id)) {
-      items.push(item);
-    }
-  }
+  items.push({ name: props.item.title, url: route.path });
   return items;
 });
+
+useHead(() => ({
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbItems.value.map((it, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: it.name,
+          item: `${siteUrl}${it.url}`,
+        })),
+      }),
+    },
+  ],
+}));
 
 const relatedLimit = ref(3);
 const displayedRelatedItems = computed(() => relatedItems.value.slice(0, relatedLimit.value));
@@ -252,7 +286,11 @@ function loadMoreRelated() {
         <nav class="mb-4 flex items-center gap-2 text-xs font-normal uppercase tracking-wider text-foreground/50">
           <NuxtLink to="/" class="hover:text-foreground">Главная</NuxtLink>
           <span>/</span>
-          <NuxtLink :to="typeRoute" class="hover:text-foreground">{{ typeLabel }}</NuxtLink>
+          <NuxtLink :to="archiveRoute" class="hover:text-foreground">{{ typeLabel }}</NuxtLink>
+          <template v-if="firstCategory">
+            <span>/</span>
+            <NuxtLink :to="`/category/${firstCategory.slug}`" class="hover:text-foreground">{{ firstCategory.name }}</NuxtLink>
+          </template>
         </nav>
 
         <!-- Title -->
@@ -327,6 +365,35 @@ function loadMoreRelated() {
             {{ item.excerpt }}
           </p>
         </div>
+
+        <!-- Prev / next navigation -->
+        <nav v-if="prevItem || nextItem" class="mt-10 grid gap-3 border-t border-foreground/10 pt-6 sm:grid-cols-2">
+          <NuxtLink
+            v-if="prevItem"
+            :to="itemUrl(prevItem)"
+            class="group flex flex-col gap-1 border border-foreground/10 bg-card p-4 transition hover:border-accent"
+          >
+            <span class="text-xs font-normal uppercase tracking-wider text-foreground/50 transition group-hover:text-accent">
+              ← Предыдущий материал
+            </span>
+            <span class="line-clamp-2 font-heading text-base font-normal leading-snug">
+              {{ prevItem.title }}
+            </span>
+          </NuxtLink>
+          <span v-else class="hidden sm:block" />
+          <NuxtLink
+            v-if="nextItem"
+            :to="itemUrl(nextItem)"
+            class="group flex flex-col gap-1 border border-foreground/10 bg-card p-4 text-right transition hover:border-accent"
+          >
+            <span class="text-xs font-normal uppercase tracking-wider text-foreground/50 transition group-hover:text-accent">
+              Следующий материал →
+            </span>
+            <span class="line-clamp-2 font-heading text-base font-normal leading-snug">
+              {{ nextItem.title }}
+            </span>
+          </NuxtLink>
+        </nav>
 
         <!-- Reactions -->
         <div class="mt-10 flex items-center justify-between border-t border-foreground/10 pt-4">

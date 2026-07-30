@@ -15,6 +15,11 @@ import { AuthorsService } from './authors.service';
 export class AuthorsController {
   constructor(private readonly authorsService: AuthorsService) {}
 
+  @Get()
+  async findAll() {
+    return this.authorsService.findAll();
+  }
+
   @Get(':slug')
   @UseGuards(OptionalJwtAuthGuard)
   async findBySlug(@Param('slug') slug: string, @Request() req) {

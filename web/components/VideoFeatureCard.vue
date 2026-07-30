@@ -42,6 +42,10 @@ function editUrl(item: ContentItem) {
         v-if="coverSrc"
         :src="coverSrc"
         :alt="item.coverMedia?.altText || item.title"
+        :width="1200"
+        :height="675"
+        loading="lazy"
+        decoding="async"
         class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:brightness-95"
       />
       <div v-if="showTitle" class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />

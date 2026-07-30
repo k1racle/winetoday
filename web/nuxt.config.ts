@@ -22,8 +22,8 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'preload', href: '/fonts/Lato-Regular.ttf', as: 'font', type: 'font/ttf', crossorigin: '' },
-        { rel: 'preload', href: '/fonts/Lato-Bold.ttf', as: 'font', type: 'font/ttf', crossorigin: '' },
+        { rel: 'preload', href: '/fonts/Lato-Regular.woff2', as: 'font', type: 'font/woff2', crossorigin: '' },
+        { rel: 'preload', href: '/fonts/Lato-Bold.woff2', as: 'font', type: 'font/woff2', crossorigin: '' },
       ],
     },
   },
@@ -51,6 +51,7 @@ export default defineNuxtConfig({
       mediaBaseUrl: process.env.NUXT_PUBLIC_MEDIA_BASE_URL || 'http://localhost:4000',
       editorUrl: process.env.NUXT_PUBLIC_EDITOR_URL || 'http://localhost:3000/account',
       uploadsUrl: process.env.NUXT_PUBLIC_UPLOADS_URL || 'http://localhost:4000/uploads',
+      ymId: Number(process.env.NUXT_PUBLIC_YM_ID) || 108722624,
     },
   },
   image: {

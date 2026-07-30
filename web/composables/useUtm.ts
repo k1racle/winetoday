@@ -48,8 +48,19 @@ function saveUtm(params: UtmParams) {
   setCookie(UTM_COOKIE_NAME, JSON.stringify(params), UTM_TTL_DAYS);
 }
 
+function isSameUtm(a: UtmParams, b: UtmParams): boolean {
+  const normalize = (params: UtmParams) =>
+    JSON.stringify(
+      Object.keys(params)
+        .sort()
+        .map((key) => [key, params[key as keyof UtmParams]]),
+    );
+  return normalize(a) === normalize(b);
+}
+
 export function useUtm() {
   const route = useRoute();
+  const { ymId } = useYm();
   const utm = ref<UtmParams>({});
 
   function updateUtm() {
@@ -61,7 +72,9 @@ export function useUtm() {
       saveUtm(merged);
     }
     utm.value = merged;
-    pushToDataLayer(merged);
+    if (!isSameUtm(merged, stored)) {
+      pushToDataLayer(merged, ymId);
+    }
   }
 
   onMounted(updateUtm);
@@ -70,7 +83,7 @@ export function useUtm() {
   return { utm: readonly(utm) };
 }
 
-function pushToDataLayer(params: UtmParams) {
+function pushToDataLayer(params: UtmParams, ymId: number) {
   if (import.meta.server) return;
   if (!Object.keys(params).length) return;
   try {
@@ -78,7 +91,7 @@ function pushToDataLayer(params: UtmParams) {
     w.dataLayer = w.dataLayer || [];
     w.dataLayer.push({ event: 'utm_detected', ...params });
     if (typeof w.ym === 'function') {
-      w.ym(108722624, 'params', params);
+      w.ym(ymId, 'params', params);
     }
   } catch {
     // ignore

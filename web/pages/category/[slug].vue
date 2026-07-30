@@ -23,6 +23,12 @@ const category = computed(() =>
   (categories.value || []).find((c: any) => c.slug === slug),
 );
 
+if (!category.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Рубрика не найдена' });
+}
+
+useCanonical();
+
 const archiveSeo = useArchiveSeo(slug, category.value?.name);
 useSeoMeta({
   title: archiveSeo.title.value || `${category.value?.name || slug} — Виноделие сегодня`,
