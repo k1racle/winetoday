@@ -83,6 +83,21 @@ export class EditorService {
       dto.publishedAt = undefined;
     }
 
+    // Server-side guard: a published material must be complete.
+    // Drafts and scheduled items are not affected.
+    if (dto.status === ContentStatus.published) {
+      const missing: string[] = [];
+      if (!dto.title?.trim()) missing.push('заголовок');
+      if (!dto.excerpt?.trim()) missing.push('краткое описание');
+      if (!dto.coverMediaId) missing.push('обложка');
+      if (!dto.categoryIds?.length) missing.push('хотя бы одна рубрика');
+      if (missing.length) {
+        throw new BadRequestException(
+          `Для публикации не заполнены обязательные поля: ${missing.join(', ')}`,
+        );
+      }
+    }
+
     if (isScheduling && !dto.publishedAt) {
       throw new BadRequestException('Scheduled publication requires a date and time');
     }

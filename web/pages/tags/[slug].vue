@@ -1,8 +1,18 @@
 <script setup lang="ts">
 import type { ContentItem } from '~/types/content';
 
+// Пересоздаём страницу при смене query, чтобы пагинация (?page=N) инициализировалась заново.
+definePageMeta({
+  key: (route) => route.fullPath,
+});
+
 const route = useRoute();
 const slug = route.params.slug as string;
+
+const currentPage = computed(() => {
+  const n = Number(route.query.page);
+  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1;
+});
 
 const { getContent, getTags, getLatestByCategory } = useApi();
 
@@ -31,11 +41,14 @@ if (!tag.value) {
   throw createError({ statusCode: 404, statusMessage: 'Тег не найден' });
 }
 
-useCanonical();
+useCanonical(currentPage.value > 1 ? `${route.path}?page=${currentPage.value}` : undefined);
 
 const archiveSeo = useArchiveSeo(slug, tag.value?.name);
 useSeoMeta({
-  title: archiveSeo.title.value || `${tag.value?.name || slug} — Виноделие сегодня`,
+  title: () => {
+    const base = archiveSeo.title.value || `${tag.value?.name || slug} — Виноделие сегодня`;
+    return currentPage.value > 1 ? `${base} — страница ${currentPage.value}` : base;
+  },
   description: archiveSeo.description.value || `Материалы по тегу «${tag.value?.name || slug}».`,
 });
 </script>
@@ -78,6 +91,7 @@ useSeoMeta({
             @load="loadMore"
           />
         </div>
+        <ArchivePagination :total="total" :items-per-page="24" />
       </div>
 
       <!-- Sidebar -->

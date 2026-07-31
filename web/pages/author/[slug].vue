@@ -93,6 +93,27 @@ useSeoMeta({
   title: `${profile.value?.name || slug} — Автор`,
   description: profile.value?.bio || `Материалы автора ${profile.value?.name || slug}`,
 });
+
+// JSON-LD Person (значения вычислены в setup, не в computed)
+const config = useRuntimeConfig();
+const siteUrl = (config.public.siteUrl as string)?.replace(/\/$/, '') || '';
+const authorImage = useMediaUrl(profile.value?.avatarMedia?.path);
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        name: profile.value?.name,
+        jobTitle: profile.value?.position || undefined,
+        image: authorImage || undefined,
+        url: `${siteUrl}${route.path}`,
+      }),
+    },
+  ],
+});
 </script>
 
 <template>

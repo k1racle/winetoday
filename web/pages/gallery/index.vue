@@ -1,5 +1,16 @@
 <script setup>
+// Пересоздаём страницу при смене query, чтобы пагинация (?page=N) инициализировалась заново.
+definePageMeta({
+  key: (route) => route.fullPath,
+});
+
+const route = useRoute();
 const { getContent, getLatestByCategory } = useApi();
+
+const currentPage = computed(() => {
+  const n = Number(route.query.page);
+  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1;
+});
 
 const { items, total, isLoading, loadMore } = useArchivePagination(
   ({ limit, offset }) => getContent({ type: 'gallery', limit, offset }),
@@ -10,10 +21,13 @@ const { data: latestByCategory } = await useAsyncData('latest-by-category-galler
   getLatestByCategory(10).catch(() => []),
 );
 
-useCanonical();
+useCanonical(currentPage.value > 1 ? `${route.path}?page=${currentPage.value}` : undefined);
 
 useSeoMeta({
-  title: 'Галерея — Виноделие сегодня',
+  title: () =>
+    currentPage.value > 1
+      ? `Галерея — страница ${currentPage.value} — Виноделие сегодня`
+      : 'Галерея — Виноделие сегодня',
   description: 'Фотогалереи о вине, виноделии и виноградарстве.',
 });
 </script>
@@ -39,6 +53,7 @@ useSeoMeta({
             @load="loadMore"
           />
         </div>
+        <ArchivePagination :total="total" :items-per-page="24" />
       </div>
       <aside class="order-last flex w-full flex-col gap-4 lg:w-1/4">
         <SidebarByCategory :groups="latestByCategory || []" />

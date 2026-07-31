@@ -635,6 +635,15 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
   try {
     if (!form.title.trim()) throw new Error('Заголовок обязателен');
     const body = buildBody(status);
+    if (body.status === 'published') {
+      const missing: string[] = [];
+      if (!form.excerpt.trim()) missing.push('краткое описание');
+      if (!form.coverMediaId) missing.push('обложка');
+      if (!form.categoryIds.length) missing.push('хотя бы одна рубрика');
+      if (missing.length) {
+        throw new Error(`Для публикации не заполнены обязательные поля: ${missing.join(', ')}`);
+      }
+    }
     const res: any = await saveDraft(body);
     form.id = res.id;
     if (body.status === 'scheduled') {

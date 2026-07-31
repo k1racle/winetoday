@@ -20,15 +20,9 @@ async function onSubscribe() {
   subscribeSuccess.value = '';
   subscribeError.value = '';
   try {
-    await subscribeNewsletter(email);
-    subscribeSuccess.value = 'Вы подписаны на рассылку';
+    await subscribeNewsletter(email, ['week_digest']);
+    subscribeSuccess.value = 'Проверьте почту для подтверждения';
     subscribeEmail.value = '';
-    useYm().event('subscription_success', {
-      channel: 'email',
-      product: 'newsletter',
-      placement: 'footer',
-      source: 'site',
-    });
   } catch (err: any) {
     subscribeError.value = err?.data?.message || err?.message || 'Не удалось оформить подписку';
   } finally {
@@ -85,6 +79,9 @@ async function onSubscribe() {
                 {{ subscribeLoading ? 'Отправка...' : 'Подписаться' }}
               </button>
             </form>
+            <NuxtLink to="/subscribe" class="mt-2 inline-block text-xs text-white/60 transition hover:text-accent">
+              Выбрать темы подписки
+            </NuxtLink>
             <p v-if="subscribeSuccess" class="mt-2 text-xs text-green-400">{{ subscribeSuccess }}</p>
             <p v-if="subscribeError" class="mt-2 text-xs text-red-400">{{ subscribeError }}</p>
           </div>

@@ -64,6 +64,16 @@ export function useArchivePagination<T extends { id: string | number }>(
   const itemsPerPage = options.itemsPerPage ?? 24;
   const rowSize = options.rowSize ?? 3;
 
+  // Индексируемая пагинация: начальная страница берётся из ?page=N.
+  // Страницы с page-параметром пересоздаются на каждую навигацию
+  // (definePageMeta({ key: route => route.fullPath }) на страницах архивов),
+  // поэтому значение читаем один раз при setup.
+  const route = useRoute();
+  const rawPage = Number(route.query.page);
+  const initialPage = Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1;
+  const hasPageParam = route.query.page != null;
+  const baseOffset = (initialPage - 1) * itemsPerPage;
+
   const isLoading = ref(false);
   const error = ref<any>(null);
   const allItems = ref<T[]>([]);
@@ -87,7 +97,7 @@ export function useArchivePagination<T extends { id: string | number }>(
   async function fillToRow() {
     while (filteredItems.value.length < total.value && filteredItems.value.length % rowSize !== 0) {
       const needed = rowSize - (filteredItems.value.length % rowSize);
-      const next = await fetchChunk(needed, allItems.value.length);
+      const next = await fetchChunk(needed, baseOffset + allItems.value.length);
       const newItems = next.items || [];
       if (!newItems.length) break;
       allItems.value.push(...newItems);
@@ -98,10 +108,13 @@ export function useArchivePagination<T extends { id: string | number }>(
   // Догружает элементы, если при уходе со страницы было загружено больше,
   // чтобы вернуть список в то же состояние (см. onBeforeUnmount ниже).
   async function restoreSavedPosition() {
+    // При явном page-параметре восстановление позиции не нужно:
+    // страница загружает свою порцию, а не продолжает предыдущий скролл.
+    if (hasPageParam) return;
     const saved = readSavedPosition(key);
     if (!saved) return;
     while (allItems.value.length < saved.count && allItems.value.length < total.value) {
-      const next = await fetchChunk(itemsPerPage, allItems.value.length);
+      const next = await fetchChunk(itemsPerPage, baseOffset + allItems.value.length);
       const newItems = next.items || [];
       if (!newItems.length) break;
       allItems.value.push(...newItems);
@@ -111,8 +124,8 @@ export function useArchivePagination<T extends { id: string | number }>(
     clearSavedPosition(key);
   }
 
-  const { data: initialData, error: initialError } = useAsyncData(key, async () => {
-    const first = await fetchChunk(itemsPerPage, 0);
+  const { data: initialData, error: initialError } = useAsyncData(`${key}-p${initialPage}`, async () => {
+    const first = await fetchChunk(itemsPerPage, baseOffset);
     allItems.value = first.items || [];
     total.value = first.total ?? 0;
 
@@ -134,7 +147,7 @@ export function useArchivePagination<T extends { id: string | number }>(
     if (isLoading.value || filteredItems.value.length >= total.value) return;
     isLoading.value = true;
     try {
-      const next = await fetchChunk(itemsPerPage, allItems.value.length);
+      const next = await fetchChunk(itemsPerPage, baseOffset + allItems.value.length);
       allItems.value.push(...(next.items || []));
       total.value = next.total ?? total.value;
       await fillToRow();
@@ -160,6 +173,9 @@ export function useArchivePagination<T extends { id: string | number }>(
 
   onBeforeUnmount(() => {
     if (!import.meta.client) return;
+    // Позицию сохраняем только для первой страницы архива (без page-параметра):
+    // именно туда пользователь возвращается «назад» из материала.
+    if (initialPage !== 1) return;
     try {
       sessionStorage.setItem(
         STORAGE_PREFIX + key,

@@ -9,6 +9,11 @@ const { getContent } = useApi();
 
 const query = computed(() => (route.query.q as string) || '');
 
+const currentPage = computed(() => {
+  const n = Number(route.query.page);
+  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1;
+});
+
 const { goal, event } = useYm();
 
 const searched = ref(false);
@@ -84,7 +89,10 @@ const altTotal = computed(() => altResult.value?.total || 0);
 const showAltSuggestion = computed(() => total.value === 0 && altTotal.value > 0);
 
 useSeoMeta({
-  title: () => (query.value ? `Поиск: ${query.value}` : 'Поиск'),
+  title: () => {
+    const base = query.value ? `Поиск: ${query.value}` : 'Поиск';
+    return currentPage.value > 1 ? `${base} — страница ${currentPage.value}` : base;
+  },
   description: 'Поиск по материалам сайта.',
 });
 </script>
@@ -135,6 +143,11 @@ useSeoMeta({
       <div v-else-if="query && !items.length && !showAltSuggestion" class="py-12 text-center text-foreground/60">
         Ничего не найдено.
       </div>
+      <ArchivePagination
+        :total="total"
+        :items-per-page="12"
+        :extra-query="query ? { q: query } : {}"
+      />
     </template>
   </div>
 </template>

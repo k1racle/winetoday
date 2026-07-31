@@ -68,13 +68,32 @@ export function useContentSeo(item: ContentItem | ContentSeo | null | undefined)
     },
   };
 
+  const scripts = [
+    {
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify(jsonLd),
+    },
+  ];
+
+  // Для видео добавляем второй ld+json скрипт VideoObject
+  if (item.type === 'video') {
+    const videoLd = {
+      '@context': 'https://schema.org',
+      '@type': 'VideoObject',
+      name: item.title,
+      description: item.excerpt || undefined,
+      thumbnailUrl: coverUrl || undefined,
+      uploadDate: item.publishedAt || undefined,
+      embedUrl: item.videoUrl || undefined,
+    };
+    scripts.push({
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify(videoLd),
+    });
+  }
+
   useHead({
     link: [{ rel: 'canonical', href: canonicalUrl }],
-    script: [
-      {
-        type: 'application/ld+json',
-        innerHTML: JSON.stringify(jsonLd),
-      },
-    ],
+    script: scripts,
   });
 }

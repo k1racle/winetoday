@@ -2,7 +2,22 @@
 interface Subscriber {
   id: string;
   email: string;
+  topics: string[];
+  confirmedAt: string | null;
   createdAt: string;
+}
+
+const topicLabels: Record<string, string> = {
+  morning_brief: 'Утренний обзор',
+  week_digest: 'Недельная аналитика',
+  regulation: 'Регулирование',
+  data: 'Данные и исследования',
+  events: 'События',
+};
+
+function formatTopics(topics: string[]) {
+  if (!Array.isArray(topics) || !topics.length) return '—';
+  return topics.map((t) => topicLabels[t] || t).join(', ');
 }
 
 const { user, isAuthenticated } = useAuth();
@@ -63,12 +78,18 @@ onMounted(() => {
         <thead class="bg-foreground/10">
           <tr>
             <th class="border border-foreground/10 px-4 py-2 text-left">E-mail</th>
+            <th class="border border-foreground/10 px-4 py-2 text-left">Темы</th>
+            <th class="border border-foreground/10 px-4 py-2 text-left">Подтверждён</th>
             <th class="border border-foreground/10 px-4 py-2 text-left">Дата подписки</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="item in subscribers" :key="item.id" class="bg-foreground/5">
             <td class="border border-foreground/10 px-4 py-2">{{ item.email }}</td>
+            <td class="border border-foreground/10 px-4 py-2">{{ formatTopics(item.topics) }}</td>
+            <td class="border border-foreground/10 px-4 py-2">
+              {{ item.confirmedAt ? formatDate(item.confirmedAt) : 'Нет' }}
+            </td>
             <td class="border border-foreground/10 px-4 py-2">{{ formatDate(item.createdAt) }}</td>
           </tr>
         </tbody>

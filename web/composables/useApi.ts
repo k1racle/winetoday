@@ -205,8 +205,14 @@ export function useApi() {
     deleteAuthor: (id: string) =>
       api(`/admin/authors/${id}`, { method: 'DELETE', credentials: 'include' }),
     // Newsletter
-    subscribeNewsletter: (email: string) =>
-      api('/newsletter/subscribe', { method: 'POST', body: { email } }),
+    subscribeNewsletter: (email: string, topics?: string[]) =>
+      api('/newsletter/subscribe', { method: 'POST', body: { email, topics } }),
+    confirmNewsletter: (token: string) =>
+      api('/newsletter/confirm', { query: { token } }),
+    getNewsletterPreferences: (token: string) =>
+      api('/newsletter/preferences', { query: { token } }),
+    updateNewsletterPreferences: (token: string, body: { topics: string[]; isActive: boolean }) =>
+      api('/newsletter/preferences', { method: 'POST', body: { token, ...body } }),
     unsubscribeNewsletter: (token: string) =>
       api('/newsletter/unsubscribe', { query: { token } }),
     getNewsletterSubscribers: () =>
