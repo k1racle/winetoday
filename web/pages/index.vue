@@ -48,9 +48,18 @@ function scrollThumbs(direction: number) {
   thumbScroll.value?.scrollBy({ left: direction * 320, behavior: 'smooth' });
 }
 
-const siteUrl = (useRuntimeConfig().public.siteUrl as string)?.replace(/\/$/, '') || '';
-const firstCoverPath = computed(() => topItems.value?.[0]?.coverMedia?.path);
-const homeOgImage = computed(() => (firstCoverPath.value ? useOgImageUrl(useMediaUrl(firstCoverPath.value)) : ''));
+const runtimeConfig = useRuntimeConfig();
+const siteUrl = (runtimeConfig.public.siteUrl as string)?.replace(/\/$/, '') || '';
+const mediaBaseUrl = (runtimeConfig.public.mediaBaseUrl as string)?.replace(/\/$/, '') || '';
+// Важно: computed, переданный в useSeoMeta, вычисляется unhead'ом вне контекста
+// компонента, поэтому внутри нельзя вызывать composable'ы (useMediaUrl и т.п.) —
+// иначе SSR падает с "[nuxt] instance unavailable".
+const homeOgImage = computed(() => {
+  const path = topItems.value?.[0]?.coverMedia?.path;
+  if (!path) return '';
+  const src = /^https?:\/\//.test(path) ? path : `${mediaBaseUrl}${path}`;
+  return `${siteUrl}/api/og-image?src=${encodeURIComponent(src)}`;
+});
 
 useHead({ titleTemplate: '%s' });
 
