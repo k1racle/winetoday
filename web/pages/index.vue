@@ -37,10 +37,31 @@ const freshItems = computed<ContentItem[]>(() => {
     .slice(0, 7);
 });
 
+const HOME_ARTICLES_LIMIT = 36;
+
 const { items: articles, total: articlesTotal, isLoading, loadMore } = useArchivePagination(
   ({ limit, offset }) => getContent({ type: 'article', limit, offset }),
   'home-articles',
+  { itemsPerPage: 12 },
 );
+
+const canLoadMoreArticles = computed(
+  () => articles.value.length < Math.min(HOME_ARTICLES_LIMIT, articlesTotal.value),
+);
+
+// Перед уходом в архив запоминаем, сколько статей уже показано на главной, —
+// архив откроется с тем же количеством загруженных карточек.
+function goToArticlesArchive() {
+  if (!import.meta.client) return;
+  try {
+    sessionStorage.setItem(
+      'archive-pagination:articles-list',
+      JSON.stringify({ count: articles.value.length, scrollY: 0 }),
+    );
+  } catch {
+    // ignore
+  }
+}
 
 const thumbScroll = ref<HTMLDivElement | null>(null);
 
@@ -195,12 +216,26 @@ useSeoMeta({
                 variant="compact"
               />
             </div>
-            <div v-if="articles.length < articlesTotal" class="mt-8">
-              <InfiniteScrollTrigger
-                :loading="isLoading"
-                :has-more="articles.length < articlesTotal"
-                @load="loadMore"
-              />
+            <div class="mt-8 flex flex-wrap items-center gap-3">
+              <button
+                v-if="canLoadMoreArticles"
+                type="button"
+                :disabled="isLoading"
+                class="inline-flex items-center rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent disabled:opacity-50"
+                @click="loadMore"
+              >
+                {{ isLoading ? 'Загрузка...' : 'Ещё' }}
+                <span class="ml-1">↓</span>
+              </button>
+              <NuxtLink
+                v-if="articlesTotal > articles.length || articles.length >= HOME_ARTICLES_LIMIT"
+                to="/articles"
+                class="inline-flex items-center rounded border border-foreground/20 bg-transparent px-4 py-2 text-sm font-normal text-foreground/80 transition hover:border-accent hover:text-accent"
+                @click="goToArticlesArchive"
+              >
+                Все статьи
+                <span class="ml-1">→</span>
+              </NuxtLink>
             </div>
           </div>
         </div>
