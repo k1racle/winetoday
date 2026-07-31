@@ -10,6 +10,7 @@ const tabs = [
   { label: 'Соцсети', to: '/account/admin/socials' },
   { label: 'Подписки', to: '/account/admin/subscribers' },
   { label: 'Страницы', to: '/account/admin/pages' },
+  { label: 'UTM-ссылки', to: '/account/admin/utm' },
   { label: 'Настройки', to: '/account/admin/settings' },
 ];
 

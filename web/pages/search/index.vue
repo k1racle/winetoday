@@ -9,10 +9,11 @@ const { getContent } = useApi();
 
 const query = computed(() => (route.query.q as string) || '');
 
-const { goal } = useYm();
+const { goal, event } = useYm();
 
 const searched = ref(false);
 let goalTracked = false;
+let noResultsTracked = false;
 
 const { items, total, isLoading, loadMore } = useArchivePagination(
   async ({ limit, offset }) => {
@@ -22,9 +23,15 @@ const { items, total, isLoading, loadMore } = useArchivePagination(
     }
     try {
       const res = await getContent({ search: query.value, limit, offset });
-      if (offset === 0 && !goalTracked) {
-        goalTracked = true;
-        goal('search');
+      if (offset === 0) {
+        if (!goalTracked) {
+          goalTracked = true;
+          goal('search');
+        }
+        if (res.total === 0 && !noResultsTracked) {
+          noResultsTracked = true;
+          event('search_no_results', { query: query.value });
+        }
       }
       return res;
     } catch {
@@ -36,6 +43,29 @@ const { items, total, isLoading, loadMore } = useArchivePagination(
   `search-${query.value}`,
   { itemsPerPage: 12, rowSize: 3 },
 );
+
+function targetUrl(item: { type: string; slug: string }) {
+  switch (item.type) {
+    case 'article':
+      return `/articles/${item.slug}`;
+    case 'news':
+      return `/news/${item.slug}`;
+    case 'video':
+      return `/videos/${item.slug}`;
+    case 'gallery':
+      return `/gallery/${item.slug}`;
+    default:
+      return '/';
+  }
+}
+
+function trackResultClick(item: { type: string; slug: string }) {
+  event('search_success', {
+    query: query.value,
+    result_count: total.value,
+    target_url: targetUrl(item),
+  });
+}
 
 const pending = computed(() => Boolean(query.value) && !searched.value);
 
@@ -92,6 +122,7 @@ useSeoMeta({
           :item="item"
           imageAspect="video"
           hideExcerpt
+          @click="trackResultClick(item)"
         />
       </div>
       <div v-if="items.length < total" class="mt-8">

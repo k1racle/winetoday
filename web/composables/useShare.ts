@@ -12,6 +12,21 @@ const state = reactive<ShareState>({
   title: '',
 });
 
+export function buildShareUtmUrl(url: string, source: string, medium: string): string {
+  const withUtm = appendUtm(url, source, medium, 'share');
+  try {
+    const u = new URL(withUtm);
+    u.searchParams.set('utm_content', 'share_button');
+    return u.toString();
+  } catch {
+    return withUtm;
+  }
+}
+
+export function buildShareCopyUrl(url: string): string {
+  return appendUtm(url, 'copy', 'referral', 'share');
+}
+
 export function useShare() {
   const { goal } = useYm();
 

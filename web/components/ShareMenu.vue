@@ -19,7 +19,7 @@ const encodedText = computed(() =>
 );
 
 function shareUrl(source: string, medium: string) {
-  return appendUtm(props.url, source, medium);
+  return buildShareUtmUrl(props.url, source, medium);
 }
 
 const items = computed(() => [
@@ -79,7 +79,7 @@ function onShareClick() {
 async function copyLink() {
   if (!props.url) return;
   try {
-    await navigator.clipboard.writeText(props.url);
+    await navigator.clipboard.writeText(buildShareCopyUrl(props.url));
     copied.value = true;
     goal('share');
     setTimeout(() => (copied.value = false), 2000);

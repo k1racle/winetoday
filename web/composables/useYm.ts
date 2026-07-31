@@ -21,5 +21,17 @@ export function useYm() {
     }
   }
 
-  return { ymId, goal };
+  function event(name: string, params?: Record<string, unknown>) {
+    if (import.meta.server) return;
+    if (route.path.startsWith('/account')) return;
+    try {
+      if (typeof window.ym === 'function') {
+        window.ym(ymId, 'reachGoal', name, params);
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return { ymId, goal, event };
 }

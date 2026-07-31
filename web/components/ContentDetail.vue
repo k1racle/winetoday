@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ContentItem } from '~/types/content';
+import { isTiptapJson, tiptapToHtml } from '~/utils/tiptap-html';
 import { v4 as uuidv4 } from 'uuid';
 
 const props = defineProps<{
@@ -276,6 +277,58 @@ function loadMoreRelated() {
   relatedLimit.value += 3;
 }
 
+// --- Аналитика: события чтения и переходы по навигационным блокам ---
+const { event } = useYm();
+const contentBodyEl = ref<HTMLElement | null>(null);
+
+const wordCount = computed(() => {
+  const parts: string[] = [];
+  if (props.item.excerpt) parts.push(props.item.excerpt);
+  for (const block of bodyBlocks.value) {
+    const raw = (block as any)?.content;
+    if (typeof raw !== 'string') continue;
+    parts.push(isTiptapJson(raw) ? tiptapToHtml(raw) : raw);
+  }
+  const text = parts.join(' ').replace(/<[^>]*>/g, ' ');
+  return text.split(/\s+/).filter(Boolean).length;
+});
+
+useReadingEvents({
+  articleId: props.item.slug,
+  author: props.item.author?.name || undefined,
+  rubric: firstCategory.value?.name || undefined,
+  contentType: props.item.type,
+  wordCount: wordCount.value,
+  contentEl: contentBodyEl,
+});
+
+function trackNeighborClick(target: ContentItem) {
+  event('next_article_click', {
+    from_article: props.item.slug,
+    to_article: target.slug,
+    module: 'prev_next',
+  });
+}
+
+function trackRelatedClick(target: ContentItem) {
+  event('related_click', {
+    from_article: props.item.slug,
+    to_article: target.slug,
+    module: 'related',
+  });
+}
+
+function onAuthorBylineClick(e: MouseEvent) {
+  if (!props.item.author) return;
+  if (!(e.target as HTMLElement | null)?.closest('a')) return;
+  event('dossier_click', {
+    from_page: props.item.slug,
+    entity_id: props.item.author.slug,
+    entity_type: 'author',
+    placement: 'byline',
+  });
+}
+
 </script>
 
 <template>
@@ -304,7 +357,7 @@ function loadMoreRelated() {
           <span v-if="meta.category">{{ meta.category }}</span>
         </div>
 
-        <AuthorByline v-if="item.author && item.type !== 'video'" :author="item.author" class="mt-4" />
+        <AuthorByline v-if="item.author && item.type !== 'video'" :author="item.author" class="mt-4" @click="onAuthorBylineClick" />
 
         <NuxtLink
           v-if="canEdit"
@@ -359,7 +412,7 @@ function loadMoreRelated() {
         </figure>
 
         <!-- Content -->
-        <div class="mt-8">
+        <div ref="contentBodyEl" class="mt-8">
           <ContentBlocks v-if="bodyBlocks.length" :blocks="bodyBlocks" :item="item" />
           <p v-else-if="item.excerpt" class="text-lg leading-relaxed opacity-80">
             {{ item.excerpt }}
@@ -372,6 +425,7 @@ function loadMoreRelated() {
             v-if="prevItem"
             :to="itemUrl(prevItem)"
             class="group flex flex-col gap-1 border border-foreground/10 bg-card p-4 transition hover:border-accent"
+            @click="prevItem && trackNeighborClick(prevItem)"
           >
             <span class="text-xs font-normal uppercase tracking-wider text-foreground/50 transition group-hover:text-accent">
               ← Предыдущий материал
@@ -385,6 +439,7 @@ function loadMoreRelated() {
             v-if="nextItem"
             :to="itemUrl(nextItem)"
             class="group flex flex-col gap-1 border border-foreground/10 bg-card p-4 text-right transition hover:border-accent"
+            @click="nextItem && trackNeighborClick(nextItem)"
           >
             <span class="text-xs font-normal uppercase tracking-wider text-foreground/50 transition group-hover:text-accent">
               Следующий материал →
@@ -437,6 +492,7 @@ function loadMoreRelated() {
               :item="item"
               image-aspect="video"
               variant="compact"
+              @click="trackRelatedClick(item)"
             />
           </div>
           <div v-if="hasMoreRelated" class="mt-6">

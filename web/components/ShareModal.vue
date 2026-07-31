@@ -5,7 +5,7 @@ const copied = ref(false);
 const encodedTitle = computed(() => encodeURIComponent(title.value || document.title));
 
 function shareUrl(source: string, medium: string) {
-  return appendUtm(url.value, source, medium);
+  return buildShareUtmUrl(url.value, source, medium);
 }
 
 const networks = computed(() => [
@@ -42,7 +42,7 @@ const networks = computed(() => [
   {
     id: 'email',
     name: 'Email',
-    href: `mailto:?subject=${encodedTitle.value}&body=${encodeURIComponent(`${title.value || document.title}\n${url.value}`)}`,
+    href: `mailto:?subject=${encodedTitle.value}&body=${encodeURIComponent(`${title.value || document.title}\n${shareUrl('email', 'email')}`)}`,
     svg: true,
   },
 ]);
@@ -50,7 +50,7 @@ const networks = computed(() => [
 async function copyLink() {
   if (!url.value) return;
   try {
-    await navigator.clipboard.writeText(url.value);
+    await navigator.clipboard.writeText(buildShareCopyUrl(url.value));
     copied.value = true;
     setTimeout(() => (copied.value = false), 2000);
   } catch {

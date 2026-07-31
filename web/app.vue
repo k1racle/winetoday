@@ -7,6 +7,7 @@ declare global {
 
 const route = useRoute();
 const { ymId } = useYm();
+const { user } = useAuth();
 useUtm();
 
 const isAccountRoute = () => route.path.startsWith('/account');
@@ -77,6 +78,28 @@ watch(
     }
   },
   { flush: 'post' },
+);
+
+// Один раз помечаем внутренних пользователей (admin/editor) через userParams,
+// чтобы их трафик можно было отфильтровать в отчётах Метрики.
+let userParamsSent = false;
+
+watch(
+  [user, () => route.fullPath],
+  () => {
+    if (import.meta.server || userParamsSent) return;
+    if (isAccountRoute()) return;
+    const role = user.value?.role;
+    if (!role || !['admin', 'editor'].includes(role)) return;
+    if (typeof window.ym !== 'function') return;
+    try {
+      window.ym(ymId, 'userParams', { internal_user: 1, internal_role: role });
+      userParamsSent = true;
+    } catch {
+      // ignore
+    }
+  },
+  { immediate: true, flush: 'post' },
 );
 </script>
 

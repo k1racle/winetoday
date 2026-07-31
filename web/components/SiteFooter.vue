@@ -23,6 +23,12 @@ async function onSubscribe() {
     await subscribeNewsletter(email);
     subscribeSuccess.value = 'Вы подписаны на рассылку';
     subscribeEmail.value = '';
+    useYm().event('subscription_success', {
+      channel: 'email',
+      product: 'newsletter',
+      placement: 'footer',
+      source: 'site',
+    });
   } catch (err: any) {
     subscribeError.value = err?.data?.message || err?.message || 'Не удалось оформить подписку';
   } finally {
@@ -34,7 +40,7 @@ async function onSubscribe() {
 <template>
   <footer class="bg-[#0B1A25] text-white">
     <div class="mx-auto max-w-7xl px-4 py-12 md:py-16">
-      <div class="grid gap-10 md:grid-cols-3 md:gap-8">
+      <div class="grid gap-10 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
         <!-- Logo -->
         <div class="max-w-[240px] md:max-w-[280px]">
           <NuxtLink to="/" class="block">
@@ -104,6 +110,40 @@ async function onSubscribe() {
         </div>
 
         <!-- About + socials -->
+        <div>
+          <h4 class="mb-5 text-xs font-bold uppercase tracking-wider text-white">
+            Издание
+          </h4>
+          <ul class="space-y-3 text-sm font-normal">
+            <li>
+              <NuxtLink to="/about" class="text-white/70 transition hover:text-white">
+                О проекте
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink to="/authors" class="text-white/70 transition hover:text-white">
+                Редакция
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink to="/contacts" class="text-white/70 transition hover:text-white">
+                Контакты
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink to="/editorial-policy" class="text-white/70 transition hover:text-white">
+                Редакционная политика
+              </NuxtLink>
+            </li>
+            <li>
+              <NuxtLink to="/corrections-policy" class="text-white/70 transition hover:text-white">
+                Политика исправлений
+              </NuxtLink>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Legal + socials -->
         <div>
           <h4 class="mb-5 text-xs font-bold uppercase tracking-wider text-white">
             О нас
