@@ -19,6 +19,11 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  // За nginx (docker-сеть): доверяем X-Forwarded-For только от локальных прокси,
+  // чтобы req.ip был реальным IP клиента — иначе throttler режет всех пользователей
+  // по одному общему бакету (IP nginx).
+  app.set('trust proxy', 'loopback, linklocal, uniquelocal');
+
   app.use(cookieParser());
   app.use('/uploads', createMediaAvifMiddleware([UPLOADS_DIR, BACKEND_UPLOADS_DIR]));
   app.useStaticAssets(UPLOADS_DIR, {

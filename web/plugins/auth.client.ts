@@ -9,14 +9,24 @@ export default defineNuxtPlugin(() => {
     });
   }
 
-  // Refresh access token every 10 minutes (token lifetime is 15 minutes)
+  // Refresh access token every 10 minutes (token lifetime is 15 minutes).
+  // В скрытой вкладке не обновляем — меньше гонок за ротацию refresh-токена,
+  // а при возвращении во вкладку сразу обновляем (токен мог протухнуть за время сна).
   const interval = setInterval(() => {
-    if (isAuthenticated.value) refreshToken();
+    if (isAuthenticated.value && document.visibilityState === 'visible') refreshToken();
   }, 10 * 60 * 1000);
+
+  const onVisible = () => {
+    if (document.visibilityState === 'visible' && isAuthenticated.value) refreshToken();
+  };
+  document.addEventListener('visibilitychange', onVisible);
 
   return {
     setup() {
-      onScopeDispose(() => clearInterval(interval));
+      onScopeDispose(() => {
+        clearInterval(interval);
+        document.removeEventListener('visibilitychange', onVisible);
+      });
     },
   };
 });
