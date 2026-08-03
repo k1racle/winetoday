@@ -124,6 +124,16 @@ function currentPage() {
   return Math.floor(offset.value / limit.value) + 1;
 }
 
+const pages = computed<number[]>(() => {
+  const last = totalPages();
+  const current = currentPage();
+  const set = new Set<number>([1, last]);
+  for (let p = current - 2; p <= current + 2; p++) {
+    if (p >= 1 && p <= last) set.add(p);
+  }
+  return [...set].sort((a, b) => a - b);
+});
+
 function goToPage(page: number) {
   offset.value = (page - 1) * limit.value;
   load();
@@ -259,9 +269,41 @@ onMounted(() => {
     </div>
 
     <!-- Pagination -->
-    <div v-if="totalPages() > 1" class="flex items-center justify-center gap-2 pt-4">
-      ...
-    </div>
+    <nav v-if="totalPages() > 1" aria-label="Пагинация" class="flex flex-wrap items-center justify-center gap-2 pt-4">
+      <button
+        v-if="currentPage() > 1"
+        type="button"
+        class="pg-btn"
+        aria-label="Предыдущая страница"
+        @click="goToPage(currentPage() - 1)"
+      >
+        ←
+      </button>
+      <template v-for="(page, i) in pages" :key="page">
+        <span
+          v-if="i > 0 && page - pages[i - 1]! > 1"
+          class="px-1 text-sm text-foreground/40"
+          aria-hidden="true"
+        >…</span>
+        <button
+          type="button"
+          :class="['pg-btn', page === currentPage() && 'pg-btn-active']"
+          :aria-current="page === currentPage() ? 'page' : undefined"
+          @click="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+      </template>
+      <button
+        v-if="currentPage() < totalPages()"
+        type="button"
+        class="pg-btn"
+        aria-label="Следующая страница"
+        @click="goToPage(currentPage() + 1)"
+      >
+        →
+      </button>
+    </nav>
 
     <!-- Preview modal -->
     <Teleport to="body">
@@ -334,5 +376,11 @@ onMounted(() => {
 <style scoped>
 .btn-secondary {
   @apply inline-flex items-center gap-1.5 border border-foreground/10 bg-card px-4 py-2 text-sm font-normal text-foreground transition hover:bg-foreground/5 disabled:opacity-50;
+}
+.pg-btn {
+  @apply flex h-9 min-w-9 items-center justify-center rounded border border-foreground/10 px-3 text-sm transition-colors hover:border-accent hover:text-accent;
+}
+.pg-btn-active {
+  @apply border-accent bg-accent text-white hover:text-white;
 }
 </style>
