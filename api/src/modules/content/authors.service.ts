@@ -27,6 +27,16 @@ export class AuthorsService {
 
   async findAll() {
     const authors = await this.prisma.author.findMany({
+      // Публично показываем только авторов с опубликованными материалами —
+      // пустые карточки (дубли, заготовки) на сайт не попадают.
+      where: {
+        contentItems: {
+          some: {
+            status: ContentStatus.published,
+            publishedAt: { lte: new Date() },
+          },
+        },
+      },
       orderBy: { name: 'asc' },
       select: {
         id: true,

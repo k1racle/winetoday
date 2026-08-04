@@ -1,8 +1,12 @@
 <script setup lang="ts">
-const { getAuthorsList, getStaticPage } = useApi();
+const { getAuthorsList, getStaticPage, getLatestByCategory } = useApi();
 
 const { data: authors } = await useAsyncData('authors-list', () =>
   getAuthorsList().catch(() => []),
+);
+
+const { data: latestByCategory } = await useAsyncData('latest-by-category-authors', () =>
+  getLatestByCategory(10).catch(() => []),
 );
 
 // Текстовый блок «Редакция» — редактируется в админке (Страницы → Редакция).
@@ -63,47 +67,55 @@ useCanonical();
 
     <h1 class="mb-8 font-heading text-3xl font-bold">Авторы</h1>
 
-    <div
-      v-if="editorialHtml"
-      class="prose prose-sm mb-8 max-w-none text-foreground dark:prose-invert"
-      v-html="editorialHtml"
-    />
-
-    <div v-if="!list.length" class="py-12 text-center text-foreground/60">
-      Пока нет авторов.
-    </div>
-
-    <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <NuxtLink
-        v-for="author in list"
-        :key="author.id"
-        :to="`/author/${author.slug}`"
-        class="group flex items-center gap-4 border border-foreground/10 bg-card p-4 transition hover:border-accent"
-      >
-        <NuxtImg
-          v-if="author.avatarMedia?.path"
-          :src="useMediaUrl(author.avatarMedia.path)"
-          :alt="author.avatarMedia?.altText || author.name || ''"
-          class="h-16 w-16 shrink-0 rounded-full object-cover"
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
+      <div class="w-full lg:w-3/4">
+        <div
+          v-if="editorialHtml"
+          class="prose prose-sm mb-8 max-w-none text-foreground dark:prose-invert"
+          v-html="editorialHtml"
         />
-        <span
-          v-else
-          class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent text-xl font-normal uppercase text-black"
-        >
-          {{ initials(author.name) }}
-        </span>
-        <span class="min-w-0">
-          <span class="block truncate font-heading text-lg font-normal leading-snug transition group-hover:text-accent">
-            {{ author.name }}
-          </span>
-          <span v-if="author.position" class="mt-0.5 block truncate text-xs text-foreground/60">
-            {{ author.position }}
-          </span>
-          <span class="mt-1 block text-xs text-foreground/50">
-            {{ materialsCount(author) }} {{ materialsLabel(materialsCount(author)) }}
-          </span>
-        </span>
-      </NuxtLink>
+
+        <div v-if="!list.length" class="py-12 text-center text-foreground/60">
+          Пока нет авторов.
+        </div>
+
+        <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <NuxtLink
+            v-for="author in list"
+            :key="author.id"
+            :to="`/author/${author.slug}`"
+            class="group flex items-center gap-4 border border-foreground/10 bg-card p-4 transition hover:border-accent"
+          >
+            <NuxtImg
+              v-if="author.avatarMedia?.path"
+              :src="useMediaUrl(author.avatarMedia.path)"
+              :alt="author.avatarMedia?.altText || author.name || ''"
+              class="h-16 w-16 shrink-0 rounded-full object-cover"
+            />
+            <span
+              v-else
+              class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent text-xl font-normal uppercase text-black"
+            >
+              {{ initials(author.name) }}
+            </span>
+            <span class="min-w-0">
+              <span class="block truncate font-heading text-lg font-normal leading-snug transition group-hover:text-accent">
+                {{ author.name }}
+              </span>
+              <span v-if="author.position" class="mt-0.5 block truncate text-xs text-foreground/60">
+                {{ author.position }}
+              </span>
+              <span class="mt-1 block text-xs text-foreground/50">
+                {{ materialsCount(author) }} {{ materialsLabel(materialsCount(author)) }}
+              </span>
+            </span>
+          </NuxtLink>
+        </div>
+      </div>
+
+      <aside class="order-last flex w-full flex-col gap-4 lg:w-1/4">
+        <SidebarByCategory v-if="latestByCategory?.length" :groups="latestByCategory" />
+      </aside>
     </div>
   </div>
 </template>
