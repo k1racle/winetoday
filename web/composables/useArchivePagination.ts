@@ -57,11 +57,13 @@ export function useArchivePagination<T extends { id: string | number }>(
   key: string,
   options: {
     itemsPerPage?: number;
+    initialLimit?: number;
     rowSize?: number;
     excludeIds?: Ref<Set<string | number>> | (() => Set<string | number>);
   } = {},
 ): UseArchivePaginationResult<T> {
   const itemsPerPage = options.itemsPerPage ?? 24;
+  const initialLimit = options.initialLimit ?? itemsPerPage;
   const rowSize = options.rowSize ?? 3;
 
   // Индексируемая пагинация: начальная страница берётся из ?page=N.
@@ -125,7 +127,7 @@ export function useArchivePagination<T extends { id: string | number }>(
   }
 
   const { data: initialData, error: initialError } = useAsyncData(`${key}-p${initialPage}`, async () => {
-    const first = await fetchChunk(itemsPerPage, baseOffset);
+    const first = await fetchChunk(initialPage > 1 ? itemsPerPage : initialLimit, baseOffset);
     allItems.value = first.items || [];
     total.value = first.total ?? 0;
 

@@ -5,6 +5,7 @@ const tabs = [
   { label: 'Авторы', to: '/account/admin/authors' },
   { label: 'Материалы', to: '/account/admin/content' },
   { label: 'Медиа', to: '/account/admin/media' },
+  { label: 'Комментарии', to: '/account/admin/comments' },
   { label: 'Рубрики', to: '/account/admin/categories' },
   { label: 'Теги', to: '/account/admin/tags' },
   { label: 'Соцсети', to: '/account/admin/socials' },

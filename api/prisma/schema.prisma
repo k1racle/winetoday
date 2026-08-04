@@ -469,6 +469,14 @@ model SlugRedirect {
   @@map("slug_redirects")
 }
 
+model CommentStopWord {
+  id        String   @id @default(uuid()) @db.Uuid
+  word      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("comment_stop_words")
+}
+
 model NewsletterSubscriber {
   id          String    @id @default(uuid()) @db.Uuid
   email       String    @unique

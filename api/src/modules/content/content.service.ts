@@ -606,6 +606,8 @@ export class ContentService {
   }
 
   async createComment(contentItemId: string, userId: string, body: string) {
+    await this.assertNoStopWords(body);
+
     const comment = await this.prisma.comment.create({
       data: {
         contentItemId,
@@ -630,5 +632,22 @@ export class ContentService {
       status: comment.status,
       author: comment.user?.memberProfile?.displayName || comment.user?.username || 'Аноним',
     };
+  }
+
+  // Стоп-слова сравниваются по началу слова: «хуй» режет «хуйня», но «еб» не трогает «требование».
+  private async assertNoStopWords(body: string) {
+    const stopWords = await this.prisma.commentStopWord.findMany({
+      select: { word: true },
+    });
+    if (!stopWords.length) return;
+
+    const text = body.toLowerCase();
+    const hit = stopWords.some(({ word }) => {
+      const escaped = this.escapeRegex(word.toLowerCase());
+      return new RegExp(`(^|[^a-zа-яё0-9])${escaped}`, 'iu').test(text);
+    });
+    if (hit) {
+      throw new BadRequestException('Комментарий содержит запрещённые слова');
+    }
   }
 }

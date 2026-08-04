@@ -37,12 +37,13 @@ const freshItems = computed<ContentItem[]>(() => {
     .slice(0, 7);
 });
 
-const HOME_ARTICLES_LIMIT = 36;
+// Изначально 36 статей, далее кнопка «Ещё» догружает по 12 — максимум 3 раза (72).
+const HOME_ARTICLES_LIMIT = 72;
 
 const { items: articles, total: articlesTotal, isLoading, loadMore } = useArchivePagination(
   ({ limit, offset }) => getContent({ type: 'article', limit, offset }),
   'home-articles',
-  { itemsPerPage: 12 },
+  { itemsPerPage: 12, initialLimit: 36 },
 );
 
 const canLoadMoreArticles = computed(

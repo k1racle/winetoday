@@ -204,6 +204,16 @@ export function useApi() {
       api(`/admin/authors/${id}/analytics`, { credentials: 'include' }),
     deleteAuthor: (id: string) =>
       api(`/admin/authors/${id}`, { method: 'DELETE', credentials: 'include' }),
+    getAdminComments: (query?: Record<string, unknown>) =>
+      api('/admin/comments', { query, credentials: 'include' }),
+    deleteAdminComment: (id: string) =>
+      api(`/admin/comments/${id}`, { method: 'DELETE', credentials: 'include' }),
+    getCommentStopWords: () =>
+      api('/admin/comment-stop-words', { credentials: 'include' }),
+    addCommentStopWord: (word: string) =>
+      api('/admin/comment-stop-words', { method: 'POST', body: { word }, credentials: 'include' }),
+    deleteCommentStopWord: (id: string) =>
+      api(`/admin/comment-stop-words/${id}`, { method: 'DELETE', credentials: 'include' }),
     // Newsletter
     subscribeNewsletter: (email: string, topics?: string[]) =>
       api('/newsletter/subscribe', { method: 'POST', body: { email, topics } }),
