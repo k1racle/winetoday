@@ -1,9 +1,22 @@
 <script setup lang="ts">
-const { getAuthorsList } = useApi();
+const { getAuthorsList, getStaticPage } = useApi();
 
 const { data: authors } = await useAsyncData('authors-list', () =>
   getAuthorsList().catch(() => []),
 );
+
+// Текстовый блок «Редакция» — редактируется в админке (Страницы → Редакция).
+const { data: editorialPage } = await useAsyncData('static-page-editorial', () =>
+  getStaticPage('editorial').catch(() => null),
+);
+
+const editorialHtml = computed(() => {
+  const blocks = editorialPage.value?.contentBlocks;
+  if (!Array.isArray(blocks)) return '';
+  return blocks
+    .map((block: any) => (block.type === 'text' ? block.content : ''))
+    .join('');
+});
 
 const list = computed<any[]>(() => (Array.isArray(authors.value) ? authors.value : []));
 
@@ -49,6 +62,12 @@ useCanonical();
     </nav>
 
     <h1 class="mb-8 font-heading text-3xl font-bold">Авторы</h1>
+
+    <div
+      v-if="editorialHtml"
+      class="prose prose-sm mb-8 max-w-none text-foreground dark:prose-invert"
+      v-html="editorialHtml"
+    />
 
     <div v-if="!list.length" class="py-12 text-center text-foreground/60">
       Пока нет авторов.

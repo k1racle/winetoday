@@ -9,6 +9,7 @@ const pages = [
   { slug: 'legal', label: 'Правовая информация' },
   { slug: 'privacy', label: 'Политика обработки персональных данных' },
   { slug: 'about', label: 'О проекте' },
+  { slug: 'editorial', label: 'Редакция' },
   { slug: 'contacts', label: 'Контакты' },
   { slug: 'editorial-policy', label: 'Редакционная политика' },
   { slug: 'corrections-policy', label: 'Политика исправлений' },
