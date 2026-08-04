@@ -13,11 +13,13 @@ interface AdminAuthor {
   } | null;
 }
 
-const { getAdminAuthors, createAuthor } = useApi();
+const { getAdminAuthors, createAuthor, deleteAuthor } = useApi();
 
 const authors = ref<AdminAuthor[]>([]);
+const duplicates = ref<AdminAuthor[]>([]);
 const loading = ref(false);
 const error = ref('');
+const deleting = ref<Record<string, boolean>>({});
 
 const showForm = ref(false);
 const submitLoading = ref(false);
@@ -29,8 +31,9 @@ const newAuthor = ref({
   bio: '',
 });
 
-function dedupeAuthors(list: AdminAuthor[]): AdminAuthor[] {
+function dedupeAuthors(list: AdminAuthor[]): { visible: AdminAuthor[]; hidden: AdminAuthor[] } {
   const map = new Map<string, AdminAuthor>();
+  const hidden: AdminAuthor[] = [];
   for (const author of list) {
     const name = author.name.trim();
     const existing = map.get(name);
@@ -40,14 +43,17 @@ function dedupeAuthors(list: AdminAuthor[]): AdminAuthor[] {
     }
     const authorHasUser = !!author.user;
     const existingHasUser = !!existing.user;
-    if (
+    const preferAuthor =
       (authorHasUser && !existingHasUser) ||
-      (authorHasUser === existingHasUser && author.materialsCount > existing.materialsCount)
-    ) {
+      (authorHasUser === existingHasUser && author.materialsCount > existing.materialsCount);
+    if (preferAuthor) {
+      hidden.push(existing);
       map.set(name, author);
+    } else {
+      hidden.push(author);
     }
   }
-  return Array.from(map.values());
+  return { visible: Array.from(map.values()), hidden };
 }
 
 async function fetchAuthors() {
@@ -55,11 +61,29 @@ async function fetchAuthors() {
   error.value = '';
   try {
     const res = await getAdminAuthors() as AdminAuthor[];
-    authors.value = dedupeAuthors(Array.isArray(res) ? res : []);
+    const { visible, hidden } = dedupeAuthors(Array.isArray(res) ? res : []);
+    authors.value = visible;
+    duplicates.value = hidden;
   } catch (err: any) {
     error.value = err?.data?.message || err?.message || 'Ошибка загрузки авторов';
   } finally {
     loading.value = false;
+  }
+}
+
+async function removeAuthor(author: AdminAuthor) {
+  const note = author.materialsCount > 0
+    ? ` У автора ${author.materialsCount} материал(ов) — они останутся без автора.`
+  : '';
+  if (!confirm(`Удалить автора «${author.name}» (${author.slug})?${note}`)) return;
+  deleting.value[author.id] = true;
+  try {
+    await deleteAuthor(author.id);
+    await fetchAuthors();
+  } catch (err: any) {
+    alert(err?.data?.message || err?.message || 'Не удалось удалить автора');
+  } finally {
+    deleting.value[author.id] = false;
   }
 }
 
@@ -202,12 +226,22 @@ onMounted(() => {
               <span v-else class="text-foreground/50">—</span>
             </td>
             <td class="border border-foreground/10 px-4 py-2">
-              <NuxtLink
-                :to="`/account/admin/authors/${a.id}`"
-                class="inline-flex items-center rounded border border-accent/30 bg-accent/10 px-3 py-1 text-xs text-accent transition hover:bg-accent hover:text-black"
-              >
-                Редактировать
-              </NuxtLink>
+              <div class="flex items-center gap-2">
+                <NuxtLink
+                  :to="`/account/admin/authors/${a.id}`"
+                  class="inline-flex items-center rounded border border-accent/30 bg-accent/10 px-3 py-1 text-xs text-accent transition hover:bg-accent hover:text-black"
+                >
+                  Редактировать
+                </NuxtLink>
+                <button
+                  type="button"
+                  class="inline-flex items-center rounded border border-red-600/40 px-3 py-1 text-xs text-red-600 transition hover:bg-red-600 hover:text-white disabled:opacity-50"
+                  :disabled="deleting[a.id]"
+                  @click="removeAuthor(a)"
+                >
+                  {{ deleting[a.id] ? '…' : 'Удалить' }}
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -215,5 +249,41 @@ onMounted(() => {
     </div>
 
     <p v-if="!loading && !authors.length" class="mt-6 text-sm text-foreground/60">Нет авторов</p>
+
+    <div v-if="!loading && duplicates.length" class="mt-10">
+      <h2 class="font-heading text-lg font-normal text-red-600">Дубликаты</h2>
+      <p class="mt-1 text-sm text-foreground/60">
+        Эти записи повторяют имена других авторов и скрыты из основного списка. Удалите лишние.
+      </p>
+      <div class="mt-4 overflow-x-auto">
+        <table class="w-full border-collapse border border-foreground/10 text-sm">
+          <thead class="bg-foreground/10">
+            <tr>
+              <th class="border border-foreground/10 px-4 py-2 text-left">Имя</th>
+              <th class="border border-foreground/10 px-4 py-2 text-left">Slug</th>
+              <th class="border border-foreground/10 px-4 py-2 text-left">Материалов</th>
+              <th class="border border-foreground/10 px-4 py-2 text-left">Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="a in duplicates" :key="a.id" class="bg-foreground/5">
+              <td class="border border-foreground/10 px-4 py-2">{{ a.name }}</td>
+              <td class="border border-foreground/10 px-4 py-2 font-mono text-xs">{{ a.slug }}</td>
+              <td class="border border-foreground/10 px-4 py-2">{{ a.materialsCount }}</td>
+              <td class="border border-foreground/10 px-4 py-2">
+                <button
+                  type="button"
+                  class="inline-flex items-center rounded border border-red-600/40 px-3 py-1 text-xs text-red-600 transition hover:bg-red-600 hover:text-white disabled:opacity-50"
+                  :disabled="deleting[a.id]"
+                  @click="removeAuthor(a)"
+                >
+                  {{ deleting[a.id] ? '…' : 'Удалить' }}
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>

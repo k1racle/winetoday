@@ -1,7 +1,32 @@
 <script setup lang="ts">
 const { siteSettings } = useSharedSiteSettings();
-const { headerCategories } = useHeaderCategories();
-const { subscribeNewsletter } = useApi();
+const { getCategories, subscribeNewsletter } = useApi();
+
+// Рубрики в футере — строго этот список и порядок, «Новости» не выводим.
+const FOOTER_CATEGORY_ORDER = [
+  'Российское виноделие',
+  'Зарубежное виноделие',
+  'Алкогольный рынок',
+  'Розничный бизнес',
+  'Ресторанный бизнес',
+  'Туризм',
+  'Люди отрасли',
+  'Образование',
+  'Вино',
+  'Афиша',
+];
+
+const { data: allCategories } = useAsyncData('footer-categories', () =>
+  getCategories().catch(() => []),
+);
+
+const footerCategories = computed<any[]>(() => {
+  const cats = Array.isArray(allCategories.value) ? allCategories.value : [];
+  const byName = new Map(cats.map((c: any) => [String(c.name).trim().toLowerCase(), c]));
+  return FOOTER_CATEGORY_ORDER
+    .map((name) => byName.get(name.toLowerCase()))
+    .filter(Boolean);
+});
 
 const socialLinks = computed(() => {
   const links = siteSettings.value?.socialLinks?.links;
@@ -93,12 +118,7 @@ async function onSubscribe() {
             Рубрики
           </h4>
           <ul class="space-y-3 text-sm font-normal">
-            <li>
-              <NuxtLink to="/news" class="text-white/70 transition hover:text-white">
-                Новости
-              </NuxtLink>
-            </li>
-            <li v-for="cat in headerCategories" :key="cat.id">
+            <li v-for="cat in footerCategories" :key="cat.id">
               <NuxtLink :to="`/category/${cat.slug}`" class="text-white/70 transition hover:text-white">
                 {{ cat.name }}
               </NuxtLink>

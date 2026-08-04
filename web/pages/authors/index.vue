@@ -7,8 +7,9 @@ const { data: authors } = await useAsyncData('authors-list', () =>
 
 const list = computed<any[]>(() => (Array.isArray(authors.value) ? authors.value : []));
 
-// API может вернуть количество материалов как materialsCount, либо как _count (число или объект).
+// API возвращает количество материалов в поле count; оставлены фолбэки на другие формы.
 function materialsCount(author: any): number {
+  if (typeof author?.count === 'number') return author.count;
   if (typeof author?.materialsCount === 'number') return author.materialsCount;
   const c = author?._count;
   if (typeof c === 'number') return c;
