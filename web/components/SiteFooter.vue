@@ -3,6 +3,7 @@ const { siteSettings } = useSharedSiteSettings();
 const { getCategories, subscribeNewsletter } = useApi();
 
 // Рубрики в футере — строго этот список и порядок, «Новости» не выводим.
+// «Афиша» временно убрана — рубрики пока нет на сайте.
 const FOOTER_CATEGORY_ORDER = [
   'Российское виноделие',
   'Зарубежное виноделие',
@@ -13,7 +14,6 @@ const FOOTER_CATEGORY_ORDER = [
   'Люди отрасли',
   'Образование',
   'Вино',
-  'Афиша',
 ];
 
 const { data: allCategories } = useAsyncData('footer-categories', () =>
@@ -25,7 +25,10 @@ const footerCategories = computed<any[]>(() => {
   const byName = new Map(cats.map((c: any) => [String(c.name).trim().toLowerCase(), c]));
   return FOOTER_CATEGORY_ORDER
     .map((name) => byName.get(name.toLowerCase()))
-    .filter(Boolean);
+    .filter(Boolean)
+    // Рубрики без опубликованных материалов не показываем.
+    // publishedCount может отсутствовать в старой версии API — тогда показываем.
+    .filter((cat: any) => (cat.publishedCount ?? 1) > 0);
 });
 
 const socialLinks = computed(() => {

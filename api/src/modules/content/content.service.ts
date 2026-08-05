@@ -232,10 +232,47 @@ export class ContentService {
   }
 
   async findCategories() {
-    return this.prisma.category.findMany({
+    const categories = await this.prisma.category.findMany({
       orderBy: { name: 'asc' },
-      select: { id: true, name: true, slug: true, parentId: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        parentId: true,
+        _count: {
+          select: {
+            contentItems: {
+              where: {
+                status: ContentStatus.published,
+                publishedAt: { lte: new Date() },
+              },
+            },
+          },
+        },
+      },
     });
+
+    // Roll up counts from descendants: a rubric counts as non-empty
+    // when any of its child categories has published materials.
+    const byId = new Map(categories.map((c) => [c.id, c]));
+    const totals = new Map<string, number>();
+    for (const category of categories) {
+      let current: (typeof categories)[number] | undefined = category;
+      const seen = new Set<string>();
+      while (current && !seen.has(current.id)) {
+        seen.add(current.id);
+        totals.set(
+          current.id,
+          (totals.get(current.id) ?? 0) + category._count.contentItems,
+        );
+        current = current.parentId ? byId.get(current.parentId) : undefined;
+      }
+    }
+
+    return categories.map(({ _count, ...category }) => ({
+      ...category,
+      publishedCount: totals.get(category.id) ?? 0,
+    }));
   }
 
   private async getCategoryAndDescendantIds(slug: string): Promise<string[]> {
