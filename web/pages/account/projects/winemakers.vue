@@ -1,9 +1,10 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import type { WinemakersHomeConfig } from '~/types/winemakers';
 import type { MediaAsset } from '~/types/media';
 import { defaultWinemakersHomeConfig, normalizeWinemakersHomeConfig } from '~/utils/winemakersHome';
 
 type EntityType = 'person' | 'wine' | 'region' | 'terroir' | 'winery';
+type ProjectSection = 'home' | EntityType;
 
 interface EntityOption {
   id: string;
@@ -73,10 +74,39 @@ const config = useRuntimeConfig();
 const mediaBaseUrl = (config.public.mediaBaseUrl || (config.public.apiUrl as string).replace('/api', '') || '').replace(/\/$/, '');
 
 const CYRILLIC_MAP: Record<string, string> = {
-  а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'yo', ж: 'zh', з: 'z',
-  и: 'i', й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r',
-  с: 's', т: 't', у: 'u', ф: 'f', х: 'kh', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sch',
-  ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya',
+  '\u0430': 'a',
+  '\u0431': 'b',
+  '\u0432': 'v',
+  '\u0433': 'g',
+  '\u0434': 'd',
+  '\u0435': 'e',
+  '\u0451': 'yo',
+  '\u0436': 'zh',
+  '\u0437': 'z',
+  '\u0438': 'i',
+  '\u0439': 'y',
+  '\u043A': 'k',
+  '\u043B': 'l',
+  '\u043C': 'm',
+  '\u043D': 'n',
+  '\u043E': 'o',
+  '\u043F': 'p',
+  '\u0440': 'r',
+  '\u0441': 's',
+  '\u0442': 't',
+  '\u0443': 'u',
+  '\u0444': 'f',
+  '\u0445': 'kh',
+  '\u0446': 'ts',
+  '\u0447': 'ch',
+  '\u0448': 'sh',
+  '\u0449': 'sch',
+  '\u044A': '',
+  '\u044B': 'y',
+  '\u044C': '',
+  '\u044D': 'e',
+  '\u044E': 'yu',
+  '\u044F': 'ya',
 };
 
 function slugify(text: string) {
@@ -95,7 +125,7 @@ function mediaUrl(path?: string | null) {
 }
 
 function formatDate(value?: string | null) {
-  if (!value) return '—';
+  if (!value) return 'вЂ”';
   return new Date(value).toLocaleDateString('ru-RU');
 }
 
@@ -142,54 +172,60 @@ function createEditor(entity: EntityType = 'person') {
 }
 
 const entityTabs: Array<{ key: EntityType; label: string }> = [
-  { key: 'person', label: 'Виноделы' },
-  { key: 'wine', label: 'Вина' },
-  { key: 'region', label: 'Регионы' },
-  { key: 'terroir', label: 'Терруары' },
-  { key: 'winery', label: 'Винодельни' },
+  { key: 'person', label: 'Р’РёРЅРѕРґРµР»С‹' },
+  { key: 'wine', label: 'Р’РёРЅР°' },
+  { key: 'region', label: 'Р РµРіРёРѕРЅС‹' },
+  { key: 'terroir', label: 'РўРµСЂСЂСѓР°СЂС‹' },
+  { key: 'winery', label: 'Р’РёРЅРѕРґРµР»СЊРЅРё' },
+];
+
+const projectTabs: Array<{ key: ProjectSection; label: string }> = [
+  { key: 'home', label: 'Р“Р»Р°РІРЅР°СЏ' },
+  ...entityTabs,
 ];
 
 const relationTypeOptions = [
-  { value: 'parent', label: 'Родитель / ребенок' },
-  { value: 'spouse', label: 'Супруги' },
-  { value: 'sibling', label: 'Сиблинги' },
-  { value: 'founder', label: 'Основатель / преемник' },
+  { value: 'parent', label: 'Р РѕРґРёС‚РµР»СЊ / СЂРµР±РµРЅРѕРє' },
+  { value: 'spouse', label: 'РЎСѓРїСЂСѓРіРё' },
+  { value: 'sibling', label: 'РЎРёР±Р»РёРЅРіРё' },
+  { value: 'founder', label: 'РћСЃРЅРѕРІР°С‚РµР»СЊ / РїСЂРµРµРјРЅРёРє' },
 ];
 
 const statusOptions = [
-  { value: 'draft', label: 'Черновик' },
-  { value: 'in_review', label: 'На проверке' },
-  { value: 'published', label: 'Опубликовано' },
-  { value: 'scheduled', label: 'Запланировано' },
-  { value: 'rejected', label: 'Отклонено' },
+  { value: 'draft', label: 'Р§РµСЂРЅРѕРІРёРє' },
+  { value: 'in_review', label: 'РќР° РїСЂРѕРІРµСЂРєРµ' },
+  { value: 'published', label: 'РћРїСѓР±Р»РёРєРѕРІР°РЅРѕ' },
+  { value: 'scheduled', label: 'Р—Р°РїР»Р°РЅРёСЂРѕРІР°РЅРѕ' },
+  { value: 'rejected', label: 'РћС‚РєР»РѕРЅРµРЅРѕ' },
 ];
 
 const entityLabels: Record<EntityType, string> = {
-  person: 'винодела',
-  wine: 'вино',
-  region: 'регион',
-  terroir: 'терруар',
-  winery: 'винодельню',
+  person: 'РІРёРЅРѕРґРµР»Р°',
+  wine: 'РІРёРЅРѕ',
+  region: 'СЂРµРіРёРѕРЅ',
+  terroir: 'С‚РµСЂСЂСѓР°СЂ',
+  winery: 'РІРёРЅРѕРґРµР»СЊРЅСЋ',
 };
 
 entityTabs.splice(
   0,
   entityTabs.length,
-  { key: 'person', label: 'Виноделы' },
-  { key: 'wine', label: 'Вина' },
-  { key: 'region', label: 'Регионы' },
-  { key: 'terroir', label: 'Терруары' },
-  { key: 'winery', label: 'Винодельни' },
+  { key: 'person', label: 'Р’РёРЅРѕРґРµР»С‹' },
+  { key: 'wine', label: 'Р’РёРЅР°' },
+  { key: 'region', label: 'Р РµРіРёРѕРЅС‹' },
+  { key: 'terroir', label: 'РўРµСЂСЂСѓР°СЂС‹' },
+  { key: 'winery', label: 'Р’РёРЅРѕРґРµР»СЊРЅРё' },
 );
 
 Object.assign(entityLabels, {
-  person: 'винодела',
-  wine: 'вино',
-  region: 'регион',
-  terroir: 'терруар',
-  winery: 'винодельню',
+  person: 'РІРёРЅРѕРґРµР»Р°',
+  wine: 'РІРёРЅРѕ',
+  region: 'СЂРµРіРёРѕРЅ',
+  terroir: 'С‚РµСЂСЂСѓР°СЂ',
+  winery: 'РІРёРЅРѕРґРµР»СЊРЅСЋ',
 });
 
+const currentSection = ref<ProjectSection>('home');
 const currentEntity = ref<EntityType>('person');
 const options = ref<EntityOptionsPayload>({
   persons: [],
@@ -236,6 +272,8 @@ const currentItems = computed(() => {
   }
 });
 
+const isHomeSection = computed(() => currentSection.value === 'home');
+
 const publicPath = computed(() => {
   if (!editor.slug) return '';
   switch (editor.entity) {
@@ -252,7 +290,15 @@ const publicPath = computed(() => {
   }
 });
 
+function setSection(section: ProjectSection) {
+  currentSection.value = section;
+  if (section !== 'home') {
+    currentEntity.value = section;
+  }
+}
+
 function setEntity(entity: EntityType) {
+  currentSection.value = entity;
   currentEntity.value = entity;
 }
 
@@ -315,7 +361,7 @@ async function fetchAll() {
     terroirs.value = Array.isArray(terroirsRes) ? terroirsRes as ListItem[] : [];
     wineries.value = Array.isArray(wineriesRes) ? wineriesRes as ListItem[] : [];
   } catch (err: any) {
-    error.value = err?.data?.message || err?.message || 'Ошибка загрузки раздела';
+    error.value = err?.data?.message || err?.message || 'РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё СЂР°Р·РґРµР»Р°';
   } finally {
     loading.value = false;
   }
@@ -330,9 +376,9 @@ async function saveHomePageConfig() {
       winemakersHomeConfig: homeConfig.value as unknown as Record<string, unknown>,
     });
     homeConfig.value = normalizeWinemakersHomeConfig(homeConfig.value);
-    message.value = 'Настройки витрины сохранены';
+    message.value = 'РќР°СЃС‚СЂРѕР№РєРё РІРёС‚СЂРёРЅС‹ СЃРѕС…СЂР°РЅРµРЅС‹';
   } catch (err: any) {
-    error.value = err?.data?.message || err?.message || 'Ошибка сохранения витрины';
+    error.value = err?.data?.message || err?.message || 'РћС€РёР±РєР° СЃРѕС…СЂР°РЅРµРЅРёСЏ РІРёС‚СЂРёРЅС‹';
   } finally {
     savingHomeConfig.value = false;
   }
@@ -349,16 +395,17 @@ async function saveProjectSettings() {
     });
     homeConfig.value = normalizeWinemakersHomeConfig(homeConfig.value);
     message.value = featureForm.value.winemakersEnabled
-      ? 'Спецпроект открыт для всех посетителей, настройки сохранены'
-      : 'Спецпроект скрыт для посетителей, настройки сохранены';
+      ? 'РЎРїРµС†РїСЂРѕРµРєС‚ РѕС‚РєСЂС‹С‚ РґР»СЏ РІСЃРµС… РїРѕСЃРµС‚РёС‚РµР»РµР№, РЅР°СЃС‚СЂРѕР№РєРё СЃРѕС…СЂР°РЅРµРЅС‹'
+      : 'РЎРїРµС†РїСЂРѕРµРєС‚ СЃРєСЂС‹С‚ РґР»СЏ РїРѕСЃРµС‚РёС‚РµР»РµР№, РЅР°СЃС‚СЂРѕР№РєРё СЃРѕС…СЂР°РЅРµРЅС‹';
   } catch (err: any) {
-    error.value = err?.data?.message || err?.message || 'Ошибка сохранения настроек спецпроекта';
+    error.value = err?.data?.message || err?.message || 'РћС€РёР±РєР° СЃРѕС…СЂР°РЅРµРЅРёСЏ РЅР°СЃС‚СЂРѕРµРє СЃРїРµС†РїСЂРѕРµРєС‚Р°';
   } finally {
     savingHomeConfig.value = false;
   }
 }
 
 function openCreate(entity: EntityType) {
+  currentSection.value = entity;
   currentEntity.value = entity;
   message.value = '';
   error.value = '';
@@ -367,6 +414,7 @@ function openCreate(entity: EntityType) {
 }
 
 async function openEdit(entity: EntityType, id: string) {
+  currentSection.value = entity;
   currentEntity.value = entity;
   showModal.value = true;
   loadingEditor.value = true;
@@ -453,7 +501,7 @@ async function openEdit(entity: EntityType, id: string) {
       editor.lng = detail.lng ?? null;
     }
   } catch (err: any) {
-    error.value = err?.data?.message || err?.message || 'Ошибка загрузки сущности';
+    error.value = err?.data?.message || err?.message || 'РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё СЃСѓС‰РЅРѕСЃС‚Рё';
   } finally {
     loadingEditor.value = false;
   }
@@ -594,11 +642,11 @@ async function save() {
       if (editor.id) await updateAdminWinemakersWinery(editor.id, payload);
       else await createAdminWinemakersWinery(payload);
     }
-    message.value = editor.id ? 'Сущность обновлена' : 'Сущность создана';
+    message.value = editor.id ? 'РЎСѓС‰РЅРѕСЃС‚СЊ РѕР±РЅРѕРІР»РµРЅР°' : 'РЎСѓС‰РЅРѕСЃС‚СЊ СЃРѕР·РґР°РЅР°';
     showModal.value = false;
     await fetchAll();
   } catch (err: any) {
-    error.value = err?.data?.message || err?.message || 'Ошибка сохранения';
+    error.value = err?.data?.message || err?.message || 'РћС€РёР±РєР° СЃРѕС…СЂР°РЅРµРЅРёСЏ';
   } finally {
     saving.value = false;
   }
@@ -606,7 +654,7 @@ async function save() {
 
 async function removeItem(item: ListItem) {
   const label = item.name || item.slug;
-  if (!confirm(`Удалить ${entityLabels[currentEntity.value]} «${label}»?`)) return;
+  if (!confirm(`РЈРґР°Р»РёС‚СЊ ${entityLabels[currentEntity.value]} В«${label}В»?`)) return;
   deleting.value = true;
   error.value = '';
   message.value = '';
@@ -616,10 +664,10 @@ async function removeItem(item: ListItem) {
     else if (currentEntity.value === 'region') await deleteAdminWinemakersRegion(item.id);
     else if (currentEntity.value === 'terroir') await deleteAdminWinemakersTerroir(item.id);
     else await deleteAdminWinemakersWinery(item.id);
-    message.value = 'Сущность удалена';
+    message.value = 'РЎСѓС‰РЅРѕСЃС‚СЊ СѓРґР°Р»РµРЅР°';
     await fetchAll();
   } catch (err: any) {
-    error.value = err?.data?.message || err?.message || 'Ошибка удаления';
+    error.value = err?.data?.message || err?.message || 'РћС€РёР±РєР° СѓРґР°Р»РµРЅРёСЏ';
   } finally {
     deleting.value = false;
   }
@@ -652,18 +700,18 @@ onMounted(() => {
   <div class="mx-auto max-w-7xl px-4 py-8">
     <template v-if="isCmsRoute">
       <CmsPageHeader
-        eyebrow="Спецпроект"
-        title="Виноделы России"
-        description="Управление доступом, витриной и каталогом сущностей спецпроекта."
+        eyebrow="РЎРїРµС†РїСЂРѕРµРєС‚"
+        title="Р’РёРЅРѕРґРµР»С‹ Р РѕСЃСЃРёРё"
+        description="РЈРїСЂР°РІР»РµРЅРёРµ РґРѕСЃС‚СѓРїРѕРј, РІРёС‚СЂРёРЅРѕР№ Рё РєР°С‚Р°Р»РѕРіРѕРј СЃСѓС‰РЅРѕСЃС‚РµР№ СЃРїРµС†РїСЂРѕРµРєС‚Р°."
       />
     </template>
     <template v-else>
       <div class="mb-6 border-b border-foreground/10 pb-4">
-        <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Спецпроекты</p>
-        <h1 class="mt-2 font-heading text-2xl font-bold">Виноделы России</h1>
+        <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">РЎРїРµС†РїСЂРѕРµРєС‚С‹</p>
+        <h1 class="mt-2 font-heading text-2xl font-bold">Р’РёРЅРѕРґРµР»С‹ Р РѕСЃСЃРёРё</h1>
       </div>
 
-      <NuxtLink to="/account/projects" class="text-sm text-accent hover:underline">← Назад к спецпроектам</NuxtLink>
+      <NuxtLink to="/account/projects" class="text-sm text-accent hover:underline">в†ђ РќР°Р·Р°Рґ Рє СЃРїРµС†РїСЂРѕРµРєС‚Р°Рј</NuxtLink>
       <AccountTabs class="mt-6" />
       <ProjectTabs class="mt-6" />
     </template>
@@ -671,9 +719,9 @@ onMounted(() => {
     <div class="mt-6 rounded border border-foreground/10 bg-card p-5">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div class="max-w-3xl">
-          <h2 class="text-lg font-normal">Доступ и публикация проекта</h2>
+          <h2 class="text-lg font-normal">Р”РѕСЃС‚СѓРї Рё РїСѓР±Р»РёРєР°С†РёСЏ РїСЂРѕРµРєС‚Р°</h2>
           <p class="mt-2 text-sm leading-6 text-foreground/65">
-            Здесь лежат только настройки спецпроекта. Они не пересекаются с общей админкой «Виноделие Сегодня».
+            Р—РґРµСЃСЊ Р»РµР¶Р°С‚ С‚РѕР»СЊРєРѕ РЅР°СЃС‚СЂРѕР№РєРё СЃРїРµС†РїСЂРѕРµРєС‚Р°. РћРЅРё РЅРµ РїРµСЂРµСЃРµРєР°СЋС‚СЃСЏ СЃ РѕР±С‰РµР№ Р°РґРјРёРЅРєРѕР№ В«Р’РёРЅРѕРґРµР»РёРµ РЎРµРіРѕРґРЅСЏВ».
           </p>
         </div>
         <button
@@ -682,7 +730,7 @@ onMounted(() => {
           :disabled="savingHomeConfig"
           @click="saveProjectSettings"
         >
-          {{ savingHomeConfig ? 'Сохранение...' : 'Сохранить настройки проекта' }}
+          {{ savingHomeConfig ? 'РЎРѕС…СЂР°РЅРµРЅРёРµ...' : 'РЎРѕС…СЂР°РЅРёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё РїСЂРѕРµРєС‚Р°' }}
         </button>
       </div>
 
@@ -693,85 +741,88 @@ onMounted(() => {
           class="mt-0.5 h-4 w-4 accent-accent"
         >
         <span>
-          <span class="block font-normal text-foreground">Открыть раздел для всех посетителей</span>
+          <span class="block font-normal text-foreground">РћС‚РєСЂС‹С‚СЊ СЂР°Р·РґРµР» РґР»СЏ РІСЃРµС… РїРѕСЃРµС‚РёС‚РµР»РµР№</span>
           <span class="mt-1 block text-foreground/60">
-            Пока флаг выключен, сам раздел и кнопка входа в хедере скрыты для всех, кроме администраторов сайта.
+            РџРѕРєР° С„Р»Р°Рі РІС‹РєР»СЋС‡РµРЅ, СЃР°Рј СЂР°Р·РґРµР» Рё РєРЅРѕРїРєР° РІС…РѕРґР° РІ С…РµРґРµСЂРµ СЃРєСЂС‹С‚С‹ РґР»СЏ РІСЃРµС…, РєСЂРѕРјРµ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂРѕРІ СЃР°Р№С‚Р°.
           </span>
         </span>
       </label>
     </div>
 
+    <div class="mt-6 flex flex-wrap gap-2 border-b border-foreground/10 pb-4">
+      <button
+        v-for="tab in projectTabs"
+        :key="tab.key"
+        type="button"
+        class="px-4 py-2 text-sm transition"
+        :class="currentSection === tab.key ? 'bg-accent text-black' : 'border border-foreground/10 bg-foreground/5 hover:bg-foreground/10'"
+        @click="setSection(tab.key)"
+      >
+        {{ tab.label }}
+      </button>
+    </div>
+
     <AdminWinemakersHomeConfigEditor
+      v-if="isHomeSection"
       v-model="homeConfig"
       class="mt-6"
       :saving="savingHomeConfig"
       @save="saveHomePageConfig"
     />
 
-    <div class="mt-6 flex flex-wrap gap-2 border-b border-foreground/10 pb-4">
-      <button
-        v-for="tab in entityTabs"
-        :key="tab.key"
-        type="button"
-        class="px-4 py-2 text-sm transition"
-        :class="currentEntity === tab.key ? 'bg-accent text-black' : 'border border-foreground/10 bg-foreground/5 hover:bg-foreground/10'"
-        @click="setEntity(tab.key)"
-      >
-        {{ tab.label }}
-      </button>
-    </div>
+    <template v-else>
+      <div class="mt-6 flex items-center justify-between gap-3">
+        <button class="btn-primary" @click="openCreate(currentEntity)">Добавить</button>
+        <button class="text-sm text-accent hover:underline" @click="fetchAll">Обновить</button>
+      </div>
 
-    <div class="mt-6 flex items-center justify-between gap-3">
-      <button class="btn-primary" @click="openCreate(currentEntity)">Добавить</button>
-      <button class="text-sm text-accent hover:underline" @click="fetchAll">Обновить</button>
-    </div>
+      <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
+      <p v-if="error" class="mt-6 text-sm text-red-600">{{ error }}</p>
+      <p v-if="message" class="mt-6 text-sm text-green-600">{{ message }}</p>
 
-    <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
-    <p v-if="error" class="mt-6 text-sm text-red-600">{{ error }}</p>
-    <p v-if="message" class="mt-6 text-sm text-green-600">{{ message }}</p>
+      <div v-if="!loading && currentItems.length" class="mt-6 overflow-x-auto">
+        <table class="w-full border-collapse border border-foreground/10 text-sm">
+          <thead class="bg-foreground/10">
+            <tr>
+              <th class="border border-foreground/10 px-4 py-2 text-left">Название</th>
+              <th class="border border-foreground/10 px-4 py-2 text-left">Slug</th>
+              <th class="border border-foreground/10 px-4 py-2 text-left">Статус</th>
+              <th class="border border-foreground/10 px-4 py-2 text-left">Связи</th>
+              <th class="border border-foreground/10 px-4 py-2 text-left">Обновлено</th>
+              <th class="border border-foreground/10 px-4 py-2 text-left">Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in currentItems" :key="item.id" class="bg-foreground/5">
+              <td class="border border-foreground/10 px-4 py-2">
+                <div class="flex items-center gap-3">
+                  <img v-if="currentEntity === 'person' && item.photo?.path" :src="mediaUrl(item.photo.path)" alt="" class="h-10 w-10 rounded-full object-cover">
+                  <img v-else-if="currentEntity === 'winery' && item.logo?.path" :src="mediaUrl(item.logo.path)" alt="" class="h-10 w-10 object-contain">
+                  <span>{{ item.name }}</span>
+                </div>
+              </td>
+              <td class="border border-foreground/10 px-4 py-2 font-mono text-xs">{{ item.slug }}</td>
+              <td class="border border-foreground/10 px-4 py-2">{{ item.status }}</td>
+              <td class="border border-foreground/10 px-4 py-2">
+                <span v-if="currentEntity === 'person'">{{ item.winery?.name || '—' }}</span>
+                <span v-else-if="currentEntity === 'wine'">{{ item.winery?.name || item.region?.name || '—' }}</span>
+                <span v-else-if="currentEntity === 'region'">{{ item.parent?.name || '—' }}</span>
+                <span v-else>{{ item.region?.name || '—' }}</span>
+              </td>
+              <td class="border border-foreground/10 px-4 py-2">{{ formatDate(item.updatedAt) }}</td>
+              <td class="border border-foreground/10 px-4 py-2">
+                <div class="flex flex-wrap gap-2">
+                  <button class="text-xs text-accent hover:underline" @click="openEdit(currentEntity, item.id)">Изменить</button>
+                  <button class="text-xs text-red-600 hover:underline" :disabled="deleting" @click="removeItem(item)">Удалить</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <div v-if="!loading && currentItems.length" class="mt-6 overflow-x-auto">
-      <table class="w-full border-collapse border border-foreground/10 text-sm">
-        <thead class="bg-foreground/10">
-          <tr>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Название</th>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Slug</th>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Статус</th>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Связи</th>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Обновлено</th>
-            <th class="border border-foreground/10 px-4 py-2 text-left">Действия</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in currentItems" :key="item.id" class="bg-foreground/5">
-            <td class="border border-foreground/10 px-4 py-2">
-              <div class="flex items-center gap-3">
-                <img v-if="currentEntity === 'person' && item.photo?.path" :src="mediaUrl(item.photo.path)" alt="" class="h-10 w-10 rounded-full object-cover">
-                <img v-else-if="currentEntity === 'winery' && item.logo?.path" :src="mediaUrl(item.logo.path)" alt="" class="h-10 w-10 object-contain">
-                <span>{{ item.name }}</span>
-              </div>
-            </td>
-            <td class="border border-foreground/10 px-4 py-2 font-mono text-xs">{{ item.slug }}</td>
-            <td class="border border-foreground/10 px-4 py-2">{{ item.status }}</td>
-            <td class="border border-foreground/10 px-4 py-2">
-              <span v-if="currentEntity === 'person'">{{ item.winery?.name || '—' }}</span>
-              <span v-else-if="currentEntity === 'wine'">{{ item.winery?.name || item.region?.name || '—' }}</span>
-              <span v-else-if="currentEntity === 'region'">{{ item.parent?.name || '—' }}</span>
-              <span v-else>{{ item.region?.name || '—' }}</span>
-            </td>
-            <td class="border border-foreground/10 px-4 py-2">{{ formatDate(item.updatedAt) }}</td>
-            <td class="border border-foreground/10 px-4 py-2">
-              <div class="flex flex-wrap gap-2">
-                <button class="text-xs text-accent hover:underline" @click="openEdit(currentEntity, item.id)">Изменить</button>
-                <button class="text-xs text-red-600 hover:underline" :disabled="deleting" @click="removeItem(item)">Удалить</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p v-if="!loading && !currentItems.length" class="mt-6 text-sm text-foreground/60">Список пока пуст.</p>
+      <p v-if="!loading && !currentItems.length" class="mt-6 text-sm text-foreground/60">Список пока пуст.</p>
+    </template>
 
     <Teleport to="body">
       <Transition name="fade">
@@ -780,20 +831,20 @@ onMounted(() => {
             <div v-if="showModal" class="relative mt-6 max-h-[92vh] w-full max-w-5xl overflow-hidden rounded-lg border border-foreground/10 bg-background shadow-2xl">
               <div class="flex items-center justify-between border-b border-foreground/10 px-6 py-4">
                 <div>
-                  <h2 class="text-lg font-normal">{{ editor.id ? 'Редактирование' : 'Создание' }}: {{ entityLabels[editor.entity] }}</h2>
+                  <h2 class="text-lg font-normal">{{ editor.id ? 'Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ' : 'РЎРѕР·РґР°РЅРёРµ' }}: {{ entityLabels[editor.entity] }}</h2>
                   <p v-if="publicPath" class="mt-1 text-xs text-foreground/50">{{ publicPath }}</p>
                 </div>
-                <button class="flex h-8 w-8 items-center justify-center rounded text-foreground/60 transition hover:bg-foreground/10 hover:text-red-600" @click="showModal = false">✕</button>
+                <button class="flex h-8 w-8 items-center justify-center rounded text-foreground/60 transition hover:bg-foreground/10 hover:text-red-600" @click="showModal = false">вњ•</button>
               </div>
 
               <div class="max-h-[calc(92vh-72px)] overflow-y-auto p-6">
-                <p v-if="loadingEditor" class="text-sm text-foreground/60">Загрузка сущности...</p>
+                <p v-if="loadingEditor" class="text-sm text-foreground/60">Р—Р°РіСЂСѓР·РєР° СЃСѓС‰РЅРѕСЃС‚Рё...</p>
 
                 <div v-else class="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
                   <div class="space-y-6">
                     <div class="grid gap-4 sm:grid-cols-2">
                       <div class="sm:col-span-2">
-                        <label class="mb-1 block text-xs font-normal text-foreground/70">Название</label>
+                        <label class="mb-1 block text-xs font-normal text-foreground/70">РќР°Р·РІР°РЅРёРµ</label>
                         <input v-model="editor.name" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" @input="ensureSlug">
                       </div>
                       <div>
@@ -801,13 +852,13 @@ onMounted(() => {
                         <input v-model="editor.slug" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                       </div>
                       <div>
-                        <label class="mb-1 block text-xs font-normal text-foreground/70">Статус</label>
+                        <label class="mb-1 block text-xs font-normal text-foreground/70">РЎС‚Р°С‚СѓСЃ</label>
                         <select v-model="editor.status" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                           <option v-for="option in statusOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
                         </select>
                       </div>
                       <div class="sm:col-span-2">
-                        <label class="mb-1 block text-xs font-normal text-foreground/70">Краткое описание</label>
+                        <label class="mb-1 block text-xs font-normal text-foreground/70">РљСЂР°С‚РєРѕРµ РѕРїРёСЃР°РЅРёРµ</label>
                         <textarea v-model="editor.summary" rows="3" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" />
                       </div>
                     </div>
@@ -815,221 +866,221 @@ onMounted(() => {
                     <div v-if="editor.entity === 'person'" class="space-y-6">
                       <div class="grid gap-4 sm:grid-cols-2">
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Год рождения</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р“РѕРґ СЂРѕР¶РґРµРЅРёСЏ</label>
                           <input v-model.number="editor.birthYear" type="number" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Год смерти</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р“РѕРґ СЃРјРµСЂС‚Рё</label>
                           <input v-model.number="editor.deathYear" type="number" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Винодельня</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р’РёРЅРѕРґРµР»СЊРЅСЏ</label>
                           <select v-model="editor.wineryId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
-                            <option value="">— нет —</option>
+                            <option value="">вЂ” РЅРµС‚ вЂ”</option>
                             <option v-for="option in options.wineries" :key="option.id" :value="option.id">{{ option.name }}</option>
                           </select>
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Порядок сортировки</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">РџРѕСЂСЏРґРѕРє СЃРѕСЂС‚РёСЂРѕРІРєРё</label>
                           <input v-model.number="editor.sortOrder" type="number" min="0" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                       </div>
 
                       <label class="inline-flex items-center gap-2 text-sm">
                         <input v-model="editor.featured" type="checkbox" class="h-4 w-4">
-                        Избранный винодел
+                        РР·Р±СЂР°РЅРЅС‹Р№ РІРёРЅРѕРґРµР»
                       </label>
 
-                      <WinemakersBlocksEditor v-model="editor.bioBlocks" label="Биография и основной текст" />
+                      <WinemakersBlocksEditor v-model="editor.bioBlocks" label="РџРѕР»РЅРѕРµ РѕРїРёСЃР°РЅРёРµ" />
 
                       <div class="space-y-3">
                         <div class="flex items-center justify-between">
-                          <h3 class="text-sm font-normal">Карьерный таймлайн</h3>
-                          <button type="button" class="btn-secondary text-xs" @click="addCareerItem">Добавить строку</button>
+                          <h3 class="text-sm font-normal">РљР°СЂСЊРµСЂРЅС‹Р№ С‚Р°Р№РјР»Р°Р№РЅ</h3>
+                          <button type="button" class="btn-secondary text-xs" @click="addCareerItem">Р”РѕР±Р°РІРёС‚СЊ СЃС‚СЂРѕРєСѓ</button>
                         </div>
                         <div v-if="editor.career.length" class="space-y-3">
                           <div v-for="(item, index) in editor.career" :key="index" class="grid gap-3 border border-foreground/10 bg-card p-3 sm:grid-cols-2">
-                            <input v-model="item.from" type="text" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="С">
-                            <input v-model="item.to" type="text" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="По">
-                            <input v-model="item.role" type="text" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Роль">
-                            <input v-model="item.place" type="text" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Место">
-                            <textarea v-model="item.note" rows="2" class="sm:col-span-2 border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Комментарий" />
+                            <input v-model="item.from" type="text" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="РЎ">
+                            <input v-model="item.to" type="text" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="РџРѕ">
+                            <input v-model="item.role" type="text" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Р РѕР»СЊ">
+                            <input v-model="item.place" type="text" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="РњРµСЃС‚Рѕ">
+                            <textarea v-model="item.note" rows="2" class="sm:col-span-2 border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="РљРѕРјРјРµРЅС‚Р°СЂРёР№" />
                             <div class="sm:col-span-2 flex justify-end">
-                              <button type="button" class="text-xs text-red-600 hover:underline" @click="editor.career.splice(index, 1)">Удалить</button>
+                              <button type="button" class="text-xs text-red-600 hover:underline" @click="editor.career.splice(index, 1)">РЈРґР°Р»РёС‚СЊ</button>
                             </div>
                           </div>
                         </div>
-                        <p v-else class="text-sm text-foreground/50">Пока нет записей.</p>
+                        <p v-else class="text-sm text-foreground/50">РџРѕРєР° РЅРµС‚ Р·Р°РїРёСЃРµР№.</p>
                       </div>
 
                       <div class="space-y-3">
                         <div class="flex items-center justify-between">
-                          <h3 class="text-sm font-normal">Родственные и проектные связи</h3>
-                          <button type="button" class="btn-secondary text-xs" @click="addRelationItem">Добавить связь</button>
+                          <h3 class="text-sm font-normal">Р РѕРґСЃС‚РІРµРЅРЅС‹Рµ Рё РїСЂРѕРµРєС‚РЅС‹Рµ СЃРІСЏР·Рё</h3>
+                          <button type="button" class="btn-secondary text-xs" @click="addRelationItem">Р”РѕР±Р°РІРёС‚СЊ СЃРІСЏР·СЊ</button>
                         </div>
                         <div v-if="editor.relations.length" class="space-y-3">
                           <div v-for="(item, index) in editor.relations" :key="index" class="grid gap-3 border border-foreground/10 bg-card p-3 sm:grid-cols-[1fr_220px_auto]">
                             <select v-model="item.relatedId" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent">
-                              <option value="">Выберите персону</option>
+                              <option value="">Р’С‹Р±РµСЂРёС‚Рµ РїРµСЂСЃРѕРЅСѓ</option>
                               <option v-for="option in options.persons.filter((person) => person.id !== editor.id)" :key="option.id" :value="option.id">{{ option.name }}</option>
                             </select>
                             <select v-model="item.type" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent">
                               <option v-for="option in relationTypeOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
                             </select>
-                            <button type="button" class="text-xs text-red-600 hover:underline" @click="editor.relations.splice(index, 1)">Удалить</button>
+                            <button type="button" class="text-xs text-red-600 hover:underline" @click="editor.relations.splice(index, 1)">РЈРґР°Р»РёС‚СЊ</button>
                           </div>
                         </div>
-                        <p v-else class="text-sm text-foreground/50">Связи пока не заданы.</p>
+                        <p v-else class="text-sm text-foreground/50">РЎРІСЏР·Рё РїРѕРєР° РЅРµ Р·Р°РґР°РЅС‹.</p>
                       </div>
                     </div>
 
                     <div v-else-if="editor.entity === 'wine'" class="space-y-6">
                       <div class="grid gap-4 sm:grid-cols-2">
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Тип вина</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">РўРёРї РІРёРЅР°</label>
                           <input v-model="editor.wineType" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="red / white / sparkling">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Стиль</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">РЎС‚РёР»СЊ</label>
                           <input v-model="editor.style" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="dry / semi-dry">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Винтаж</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р’РёРЅС‚Р°Р¶</label>
                           <input v-model.number="editor.vintage" type="number" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Сорта винограда</label>
-                          <input v-model="editor.grapes" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="каберне, мерло">
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">РЎРѕСЂС‚Р° РІРёРЅРѕРіСЂР°РґР°</label>
+                          <input v-model="editor.grapes" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="РєР°Р±РµСЂРЅРµ, РјРµСЂР»Рѕ">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Винодельня</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р’РёРЅРѕРґРµР»СЊРЅСЏ</label>
                           <select v-model="editor.wineryId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
-                            <option value="">— нет —</option>
+                            <option value="">вЂ” РЅРµС‚ вЂ”</option>
                             <option v-for="option in options.wineries" :key="option.id" :value="option.id">{{ option.name }}</option>
                           </select>
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Регион</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р РµРіРёРѕРЅ</label>
                           <select v-model="editor.regionId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
-                            <option value="">— нет —</option>
+                            <option value="">вЂ” РЅРµС‚ вЂ”</option>
                             <option v-for="option in options.regions" :key="option.id" :value="option.id">{{ option.name }}</option>
                           </select>
                         </div>
                         <div class="sm:col-span-2">
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Терруар</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">РўРµСЂСЂСѓР°СЂ</label>
                           <select v-model="editor.terroirId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
-                            <option value="">— нет —</option>
+                            <option value="">вЂ” РЅРµС‚ вЂ”</option>
                             <option v-for="option in options.terroirs" :key="option.id" :value="option.id">{{ option.name }}</option>
                           </select>
                         </div>
                       </div>
 
-                      <WinemakersBlocksEditor v-model="editor.description" label="Основной текст карточки вина" />
+                      <WinemakersBlocksEditor v-model="editor.description" label="РћСЃРЅРѕРІРЅРѕР№ С‚РµРєСЃС‚ РєР°СЂС‚РѕС‡РєРё РІРёРЅР°" />
 
                       <div class="space-y-3">
                         <div class="flex items-center justify-between">
-                          <h3 class="text-sm font-normal">Связанные виноделы</h3>
-                          <button type="button" class="btn-secondary text-xs" @click="addWinemakerItem">Добавить винодела</button>
+                          <h3 class="text-sm font-normal">РЎРІСЏР·Р°РЅРЅС‹Рµ РІРёРЅРѕРґРµР»С‹</h3>
+                          <button type="button" class="btn-secondary text-xs" @click="addWinemakerItem">Р”РѕР±Р°РІРёС‚СЊ РІРёРЅРѕРґРµР»Р°</button>
                         </div>
                         <div v-if="editor.winemakers.length" class="space-y-3">
                           <div v-for="(item, index) in editor.winemakers" :key="index" class="grid gap-3 border border-foreground/10 bg-card p-3 sm:grid-cols-[1fr_220px_auto]">
                             <select v-model="item.personId" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent">
-                              <option value="">Выберите персону</option>
+                              <option value="">Р’С‹Р±РµСЂРёС‚Рµ РїРµСЂСЃРѕРЅСѓ</option>
                               <option v-for="option in options.persons" :key="option.id" :value="option.id">{{ option.name }}</option>
                             </select>
-                            <input v-model="item.role" type="text" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Главный винодел">
-                            <button type="button" class="text-xs text-red-600 hover:underline" @click="editor.winemakers.splice(index, 1)">Удалить</button>
+                            <input v-model="item.role" type="text" class="border border-foreground/10 bg-background px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Р“Р»Р°РІРЅС‹Р№ РІРёРЅРѕРґРµР»">
+                            <button type="button" class="text-xs text-red-600 hover:underline" @click="editor.winemakers.splice(index, 1)">РЈРґР°Р»РёС‚СЊ</button>
                           </div>
                         </div>
-                        <p v-else class="text-sm text-foreground/50">Связанные виноделы пока не заданы.</p>
+                        <p v-else class="text-sm text-foreground/50">РЎРІСЏР·Р°РЅРЅС‹Рµ РІРёРЅРѕРґРµР»С‹ РїРѕРєР° РЅРµ Р·Р°РґР°РЅС‹.</p>
                       </div>
                     </div>
 
                     <div v-else-if="editor.entity === 'region'" class="space-y-6">
                       <div class="grid gap-4 sm:grid-cols-2">
                         <div class="sm:col-span-2">
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Родительский регион</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р РѕРґРёС‚РµР»СЊСЃРєРёР№ СЂРµРіРёРѕРЅ</label>
                           <select v-model="editor.parentId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
-                            <option value="">— нет —</option>
+                            <option value="">вЂ” РЅРµС‚ вЂ”</option>
                             <option v-for="option in options.regions.filter((region) => region.id !== editor.id)" :key="option.id" :value="option.id">{{ option.name }}</option>
                           </select>
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Климат</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">РљР»РёРјР°С‚</label>
                           <input v-model="editor.climate" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Почва</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">РџРѕС‡РІР°</label>
                           <input v-model="editor.soil" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Широта</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">РЁРёСЂРѕС‚Р°</label>
                           <input v-model.number="editor.lat" type="number" step="0.000001" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Долгота</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р”РѕР»РіРѕС‚Р°</label>
                           <input v-model.number="editor.lng" type="number" step="0.000001" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                       </div>
-                      <WinemakersBlocksEditor v-model="editor.description" label="Основной текст карточки региона" />
+                      <WinemakersBlocksEditor v-model="editor.description" label="РћСЃРЅРѕРІРЅРѕР№ С‚РµРєСЃС‚ РєР°СЂС‚РѕС‡РєРё СЂРµРіРёРѕРЅР°" />
                     </div>
 
                     <div v-else-if="editor.entity === 'terroir'" class="space-y-6">
                       <div class="grid gap-4 sm:grid-cols-2">
                         <div class="sm:col-span-2">
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Регион</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р РµРіРёРѕРЅ</label>
                           <select v-model="editor.regionId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
-                            <option value="">Выберите регион</option>
+                            <option value="">Р’С‹Р±РµСЂРёС‚Рµ СЂРµРіРёРѕРЅ</option>
                             <option v-for="option in options.regions" :key="option.id" :value="option.id">{{ option.name }}</option>
                           </select>
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Экспозиция</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р­РєСЃРїРѕР·РёС†РёСЏ</label>
                           <input v-model="editor.exposition" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Высота, м</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р’С‹СЃРѕС‚Р°, Рј</label>
                           <input v-model.number="editor.elevationM" type="number" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Почва</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">РџРѕС‡РІР°</label>
                           <input v-model="editor.soil" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Широта</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">РЁРёСЂРѕС‚Р°</label>
                           <input v-model.number="editor.lat" type="number" step="0.000001" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Долгота</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р”РѕР»РіРѕС‚Р°</label>
                           <input v-model.number="editor.lng" type="number" step="0.000001" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                       </div>
-                      <WinemakersBlocksEditor v-model="editor.description" label="Основной текст карточки терруара" />
+                      <WinemakersBlocksEditor v-model="editor.description" label="РћСЃРЅРѕРІРЅРѕР№ С‚РµРєСЃС‚ РєР°СЂС‚РѕС‡РєРё С‚РµСЂСЂСѓР°СЂР°" />
                     </div>
 
                     <div v-else class="space-y-6">
                       <div class="grid gap-4 sm:grid-cols-2">
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Год основания</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р“РѕРґ РѕСЃРЅРѕРІР°РЅРёСЏ</label>
                           <input v-model.number="editor.foundedYear" type="number" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Регион</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р РµРіРёРѕРЅ</label>
                           <select v-model="editor.regionId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
-                            <option value="">— нет —</option>
+                            <option value="">вЂ” РЅРµС‚ вЂ”</option>
                             <option v-for="option in options.regions" :key="option.id" :value="option.id">{{ option.name }}</option>
                           </select>
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Широта</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">РЁРёСЂРѕС‚Р°</label>
                           <input v-model.number="editor.lat" type="number" step="0.000001" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Долгота</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Р”РѕР»РіРѕС‚Р°</label>
                           <input v-model.number="editor.lng" type="number" step="0.000001" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                       </div>
-                      <WinemakersBlocksEditor v-model="editor.description" label="Основной текст карточки винодельни" />
+                      <WinemakersBlocksEditor v-model="editor.description" label="РћСЃРЅРѕРІРЅРѕР№ С‚РµРєСЃС‚ РєР°СЂС‚РѕС‡РєРё РІРёРЅРѕРґРµР»СЊРЅРё" />
                     </div>
 
                     <div class="space-y-4 border border-foreground/10 bg-card p-4">
@@ -1051,39 +1102,39 @@ onMounted(() => {
 
                   <div class="space-y-6">
                     <div v-if="editor.entity === 'person'" class="border border-foreground/10 bg-card p-4">
-                      <h3 class="mb-3 text-sm font-normal">Фото винодела</h3>
+                      <h3 class="mb-3 text-sm font-normal">Р¤РѕС‚Рѕ РІРёРЅРѕРґРµР»Р°</h3>
                       <img v-if="editor.photoPath" :src="mediaUrl(editor.photoPath)" alt="" class="mb-3 h-56 w-full object-cover">
-                      <div v-else class="mb-3 flex h-56 items-center justify-center border border-dashed border-foreground/10 text-sm text-foreground/50">Фото не выбрано</div>
+                      <div v-else class="mb-3 flex h-56 items-center justify-center border border-dashed border-foreground/10 text-sm text-foreground/50">Р¤РѕС‚Рѕ РЅРµ РІС‹Р±СЂР°РЅРѕ</div>
                       <div class="flex gap-2">
-                        <button type="button" class="btn-secondary flex-1 text-xs" @click="photoPickerOpen = true">Выбрать</button>
-                        <button type="button" class="btn-danger text-xs" :disabled="!editor.photoId" @click="editor.photoId = ''; editor.photoPath = ''">Удалить</button>
+                        <button type="button" class="btn-secondary flex-1 text-xs" @click="photoPickerOpen = true">Р’С‹Р±СЂР°С‚СЊ</button>
+                        <button type="button" class="btn-danger text-xs" :disabled="!editor.photoId" @click="editor.photoId = ''; editor.photoPath = ''">РЈРґР°Р»РёС‚СЊ</button>
                       </div>
                     </div>
 
                     <div v-if="editor.entity === 'winery'" class="border border-foreground/10 bg-card p-4">
-                      <h3 class="mb-3 text-sm font-normal">Логотип винодельни</h3>
+                      <h3 class="mb-3 text-sm font-normal">Р›РѕРіРѕС‚РёРї РІРёРЅРѕРґРµР»СЊРЅРё</h3>
                       <img v-if="editor.logoPath" :src="mediaUrl(editor.logoPath)" alt="" class="mb-3 h-40 w-full object-contain">
-                      <div v-else class="mb-3 flex h-40 items-center justify-center border border-dashed border-foreground/10 text-sm text-foreground/50">Логотип не выбран</div>
+                      <div v-else class="mb-3 flex h-40 items-center justify-center border border-dashed border-foreground/10 text-sm text-foreground/50">Р›РѕРіРѕС‚РёРї РЅРµ РІС‹Р±СЂР°РЅ</div>
                       <div class="flex gap-2">
-                        <button type="button" class="btn-secondary flex-1 text-xs" @click="logoPickerOpen = true">Выбрать</button>
-                        <button type="button" class="btn-danger text-xs" :disabled="!editor.logoId" @click="editor.logoId = ''; editor.logoPath = ''">Удалить</button>
+                        <button type="button" class="btn-secondary flex-1 text-xs" @click="logoPickerOpen = true">Р’С‹Р±СЂР°С‚СЊ</button>
+                        <button type="button" class="btn-danger text-xs" :disabled="!editor.logoId" @click="editor.logoId = ''; editor.logoPath = ''">РЈРґР°Р»РёС‚СЊ</button>
                       </div>
                     </div>
 
                     <div class="border border-foreground/10 bg-card p-4">
-                      <h3 class="mb-2 text-sm font-normal">Подсказки</h3>
+                      <h3 class="mb-2 text-sm font-normal">РџРѕРґСЃРєР°Р·РєРё</h3>
                       <ul class="list-disc space-y-2 pl-5 text-xs text-foreground/60">
-                        <li>Slug лучше сразу делать латиницей без пробелов.</li>
-                        <li>Для публичного каталога достаточно `draft` и `published`, остальные статусы можно использовать как редакционные.</li>
-                        <li>Фото и логотип берутся из общей медиабиблиотеки.</li>
+                        <li>Slug Р»СѓС‡С€Рµ СЃСЂР°Р·Сѓ РґРµР»Р°С‚СЊ Р»Р°С‚РёРЅРёС†РµР№ Р±РµР· РїСЂРѕР±РµР»РѕРІ.</li>
+                        <li>Р”Р»СЏ РїСѓР±Р»РёС‡РЅРѕРіРѕ РєР°С‚Р°Р»РѕРіР° РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ `draft` Рё `published`, РѕСЃС‚Р°Р»СЊРЅС‹Рµ СЃС‚Р°С‚СѓСЃС‹ РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РєР°Рє СЂРµРґР°РєС†РёРѕРЅРЅС‹Рµ.</li>
+                        <li>Р¤РѕС‚Рѕ Рё Р»РѕРіРѕС‚РёРї Р±РµСЂСѓС‚СЃСЏ РёР· РѕР±С‰РµР№ РјРµРґРёР°Р±РёР±Р»РёРѕС‚РµРєРё.</li>
                       </ul>
                     </div>
                   </div>
                 </div>
 
                 <div class="mt-6 flex items-center justify-end gap-2">
-                  <button class="btn-secondary" @click="showModal = false">Отмена</button>
-                  <button class="btn-primary" :disabled="saving" @click="save">{{ saving ? 'Сохранение...' : 'Сохранить' }}</button>
+                  <button class="btn-secondary" @click="showModal = false">РћС‚РјРµРЅР°</button>
+                  <button class="btn-primary" :disabled="saving" @click="save">{{ saving ? 'РЎРѕС…СЂР°РЅРµРЅРёРµ...' : 'РЎРѕС…СЂР°РЅРёС‚СЊ' }}</button>
                 </div>
               </div>
             </div>

@@ -156,8 +156,7 @@ useSeoMeta({
       </div>
     </section>
 
-    <section v-if="Array.isArray(person.bioBlocks) && person.bioBlocks.length" class="mt-12 max-w-3xl">
-      <h2 class="mb-6 font-heading text-2xl font-bold">Биография</h2>
+    <section v-if="Array.isArray(person.bioBlocks) && person.bioBlocks.length" class="mt-6 max-w-3xl">
       <WinemakersBlocks :blocks="person.bioBlocks" :title="person.name" />
     </section>
 
