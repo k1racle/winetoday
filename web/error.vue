@@ -27,6 +27,10 @@ const description = computed(() => {
 
 useHead({
   title: `${statusCode.value} — ${title.value} — Виноделие сегодня`,
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' },
+    { name: 'description', content: description.value },
+  ],
 });
 
 const sections = [

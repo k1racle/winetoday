@@ -15,9 +15,9 @@ export function useSiteSeoDefaults() {
   const config = useRuntimeConfig();
   const { getSiteSeo } = useApi();
 
-  const { data: siteSeo } = useAsyncData<SiteSeoResponse>('site-seo-defaults', () => getSiteSeo(), {
-    server: true,
-  });
+  const { data: siteSeo } = useAsyncData<SiteSeoResponse>('site-seo-defaults', () =>
+    getSiteSeo().catch(() => null),
+  );
 
   const siteUrl = (config.public.siteUrl as string)?.replace(/\/$/, '') || '';
   const defaultImagePath = siteSeo.value?.openGraphImage?.path || siteSeo.value?.twitterImage?.path;

@@ -1,7 +1,7 @@
 export function useArchiveSeo(slug: string, fallbackName?: string) {
   const { getSiteSeo } = useApi();
 
-  const { data: siteSeo } = useAsyncData(`site-seo-archive-${slug}`, () => getSiteSeo(), {
+  const { data: siteSeo } = useAsyncData(`site-seo-archive-${slug}`, () => getSiteSeo().catch(() => null), {
     server: true,
   });
 
