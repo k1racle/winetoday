@@ -35,6 +35,13 @@ enum ReactionType {
   dislike
 }
 
+enum PersonRelationType {
+  parent
+  spouse
+  sibling
+  founder
+}
+
 model User {
   id            String    @id @default(uuid()) @db.Uuid
   email         String    @unique
@@ -162,6 +169,8 @@ model MediaAsset {
   siteSeoOgImage           SiteSeo?      @relation("SiteSeoOgImage")
   siteSeoTwitterImage      SiteSeo?      @relation("SiteSeoTwitterImage")
   authorAvatars            Author[]      @relation("AuthorAvatar")
+  personPhotos             Person[]      @relation("PersonPhoto")
+  wineryLogos              Winery[]      @relation("WineryLogo")
 
   @@map("media_assets")
 }
@@ -340,6 +349,7 @@ model SiteSettings {
   siteName    String?   @map("site_name")
   siteDescription String? @map("site_description")
   logoMediaId String?   @unique @db.Uuid
+  winemakersEnabled Boolean @default(false) @map("winemakers_enabled")
   typography  Json?
   socialLinks Json?     @map("social_links")
   createdAt   DateTime  @default(now()) @map("created_at")
@@ -475,6 +485,171 @@ model CommentStopWord {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("comment_stop_words")
+}
+
+model Person {
+  id          String        @id @default(uuid()) @db.Uuid
+  slug        String        @unique
+  name        String
+  birthYear   Int?          @map("birth_year")
+  deathYear   Int?          @map("death_year")
+  photoId     String?       @map("photo_id") @db.Uuid
+  summary     String?
+  bioBlocks   Json          @default("[]") @map("bio_blocks")
+  career      Json          @default("[]")
+  wineryId    String?       @map("winery_id") @db.Uuid
+  featured    Boolean       @default(false)
+  sortOrder   Int           @default(0) @map("sort_order")
+  seo         Json?
+  status      ContentStatus @default(draft)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  photo         MediaAsset?      @relation("PersonPhoto", fields: [photoId], references: [id])
+  winery        Winery?          @relation(fields: [wineryId], references: [id], onDelete: SetNull)
+  relationsFrom PersonRelation[] @relation("PersonRelationFrom")
+  relationsTo   PersonRelation[] @relation("PersonRelationTo")
+  wines         WinePerson[]
+
+  @@index([status, sortOrder, updatedAt])
+  @@index([wineryId])
+  @@map("winemakers_people")
+}
+
+model PersonRelation {
+  personId   String             @map("person_id") @db.Uuid
+  relatedId  String             @map("related_id") @db.Uuid
+  type       PersonRelationType
+  createdAt  DateTime           @default(now()) @map("created_at")
+
+  person   Person @relation("PersonRelationFrom", fields: [personId], references: [id], onDelete: Cascade)
+  related  Person @relation("PersonRelationTo", fields: [relatedId], references: [id], onDelete: Cascade)
+
+  @@id([personId, relatedId, type])
+  @@index([relatedId, type])
+  @@map("winemakers_person_relations")
+}
+
+model Winery {
+  id          String        @id @default(uuid()) @db.Uuid
+  slug        String        @unique
+  name        String
+  summary     String?
+  foundedYear Int?          @map("founded_year")
+  regionId    String?       @map("region_id") @db.Uuid
+  logoId      String?       @map("logo_id") @db.Uuid
+  description Json          @default("[]")
+  lat         Float?
+  lng         Float?
+  seo         Json?
+  status      ContentStatus @default(draft)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  region   Region?     @relation(fields: [regionId], references: [id], onDelete: SetNull)
+  logo     MediaAsset? @relation("WineryLogo", fields: [logoId], references: [id], onDelete: SetNull)
+  persons  Person[]
+  wines    Wine[]
+
+  @@index([status, updatedAt])
+  @@index([regionId])
+  @@map("winemakers_wineries")
+}
+
+model Region {
+  id          String        @id @default(uuid()) @db.Uuid
+  slug        String        @unique
+  name        String
+  summary     String?
+  parentId    String?       @map("parent_id") @db.Uuid
+  description Json          @default("[]")
+  climate     String?
+  soil        String?
+  lat         Float?
+  lng         Float?
+  seo         Json?
+  status      ContentStatus @default(draft)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  parent    Region?    @relation("WinemakersRegionTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children  Region[]   @relation("WinemakersRegionTree")
+  terroirs  Terroir[]
+  wineries  Winery[]
+  wines     Wine[]
+
+  @@index([status, updatedAt])
+  @@index([parentId])
+  @@map("winemakers_regions")
+}
+
+model Terroir {
+  id          String        @id @default(uuid()) @db.Uuid
+  slug        String        @unique
+  name        String
+  summary     String?
+  regionId    String        @map("region_id") @db.Uuid
+  exposition  String?
+  elevationM  Int?          @map("elevation_m")
+  soil        String?
+  description Json          @default("[]")
+  lat         Float?
+  lng         Float?
+  seo         Json?
+  status      ContentStatus @default(draft)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  region  Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  wines   Wine[]
+
+  @@index([status, updatedAt])
+  @@index([regionId])
+  @@map("winemakers_terroirs")
+}
+
+model Wine {
+  id          String        @id @default(uuid()) @db.Uuid
+  slug        String        @unique
+  name        String
+  summary     String?
+  type        String?
+  style       String?
+  vintage     Int?
+  grapes      Json          @default("[]")
+  wineryId    String?       @map("winery_id") @db.Uuid
+  regionId    String?       @map("region_id") @db.Uuid
+  terroirId   String?       @map("terroir_id") @db.Uuid
+  description Json          @default("[]")
+  seo         Json?
+  status      ContentStatus @default(draft)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  winery     Winery?      @relation(fields: [wineryId], references: [id], onDelete: SetNull)
+  region     Region?      @relation(fields: [regionId], references: [id], onDelete: SetNull)
+  terroir    Terroir?     @relation(fields: [terroirId], references: [id], onDelete: SetNull)
+  winemakers WinePerson[]
+
+  @@index([status, updatedAt])
+  @@index([wineryId])
+  @@index([regionId])
+  @@index([terroirId])
+  @@map("winemakers_wines")
+}
+
+model WinePerson {
+  wineId     String    @map("wine_id") @db.Uuid
+  personId   String    @map("person_id") @db.Uuid
+  role       String?
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  wine    Wine   @relation(fields: [wineId], references: [id], onDelete: Cascade)
+  person  Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@id([wineId, personId])
+  @@index([personId])
+  @@map("winemakers_wine_people")
 }
 
 model NewsletterSubscriber {

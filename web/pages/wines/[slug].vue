@@ -1,0 +1,104 @@
+<script setup lang="ts">
+import type { WineDetail } from '~/types/winemakers';
+
+definePageMeta({
+  layout: 'winemakers',
+  middleware: 'winemakers-access',
+});
+
+const route = useRoute();
+const { getWineCatalogItem } = useApi();
+
+const { data: wine } = await useAsyncData(
+  `wine-${route.params.slug}`,
+  async () => {
+    try {
+      return await getWineCatalogItem(String(route.params.slug)) as WineDetail;
+    } catch (error: any) {
+      throw createError({
+        statusCode: error?.statusCode || error?.response?.status || 404,
+        statusMessage: 'Вино не найдено',
+      });
+    }
+  },
+);
+
+useCanonical();
+useSeoMeta({
+  title: () => (wine.value ? `${wine.value.name} — Виноделы России` : 'Вина'),
+  description: () => wine.value?.summary || 'Карточка вина в каталоге «Виноделы России».',
+});
+</script>
+
+<template>
+  <div v-if="wine" class="mx-auto max-w-7xl px-4 py-8 md:py-10">
+    <nav class="text-xs font-bold uppercase tracking-wider text-foreground/45">
+      <NuxtLink to="/">Главная</NuxtLink>
+      <span class="mx-2">/</span>
+      <NuxtLink to="/wines">Вина</NuxtLink>
+      <span class="mx-2">/</span>
+      <span>{{ wine.name }}</span>
+    </nav>
+
+    <h1 class="mt-6 inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">
+      {{ wine.name }}
+    </h1>
+
+    <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-wider text-foreground/50">
+      <span v-if="wine.type">{{ wine.type }}</span>
+      <span v-if="wine.style">{{ wine.style }}</span>
+      <span v-if="wine.vintage">{{ wine.vintage }}</span>
+    </div>
+
+    <div class="mt-8 grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
+      <div class="border border-foreground/10 bg-card p-5">
+        <dl class="space-y-4 text-sm">
+          <div v-if="wine.vintage">
+            <dt class="font-bold uppercase tracking-wider text-foreground/45">Винтаж</dt>
+            <dd class="mt-1">{{ wine.vintage }}</dd>
+          </div>
+          <div v-if="wine.grapes?.length">
+            <dt class="font-bold uppercase tracking-wider text-foreground/45">Сорта</dt>
+            <dd class="mt-1">{{ wine.grapes.join(', ') }}</dd>
+          </div>
+          <div v-if="wine.winery?.name">
+            <dt class="font-bold uppercase tracking-wider text-foreground/45">Хозяйство</dt>
+            <dd class="mt-1">
+              <NuxtLink :to="`/wineries/${wine.winery.slug}`" class="text-accent hover:underline">{{ wine.winery.name }}</NuxtLink>
+            </dd>
+          </div>
+          <div v-if="wine.region?.name">
+            <dt class="font-bold uppercase tracking-wider text-foreground/45">Регион</dt>
+            <dd class="mt-1">
+              <NuxtLink :to="`/regions/${wine.region.slug}`" class="text-accent hover:underline">{{ wine.region.name }}</NuxtLink>
+            </dd>
+          </div>
+          <div v-if="wine.terroir?.name">
+            <dt class="font-bold uppercase tracking-wider text-foreground/45">Терруар</dt>
+            <dd class="mt-1">
+              <NuxtLink :to="`/terroirs/${wine.terroir.slug}`" class="text-accent hover:underline">{{ wine.terroir.name }}</NuxtLink>
+            </dd>
+          </div>
+          <div v-if="wine.winemakers?.length">
+            <dt class="font-bold uppercase tracking-wider text-foreground/45">Виноделы</dt>
+            <dd class="mt-1 flex flex-col gap-1">
+              <NuxtLink
+                v-for="entry in wine.winemakers"
+                :key="entry.person.id"
+                :to="`/winemakers/${entry.person.slug}`"
+                class="text-accent hover:underline"
+              >
+                {{ entry.person.name }}<span v-if="entry.role"> — {{ entry.role }}</span>
+              </NuxtLink>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="max-w-3xl">
+        <p v-if="wine.summary" class="mb-6 text-lg leading-8 text-foreground/72">{{ wine.summary }}</p>
+        <WinemakersBlocks :blocks="wine.description" :title="wine.name" />
+      </div>
+    </div>
+  </div>
+</template>

@@ -89,6 +89,10 @@ export function useApi() {
       api('/admin/site-settings/social-links', { method: 'PATCH', body, credentials: 'include' }),
     getSiteSettings: () =>
       api('/site-settings'),
+    getAdminSiteSettings: () =>
+      api('/admin/site-settings', { credentials: 'include' }),
+    updateSiteSettings: (body: { winemakersEnabled?: boolean }) =>
+      api('/admin/site-settings', { method: 'PATCH', body, credentials: 'include' }),
     getSiteHeader: () =>
       api('/site-header'),
     getSiteSeo: () =>
@@ -204,6 +208,78 @@ export function useApi() {
       api(`/admin/authors/${id}/analytics`, { credentials: 'include' }),
     deleteAuthor: (id: string) =>
       api(`/admin/authors/${id}`, { method: 'DELETE', credentials: 'include' }),
+    getWinemakers: (query?: Record<string, unknown>) =>
+      api('/winemakers', { query }),
+    getWinemaker: (slug: string) =>
+      api(`/winemakers/${slug}`),
+    getAdminWinemakersOptions: () =>
+      api('/admin/winemakers/options', { credentials: 'include' }),
+    getAdminWinemakersPersons: () =>
+      api('/admin/winemakers/persons', { credentials: 'include' }),
+    getAdminWinemakersPerson: (id: string) =>
+      api(`/admin/winemakers/persons/${id}`, { credentials: 'include' }),
+    createAdminWinemakersPerson: (body: Record<string, unknown>) =>
+      api('/admin/winemakers/persons', { method: 'POST', body, credentials: 'include' }),
+    updateAdminWinemakersPerson: (id: string, body: Record<string, unknown>) =>
+      api(`/admin/winemakers/persons/${id}`, { method: 'PATCH', body, credentials: 'include' }),
+    deleteAdminWinemakersPerson: (id: string) =>
+      api(`/admin/winemakers/persons/${id}`, { method: 'DELETE', credentials: 'include' }),
+    getWinesCatalog: (query?: Record<string, unknown>) =>
+      api('/wines', { query }),
+    getWineCatalogItem: (slug: string) =>
+      api(`/wines/${slug}`),
+    getAdminWinemakersWines: () =>
+      api('/admin/winemakers/wines', { credentials: 'include' }),
+    getAdminWinemakersWine: (id: string) =>
+      api(`/admin/winemakers/wines/${id}`, { credentials: 'include' }),
+    createAdminWinemakersWine: (body: Record<string, unknown>) =>
+      api('/admin/winemakers/wines', { method: 'POST', body, credentials: 'include' }),
+    updateAdminWinemakersWine: (id: string, body: Record<string, unknown>) =>
+      api(`/admin/winemakers/wines/${id}`, { method: 'PATCH', body, credentials: 'include' }),
+    deleteAdminWinemakersWine: (id: string) =>
+      api(`/admin/winemakers/wines/${id}`, { method: 'DELETE', credentials: 'include' }),
+    getRegionsCatalog: (query?: Record<string, unknown>) =>
+      api('/regions', { query }),
+    getRegionCatalogItem: (slug: string) =>
+      api(`/regions/${slug}`),
+    getAdminWinemakersRegions: () =>
+      api('/admin/winemakers/regions', { credentials: 'include' }),
+    getAdminWinemakersRegion: (id: string) =>
+      api(`/admin/winemakers/regions/${id}`, { credentials: 'include' }),
+    createAdminWinemakersRegion: (body: Record<string, unknown>) =>
+      api('/admin/winemakers/regions', { method: 'POST', body, credentials: 'include' }),
+    updateAdminWinemakersRegion: (id: string, body: Record<string, unknown>) =>
+      api(`/admin/winemakers/regions/${id}`, { method: 'PATCH', body, credentials: 'include' }),
+    deleteAdminWinemakersRegion: (id: string) =>
+      api(`/admin/winemakers/regions/${id}`, { method: 'DELETE', credentials: 'include' }),
+    getWineriesCatalog: (query?: Record<string, unknown>) =>
+      api('/wineries', { query }),
+    getWineryCatalogItem: (slug: string) =>
+      api(`/wineries/${slug}`),
+    getAdminWinemakersWineries: () =>
+      api('/admin/winemakers/wineries', { credentials: 'include' }),
+    getAdminWinemakersWinery: (id: string) =>
+      api(`/admin/winemakers/wineries/${id}`, { credentials: 'include' }),
+    createAdminWinemakersWinery: (body: Record<string, unknown>) =>
+      api('/admin/winemakers/wineries', { method: 'POST', body, credentials: 'include' }),
+    updateAdminWinemakersWinery: (id: string, body: Record<string, unknown>) =>
+      api(`/admin/winemakers/wineries/${id}`, { method: 'PATCH', body, credentials: 'include' }),
+    deleteAdminWinemakersWinery: (id: string) =>
+      api(`/admin/winemakers/wineries/${id}`, { method: 'DELETE', credentials: 'include' }),
+    getTerroirCatalogItem: (slug: string) =>
+      api(`/terroirs/${slug}`),
+    getAdminWinemakersTerroirs: () =>
+      api('/admin/winemakers/terroirs', { credentials: 'include' }),
+    getAdminWinemakersTerroir: (id: string) =>
+      api(`/admin/winemakers/terroirs/${id}`, { credentials: 'include' }),
+    createAdminWinemakersTerroir: (body: Record<string, unknown>) =>
+      api('/admin/winemakers/terroirs', { method: 'POST', body, credentials: 'include' }),
+    updateAdminWinemakersTerroir: (id: string, body: Record<string, unknown>) =>
+      api(`/admin/winemakers/terroirs/${id}`, { method: 'PATCH', body, credentials: 'include' }),
+    deleteAdminWinemakersTerroir: (id: string) =>
+      api(`/admin/winemakers/terroirs/${id}`, { method: 'DELETE', credentials: 'include' }),
+    searchWinepedia: (query?: Record<string, unknown>) =>
+      api('/winepedia/search', { query }),
     getAdminComments: (query?: Record<string, unknown>) =>
       api('/admin/comments', { query, credentials: 'include' }),
     deleteAdminComment: (id: string) =>

@@ -10,6 +10,9 @@ const socialLinks = computed(() => {
   const links = siteSettings.value?.socialLinks?.links;
   return Array.isArray(links) ? links : [];
 });
+const showWinemakersLink = computed(() =>
+  Boolean(siteSettings.value?.winemakersEnabled) || user.value?.role === 'admin',
+);
 const lightLogoUrl = computed(() =>
   useMediaUrl(siteHeader.value?.lightLogo?.path) || '/logo-light.png',
 );
@@ -112,6 +115,14 @@ function onSearch() {
 
       <!-- Right side: search + actions (desktop) -->
       <div class="hidden items-center gap-3 md:gap-5 lg:flex">
+        <NuxtLink
+          v-if="showWinemakersLink"
+          to="/winemakers"
+          class="text-xs font-bold uppercase tracking-wider text-foreground/70 transition hover:text-accent"
+        >
+          Виноделы России
+        </NuxtLink>
+
         <div class="relative flex items-center">
           <Transition name="search-expand">
             <form
@@ -308,6 +319,15 @@ function onSearch() {
       <!-- Links -->
       <nav class="mt-auto overflow-y-auto">
         <ul class="space-y-4">
+          <li v-if="showWinemakersLink">
+            <NuxtLink
+              to="/winemakers"
+              class="block border-b-2 border-transparent py-2 text-left font-heading text-sm font-bold uppercase tracking-wider text-accent transition hover:border-accent"
+              @click="closeMobileMenu"
+            >
+              Виноделы России
+            </NuxtLink>
+          </li>
           <li>
             <NuxtLink
               to="/news"

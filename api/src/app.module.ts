@@ -18,6 +18,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
 import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { RedirectsModule } from './modules/redirects/redirects.module';
 import { NewsletterModule } from './modules/newsletter/newsletter.module';
+import { WinemakersModule } from './modules/winemakers/winemakers.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { NewsletterModule } from './modules/newsletter/newsletter.module';
     SchedulerModule,
     RedirectsModule,
     NewsletterModule,
+    WinemakersModule,
 
     UsersModule,
   ],

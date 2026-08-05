@@ -9,6 +9,7 @@ import { UpdateSiteHeaderDto } from './dto/update-site-header.dto';
 import { UpdateSiteSeoDto } from './dto/update-site-seo.dto';
 import { UpdateStaticPageDto } from './dto/update-static-page.dto';
 import { UpdateHomepageDto } from './dto/update-homepage.dto';
+import { UpdateSiteSettingsDto } from './dto/update-site-settings.dto';
 
 @Controller()
 export class AdminSettingsController {
@@ -24,6 +25,20 @@ export class AdminSettingsController {
   @Roles(Role.admin)
   updateSocialLinks(@Body() dto: UpdateSocialLinksDto) {
     return this.settingsService.updateSocialLinks(dto);
+  }
+
+  @Get('admin/site-settings')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.admin)
+  adminSiteSettings() {
+    return this.settingsService.siteSettings();
+  }
+
+  @Patch('admin/site-settings')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.admin)
+  updateSiteSettings(@Body() dto: UpdateSiteSettingsDto) {
+    return this.settingsService.updateSiteSettings(dto);
   }
 
 

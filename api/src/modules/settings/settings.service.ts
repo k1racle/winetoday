@@ -6,6 +6,7 @@ import { UpdateSiteHeaderDto } from './dto/update-site-header.dto';
 import { UpdateSiteSeoDto } from './dto/update-site-seo.dto';
 import { UpdateStaticPageDto } from './dto/update-static-page.dto';
 import { UpdateHomepageDto } from './dto/update-homepage.dto';
+import { UpdateSiteSettingsDto } from './dto/update-site-settings.dto';
 
 const singletonInclude = {
   logoMedia: true,
@@ -27,6 +28,28 @@ export class SettingsService {
 
   async siteSettings() {
     return this.prisma.siteSettings.findFirst({
+      include: singletonInclude,
+    });
+  }
+
+  async updateSiteSettings(dto: UpdateSiteSettingsDto) {
+    const existing = await this.prisma.siteSettings.findFirst();
+    const data: Record<string, unknown> = {};
+
+    if (dto.winemakersEnabled !== undefined) {
+      data.winemakersEnabled = dto.winemakersEnabled;
+    }
+
+    if (!existing) {
+      return this.prisma.siteSettings.create({
+        data,
+        include: singletonInclude,
+      });
+    }
+
+    return this.prisma.siteSettings.update({
+      where: { id: existing.id },
+      data,
       include: singletonInclude,
     });
   }
