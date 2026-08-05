@@ -7,7 +7,9 @@ definePageMeta({
 });
 
 const route = useRoute();
+const config = useRuntimeConfig();
 const { getTerroirCatalogItem } = useApi();
+const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
 
 const { data: terroir } = await useAsyncData(
   `terroir-${route.params.slug}`,
@@ -22,6 +24,59 @@ const { data: terroir } = await useAsyncData(
     }
   },
 );
+
+const breadcrumbItems = computed(() => [
+  { name: 'Главная', url: '/' },
+  { name: 'Виноделы России', url: '/winemakers' },
+  { name: 'Терруары', url: '/terroirs' },
+  { name: terroir.value?.name || '', url: route.path },
+].filter((item) => item.name));
+
+useHead(() => ({
+  script: terroir.value
+    ? [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: breadcrumbItems.value.map((item, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: item.name,
+              item: `${siteUrl}${item.url}`,
+            })),
+          }),
+        },
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Place',
+            name: terroir.value.name,
+            description: terroir.value.summary || undefined,
+            url: `${siteUrl}${route.path}`,
+            containedInPlace: terroir.value.region
+              ? {
+                  '@type': 'Place',
+                  name: terroir.value.region.name,
+                  url: `${siteUrl}/regions/${terroir.value.region.slug}`,
+                }
+              : undefined,
+            geo:
+              Number.isFinite(terroir.value.lat) && Number.isFinite(terroir.value.lng)
+                ? {
+                    '@type': 'GeoCoordinates',
+                    latitude: terroir.value.lat,
+                    longitude: terroir.value.lng,
+                  }
+                : undefined,
+            mainEntityOfPage: `${siteUrl}${route.path}`,
+          }),
+        },
+      ]
+    : [],
+}));
 
 useCanonical();
 useSeoMeta({

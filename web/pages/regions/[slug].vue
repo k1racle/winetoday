@@ -7,7 +7,9 @@ definePageMeta({
 });
 
 const route = useRoute();
+const config = useRuntimeConfig();
 const { getRegionCatalogItem } = useApi();
+const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
 
 const { data: region } = await useAsyncData(
   `region-${route.params.slug}`,
@@ -71,6 +73,57 @@ const mapPoints = computed<WinemakersMapPoint[]>(() => {
 
   return points;
 });
+
+const breadcrumbItems = computed(() => [
+  { name: 'Главная', url: '/' },
+  { name: 'Виноделы России', url: '/winemakers' },
+  { name: 'Регионы', url: '/regions' },
+  { name: region.value?.name || '', url: route.path },
+].filter((item) => item.name));
+
+useHead(() => ({
+  script: region.value
+    ? [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: breadcrumbItems.value.map((item, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: item.name,
+              item: `${siteUrl}${item.url}`,
+            })),
+          }),
+        },
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Place',
+            name: region.value.name,
+            description: region.value.summary || undefined,
+            url: `${siteUrl}${route.path}`,
+            geo:
+              Number.isFinite(region.value.lat) && Number.isFinite(region.value.lng)
+                ? {
+                    '@type': 'GeoCoordinates',
+                    latitude: region.value.lat,
+                    longitude: region.value.lng,
+                  }
+                : undefined,
+            containsPlace: (region.value.terroirs || []).slice(0, 10).map((item) => ({
+              '@type': 'Place',
+              name: item.name,
+              url: `${siteUrl}/terroirs/${item.slug}`,
+            })),
+            mainEntityOfPage: `${siteUrl}${route.path}`,
+          }),
+        },
+      ]
+    : [],
+}));
 
 useCanonical();
 useSeoMeta({

@@ -33,6 +33,7 @@ const personCardSelect = Prisma.validator<Prisma.PersonSelect>()({
   birthYear: true,
   deathYear: true,
   featured: true,
+  updatedAt: true,
   photo: true,
   winery: {
     select: {
@@ -58,6 +59,7 @@ const wineCardSelect = Prisma.validator<Prisma.WineSelect>()({
   type: true,
   style: true,
   vintage: true,
+  updatedAt: true,
   winery: {
     select: {
       id: true,
@@ -432,6 +434,7 @@ export class WinemakersService {
         name: true,
         summary: true,
         parentId: true,
+        updatedAt: true,
         _count: {
           select: {
             wineries: {
@@ -731,6 +734,7 @@ export class WinemakersService {
           exposition: true,
           elevationM: true,
           soil: true,
+          updatedAt: true,
           region: {
             select: {
               id: true,

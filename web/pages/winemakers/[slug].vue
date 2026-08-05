@@ -7,7 +7,9 @@ definePageMeta({
 });
 
 const route = useRoute();
+const config = useRuntimeConfig();
 const { getWinemaker } = useApi();
+const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
 
 const { data: person } = await useAsyncData(
   `winemaker-${route.params.slug}`,
@@ -46,6 +48,52 @@ function relationLabel(type: string) {
   if (type === 'founder') return 'Династия';
   return type;
 }
+
+const breadcrumbItems = computed(() => [
+  { name: 'Главная', url: '/' },
+  { name: 'Виноделы России', url: '/winemakers' },
+  { name: 'Виноделы', url: '/winemakers/persons' },
+  { name: person.value?.name || '', url: route.path },
+].filter((item) => item.name));
+
+useHead(() => ({
+  script: person.value
+    ? [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: breadcrumbItems.value.map((item, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: item.name,
+              item: `${siteUrl}${item.url}`,
+            })),
+          }),
+        },
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Person',
+            name: person.value.name,
+            description: person.value.summary || undefined,
+            image: person.value.photo?.path ? useMediaUrl(person.value.photo.path) : undefined,
+            url: `${siteUrl}${route.path}`,
+            worksFor: person.value.winery
+              ? {
+                  '@type': 'Organization',
+                  name: person.value.winery.name,
+                  url: `${siteUrl}/wineries/${person.value.winery.slug}`,
+                }
+              : undefined,
+            mainEntityOfPage: `${siteUrl}${route.path}`,
+          }),
+        },
+      ]
+    : [],
+}));
 
 useCanonical();
 useSeoMeta({

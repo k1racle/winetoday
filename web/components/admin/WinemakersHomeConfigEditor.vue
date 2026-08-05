@@ -24,14 +24,29 @@ const entityLabels: Record<WinemakersHomeSectionEntity, string> = {
   region: 'Регионы',
 };
 
+function serializeConfig(value: WinemakersHomeConfig) {
+  return JSON.stringify(normalizeWinemakersHomeConfig(value));
+}
+
 const localValue = ref<WinemakersHomeConfig>(
   cloneWinemakersHomeConfig(normalizeWinemakersHomeConfig(props.modelValue)),
 );
+const isSyncingFromProps = ref(false);
 
 watch(
   () => props.modelValue,
   (value) => {
-    localValue.value = cloneWinemakersHomeConfig(normalizeWinemakersHomeConfig(value));
+    const normalized = cloneWinemakersHomeConfig(normalizeWinemakersHomeConfig(value));
+    if (serializeConfig(localValue.value) === serializeConfig(normalized)) {
+      return;
+    }
+
+    isSyncingFromProps.value = true;
+    localValue.value = normalized;
+
+    nextTick(() => {
+      isSyncingFromProps.value = false;
+    });
   },
   { deep: true },
 );
@@ -39,7 +54,16 @@ watch(
 watch(
   localValue,
   (value) => {
-    emit('update:modelValue', cloneWinemakersHomeConfig(value));
+    if (isSyncingFromProps.value) {
+      return;
+    }
+
+    const normalized = cloneWinemakersHomeConfig(normalizeWinemakersHomeConfig(value));
+    if (serializeConfig(props.modelValue) === serializeConfig(normalized)) {
+      return;
+    }
+
+    emit('update:modelValue', normalized);
   },
   { deep: true },
 );

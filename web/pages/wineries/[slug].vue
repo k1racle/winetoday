@@ -7,7 +7,9 @@ definePageMeta({
 });
 
 const route = useRoute();
+const config = useRuntimeConfig();
 const { getWineryCatalogItem } = useApi();
+const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
 
 const { data: winery } = await useAsyncData(
   `winery-${route.params.slug}`,
@@ -22,6 +24,52 @@ const { data: winery } = await useAsyncData(
     }
   },
 );
+
+const breadcrumbItems = computed(() => [
+  { name: 'Главная', url: '/' },
+  { name: 'Виноделы России', url: '/winemakers' },
+  { name: 'Винодельни', url: '/wineries' },
+  { name: winery.value?.name || '', url: route.path },
+].filter((item) => item.name));
+
+useHead(() => ({
+  script: winery.value
+    ? [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: breadcrumbItems.value.map((item, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: item.name,
+              item: `${siteUrl}${item.url}`,
+            })),
+          }),
+        },
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: winery.value.name,
+            description: winery.value.summary || undefined,
+            url: `${siteUrl}${route.path}`,
+            logo: winery.value.logo?.path ? useMediaUrl(winery.value.logo.path) : undefined,
+            foundingDate: winery.value.foundedYear ? String(winery.value.foundedYear) : undefined,
+            address: winery.value.region?.name
+              ? {
+                  '@type': 'PostalAddress',
+                  addressRegion: winery.value.region.name,
+                }
+              : undefined,
+            mainEntityOfPage: `${siteUrl}${route.path}`,
+          }),
+        },
+      ]
+    : [],
+}));
 
 useCanonical();
 useSeoMeta({

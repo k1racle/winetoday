@@ -3,6 +3,8 @@ const CHILD_SITEMAPS = [
   'sitemap-articles.xml',
   'sitemap-news.xml',
   'sitemap-videos.xml',
+  'sitemap-winemakers.xml',
+  'sitemap-wines.xml',
 ];
 
 const escapeXml = (value: string) =>

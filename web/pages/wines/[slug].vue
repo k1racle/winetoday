@@ -7,7 +7,9 @@ definePageMeta({
 });
 
 const route = useRoute();
+const config = useRuntimeConfig();
 const { getWineCatalogItem } = useApi();
+const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
 
 const { data: wine } = await useAsyncData(
   `wine-${route.params.slug}`,
@@ -22,6 +24,66 @@ const { data: wine } = await useAsyncData(
     }
   },
 );
+
+const breadcrumbItems = computed(() => [
+  { name: 'Главная', url: '/' },
+  { name: 'Виноделы России', url: '/winemakers' },
+  { name: 'Вина', url: '/wines' },
+  { name: wine.value?.name || '', url: route.path },
+].filter((item) => item.name));
+
+useHead(() => ({
+  script: wine.value
+    ? [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: breadcrumbItems.value.map((item, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: item.name,
+              item: `${siteUrl}${item.url}`,
+            })),
+          }),
+        },
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: wine.value.name,
+            description: wine.value.summary || undefined,
+            category: 'Wine',
+            url: `${siteUrl}${route.path}`,
+            brand: wine.value.winery
+              ? {
+                  '@type': 'Organization',
+                  name: wine.value.winery.name,
+                  url: `${siteUrl}/wineries/${wine.value.winery.slug}`,
+                }
+              : undefined,
+            additionalProperty: [
+              wine.value.type
+                ? { '@type': 'PropertyValue', name: 'Тип вина', value: wine.value.type }
+                : null,
+              wine.value.style
+                ? { '@type': 'PropertyValue', name: 'Стиль', value: wine.value.style }
+                : null,
+              wine.value.vintage
+                ? { '@type': 'PropertyValue', name: 'Винтаж', value: String(wine.value.vintage) }
+                : null,
+              wine.value.grapes?.length
+                ? { '@type': 'PropertyValue', name: 'Сорта', value: wine.value.grapes.join(', ') }
+                : null,
+            ].filter(Boolean),
+            mainEntityOfPage: `${siteUrl}${route.path}`,
+          }),
+        },
+      ]
+    : [],
+}));
 
 useCanonical();
 useSeoMeta({
