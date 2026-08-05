@@ -35,6 +35,13 @@ function toggleSidebar() {
   background: transparent !important;
 }
 
+.cms-shell :deep(main > div > *) {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
 .cms-shell :deep(main > div > .border),
 .cms-shell :deep(main section.border),
 .cms-shell :deep(main .rounded.border),

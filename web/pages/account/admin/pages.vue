@@ -79,65 +79,66 @@ async function savePage() {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
-      <h1 class="mt-2 font-heading text-2xl font-bold">Статические страницы</h1>
-    </div>
-
-    <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
-
-    <AdminTabs class="mt-6" />
-
-    <div class="mt-6 flex flex-wrap gap-2">
-      <button
-        v-for="page in pages"
-        :key="page.slug"
-        type="button"
-        class="rounded border px-4 py-2 text-sm transition"
-        :class="activeSlug === page.slug ? 'border-accent bg-accent/10 text-foreground' : 'border-foreground/10 bg-foreground/5 text-foreground/70 hover:bg-foreground/10'"
-        @click="activeSlug = page.slug"
-      >
-        {{ page.label }}
-      </button>
-    </div>
-
-    <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
-    <p v-if="error" class="mt-6 text-sm text-red-600">{{ error }}</p>
-    <p v-if="message" class="mt-6 text-sm text-green-600">{{ message }}</p>
-
-    <div v-if="!loading" class="mt-6 space-y-6">
-      <div>
-        <label class="mb-1 block text-sm font-normal text-foreground/70">Заголовок страницы</label>
-        <input
-          v-model="title"
-          type="text"
-          class="w-full border border-foreground/20 bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
+  <CmsPageShell
+    title="Страницы"
+    legacyTitle="Статические страницы"
+    description="Редактор служебных и юридических страниц сайта с полным rich text блоком."
+  >
+    <CmsPanel
+      title="Структура и содержимое"
+      description="Выберите страницу, обновите заголовок, SEO-описание и основной текст публикации."
+      body-class="space-y-6 px-5 py-5 lg:px-6 lg:py-6"
+    >
+      <div class="flex flex-wrap gap-2">
+        <button
+          v-for="page in pages"
+          :key="page.slug"
+          type="button"
+          class="rounded-2xl border px-4 py-2 text-sm transition"
+          :class="activeSlug === page.slug ? 'border-accent bg-accent/10 text-foreground' : 'border-foreground/10 bg-foreground/5 text-foreground/70 hover:bg-foreground/10'"
+          @click="activeSlug = page.slug"
         >
+          {{ page.label }}
+        </button>
       </div>
 
-      <div>
-        <label class="mb-1 block text-sm font-normal text-foreground/70">Содержимое</label>
-        <component :is="TiptapEditor" v-model="content" />
-      </div>
+      <p v-if="loading" class="text-sm text-foreground/60">Загрузка...</p>
+      <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
+      <p v-if="message" class="text-sm text-green-600">{{ message }}</p>
 
-      <div>
-        <label class="mb-1 block text-sm font-normal text-foreground/70">SEO Description</label>
-        <textarea
-          v-model="seoDescription"
-          rows="2"
-          class="w-full border border-foreground/20 bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
-        />
-      </div>
+      <div v-if="!loading" class="space-y-6">
+        <div>
+          <label class="mb-1 block text-sm font-normal text-foreground/70">Заголовок страницы</label>
+          <input
+            v-model="title"
+            type="text"
+            class="w-full border border-foreground/20 bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
+          >
+        </div>
 
-      <button
-        type="button"
-        class="bg-accent px-5 py-2.5 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-50"
-        :disabled="saving"
-        @click="savePage"
-      >
-        {{ saving ? 'Сохранение...' : 'Сохранить страницу' }}
-      </button>
-    </div>
-  </div>
+        <div>
+          <label class="mb-1 block text-sm font-normal text-foreground/70">Содержимое</label>
+          <component :is="TiptapEditor" v-model="content" />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-normal text-foreground/70">SEO Description</label>
+          <textarea
+            v-model="seoDescription"
+            rows="2"
+            class="w-full border border-foreground/20 bg-background px-3 py-2 text-sm focus:border-accent focus:outline-none"
+          />
+        </div>
+
+        <button
+          type="button"
+          class="bg-accent px-5 py-2.5 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-50"
+          :disabled="saving"
+          @click="savePage"
+        >
+          {{ saving ? 'Сохранение...' : 'Сохранить страницу' }}
+        </button>
+      </div>
+    </CmsPanel>
+  </CmsPageShell>
 </template>

@@ -55,17 +55,12 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
-      <h1 class="mt-2 font-heading text-2xl font-bold">Подписки</h1>
-    </div>
-
-    <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
-
-    <AdminTabs class="mt-6" />
-
-    <div class="mt-6 flex items-center justify-between">
+  <CmsPageShell
+    title="Подписчики"
+    legacyTitle="Подписки"
+    description="База email-подписок, темы интереса и статусы подтверждения рассылки."
+  >
+    <div class="flex items-center justify-between">
       <p class="text-sm text-foreground/60">Всего подписчиков: {{ subscribers.length }}</p>
       <button class="text-sm text-accent hover:underline" @click="fetchSubscribers">Обновить</button>
     </div>
@@ -97,5 +92,5 @@ onMounted(() => {
     </div>
 
     <p v-if="!loading && !subscribers.length" class="mt-6 text-sm text-foreground/60">Нет подписчиков</p>
-  </div>
+  </CmsPageShell>
 </template>

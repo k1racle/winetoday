@@ -15,30 +15,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-8">
-    <template v-if="isCmsRoute">
-      <CmsPageHeader
-        eyebrow="CMS"
-        title="Спецпроекты"
-        description="Отдельный контур управления спецпроектами и их витринами."
-      />
-    </template>
-    <template v-else>
-      <div class="mb-6 border-b border-foreground/10 pb-4">
-        <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Спецпроекты</p>
-        <h1 class="mt-2 font-heading text-2xl font-bold">Управление спецпроектами</h1>
-      </div>
-
-      <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
-
-      <AccountTabs class="mt-6" />
-      <ProjectTabs class="mt-6" />
-    </template>
-
-    <div class="mt-8 grid gap-6 md:grid-cols-2">
+  <CmsPageShell
+    title="Спецпроекты"
+    legacyEyebrow="Спецпроекты"
+    legacyTitle="Управление спецпроектами"
+    description="Отдельный контур управления проектами, их витринами и каталогами сущностей."
+    :show-admin-tabs="false"
+    :show-account-tabs="true"
+    :show-project-tabs="true"
+    content-class="mt-8"
+  >
+    <div class="grid gap-6 md:grid-cols-2">
       <NuxtLink
         :to="isCmsRoute ? '/cms/projects/winemakers' : '/account/projects/winemakers'"
-        class="border border-foreground/10 bg-card p-6 shadow-sm transition hover:border-accent"
+        class="overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.16)] transition hover:border-accent"
       >
         <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Спецпроект</p>
         <h2 class="mt-2 font-heading text-xl font-normal">Виноделы России</h2>
@@ -47,5 +37,5 @@ onMounted(() => {
         </p>
       </NuxtLink>
     </div>
-  </div>
+  </CmsPageShell>
 </template>

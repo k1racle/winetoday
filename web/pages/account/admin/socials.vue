@@ -108,21 +108,20 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
-      <h1 class="mt-2 font-heading text-2xl font-bold">Социальные сети</h1>
-    </div>
-
-    <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
-
-    <AdminTabs class="mt-6" />
-
+  <CmsPageShell
+    title="Социальные сети"
+    description="Управление платформами, подписями и ссылками для иконок в футере и служебных блоках."
+  >
     <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
     <p v-if="error" class="mt-6 text-sm text-red-600">{{ error }}</p>
     <p v-if="message" class="mt-6 text-sm text-green-600">{{ message }}</p>
 
-    <div v-if="!loading" class="mt-6 space-y-6">
+    <CmsPanel
+      v-if="!loading"
+      title="Платформы и ссылки"
+      description="Иконки подхватываются из локальной папки `icons`, а здесь настраиваются подписи и адреса."
+      body-class="space-y-6 px-5 py-5 lg:px-6 lg:py-6"
+    >
       <div>
         <label class="mb-1 block text-xs font-normal text-foreground/70">Заголовок блока</label>
         <input v-model="title" type="text" class="w-full max-w-md border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="Например, Мы в соцсетях">
@@ -177,8 +176,8 @@ onMounted(() => {
           {{ saving ? 'Сохранение...' : 'Сохранить' }}
         </button>
       </div>
-    </div>
-  </div>
+    </CmsPanel>
+  </CmsPageShell>
 </template>
 
 <style scoped>

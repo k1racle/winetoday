@@ -136,16 +136,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
-      <h1 class="mt-2 font-heading text-2xl font-bold">Комментарии</h1>
-    </div>
-
-    <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
-
-    <AdminTabs class="mt-6" />
-
+  <CmsPageShell
+    title="Комментарии"
+    description="Модерация пользовательских комментариев и список стоп-слов для автоматической фильтрации."
+  >
     <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
     <p v-if="error" class="mt-6 text-sm text-red-600">{{ error }}</p>
 
@@ -263,7 +257,7 @@ onMounted(() => {
       </div>
       <p v-else class="mt-4 text-sm text-foreground/60">Список пуст</p>
     </div>
-  </div>
+  </CmsPageShell>
 </template>
 
 <style scoped>

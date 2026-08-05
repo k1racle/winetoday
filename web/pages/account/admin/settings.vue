@@ -221,16 +221,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
-      <h1 class="mt-2 font-heading text-2xl font-bold">Настройки сайта</h1>
-    </div>
-
-    <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
-
-    <AdminTabs class="mt-6" />
-
+  <CmsPageShell
+    title="Настройки"
+    legacyTitle="Настройки сайта"
+    description="Базовые параметры бренда, SEO, футера и системных блоков главного сайта."
+  >
     <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
     <p v-if="error" class="mt-6 text-sm text-red-600">{{ error }}</p>
     <p v-if="message" class="mt-6 text-sm text-green-600">{{ message }}</p>
@@ -553,7 +548,7 @@ onMounted(() => {
         </div>
       </div>
     </div>
-  </div>
+  </CmsPageShell>
 
   <MediaPicker v-model="pickerOpen" @select="onMediaSelected" />
 </template>

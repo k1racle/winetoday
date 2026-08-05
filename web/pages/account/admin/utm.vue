@@ -111,17 +111,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
-      <h1 class="mt-2 font-heading text-2xl font-bold">Генератор UTM-ссылок</h1>
-    </div>
-
-    <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
-
-    <AdminTabs class="mt-6" />
-
-    <div class="mt-6 rounded-lg border border-foreground/10 bg-foreground/5 p-6">
+  <CmsPageShell
+    title="UTM-ссылки"
+    legacyTitle="Генератор UTM-ссылок"
+    description="Сборка UTM-адресов и история последних ссылок для маркетинговых кампаний."
+  >
+    <CmsPanel
+      title="Собрать ссылку"
+      description="Укажите целевой URL и параметры кампании. Готовый адрес можно сразу скопировать."
+    >
       <div class="space-y-4">
         <div>
           <label class="mb-1 block text-xs font-normal text-foreground/70">Целевой URL <span class="text-red-600">*</span></label>
@@ -184,18 +182,23 @@ onMounted(() => {
           </button>
         </div>
       </div>
-    </div>
+    </CmsPanel>
 
-    <div v-if="history.length" class="mt-6 rounded-lg border border-foreground/10 bg-foreground/5 p-6">
-      <div class="flex items-center justify-between">
-        <h2 class="text-lg font-normal">Последние ссылки</h2>
+    <CmsPanel
+      v-if="history.length"
+      title="Последние ссылки"
+      description="Недавние UTM-адреса для быстрого повторного использования."
+      body-class="px-5 py-5 lg:px-6 lg:py-6"
+      class="mt-6"
+    >
+      <template #actions>
         <button class="text-xs text-foreground/70 hover:underline" @click="clearHistory">Очистить</button>
-      </div>
-      <ul class="mt-4 space-y-2">
+      </template>
+      <ul class="space-y-2">
         <li
           v-for="(entry, index) in history"
           :key="index"
-          class="flex flex-col gap-1 rounded border border-foreground/10 bg-card px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
+          class="flex flex-col gap-1 rounded-2xl border border-foreground/10 bg-card px-3 py-2 sm:flex-row sm:items-center sm:justify-between"
         >
           <div class="min-w-0">
             <p class="break-all text-sm text-foreground/80">{{ entry.url }}</p>
@@ -204,8 +207,8 @@ onMounted(() => {
           <button class="shrink-0 text-xs text-accent hover:underline" @click="copyEntry(entry.url)">Копировать</button>
         </li>
       </ul>
-    </div>
-  </div>
+    </CmsPanel>
+  </CmsPageShell>
 </template>
 
 <style scoped>
