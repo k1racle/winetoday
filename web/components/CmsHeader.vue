@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
   sidebarOpen: boolean;
 }>();
 
@@ -13,6 +13,7 @@ const { user, signOut } = useAuth();
 const title = computed(() => {
   if (route.path.startsWith('/cms/projects/winemakers')) return 'Спецпроект: Виноделы России';
   if (route.path.startsWith('/cms/projects')) return 'Спецпроекты';
+  if (route.path.startsWith('/cms/editor')) return 'Редактор';
   if (route.path.startsWith('/cms/materials')) return 'Материалы';
   if (route.path.startsWith('/cms/media')) return 'Медиа';
   if (route.path.startsWith('/cms/comments')) return 'Комментарии';

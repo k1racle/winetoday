@@ -7,15 +7,8 @@ type CmsNavItem = {
 
 const cmsNavItems: CmsNavItem[] = [
   { label: 'Дашборд', to: '/cms', roles: ['admin', 'editor', 'author'] },
-  {
-    label: 'Материалы',
-    to: '/cms/materials',
-    roles: ['admin', 'editor', 'author'],
-    children: [
-      { label: 'Редактор', to: '/cms/materials', roles: ['admin', 'editor', 'author'] },
-      { label: 'Все материалы', to: '/cms/materials/all', roles: ['admin'] },
-    ],
-  },
+  { label: 'Редактор', to: '/cms/editor', roles: ['admin', 'editor', 'author'] },
+  { label: 'Материалы', to: '/cms/materials', roles: ['admin'] },
   { label: 'Страницы', to: '/cms/pages', roles: ['admin'] },
   { label: 'Медиа', to: '/cms/media', roles: ['admin'] },
   { label: 'Комментарии', to: '/cms/comments', roles: ['admin'] },

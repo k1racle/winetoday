@@ -157,7 +157,7 @@ function sortIcon(field: string) {
 
 function editUrl(m: Material) {
   return isCmsRoute.value
-    ? `/cms/materials?type=${m.type}&id=${m.id}`
+    ? `/cms/editor?type=${m.type}&id=${m.id}`
     : `/account/editor?type=${m.type}&id=${m.id}`;
 }
 
@@ -197,7 +197,7 @@ async function onExportCsv() {
 
 onMounted(() => {
   if (route.path === '/account/admin/content') {
-    navigateTo('/cms/materials/all');
+    navigateTo('/cms/materials');
     return;
   }
   if (!isAuthenticated.value || user.value?.role !== 'admin') {

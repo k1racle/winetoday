@@ -30,7 +30,7 @@ function onSaved(id: string) {
 
 onMounted(() => {
   if (route.path === '/account/editor') {
-    navigateTo({ path: '/cms/materials', query: route.query });
+    navigateTo({ path: '/cms/editor', query: route.query });
     return;
   }
   if (!canCreate.value) {

@@ -37,7 +37,7 @@ async function loadDashboard() {
 }
 
 function materialEditLink(item: any) {
-  return `/cms/materials?type=${item.type}&id=${item.id}`;
+  return `/cms/editor?type=${item.type}&id=${item.id}`;
 }
 
 onMounted(loadDashboard);
@@ -52,7 +52,7 @@ onMounted(loadDashboard);
     >
       <template #actions>
         <NuxtLink
-          to="/cms/materials"
+          to="/cms/editor"
           class="inline-flex items-center gap-1.5 bg-accent px-4 py-2 text-sm font-normal text-black transition hover:bg-accent/90"
         >
           + Новый материал
@@ -89,7 +89,7 @@ onMounted(loadDashboard);
               <p class="text-xs uppercase tracking-wider text-foreground/50">Материалы</p>
               <h2 class="mt-1 font-heading text-xl font-normal">Последние материалы</h2>
             </div>
-            <NuxtLink to="/cms/materials" class="text-sm text-accent hover:underline">
+            <NuxtLink to="/cms/editor" class="text-sm text-accent hover:underline">
               Открыть редактор
             </NuxtLink>
           </div>
@@ -116,7 +116,7 @@ onMounted(loadDashboard);
           <div class="border border-foreground/10 bg-card p-5">
             <p class="text-xs uppercase tracking-wider text-foreground/50">Быстрые действия</p>
             <div class="mt-4 grid gap-2">
-              <NuxtLink to="/cms/materials" class="rounded border border-foreground/10 px-4 py-3 text-sm transition hover:border-accent">
+              <NuxtLink to="/cms/editor" class="rounded border border-foreground/10 px-4 py-3 text-sm transition hover:border-accent">
                 Открыть редактор материалов
               </NuxtLink>
               <NuxtLink

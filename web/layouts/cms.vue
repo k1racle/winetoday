@@ -7,7 +7,7 @@ function toggleSidebar() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-background text-foreground">
+  <div class="cms-shell min-h-screen bg-background text-foreground">
     <CmsSidebar v-model="sidebarOpen" />
 
     <div class="lg:pl-[300px]">
@@ -20,3 +20,11 @@ function toggleSidebar() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.cms-shell :deep(main a[href="/account"]),
+.cms-shell :deep(main a[href="/account/admin"]),
+.cms-shell :deep(main a[href="/account/admin/authors"]) {
+  display: none !important;
+}
+</style>
