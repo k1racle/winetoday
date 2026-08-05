@@ -26,6 +26,7 @@ backend/public/uploads/
 .gigacode/
 .vscode/
 .idea/
+.playwright-mcp/
 
 # OS
 .DS_Store

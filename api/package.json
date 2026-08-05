@@ -15,8 +15,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "convert-images-to-avif": "ts-node scripts/convert-existing-images-to-avif.ts",
-    "deduplicate-categories": "ts-node scripts/deduplicate-categories.ts"
+    "convert-images-to-avif": "ts-node scripts/convert-existing-images-to-avif.ts"
   },
   "dependencies": {
     "@keyv/redis": "^5.1.6",

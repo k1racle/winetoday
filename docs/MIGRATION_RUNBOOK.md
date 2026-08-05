@@ -12,8 +12,8 @@
 1. Убедитесь, что код из репозитория актуален и задеплоен в Portainer / на сервер.
 2. Убедитесь, что в `.env` (или в переменных окружения стека) установлено:
    - `API_POSTGRES_DB=winetoday_v2`
-   - `SOURCE_API_DATABASE_URL=postgres://vino:vino_secure_password@postgres:5432/winetoday_api`
-   - `SOURCE_STRAPI_DATABASE_URL=postgres://vino:vino_secure_password@postgres:5432/vino_portal`
+   - `SOURCE_API_DATABASE_URL=postgres://vino:<POSTGRES_PASSWORD>@postgres:5432/winetoday_api`
+   - `SOURCE_STRAPI_DATABASE_URL=postgres://vino:<POSTGRES_PASSWORD>@postgres:5432/vino_portal`
    - остальные переменные из `.env.example`.
 
 ## Предварительная проверка (выполнить и прислать вывод)
@@ -45,7 +45,7 @@ cd /path/to/repo/api
 docker build -t vino_api:migrate .
 
 docker run --rm --network winemakingtodayyy_default \
-  -e DATABASE_URL=postgres://vino:vino_secure_password@postgres:5432/winetoday_v2 \
+  -e DATABASE_URL=postgres://vino:<POSTGRES_PASSWORD>@postgres:5432/winetoday_v2 \
   -v winemakingtoday_backend_uploads:/app/public/uploads \
   -v winemakingtoday_media_uploads:/app/uploads \
   vino_api:migrate \
@@ -56,9 +56,9 @@ docker run --rm --network winemakingtodayyy_default \
 
 ```bash
 docker run --rm --network winemakingtodayyy_default \
-  -e DATABASE_URL=postgres://vino:vino_secure_password@postgres:5432/winetoday_v2 \
-  -e SOURCE_API_DATABASE_URL=postgres://vino:vino_secure_password@postgres:5432/winetoday_api \
-  -e SOURCE_STRAPI_DATABASE_URL=postgres://vino:vino_secure_password@postgres:5432/vino_portal \
+  -e DATABASE_URL=postgres://vino:<POSTGRES_PASSWORD>@postgres:5432/winetoday_v2 \
+  -e SOURCE_API_DATABASE_URL=postgres://vino:<POSTGRES_PASSWORD>@postgres:5432/winetoday_api \
+  -e SOURCE_STRAPI_DATABASE_URL=postgres://vino:<POSTGRES_PASSWORD>@postgres:5432/vino_portal \
   -v winemakingtoday_backend_uploads:/app/public/uploads \
   -v winemakingtoday_media_uploads:/app/uploads \
   vino_api:migrate \
