@@ -56,7 +56,7 @@ useSeoMeta({
       <span>{{ category?.name || slug }}</span>
     </nav>
 
-    <h1 class="mb-6 font-heading text-3xl font-bold md:text-4xl">
+    <h1 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">
       {{ category?.name || slug }}
     </h1>
 

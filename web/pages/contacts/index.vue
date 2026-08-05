@@ -134,7 +134,7 @@ async function onSubmit() {
               <button
                 type="submit"
                 :disabled="submitting"
-                class="inline-flex items-center justify-center  bg-accent px-8 py-3.5 font-normal text-white transition hover:bg-[#0a3320] disabled:opacity-60"
+                class="inline-flex items-center justify-center  bg-accent px-8 py-3.5 font-normal text-black transition hover:bg-accent/90 disabled:opacity-60"
               >
                 {{ submitting ? 'Отправка...' : 'Отправить сообщение' }}
               </button>

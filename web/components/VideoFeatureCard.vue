@@ -29,7 +29,7 @@ function editUrl(item: ContentItem) {
     <NuxtLink
       v-if="canEdit"
       :to="editUrl(item)"
-      class="absolute right-2 top-2 z-20 rounded bg-accent px-2 py-1 text-[10px] font-normal uppercase tracking-wide text-white shadow-sm hover:bg-accent/90"
+      class="absolute right-2 top-2 z-20 rounded bg-accent px-2 py-1 text-[10px] font-normal uppercase tracking-wide text-black shadow-sm hover:bg-accent/90"
     >
       Редактировать
     </NuxtLink>

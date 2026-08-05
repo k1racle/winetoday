@@ -152,7 +152,7 @@ async function submit() {
               <button
                 type="button"
                 class="px-4 py-2 text-sm font-normal transition"
-                :class="activeTab === 'login' ? 'bg-accent text-white' : 'bg-card text-foreground hover:bg-foreground/5'"
+                :class="activeTab === 'login' ? 'bg-accent text-black' : 'bg-card text-foreground hover:bg-foreground/5'"
                 @click="activeTab = 'login'"
               >
                 Вход
@@ -160,7 +160,7 @@ async function submit() {
               <button
                 type="button"
                 class="px-4 py-2 text-sm font-normal transition"
-                :class="activeTab === 'register' ? 'bg-accent text-white' : 'bg-card text-foreground hover:bg-foreground/5'"
+                :class="activeTab === 'register' ? 'bg-accent text-black' : 'bg-card text-foreground hover:bg-foreground/5'"
                 @click="activeTab = 'register'"
               >
                 Регистрация
@@ -230,7 +230,7 @@ async function submit() {
               <button
                 type="submit"
                 :disabled="loading"
-                class="w-full bg-accent px-4 py-2.5 text-sm font-normal text-white transition hover:bg-accent/90 disabled:opacity-60"
+                class="w-full bg-accent px-4 py-2.5 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-60"
               >
                 {{ activeTab === 'login' ? (loading ? 'Вход...' : 'Войти') : (loading ? 'Регистрация...' : 'Зарегистрироваться') }}
               </button>

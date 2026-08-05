@@ -31,7 +31,7 @@ useSeoMeta({
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8">
-    <h1 class="mb-6 font-heading text-2xl font-bold md:text-3xl">Новости</h1>
+    <h1 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">Новости</h1>
 
     <ArchiveFilters :authors="authors || []" :tags="tags || []" />
 

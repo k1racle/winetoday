@@ -101,7 +101,7 @@ const itemCover = (item: any) => useMediaUrl(item.coverMedia?.path);
       >
       <button
         type="submit"
-        class="shrink-0 rounded bg-accent px-5 py-3 text-sm font-semibold uppercase tracking-wider text-background transition-opacity hover:opacity-80"
+        class="shrink-0 rounded bg-accent px-5 py-3 text-sm font-semibold uppercase tracking-wider text-black transition-opacity hover:opacity-80"
       >
         Найти
       </button>
@@ -149,7 +149,7 @@ const itemCover = (item: any) => useMediaUrl(item.coverMedia?.path);
 
     <button
       type="button"
-      class="mt-10 rounded bg-accent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-background transition-opacity hover:opacity-80"
+      class="mt-10 rounded bg-accent px-6 py-3 text-sm font-semibold uppercase tracking-wider text-black transition-opacity hover:opacity-80"
       @click="goHome"
     >
       На главную

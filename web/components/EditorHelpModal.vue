@@ -21,7 +21,7 @@ function close() {
             <!-- Header -->
             <div class="flex items-center justify-between border-b border-foreground/10 px-6 py-4">
               <h2 class="flex items-center gap-3 text-xl font-normal">
-                <span class="flex h-8 w-8 items-center justify-center rounded bg-accent text-sm font-normal text-white">?</span>
+                <span class="flex h-8 w-8 items-center justify-center rounded bg-accent text-sm font-normal text-black">?</span>
                 Справка по редактору материалов
               </h2>
               <button class="flex h-8 w-8 items-center justify-center rounded text-foreground/60 transition hover:bg-foreground/5 hover:text-red-600" @click="close">✕</button>
@@ -42,7 +42,7 @@ function close() {
                       <div class="mb-1 flex items-center gap-2">
                         <span class="h-4 w-1 rounded bg-accent" />
                         <span class="text-sm font-normal">Заголовок</span>
-                        <span class="rounded bg-accent px-1.5 py-0.5 text-[9px] font-normal uppercase text-white">обязательно</span>
+                        <span class="rounded bg-accent px-1.5 py-0.5 text-[9px] font-normal uppercase text-black">обязательно</span>
                       </div>
                       <p class="text-xs leading-relaxed text-foreground/70">Главный заголовок материала. Отображается крупным шрифтом на странице и в превью на главной.</p>
                     </div>
@@ -73,7 +73,7 @@ function close() {
                       <div class="mb-1 flex items-center gap-2">
                         <span class="h-4 w-1 rounded bg-accent" />
                         <span class="text-sm font-normal">Краткое описание</span>
-                        <span class="rounded bg-accent px-1.5 py-0.5 text-[9px] font-normal uppercase text-white">обязательно</span>
+                        <span class="rounded bg-accent px-1.5 py-0.5 text-[9px] font-normal uppercase text-black">обязательно</span>
                       </div>
                       <p class="text-xs leading-relaxed text-foreground/70">Краткое вступление (лид). Отображается под заголовком в превью на главной. 150–200 символов.</p>
                     </div>
@@ -126,7 +126,7 @@ function close() {
                     </div>
                     <div class="p-4">
                       <p class="mb-1 text-[10px] font-normal uppercase tracking-wider text-accent">Пример на сайте</p>
-                      <p class="text-xs">Gunko Winery расширит линейку <span class="rounded bg-accent px-1.5 py-0.5 text-[9px] font-normal uppercase text-white">Эксклюзив</span></p>
+                      <p class="text-xs">Gunko Winery расширит линейку <span class="rounded bg-accent px-1.5 py-0.5 text-[9px] font-normal uppercase text-black">Эксклюзив</span></p>
                     </div>
                   </div>
 
@@ -154,7 +154,7 @@ function close() {
                       <div class="mb-1 flex items-center gap-2">
                         <span class="h-4 w-1 rounded bg-accent" />
                         <span class="text-sm font-normal">Обложка</span>
-                        <span class="rounded bg-accent px-1.5 py-0.5 text-[9px] font-normal uppercase text-white">важно</span>
+                        <span class="rounded bg-accent px-1.5 py-0.5 text-[9px] font-normal uppercase text-black">важно</span>
                       </div>
                       <p class="text-xs leading-relaxed text-foreground/70">Главное изображение. Превью на главной, в списке новостей и соцсетях. Рекомендуется 1200×630 px.</p>
                     </div>

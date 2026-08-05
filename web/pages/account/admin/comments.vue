@@ -271,6 +271,6 @@ onMounted(() => {
   @apply flex h-9 min-w-9 items-center justify-center rounded border border-foreground/10 px-3 text-sm transition-colors hover:border-accent hover:text-accent;
 }
 .pg-btn-active {
-  @apply border-accent bg-accent text-white hover:text-white;
+  @apply border-accent bg-accent text-black hover:text-black;
 }
 </style>
