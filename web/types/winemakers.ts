@@ -1,4 +1,4 @@
-import type { MediaAsset } from './content';
+import type { ContentItem, MediaAsset } from './content';
 
 export type ContentBlocksValue = any[];
 
@@ -96,6 +96,9 @@ export interface PersonDetail extends PersonSummary {
     role?: string | null;
     wine: WineSummary;
   }>;
+  contentItemLinks?: Array<{
+    contentItem: ContentItem;
+  }>;
 }
 
 export interface WineDetail extends WineSummary {
@@ -127,6 +130,9 @@ export interface WineryDetail extends WinerySummary {
 export interface TerroirDetail extends TerroirSummary {
   description: ContentBlocksValue;
   wines: WineSummary[];
+  contentItemLinks?: Array<{
+    contentItem: ContentItem;
+  }>;
 }
 
 export interface WinepediaSearchResult {

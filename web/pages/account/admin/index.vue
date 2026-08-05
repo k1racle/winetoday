@@ -16,7 +16,9 @@ interface Material {
   publishedAt?: string | null;
 }
 
+const route = useRoute();
 const { user, isAuthenticated } = useAuth();
+const { isCmsRoute } = useUiContext();
 const { getUsers, createUser, updateUser, deleteUser, updateUserRole, getEditorMaterials } = useApi();
 
 const users = ref<AdminUser[]>([]);
@@ -174,7 +176,15 @@ function formatDate(date?: string | null) {
   return new Date(date).toLocaleDateString('ru-RU');
 }
 
+function userProfileLink(id: string) {
+  return isCmsRoute.value ? `/cms/users/${id}` : `/account/admin/users/${id}`;
+}
+
 onMounted(() => {
+  if (route.path === '/account/admin') {
+    navigateTo('/cms/users');
+    return;
+  }
   if (!isAuthenticated.value || user.value?.role !== 'admin') {
     navigateTo('/account');
     return;
@@ -185,14 +195,22 @@ onMounted(() => {
 
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
+    <CmsPageHeader
+      v-if="isCmsRoute"
+      eyebrow="CMS"
+      title="Пользователи"
+      description="Управление ролями, профилями и редакционным доступом."
+    />
+    <template v-else>
+      <div class="mb-6 border-b border-foreground/10 pb-4">
       <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Пользователи</h1>
     </div>
 
     <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
 
-    <AdminTabs class="mt-6" />
+      <AdminTabs class="mt-6" />
+    </template>
 
     <div class="mt-6 flex items-center justify-between">
       <div class="flex gap-4">

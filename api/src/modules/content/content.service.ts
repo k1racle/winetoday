@@ -17,6 +17,28 @@ const contentInclude = {
   archiveCoverMedia: true,
   categories: true,
   tags: true,
+  personLinks: {
+    include: {
+      person: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+        },
+      },
+    },
+  },
+  terroirLinks: {
+    include: {
+      terroir: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+        },
+      },
+    },
+  },
 } satisfies Prisma.ContentItemInclude;
 
 export type ContentItemWithRelations = Prisma.ContentItemGetPayload<{

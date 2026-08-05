@@ -13,6 +13,8 @@ interface AdminAuthor {
   } | null;
 }
 
+const route = useRoute();
+const { isCmsRoute } = useUiContext();
 const { getAdminAuthors, createAuthor, deleteAuthor } = useApi();
 
 const authors = ref<AdminAuthor[]>([]);
@@ -108,20 +110,32 @@ async function onSubmit() {
 }
 
 onMounted(() => {
+  if (route.path === '/account/admin/authors') {
+    navigateTo('/cms/authors');
+    return;
+  }
   fetchAuthors();
 });
 </script>
 
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
+    <CmsPageHeader
+      v-if="isCmsRoute"
+      eyebrow="CMS"
+      title="Авторы"
+      description="Профили редакционных авторов, их дубли и привязка к пользователям."
+    />
+    <template v-else>
+      <div class="mb-6 border-b border-foreground/10 pb-4">
       <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Авторы</h1>
     </div>
 
     <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
 
-    <AdminTabs class="mt-6" />
+      <AdminTabs class="mt-6" />
+    </template>
 
     <div class="mt-6 flex items-center justify-between">
       <button

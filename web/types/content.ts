@@ -35,14 +35,31 @@ export type ContentItem = {
   excerpt?: string | null;
   status: ContentStatus;
   publishedAt?: string | null;
+  createdAt?: string | null;
   coverMedia?: MediaAsset | null;
+  coverSource?: string | null;
   archiveCoverMedia?: MediaAsset | null;
   author?: Author | null;
   categories?: { name: string; slug: string }[];
   tags?: { name: string; slug: string }[];
+  personLinks?: Array<{
+    person: {
+      id: string;
+      slug: string;
+      name: string;
+    };
+  }>;
+  terroirLinks?: Array<{
+    terroir: {
+      id: string;
+      slug: string;
+      name: string;
+    };
+  }>;
   videoUrl?: string | null;
   duration?: number | null;
   sources?: { name?: string | null; url?: string | null }[] | null;
+  contentBlocks?: any[] | null;
   viewsTotal: number;
   homepageSpecialBlock?: boolean;
   homepageLead?: boolean;

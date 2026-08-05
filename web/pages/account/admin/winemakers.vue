@@ -3,7 +3,7 @@ definePageMeta({
   middleware: ['auth'],
 });
 
-await navigateTo('/account/projects/winemakers', { redirectCode: 301 });
+await navigateTo('/cms/projects/winemakers', { redirectCode: 301 });
 </script>
 
 <template>

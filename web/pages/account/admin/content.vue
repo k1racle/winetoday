@@ -14,7 +14,9 @@ interface Material {
   author?: { id: string; name: string } | null;
 }
 
+const route = useRoute();
 const { user, isAuthenticated } = useAuth();
+const { isCmsRoute } = useUiContext();
 const { getEditorMaterials, deleteMaterial, exportMaterialsCsv } = useApi();
 
 const materials = ref<Material[]>([]);
@@ -154,7 +156,9 @@ function sortIcon(field: string) {
 }
 
 function editUrl(m: Material) {
-  return `/account/editor?type=${m.type}&id=${m.id}`;
+  return isCmsRoute.value
+    ? `/cms/materials?type=${m.type}&id=${m.id}`
+    : `/account/editor?type=${m.type}&id=${m.id}`;
 }
 
 function publicUrl(m: Material) {
@@ -192,6 +196,10 @@ async function onExportCsv() {
 }
 
 onMounted(() => {
+  if (route.path === '/account/admin/content') {
+    navigateTo('/cms/materials/all');
+    return;
+  }
   if (!isAuthenticated.value || user.value?.role !== 'admin') {
     navigateTo('/account');
     return;
@@ -202,14 +210,22 @@ onMounted(() => {
 
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
+    <CmsPageHeader
+      v-if="isCmsRoute"
+      eyebrow="CMS"
+      title="Материалы"
+      description="Все редакционные материалы с фильтрами, экспортом и быстрым переходом к редактированию."
+    />
+    <template v-else>
+      <div class="mb-6 border-b border-foreground/10 pb-4">
       <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Материалы</h1>
     </div>
 
     <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
 
-    <AdminTabs class="mt-6" />
+      <AdminTabs class="mt-6" />
+    </template>
 
     <!-- Counts -->
     <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">

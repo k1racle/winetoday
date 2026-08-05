@@ -4,6 +4,7 @@ const { getMySubscriptions, getMyLikes, getMyComments } = useApi();
 
 const stats = ref({ subscriptions: 0, likes: 0, comments: 0 });
 const statsLoading = ref(false);
+const canOpenCms = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
 
 async function loadStats() {
   statsLoading.value = true;
@@ -50,7 +51,6 @@ async function signOutAndRedirect() {
         <AccountTabs class="mb-6" />
       </div>
 
-      <!-- Reader summary -->
       <div class="grid gap-4 sm:grid-cols-3">
         <NuxtLink
           to="/account/subscriptions"
@@ -74,8 +74,8 @@ async function signOutAndRedirect() {
           <p class="mt-2 font-heading text-3xl font-normal">{{ statsLoading ? '...' : stats.comments }}</p>
         </NuxtLink>
       </div>
+
       <div class="grid gap-8 md:grid-cols-3">
-        <!-- Profile -->
         <section class="border border-foreground/10 bg-card p-6 shadow-sm md:col-span-2">
           <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">
             Настройки
@@ -97,45 +97,23 @@ async function signOutAndRedirect() {
           </div>
         </section>
 
-        <!-- Admin panel -->
         <section
-          v-if="user.role === 'admin'"
+          v-if="canOpenCms"
           class="border border-foreground/10 bg-card p-6 shadow-sm"
         >
           <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">
-            Администрирование
+            CMS
           </p>
-          <h2 class="mt-2 font-heading text-xl font-normal">Пользователи</h2>
+          <h2 class="mt-2 font-heading text-xl font-normal">Панель управления</h2>
           <p class="mt-2 text-sm text-foreground/70">
-            Управляйте ролями пользователей.
+            Отдельный контур для материалов, страниц, медиа, настроек сайта и спецпроектов.
           </p>
           <div class="mt-4">
             <NuxtLink
-              to="/account/admin"
+              to="/cms"
               class="inline-block bg-accent px-5 py-2.5 text-sm font-normal text-black transition hover:bg-accent/90"
             >
-              Управление пользователями
-            </NuxtLink>
-          </div>
-        </section>
-
-        <section
-          v-if="user.role === 'admin'"
-          class="border border-foreground/10 bg-card p-6 shadow-sm"
-        >
-          <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">
-            Спецпроекты
-          </p>
-          <h2 class="mt-2 font-heading text-xl font-normal">Виноделы России</h2>
-          <p class="mt-2 text-sm text-foreground/70">
-            Отдельный контур управления витриной, доступом и каталогом спецпроекта.
-          </p>
-          <div class="mt-4">
-            <NuxtLink
-              to="/account/projects/winemakers"
-              class="inline-block bg-accent px-5 py-2.5 text-sm font-normal text-black transition hover:bg-accent/90"
-            >
-              Открыть спецпроект
+              Открыть CMS
             </NuxtLink>
           </div>
         </section>

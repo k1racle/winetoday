@@ -11,7 +11,18 @@ const props = defineProps<{
 const emit = defineEmits<{ (e: 'saved', id: string): void }>();
 
 const config = useRuntimeConfig();
-const { getCategories, getTags, uploadMedia, uploadCoverMedia, saveDraft, getDraft, getAuthors, getMediaById, deleteMaterial } = useApi();
+const {
+  getCategories,
+  getTags,
+  uploadMedia,
+  uploadCoverMedia,
+  saveDraft,
+  getDraft,
+  getAuthors,
+  getMediaById,
+  deleteMaterial,
+  getAdminWinemakersOptions,
+} = useApi();
 const { user } = useAuth();
 const coverBaseUrl = (config.public.mediaBaseUrl || (config.public.apiUrl as string).replace('/api', '') || 'http://localhost:4000').replace(/\/$/, '');
 
@@ -59,6 +70,8 @@ function emptyForm() {
     authorId: '',
     categoryIds: [] as string[],
     tagIds: [] as string[],
+    personIds: [] as string[],
+    terroirIds: [] as string[],
     contentBlocks: [] as Array<{ id: string; type: string; title?: string; content?: string; data?: any }>,
     sources: [] as Array<{ name: string; url: string }>,
     seoTitle: '',
@@ -72,6 +85,8 @@ const form = reactive(emptyForm());
 const categories = ref<Array<{ id: string; name: string; slug: string }>>([]);
 const tags = ref<Array<{ id: string; name: string; slug: string }>>([]);
 const authors = ref<Array<{ id: string; name: string; slug: string }>>([]);
+const winemakerOptions = ref<Array<{ id: string; name: string; slug: string }>>([]);
+const terroirOptions = ref<Array<{ id: string; name: string; slug: string }>>([]);
 const dedupedAuthors = computed(() => {
   const map = new Map<string, { id: string; name: string; slug: string }>();
   for (const author of authors.value) {
@@ -289,6 +304,8 @@ async function loadDraft(id: string) {
       authorId: res.authorId || '',
       categoryIds: (res.categories || []).map((c: any) => c.id),
       tagIds: (res.tags || []).map((t: any) => t.id),
+      personIds: (res.personLinks || []).map((entry: any) => entry.person?.id).filter(Boolean),
+      terroirIds: (res.terroirLinks || []).map((entry: any) => entry.terroir?.id).filter(Boolean),
       contentBlocks: rawBlocks.length ? rawBlocks.map((b: any) => normalizeBlock(b, mediaMap)) : [],
       sources: Array.isArray(res.sources) && res.sources.length ? res.sources : [{ name: '', url: '' }],
       seoTitle: res.seo?.title || '',
@@ -328,10 +345,17 @@ watch(() => props.type, (t) => {
 onMounted(async () => {
   loading.value = true;
   try {
-    const [catRes, tagRes, authorRes] = await Promise.all([getCategories(), getTags(), getAuthors()]);
+    const [catRes, tagRes, authorRes, projectRes] = await Promise.all([
+      getCategories(),
+      getTags(),
+      getAuthors(),
+      getAdminWinemakersOptions(),
+    ]);
     categories.value = Array.isArray(catRes) ? catRes : [];
     tags.value = Array.isArray(tagRes) ? tagRes : [];
     authors.value = Array.isArray(authorRes) ? authorRes : [];
+    winemakerOptions.value = Array.isArray((projectRes as any)?.persons) ? (projectRes as any).persons : [];
+    terroirOptions.value = Array.isArray((projectRes as any)?.terroirs) ? (projectRes as any).terroirs : [];
   } catch (e: any) {
     error.value = e?.data?.message || 'Не удалось загрузить рубрики и теги';
   } finally {
@@ -440,6 +464,18 @@ function toggleTag(id: string) {
   const idx = form.tagIds.indexOf(id);
   if (idx === -1) form.tagIds.push(id);
   else form.tagIds.splice(idx, 1);
+}
+
+function togglePerson(id: string) {
+  const idx = form.personIds.indexOf(id);
+  if (idx === -1) form.personIds.push(id);
+  else form.personIds.splice(idx, 1);
+}
+
+function toggleTerroir(id: string) {
+  const idx = form.terroirIds.indexOf(id);
+  if (idx === -1) form.terroirIds.push(id);
+  else form.terroirIds.splice(idx, 1);
 }
 
 async function onCoverSelected(e: Event) {
@@ -597,6 +633,8 @@ function buildBody(status?: 'draft' | 'published' | 'scheduled'): Record<string,
     coverSource: form.coverSource || undefined,
     categoryIds: form.categoryIds,
     tagIds: form.tagIds,
+    personIds: form.personIds,
+    terroirIds: form.terroirIds,
     authorId: form.authorId || undefined,
     videoUrl: form.type === 'video' ? form.videoUrl || undefined : undefined,
     contentBlocks: blocks,
@@ -1005,6 +1043,57 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div class="border border-foreground/10 bg-card">
+          <div class="border-b border-foreground/10 bg-muted px-4 py-3 text-sm font-normal">
+            Связи со спецпроектом
+          </div>
+          <div class="space-y-4 p-4">
+            <div>
+              <p class="mb-2 text-xs font-normal uppercase tracking-wide text-foreground/50">Виноделы</p>
+              <div v-if="loading" class="text-xs text-foreground/50">Загрузка…</div>
+              <div v-else-if="winemakerOptions.length" class="flex flex-wrap gap-2">
+                <button
+                  v-for="person in winemakerOptions"
+                  :key="person.id"
+                  class="flex items-center gap-1.5 rounded px-2 py-1 text-xs transition"
+                  :class="form.personIds.includes(person.id) ? 'bg-accent text-black' : 'bg-foreground/5 text-foreground/70 hover:bg-foreground/10'"
+                  @click="togglePerson(person.id)"
+                >
+                  <span class="h-3 w-3 rounded-sm border border-current flex items-center justify-center text-[8px]">
+                    {{ form.personIds.includes(person.id) ? '✓' : '' }}
+                  </span>
+                  {{ person.name }}
+                </button>
+              </div>
+              <p v-else class="text-xs text-foreground/50">Пока нет доступных карточек виноделов.</p>
+            </div>
+
+            <div>
+              <p class="mb-2 text-xs font-normal uppercase tracking-wide text-foreground/50">Терруары</p>
+              <div v-if="loading" class="text-xs text-foreground/50">Загрузка…</div>
+              <div v-else-if="terroirOptions.length" class="flex flex-wrap gap-2">
+                <button
+                  v-for="terroir in terroirOptions"
+                  :key="terroir.id"
+                  class="flex items-center gap-1.5 rounded px-2 py-1 text-xs transition"
+                  :class="form.terroirIds.includes(terroir.id) ? 'bg-accent text-black' : 'bg-foreground/5 text-foreground/70 hover:bg-foreground/10'"
+                  @click="toggleTerroir(terroir.id)"
+                >
+                  <span class="h-3 w-3 rounded-sm border border-current flex items-center justify-center text-[8px]">
+                    {{ form.terroirIds.includes(terroir.id) ? '✓' : '' }}
+                  </span>
+                  {{ terroir.name }}
+                </button>
+              </div>
+              <p v-else class="text-xs text-foreground/50">Пока нет доступных карточек терруаров.</p>
+            </div>
+
+            <p class="text-xs leading-5 text-foreground/55">
+              Эти связи используются для двусторонней перелинковки: из материала можно перейти в каталог спецпроекта, а в карточках виноделов и терруаров появится блок со связанными публикациями.
+            </p>
           </div>
         </div>
 

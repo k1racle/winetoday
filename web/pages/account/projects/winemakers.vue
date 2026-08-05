@@ -67,6 +67,8 @@ const {
 } = useApi();
 
 const { user, isAuthenticated } = useAuth();
+const route = useRoute();
+const { isCmsRoute } = useUiContext();
 const config = useRuntimeConfig();
 const mediaBaseUrl = (config.public.mediaBaseUrl || (config.public.apiUrl as string).replace('/api', '') || '').replace(/\/$/, '');
 
@@ -634,6 +636,10 @@ function onLogoSelected(media: MediaAsset) {
 }
 
 onMounted(() => {
+  if (route.path === '/account/projects/winemakers') {
+    navigateTo('/cms/projects/winemakers');
+    return;
+  }
   if (!isAuthenticated.value || user.value?.role !== 'admin') {
     navigateTo('/account');
     return;
@@ -644,14 +650,23 @@ onMounted(() => {
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
-      <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Спецпроекты</p>
-      <h1 class="mt-2 font-heading text-2xl font-bold">Виноделы России</h1>
-    </div>
+    <template v-if="isCmsRoute">
+      <CmsPageHeader
+        eyebrow="Спецпроект"
+        title="Виноделы России"
+        description="Управление доступом, витриной и каталогом сущностей спецпроекта."
+      />
+    </template>
+    <template v-else>
+      <div class="mb-6 border-b border-foreground/10 pb-4">
+        <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Спецпроекты</p>
+        <h1 class="mt-2 font-heading text-2xl font-bold">Виноделы России</h1>
+      </div>
 
-    <NuxtLink to="/account/projects" class="text-sm text-accent hover:underline">← Назад к спецпроектам</NuxtLink>
-    <AccountTabs class="mt-6" />
-    <ProjectTabs class="mt-6" />
+      <NuxtLink to="/account/projects" class="text-sm text-accent hover:underline">← Назад к спецпроектам</NuxtLink>
+      <AccountTabs class="mt-6" />
+      <ProjectTabs class="mt-6" />
+    </template>
 
     <div class="mt-6 rounded border border-foreground/10 bg-card p-5">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -825,7 +840,7 @@ onMounted(() => {
                         Избранный винодел
                       </label>
 
-                      <WinemakersBlocksEditor v-model="editor.bioBlocks" label="Биография" />
+                      <WinemakersBlocksEditor v-model="editor.bioBlocks" label="Биография и основной текст" />
 
                       <div class="space-y-3">
                         <div class="flex items-center justify-between">
@@ -909,7 +924,7 @@ onMounted(() => {
                         </div>
                       </div>
 
-                      <WinemakersBlocksEditor v-model="editor.description" label="Описание вина" />
+                      <WinemakersBlocksEditor v-model="editor.description" label="Основной текст карточки вина" />
 
                       <div class="space-y-3">
                         <div class="flex items-center justify-between">
@@ -956,7 +971,7 @@ onMounted(() => {
                           <input v-model.number="editor.lng" type="number" step="0.000001" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                       </div>
-                      <WinemakersBlocksEditor v-model="editor.description" label="Описание региона" />
+                      <WinemakersBlocksEditor v-model="editor.description" label="Основной текст карточки региона" />
                     </div>
 
                     <div v-else-if="editor.entity === 'terroir'" class="space-y-6">
@@ -989,7 +1004,7 @@ onMounted(() => {
                           <input v-model.number="editor.lng" type="number" step="0.000001" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                       </div>
-                      <WinemakersBlocksEditor v-model="editor.description" label="Описание терруара" />
+                      <WinemakersBlocksEditor v-model="editor.description" label="Основной текст карточки терруара" />
                     </div>
 
                     <div v-else class="space-y-6">
@@ -1014,7 +1029,7 @@ onMounted(() => {
                           <input v-model.number="editor.lng" type="number" step="0.000001" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                       </div>
-                      <WinemakersBlocksEditor v-model="editor.description" label="Описание винодельни" />
+                      <WinemakersBlocksEditor v-model="editor.description" label="Основной текст карточки винодельни" />
                     </div>
 
                     <div class="space-y-4 border border-foreground/10 bg-card p-4">

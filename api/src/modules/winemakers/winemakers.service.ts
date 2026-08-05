@@ -212,6 +212,25 @@ const adminWineryListSelect = Prisma.validator<Prisma.WinerySelect>()({
   },
 });
 
+const relatedContentSelect = Prisma.validator<Prisma.ContentItemSelect>()({
+  id: true,
+  type: true,
+  title: true,
+  slug: true,
+  excerpt: true,
+  status: true,
+  publishedAt: true,
+  coverMedia: true,
+  categories: {
+    select: {
+      name: true,
+      slug: true,
+    },
+  },
+  materialLabel: true,
+  viewsTotal: true,
+});
+
 @Injectable()
 export class WinemakersService {
   constructor(private readonly prisma: PrismaService) {}
@@ -307,6 +326,24 @@ export class WinemakersService {
             },
           },
           orderBy: { wine: { updatedAt: 'desc' } },
+        },
+        contentItemLinks: {
+          where: {
+            contentItem: {
+              status: publishedStatus,
+              publishedAt: { lte: new Date() },
+            },
+          },
+          include: {
+            contentItem: {
+              select: relatedContentSelect,
+            },
+          },
+          orderBy: [
+            { contentItem: { publishedAt: 'desc' } },
+            { createdAt: 'desc' },
+          ],
+          take: 6,
         },
       },
     });
@@ -694,6 +731,24 @@ export class WinemakersService {
           where: { status: publishedStatus },
           select: wineCardSelect,
           orderBy: { updatedAt: 'desc' },
+        },
+        contentItemLinks: {
+          where: {
+            contentItem: {
+              status: publishedStatus,
+              publishedAt: { lte: new Date() },
+            },
+          },
+          include: {
+            contentItem: {
+              select: relatedContentSelect,
+            },
+          },
+          orderBy: [
+            { contentItem: { publishedAt: 'desc' } },
+            { createdAt: 'desc' },
+          ],
+          take: 6,
         },
       },
     });

@@ -45,6 +45,36 @@ const CONTENT_PATH_PREFIX: Partial<Record<ContentType, string>> = {
   gallery: '/gallery',
 };
 
+const editorContentInclude = {
+  author: true,
+  coverMedia: true,
+  archiveCoverMedia: true,
+  categories: true,
+  tags: true,
+  personLinks: {
+    include: {
+      person: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+        },
+      },
+    },
+  },
+  terroirLinks: {
+    include: {
+      terroir: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+        },
+      },
+    },
+  },
+} satisfies Prisma.ContentItemInclude;
+
 function contentPath(type: ContentType, slug: string): string | null {
   const prefix = CONTENT_PATH_PREFIX[type];
   return prefix ? `${prefix}/${slug}` : null;
@@ -137,6 +167,13 @@ export class EditorService {
         ? { connect: dto.tagIds.map((id) => ({ id })) }
         : undefined;
 
+    const personIds = Array.isArray(dto.personIds)
+      ? Array.from(new Set(dto.personIds.filter(Boolean)))
+      : undefined;
+    const terroirIds = Array.isArray(dto.terroirIds)
+      ? Array.from(new Set(dto.terroirIds.filter(Boolean)))
+      : undefined;
+
     const previous = dto.id
       ? await this.prisma.contentItem.findUnique({
           where: { id: dto.id },
@@ -152,13 +189,7 @@ export class EditorService {
             categories: connectCategories ? { set: [], ...connectCategories } : { set: [] },
             tags: connectTags ? { set: [], ...connectTags } : { set: [] },
           },
-          include: {
-            author: true,
-            coverMedia: true,
-            archiveCoverMedia: true,
-            categories: true,
-            tags: true,
-          },
+          include: editorContentInclude,
         })
       : await this.prisma.contentItem.create({
           data: {
@@ -166,22 +197,29 @@ export class EditorService {
             categories: connectCategories,
             tags: connectTags,
           },
-          include: {
-            author: true,
-            coverMedia: true,
-            archiveCoverMedia: true,
-            categories: true,
-            tags: true,
-          },
+          include: editorContentInclude,
         });
+
+    if (personIds !== undefined) {
+      await this.syncContentPersons(result.id, personIds);
+    }
+
+    if (terroirIds !== undefined) {
+      await this.syncContentTerroirs(result.id, terroirIds);
+    }
+
+    const resultWithLinks = await this.prisma.contentItem.findUniqueOrThrow({
+      where: { id: result.id },
+      include: editorContentInclude,
+    });
 
     if (
       previous &&
-      previous.slug !== result.slug &&
-      (previous.status === ContentStatus.published || result.status === ContentStatus.published)
+      previous.slug !== resultWithLinks.slug &&
+      (previous.status === ContentStatus.published || resultWithLinks.status === ContentStatus.published)
     ) {
       const fromPath = contentPath(result.type, previous.slug);
-      const toPath = contentPath(result.type, result.slug);
+      const toPath = contentPath(resultWithLinks.type, resultWithLinks.slug);
       if (fromPath && toPath && fromPath !== toPath) {
         await this.prisma.slugRedirect.upsert({
           where: { fromPath },
@@ -191,13 +229,13 @@ export class EditorService {
       }
     }
 
-    return result;
+    return resultWithLinks;
   }
 
   async findDraft(user: RequestUser, id: string) {
     const item = await this.prisma.contentItem.findUnique({
       where: { id },
-      include: { author: true, coverMedia: true, archiveCoverMedia: true, categories: true, tags: true },
+      include: editorContentInclude,
     });
     if (!item) throw new NotFoundException('Draft not found');
     if (item.authorId && !(await this.canEdit(user, item.authorId))) {
@@ -709,5 +747,37 @@ export class EditorService {
       select: { authorId: true },
     });
     return profile?.authorId === authorId;
+  }
+
+  private async syncContentPersons(contentItemId: string, personIds: string[]) {
+    await this.prisma.contentItemPerson.deleteMany({
+      where: { contentItemId },
+    });
+
+    if (!personIds.length) return;
+
+    await this.prisma.contentItemPerson.createMany({
+      data: personIds.map((personId) => ({
+        contentItemId,
+        personId,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  private async syncContentTerroirs(contentItemId: string, terroirIds: string[]) {
+    await this.prisma.contentItemTerroir.deleteMany({
+      where: { contentItemId },
+    });
+
+    if (!terroirIds.length) return;
+
+    await this.prisma.contentItemTerroir.createMany({
+      data: terroirIds.map((terroirId) => ({
+        contentItemId,
+        terroirId,
+      })),
+      skipDuplicates: true,
+    });
   }
 }

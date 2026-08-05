@@ -43,6 +43,7 @@ interface Analytics {
 
 const route = useRoute();
 const { user, isAuthenticated } = useAuth();
+const { isCmsRoute } = useUiContext();
 const { getAuthorAnalytics, uploadMedia, updateAuthor, deleteAuthor } = useApi();
 
 const editName = ref('');
@@ -128,7 +129,7 @@ async function onDeleteAuthor() {
   deleteError.value = '';
   try {
     await deleteAuthor(route.params.id as string);
-    await navigateTo('/account/admin/authors');
+    await navigateTo(isCmsRoute.value ? '/cms/authors' : '/account/admin/authors');
   } catch (err: any) {
     deleting.value = false;
     deleteError.value = err?.data?.message || err?.message || 'Ошибка удаления';
@@ -248,6 +249,10 @@ function materialsSortIcon(field: string) {
 }
 
 onMounted(() => {
+  if (route.path.startsWith('/account/admin/authors/')) {
+    navigateTo(`/cms/authors/${route.params.id as string}`);
+    return;
+  }
   if (!isAuthenticated.value || user.value?.role !== 'admin') {
     navigateTo('/account');
     return;
@@ -258,12 +263,21 @@ onMounted(() => {
 
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
+    <CmsPageHeader
+      v-if="isCmsRoute"
+      eyebrow="CMS"
+      title="Профиль автора"
+      description="Редактирование профиля, аналитика и список материалов автора."
+    />
+    <template v-else>
+      <div class="mb-6 border-b border-foreground/10 pb-4">
       <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Кабинет автора</h1>
     </div>
 
     <NuxtLink to="/account/admin/authors" class="text-sm text-accent hover:underline">← Назад к авторам</NuxtLink>
+
+    </template>
 
     <!-- Edit author profile -->
     <div class="mt-6 border border-foreground/10 bg-foreground/5 p-5">
@@ -345,7 +359,7 @@ onMounted(() => {
       </div>
     </div>
 
-    <AdminTabs class="mt-6" />
+    <AdminTabs v-if="!isCmsRoute" class="mt-6" />
 
     <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
     <p v-if="error" class="mt-6 text-sm text-red-600">{{ error }}</p>

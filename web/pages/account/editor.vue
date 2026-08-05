@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const { user } = useAuth();
 const route = useRoute();
+const { isCmsRoute } = useUiContext();
 
 const canCreate = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
 
@@ -28,6 +29,10 @@ function onSaved(id: string) {
 }
 
 onMounted(() => {
+  if (route.path === '/account/editor') {
+    navigateTo({ path: '/cms/materials', query: route.query });
+    return;
+  }
   if (!canCreate.value) {
     navigateTo('/account');
     return;
@@ -47,10 +52,19 @@ onMounted(() => {
   <div class="mx-auto max-w-[1600px] overflow-x-hidden px-4 py-10">
     <div v-if="user" class="space-y-8">
       <div>
-        <h1 class="mb-2 font-heading text-2xl font-bold">Личный кабинет</h1>
-        <AccountTabs class="mb-6" />
+        <template v-if="isCmsRoute">
+          <CmsPageHeader
+            eyebrow="CMS"
+            title="Материалы"
+            description="Редактор материалов, список последних записей и быстрый доступ к созданию и правке."
+          />
+        </template>
+        <template v-else>
+          <h1 class="mb-2 font-heading text-2xl font-bold">Личный кабинет</h1>
+          <AccountTabs class="mb-6" />
+        </template>
       </div>
-      <div v-if="canCreate" class="grid gap-6 lg:grid-cols-[260px_1fr] items-start">
+      <div v-if="canCreate" class="grid items-start gap-6 lg:grid-cols-[260px_1fr]">
         <EditorSidebar
           ref="sidebarRef"
           class="min-w-0"

@@ -39,6 +39,7 @@ interface AnalyticsData {
 
 const route = useRoute();
 const { user, isAuthenticated } = useAuth();
+const { isCmsRoute } = useUiContext();
 const { getUser, getEditorMaterials, getAuthorAnalytics } = useApi();
 
 const profile = ref<AdminUser | null>(null);
@@ -177,6 +178,10 @@ function downloadStatsCsv() {
 }
 
 onMounted(() => {
+  if (route.path.startsWith('/account/admin/users/')) {
+    navigateTo(`/cms/users/${route.params.id as string}`);
+    return;
+  }
   if (!isAuthenticated.value || user.value?.role !== 'admin') {
     navigateTo('/account');
     return;
@@ -187,7 +192,14 @@ onMounted(() => {
 
 <template>
   <div class="mx-auto max-w-6xl px-4 py-8">
-    <div class="mb-6 border-b border-foreground/10 pb-4">
+    <CmsPageHeader
+      v-if="isCmsRoute"
+      eyebrow="CMS"
+      title="Профиль пользователя"
+      description="Сводка по аккаунту, роли и связанным материалам."
+    />
+    <template v-else>
+      <div class="mb-6 border-b border-foreground/10 pb-4">
       <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Администрирование</p>
       <h1 class="mt-2 font-heading text-2xl font-bold">Профиль пользователя</h1>
     </div>
@@ -196,6 +208,8 @@ onMounted(() => {
 
     <p v-if="loading" class="mt-6 text-sm text-foreground/60">Загрузка...</p>
     <p v-if="error" class="mt-6 text-sm text-red-600">{{ error }}</p>
+
+    </template>
 
     <div v-if="profile" class="mt-6 grid gap-6 lg:grid-cols-[320px_1fr]">
       <!-- User card -->

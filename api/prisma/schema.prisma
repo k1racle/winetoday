@@ -218,6 +218,8 @@ model ContentItem {
   archiveCoverMedia MediaAsset? @relation("ArchiveCoverMedia", fields: [archiveCoverMediaId], references: [id])
   categories  Category[]
   tags        Tag[]
+  personLinks ContentItemPerson[]
+  terroirLinks ContentItemTerroir[]
   comments    Comment[]
   reactions   Reaction[]
   viewTotals  ContentViewTotal?
@@ -507,10 +509,11 @@ model Person {
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
   photo         MediaAsset?      @relation("PersonPhoto", fields: [photoId], references: [id])
-  winery        Winery?          @relation(fields: [wineryId], references: [id], onDelete: SetNull)
-  relationsFrom PersonRelation[] @relation("PersonRelationFrom")
-  relationsTo   PersonRelation[] @relation("PersonRelationTo")
-  wines         WinePerson[]
+    winery        Winery?          @relation(fields: [wineryId], references: [id], onDelete: SetNull)
+    relationsFrom PersonRelation[] @relation("PersonRelationFrom")
+    relationsTo   PersonRelation[] @relation("PersonRelationTo")
+    wines         WinePerson[]
+    contentItemLinks ContentItemPerson[]
 
   @@index([status, sortOrder, updatedAt])
   @@index([wineryId])
@@ -601,12 +604,39 @@ model Terroir {
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
-  region  Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
-  wines   Wine[]
+    region  Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+    wines   Wine[]
+    contentItemLinks ContentItemTerroir[]
 
   @@index([status, updatedAt])
   @@index([regionId])
   @@map("winemakers_terroirs")
+}
+
+model ContentItemPerson {
+  contentItemId String   @map("content_item_id") @db.Uuid
+  personId      String   @map("person_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  person      Person      @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@id([contentItemId, personId])
+  @@index([personId])
+  @@map("content_item_people")
+}
+
+model ContentItemTerroir {
+  contentItemId String   @map("content_item_id") @db.Uuid
+  terroirId     String   @map("terroir_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  terroir     Terroir     @relation(fields: [terroirId], references: [id], onDelete: Cascade)
+
+  @@id([contentItemId, terroirId])
+  @@index([terroirId])
+  @@map("content_item_terroirs")
 }
 
 model Wine {

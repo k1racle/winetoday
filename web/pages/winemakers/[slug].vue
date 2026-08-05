@@ -40,6 +40,14 @@ const relations = computed(() => {
   return [...direct, ...reverse];
 });
 
+const relatedMaterials = computed(() =>
+  Array.isArray(person.value?.contentItemLinks)
+    ? person.value.contentItemLinks
+        .map((entry) => entry.contentItem)
+        .filter((item) => item?.id && item?.slug)
+    : [],
+);
+
 function relationLabel(type: string) {
   if (type === 'parent') return 'Родитель';
   if (type === 'child') return 'Ребенок';
@@ -193,6 +201,19 @@ useSeoMeta({
           v-for="entry in person.wines"
           :key="entry.wine.id"
           :wine="entry.wine"
+        />
+      </div>
+    </section>
+
+    <section v-if="relatedMaterials.length" class="mt-12">
+      <h2 class="mb-6 font-heading text-2xl font-bold">Публикации о виноделе</h2>
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <ArticleCard
+          v-for="item in relatedMaterials"
+          :key="item.id"
+          :item="item"
+          image-aspect="video"
+          variant="compact"
         />
       </div>
     </section>

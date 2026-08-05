@@ -3,6 +3,8 @@ import type { ContentItem } from '~/types/content';
 
 const { user, isAuthenticated } = useAuth();
 const { getAdminHomepage, updateAdminHomepage, getContent, uploadArchiveCoverMedia, getMediaById } = useApi();
+const route = useRoute();
+const { isCmsRoute } = useUiContext();
 
 const loading = ref(false);
 const saving = ref(false);
@@ -66,7 +68,7 @@ async function searchContent(term: string, type?: string) {
       limit: 10,
     });
     return Array.isArray(res?.items) ? res.items : [];
-  } catch (err) {
+  } catch {
     return [];
   }
 }
@@ -167,6 +169,10 @@ function itemCover(item?: ContentItem) {
 }
 
 onMounted(() => {
+  if (route.path === '/account/homepage') {
+    navigateTo('/cms/homepage');
+    return;
+  }
   if (!isAuthenticated.value || !['admin', 'editor'].includes(user.value?.role || '')) {
     navigateTo('/account');
     return;
@@ -178,8 +184,17 @@ onMounted(() => {
 <template>
   <div class="py-10">
     <div class="mb-6">
-      <h1 class="font-heading text-2xl font-bold">Личный кабинет</h1>
-      <AccountTabs class="mb-6" />
+      <template v-if="isCmsRoute">
+        <CmsPageHeader
+          eyebrow="CMS"
+          title="Главная сайта"
+          description="Настройка главного спецблока и видеоблока на главной странице."
+        />
+      </template>
+      <template v-else>
+        <h1 class="font-heading text-2xl font-bold">Личный кабинет</h1>
+        <AccountTabs class="mb-6" />
+      </template>
     </div>
 
     <h2 class="mb-6 font-heading text-xl font-normal">Главная страница</h2>
@@ -189,7 +204,6 @@ onMounted(() => {
     <p v-if="message" class="mt-6 text-sm text-green-600">{{ message }}</p>
 
     <div v-if="!loading" class="mt-6 space-y-10">
-      <!-- Lead block -->
       <div class="space-y-4">
         <div>
           <h2 class="text-lg font-normal">Спецблок</h2>
@@ -269,7 +283,6 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- Videos block -->
       <div class="space-y-4">
         <div>
           <h2 class="text-lg font-normal">Видео на главной</h2>

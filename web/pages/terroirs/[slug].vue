@@ -25,6 +25,14 @@ const { data: terroir } = await useAsyncData(
   },
 );
 
+const relatedMaterials = computed(() =>
+  Array.isArray(terroir.value?.contentItemLinks)
+    ? terroir.value.contentItemLinks
+        .map((entry) => entry.contentItem)
+        .filter((item) => item?.id && item?.slug)
+    : [],
+);
+
 const breadcrumbItems = computed(() => [
   { name: 'Главная', url: '/' },
   { name: 'Виноделы России', url: '/winemakers' },
@@ -119,6 +127,19 @@ useSeoMeta({
       <h2 class="mb-5 font-heading text-2xl font-bold">Вина терруара</h2>
       <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         <WinemakersWineCard v-for="wine in terroir.wines" :key="wine.id" :wine="wine" />
+      </div>
+    </section>
+
+    <section v-if="relatedMaterials.length" class="mt-12">
+      <h2 class="mb-5 font-heading text-2xl font-bold">Публикации о терруаре</h2>
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <ArticleCard
+          v-for="item in relatedMaterials"
+          :key="item.id"
+          :item="item"
+          image-aspect="video"
+          variant="compact"
+        />
       </div>
     </section>
   </div>

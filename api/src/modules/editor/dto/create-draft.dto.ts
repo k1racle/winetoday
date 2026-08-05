@@ -74,6 +74,16 @@ export class CreateDraftDto {
   tagIds?: string[];
 
   @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  personIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  terroirIds?: string[];
+
+  @IsOptional()
   contentBlocks?: any;
 
   @IsOptional()

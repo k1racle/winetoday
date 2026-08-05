@@ -123,9 +123,9 @@ function formatSource(source?: string | null): string {
       </blockquote>
 
       <div
-        v-else-if="block.type === 'embed' && block.html"
+        v-else-if="block.type === 'embed' && (block.html || block.data?.code)"
         class="my-6"
-        v-html="block.html"
+        v-html="block.html || block.data?.code"
       />
 
       <ClientOnly v-else-if="block.type === 'video-player' && getEmbedUrl(block.videoUrl || props.item.videoUrl)">

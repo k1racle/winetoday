@@ -212,6 +212,22 @@ const relatedItems = computed(() => {
   return list.filter((i) => i && !excludeIds.has(i.id));
 });
 
+const linkedPersons = computed(() =>
+  Array.isArray(props.item.personLinks)
+    ? props.item.personLinks
+        .map((entry) => entry.person)
+        .filter(Boolean)
+    : [],
+);
+
+const linkedTerroirs = computed(() =>
+  Array.isArray(props.item.terroirLinks)
+    ? props.item.terroirLinks
+        .map((entry) => entry.terroir)
+        .filter(Boolean)
+    : [],
+);
+
 function itemUrl(item: ContentItem) {
   switch (item.type) {
     case 'article':
@@ -418,6 +434,39 @@ function onAuthorBylineClick(e: MouseEvent) {
             {{ item.excerpt }}
           </p>
         </div>
+
+        <section v-if="linkedPersons.length || linkedTerroirs.length" class="mt-10 border-t border-foreground/10 pt-6">
+          <h2 class="font-heading text-xl font-normal">Связано со спецпроектом</h2>
+          <div class="mt-4 space-y-4">
+            <div v-if="linkedPersons.length">
+              <p class="mb-2 text-xs font-normal uppercase tracking-wide text-foreground/50">Виноделы</p>
+              <div class="flex flex-wrap gap-2">
+                <NuxtLink
+                  v-for="person in linkedPersons"
+                  :key="person.id"
+                  :to="`/winemakers/${person.slug}`"
+                  class="rounded border border-foreground/10 px-3 py-1.5 text-sm transition hover:border-accent hover:text-accent"
+                >
+                  {{ person.name }}
+                </NuxtLink>
+              </div>
+            </div>
+
+            <div v-if="linkedTerroirs.length">
+              <p class="mb-2 text-xs font-normal uppercase tracking-wide text-foreground/50">Терруары</p>
+              <div class="flex flex-wrap gap-2">
+                <NuxtLink
+                  v-for="terroir in linkedTerroirs"
+                  :key="terroir.id"
+                  :to="`/terroirs/${terroir.slug}`"
+                  class="rounded border border-foreground/10 px-3 py-1.5 text-sm transition hover:border-accent hover:text-accent"
+                >
+                  {{ terroir.name }}
+                </NuxtLink>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <!-- Prev / next navigation -->
         <nav v-if="prevItem || nextItem" class="mt-10 grid gap-3 border-t border-foreground/10 pt-6 sm:grid-cols-2">
