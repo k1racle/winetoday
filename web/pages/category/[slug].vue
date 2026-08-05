@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import type { ContentItem } from '~/types/content';
-
-// Пересоздаём страницу при смене query, чтобы пагинация (?page=N) инициализировалась заново.
+// Пересоздаём страницу при смене query, чтобы пагинация (?page=N) и фильтры
+// (?sort, ?author, ?tag) инициализировались заново.
 definePageMeta({
   key: (route) => route.fullPath,
 });
@@ -9,15 +8,10 @@ definePageMeta({
 const route = useRoute();
 const slug = route.params.slug as string;
 
-const currentPage = computed(() => {
-  const n = Number(route.query.page);
-  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1;
-});
+const { getContent, getCategories, getLatestByCategory, getAuthorsList, getTags } = useApi();
 
-const { getContent, getCategories, getLatestByCategory } = useApi();
-
-const { items, total, isLoading, loadMore, error: contentError } = useArchivePagination(
-  ({ limit, offset }) => getContent({ categorySlug: slug, limit, offset }),
+const { items, total, currentPage, itemsPerPage, filterQuery, error: contentError } = usePagedArchive(
+  (opts) => getContent({ categorySlug: slug, ...opts }),
   `category-content-${slug}`,
 );
 
@@ -28,6 +22,10 @@ const { data: categories } = await useAsyncData('categories', () =>
 const { data: latestByCategory } = await useAsyncData(`latest-by-category-${slug}`, () =>
   getLatestByCategory(10).catch(() => []),
 );
+const { data: authors } = await useAsyncData('authors-filter', () =>
+  getAuthorsList().catch(() => []),
+);
+const { data: tags } = await useAsyncData('tags-filter', () => getTags().catch(() => []));
 
 const category = computed(() =>
   (categories.value || []).find((c: any) => c.slug === slug),
@@ -62,6 +60,8 @@ useSeoMeta({
       {{ category?.name || slug }}
     </h1>
 
+    <ArchiveFilters :authors="authors || []" :tags="tags || []" />
+
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
       <!-- Main grid -->
       <div class="w-full lg:w-3/4">
@@ -80,14 +80,7 @@ useSeoMeta({
             variant="compact"
           />
         </div>
-        <div v-if="items.length < total" class="mt-8">
-          <InfiniteScrollTrigger
-            :loading="isLoading"
-            :has-more="items.length < total"
-            @load="loadMore"
-          />
-        </div>
-        <ArchivePagination :total="total" :items-per-page="24" />
+        <ArchivePagination :total="total" :items-per-page="itemsPerPage" :extra-query="filterQuery" />
       </div>
 
       <!-- Sidebar -->

@@ -73,11 +73,20 @@ export class ContentService {
       ];
     }
 
+    const orderBy: Prisma.ContentItemOrderByWithRelationInput[] =
+      dto.sort === 'old'
+        ? [{ publishedAt: 'asc' }, { createdAt: 'asc' }]
+        : dto.sort === 'popular'
+          ? [{ viewsTotal: 'desc' }, { publishedAt: 'desc' }]
+          : dto.sort === 'author'
+            ? [{ author: { name: 'asc' } }, { publishedAt: 'desc' }]
+            : [{ pinned: 'desc' }, { publishedAt: 'desc' }, { createdAt: 'desc' }];
+
     const [items, total] = await Promise.all([
       this.prisma.contentItem.findMany({
         where,
         include: contentInclude,
-        orderBy: [{ pinned: 'desc' }, { publishedAt: 'desc' }, { createdAt: 'desc' }],
+        orderBy,
         skip: dto.offset,
         take: dto.limit,
       }),

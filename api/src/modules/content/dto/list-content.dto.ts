@@ -1,6 +1,9 @@
-import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsEnum, IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ContentType, ContentStatus } from '@prisma/client';
+
+export const CONTENT_SORTS = ['new', 'old', 'popular', 'author'] as const;
+export type ContentSort = (typeof CONTENT_SORTS)[number];
 
 export class ListContentDto {
   @IsOptional()
@@ -35,6 +38,10 @@ export class ListContentDto {
 
   @IsOptional()
   search?: string;
+
+  @IsOptional()
+  @IsIn(CONTENT_SORTS as unknown as string[])
+  sort?: ContentSort;
 
   @IsOptional()
   @Type(() => Boolean)

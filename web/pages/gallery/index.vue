@@ -1,25 +1,25 @@
 <script setup>
-// Пересоздаём страницу при смене query, чтобы пагинация (?page=N) инициализировалась заново.
+// Пересоздаём страницу при смене query, чтобы пагинация (?page=N) и фильтры
+// (?sort, ?author, ?tag) инициализировались заново.
 definePageMeta({
   key: (route) => route.fullPath,
 });
 
 const route = useRoute();
-const { getContent, getLatestByCategory } = useApi();
+const { getContent, getLatestByCategory, getAuthorsList, getTags } = useApi();
 
-const currentPage = computed(() => {
-  const n = Number(route.query.page);
-  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1;
-});
-
-const { items, total, isLoading, loadMore } = useArchivePagination(
-  ({ limit, offset }) => getContent({ type: 'gallery', limit, offset }),
+const { items, total, currentPage, itemsPerPage, filterQuery } = usePagedArchive(
+  (opts) => getContent({ type: 'gallery', ...opts }),
   'gallery-archive',
 );
 
 const { data: latestByCategory } = await useAsyncData('latest-by-category-gallery', () =>
   getLatestByCategory(10).catch(() => []),
 );
+const { data: authors } = await useAsyncData('authors-filter', () =>
+  getAuthorsList().catch(() => []),
+);
+const { data: tags } = await useAsyncData('tags-filter', () => getTags().catch(() => []));
 
 useCanonical(currentPage.value > 1 ? `${route.path}?page=${currentPage.value}` : undefined);
 
@@ -34,10 +34,19 @@ useSeoMeta({
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8">
-    <h1 class="mb-8 font-heading text-3xl font-bold">Галерея</h1>
+    <h1 class="mb-6 font-heading text-3xl font-bold">Галерея</h1>
+
+    <ArchiveFilters :authors="authors || []" :tags="tags || []" />
+
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
       <div class="w-full lg:w-3/4">
-        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div
+          v-if="!items.length"
+          class="rounded border border-foreground/10 bg-card px-4 py-12 text-center text-sm text-foreground/60"
+        >
+          По выбранным фильтрам ничего не найдено.
+        </div>
+        <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <ArticleCard
             v-for="item in items"
             :key="item.id"
@@ -46,14 +55,7 @@ useSeoMeta({
             variant="compact"
           />
         </div>
-        <div v-if="items.length < total" class="mt-8">
-          <InfiniteScrollTrigger
-            :loading="isLoading"
-            :has-more="items.length < total"
-            @load="loadMore"
-          />
-        </div>
-        <ArchivePagination :total="total" :items-per-page="24" />
+        <ArchivePagination :total="total" :items-per-page="itemsPerPage" :extra-query="filterQuery" />
       </div>
       <aside class="order-last flex w-full flex-col gap-4 lg:w-1/4">
         <SidebarByCategory :groups="latestByCategory || []" />
