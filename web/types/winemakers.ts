@@ -126,3 +126,30 @@ export interface WinepediaSearchResult {
   regions: RegionSummary[];
   wineries: WinerySummary[];
 }
+
+export type WinemakersHomeSectionEntity =
+  | 'person'
+  | 'terroir'
+  | 'wine'
+  | 'winery'
+  | 'region';
+
+export interface WinemakersHomeIntroConfig {
+  eyebrow: string;
+  title: string;
+  description: string;
+}
+
+export interface WinemakersHomeSectionConfig {
+  entity: WinemakersHomeSectionEntity;
+  title: string;
+  description?: string | null;
+  buttonLabel: string;
+  limit: number;
+  enabled: boolean;
+}
+
+export interface WinemakersHomeConfig {
+  intro: WinemakersHomeIntroConfig;
+  sections: WinemakersHomeSectionConfig[];
+}

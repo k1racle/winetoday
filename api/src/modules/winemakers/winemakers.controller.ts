@@ -4,6 +4,7 @@ import { ListWinemakersDto } from './dto/list-winemakers.dto';
 import { ListWinesDto } from './dto/list-wines.dto';
 import { ListWineriesDto } from './dto/list-wineries.dto';
 import { ListRegionsDto } from './dto/list-regions.dto';
+import { ListTerroirsDto } from './dto/list-terroirs.dto';
 import { SearchWinepediaDto } from './dto/search-winepedia.dto';
 
 @Controller()
@@ -48,6 +49,11 @@ export class WinemakersController {
   @Get('wineries/:slug')
   wineryBySlug(@Param('slug') slug: string) {
     return this.winemakersService.wineryBySlug(slug);
+  }
+
+  @Get('terroirs')
+  listTerroirs(@Query() query: ListTerroirsDto) {
+    return this.winemakersService.listTerroirs(query);
   }
 
   @Get('terroirs/:slug')

@@ -40,6 +40,10 @@ export class SettingsService {
       data.winemakersEnabled = dto.winemakersEnabled;
     }
 
+    if (dto.winemakersHomeConfig !== undefined) {
+      data.winemakersHomeConfig = dto.winemakersHomeConfig as any;
+    }
+
     if (!existing) {
       return this.prisma.siteSettings.create({
         data,

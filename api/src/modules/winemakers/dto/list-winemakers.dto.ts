@@ -27,4 +27,7 @@ export class ListWinemakersDto {
 
   @IsOptional()
   regionSlug?: string;
+
+  @IsOptional()
+  sort?: 'default' | 'latest';
 }

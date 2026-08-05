@@ -91,7 +91,7 @@ export function useApi() {
       api('/site-settings'),
     getAdminSiteSettings: () =>
       api('/admin/site-settings', { credentials: 'include' }),
-    updateSiteSettings: (body: { winemakersEnabled?: boolean }) =>
+    updateSiteSettings: (body: { winemakersEnabled?: boolean; winemakersHomeConfig?: Record<string, unknown> }) =>
       api('/admin/site-settings', { method: 'PATCH', body, credentials: 'include' }),
     getSiteHeader: () =>
       api('/site-header'),
@@ -266,6 +266,8 @@ export function useApi() {
       api(`/admin/winemakers/wineries/${id}`, { method: 'PATCH', body, credentials: 'include' }),
     deleteAdminWinemakersWinery: (id: string) =>
       api(`/admin/winemakers/wineries/${id}`, { method: 'DELETE', credentials: 'include' }),
+    getTerroirsCatalog: (query?: Record<string, unknown>) =>
+      api('/terroirs', { query }),
     getTerroirCatalogItem: (slug: string) =>
       api(`/terroirs/${slug}`),
     getAdminWinemakersTerroirs: () =>

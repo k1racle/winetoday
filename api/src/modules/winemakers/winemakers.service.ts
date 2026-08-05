@@ -13,6 +13,7 @@ import { ListWinemakersDto } from './dto/list-winemakers.dto';
 import { ListWinesDto } from './dto/list-wines.dto';
 import { ListWineriesDto } from './dto/list-wineries.dto';
 import { ListRegionsDto } from './dto/list-regions.dto';
+import { ListTerroirsDto } from './dto/list-terroirs.dto';
 import { SearchWinepediaDto } from './dto/search-winepedia.dto';
 import { SavePersonDto } from './dto/save-person.dto';
 import { SaveWineDto } from './dto/save-wine.dto';
@@ -240,16 +241,21 @@ export class WinemakersService {
       ];
     }
 
+    const orderBy =
+      dto.sort === 'latest'
+        ? [{ updatedAt: 'desc' as const }, { name: 'asc' as const }]
+        : [
+            { featured: 'desc' as const },
+            { sortOrder: 'asc' as const },
+            { updatedAt: 'desc' as const },
+            { name: 'asc' as const },
+          ];
+
     const [items, total] = await Promise.all([
       this.prisma.person.findMany({
         where,
         select: personCardSelect,
-        orderBy: [
-          { featured: 'desc' },
-          { sortOrder: 'asc' },
-          { updatedAt: 'desc' },
-          { name: 'asc' },
-        ],
+        orderBy,
         skip: dto.offset,
         take: dto.limit,
       }),
@@ -410,7 +416,10 @@ export class WinemakersService {
     return this.prisma.region.findMany({
       where,
       take: dto.limit,
-      orderBy: [{ parentId: 'asc' }, { name: 'asc' }],
+      orderBy:
+        dto.sort === 'latest'
+          ? [{ updatedAt: 'desc' }, { name: 'asc' }]
+          : [{ parentId: 'asc' }, { name: 'asc' }],
       select: {
         id: true,
         slug: true,
@@ -560,6 +569,53 @@ export class WinemakersService {
     }
 
     return item;
+  }
+
+  async listTerroirs(dto: ListTerroirsDto) {
+    const where: Prisma.TerroirWhereInput = {
+      status: publishedStatus,
+    };
+
+    if (dto.regionSlug) {
+      where.region = { slug: dto.regionSlug, status: publishedStatus };
+    }
+
+    if (dto.q?.trim()) {
+      const term = dto.q.trim();
+      where.OR = [
+        { name: { contains: term, mode: 'insensitive' } },
+        { summary: { contains: term, mode: 'insensitive' } },
+        { region: { name: { contains: term, mode: 'insensitive' } } },
+      ];
+    }
+
+    const [items, total] = await Promise.all([
+      this.prisma.terroir.findMany({
+        where,
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          summary: true,
+          exposition: true,
+          elevationM: true,
+          soil: true,
+          region: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: [{ updatedAt: 'desc' }, { name: 'asc' }],
+        skip: dto.offset,
+        take: dto.limit,
+      }),
+      this.prisma.terroir.count({ where }),
+    ]);
+
+    return { items, total, limit: dto.limit, offset: dto.offset };
   }
 
   async search(dto: SearchWinepediaDto) {

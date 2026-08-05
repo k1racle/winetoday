@@ -350,6 +350,7 @@ model SiteSettings {
   siteDescription String? @map("site_description")
   logoMediaId String?   @unique @db.Uuid
   winemakersEnabled Boolean @default(false) @map("winemakers_enabled")
+  winemakersHomeConfig Json? @map("winemakers_home_config")
   typography  Json?
   socialLinks Json?     @map("social_links")
   createdAt   DateTime  @default(now()) @map("created_at")

@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { WinemakersHomeConfig } from '~/types/winemakers';
 import type { MediaAsset } from '~/types/media';
+import { defaultWinemakersHomeConfig, normalizeWinemakersHomeConfig } from '~/utils/winemakersHome';
 
 type EntityType = 'person' | 'wine' | 'region' | 'terroir' | 'winery';
 
@@ -34,6 +36,8 @@ interface EntityOptionsPayload {
 }
 
 const {
+  getAdminSiteSettings,
+  updateSiteSettings,
   getAdminWinemakersOptions,
   getAdminWinemakersPersons,
   getAdminWinemakersPerson,
@@ -140,7 +144,7 @@ const entityTabs: Array<{ key: EntityType; label: string }> = [
   { key: 'wine', label: 'Вина' },
   { key: 'region', label: 'Регионы' },
   { key: 'terroir', label: 'Терруары' },
-  { key: 'winery', label: 'Хозяйства' },
+  { key: 'winery', label: 'Винодельни' },
 ];
 
 const relationTypeOptions = [
@@ -163,8 +167,26 @@ const entityLabels: Record<EntityType, string> = {
   wine: 'вино',
   region: 'регион',
   terroir: 'терруар',
-  winery: 'хозяйство',
+  winery: 'винодельню',
 };
+
+entityTabs.splice(
+  0,
+  entityTabs.length,
+  { key: 'person', label: 'Виноделы' },
+  { key: 'wine', label: 'Вина' },
+  { key: 'region', label: 'Регионы' },
+  { key: 'terroir', label: 'Терруары' },
+  { key: 'winery', label: 'Винодельни' },
+);
+
+Object.assign(entityLabels, {
+  person: 'винодела',
+  wine: 'вино',
+  region: 'регион',
+  terroir: 'терруар',
+  winery: 'винодельню',
+});
 
 const currentEntity = ref<EntityType>('person');
 const options = ref<EntityOptionsPayload>({
@@ -184,6 +206,8 @@ const wineries = ref<ListItem[]>([]);
 const loading = ref(false);
 const error = ref('');
 const message = ref('');
+const homeConfig = ref<WinemakersHomeConfig>(defaultWinemakersHomeConfig);
+const savingHomeConfig = ref(false);
 const showModal = ref(false);
 const loadingEditor = ref(false);
 const saving = ref(false);
@@ -260,6 +284,7 @@ async function fetchAll() {
   error.value = '';
   try {
     const [
+      settingsRes,
       optionsRes,
       personsRes,
       winesRes,
@@ -267,6 +292,7 @@ async function fetchAll() {
       terroirsRes,
       wineriesRes,
     ] = await Promise.all([
+      getAdminSiteSettings(),
       getAdminWinemakersOptions(),
       getAdminWinemakersPersons(),
       getAdminWinemakersWines(),
@@ -275,6 +301,7 @@ async function fetchAll() {
       getAdminWinemakersWineries(),
     ]);
 
+    homeConfig.value = normalizeWinemakersHomeConfig((settingsRes as any)?.winemakersHomeConfig);
     options.value = optionsRes as EntityOptionsPayload;
     persons.value = Array.isArray(personsRes) ? personsRes as ListItem[] : [];
     wines.value = Array.isArray(winesRes) ? winesRes as ListItem[] : [];
@@ -285,6 +312,23 @@ async function fetchAll() {
     error.value = err?.data?.message || err?.message || 'Ошибка загрузки раздела';
   } finally {
     loading.value = false;
+  }
+}
+
+async function saveHomePageConfig() {
+  savingHomeConfig.value = true;
+  error.value = '';
+  message.value = '';
+  try {
+    await updateSiteSettings({
+      winemakersHomeConfig: homeConfig.value as unknown as Record<string, unknown>,
+    });
+    homeConfig.value = normalizeWinemakersHomeConfig(homeConfig.value);
+    message.value = 'Настройки витрины сохранены';
+  } catch (err: any) {
+    error.value = err?.data?.message || err?.message || 'Ошибка сохранения витрины';
+  } finally {
+    savingHomeConfig.value = false;
   }
 }
 
@@ -584,6 +628,13 @@ onMounted(() => {
     <NuxtLink to="/account" class="text-sm text-accent hover:underline">← Назад в кабинет</NuxtLink>
     <AdminTabs class="mt-6" />
 
+    <AdminWinemakersHomeConfigEditor
+      v-model="homeConfig"
+      class="mt-6"
+      :saving="savingHomeConfig"
+      @save="saveHomePageConfig"
+    />
+
     <div class="mt-6 flex flex-wrap gap-2 border-b border-foreground/10 pb-4">
       <button
         v-for="tab in entityTabs"
@@ -699,7 +750,7 @@ onMounted(() => {
                           <input v-model.number="editor.deathYear" type="number" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Хозяйство</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Винодельня</label>
                           <select v-model="editor.wineryId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                             <option value="">— нет —</option>
                             <option v-for="option in options.wineries" :key="option.id" :value="option.id">{{ option.name }}</option>
@@ -778,7 +829,7 @@ onMounted(() => {
                           <input v-model="editor.grapes" type="text" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent" placeholder="каберне, мерло">
                         </div>
                         <div>
-                          <label class="mb-1 block text-xs font-normal text-foreground/70">Хозяйство</label>
+                          <label class="mb-1 block text-xs font-normal text-foreground/70">Винодельня</label>
                           <select v-model="editor.wineryId" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                             <option value="">— нет —</option>
                             <option v-for="option in options.wineries" :key="option.id" :value="option.id">{{ option.name }}</option>
@@ -905,7 +956,7 @@ onMounted(() => {
                           <input v-model.number="editor.lng" type="number" step="0.000001" class="w-full border border-foreground/10 bg-card px-3 py-2 text-sm outline-none focus:border-accent">
                         </div>
                       </div>
-                      <WinemakersBlocksEditor v-model="editor.description" label="Описание хозяйства" />
+                      <WinemakersBlocksEditor v-model="editor.description" label="Описание винодельни" />
                     </div>
 
                     <div class="space-y-4 border border-foreground/10 bg-card p-4">
@@ -937,7 +988,7 @@ onMounted(() => {
                     </div>
 
                     <div v-if="editor.entity === 'winery'" class="border border-foreground/10 bg-card p-4">
-                      <h3 class="mb-3 text-sm font-normal">Логотип хозяйства</h3>
+                      <h3 class="mb-3 text-sm font-normal">Логотип винодельни</h3>
                       <img v-if="editor.logoPath" :src="mediaUrl(editor.logoPath)" alt="" class="mb-3 h-40 w-full object-contain">
                       <div v-else class="mb-3 flex h-40 items-center justify-center border border-dashed border-foreground/10 text-sm text-foreground/50">Логотип не выбран</div>
                       <div class="flex gap-2">
