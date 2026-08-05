@@ -4,6 +4,7 @@ const { user } = useAuth();
 
 const canCreate = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
 const canManageHomepage = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
+const canManageProjects = computed(() => user.value?.role === 'admin');
 
 const tabs = computed(() => {
   const list: { label: string; to: string }[] = [];
@@ -13,6 +14,9 @@ const tabs = computed(() => {
   }
   if (canManageHomepage.value) {
     list.push({ label: 'Главная', to: '/account/homepage' });
+  }
+  if (canManageProjects.value) {
+    list.push({ label: 'Спецпроекты', to: '/account/projects' });
   }
   list.push(
     { label: 'Подписки', to: '/account/subscriptions' },

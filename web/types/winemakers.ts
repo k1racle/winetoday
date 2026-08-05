@@ -8,6 +8,9 @@ export interface RegionSummary {
   name: string;
   summary?: string | null;
   parentId?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  updatedAt?: string;
   _count?: {
     wineries?: number;
     wines?: number;
@@ -21,6 +24,9 @@ export interface WinerySummary {
   name: string;
   summary?: string | null;
   foundedYear?: number | null;
+  lat?: number | null;
+  lng?: number | null;
+  updatedAt?: string;
   logo?: MediaAsset | null;
   region?: RegionSummary | null;
   _count?: {
@@ -34,6 +40,9 @@ export interface TerroirSummary {
   slug: string;
   name: string;
   summary?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  updatedAt?: string;
   region?: RegionSummary | null;
   exposition?: string | null;
   elevationM?: number | null;
@@ -60,6 +69,7 @@ export interface WineSummary {
   type?: string | null;
   style?: string | null;
   vintage?: number | null;
+  updatedAt?: string;
   winery?: WinerySummary | null;
   region?: RegionSummary | null;
   terroir?: TerroirSummary | null;
@@ -125,6 +135,40 @@ export interface WinepediaSearchResult {
   wines: WineSummary[];
   regions: RegionSummary[];
   wineries: WinerySummary[];
+}
+
+export interface WinemakersMapPerson {
+  id: string;
+  slug: string;
+  name: string;
+}
+
+export interface WinemakersMapPoint {
+  id: string;
+  slug: string;
+  name: string;
+  summary?: string | null;
+  lat: number;
+  lng: number;
+  kind: 'region' | 'terroir';
+  region?: RegionSummary | null;
+  persons: WinemakersMapPerson[];
+  wineCount?: number;
+  wineryCount?: number;
+  terroirCount?: number;
+}
+
+export interface WinemakersMapResponse {
+  regions: Array<
+    Omit<WinemakersMapPoint, 'kind' | 'region'> & {
+      kind?: 'region';
+    }
+  >;
+  terroirs: Array<
+    Omit<WinemakersMapPoint, 'kind'> & {
+      kind?: 'terroir';
+    }
+  >;
 }
 
 export type WinemakersHomeSectionEntity =

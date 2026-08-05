@@ -17,7 +17,7 @@ const { data: winery } = await useAsyncData(
     } catch (error: any) {
       throw createError({
         statusCode: error?.statusCode || error?.response?.status || 404,
-        statusMessage: 'Хозяйство не найдено',
+        statusMessage: 'Винодельня не найдена',
       });
     }
   },
@@ -25,8 +25,8 @@ const { data: winery } = await useAsyncData(
 
 useCanonical();
 useSeoMeta({
-  title: () => (winery.value ? `${winery.value.name} — Виноделы России` : 'Хозяйства'),
-  description: () => winery.value?.summary || 'Страница винодельческого хозяйства.',
+  title: () => (winery.value ? `${winery.value.name} — Виноделы России` : 'Винодельни'),
+  description: () => winery.value?.summary || 'Страница винодельни.',
 });
 </script>
 
@@ -36,6 +36,8 @@ useSeoMeta({
       <NuxtLink to="/">Главная</NuxtLink>
       <span class="mx-2">/</span>
       <NuxtLink to="/winemakers">Виноделы России</NuxtLink>
+      <span class="mx-2">/</span>
+      <NuxtLink to="/wineries">Винодельни</NuxtLink>
       <span class="mx-2">/</span>
       <span>{{ winery.name }}</span>
     </nav>
@@ -60,14 +62,14 @@ useSeoMeta({
     </section>
 
     <section v-if="winery.persons?.length" class="mt-12">
-      <h2 class="mb-5 font-heading text-2xl font-bold">Виноделы хозяйства</h2>
+      <h2 class="mb-5 font-heading text-2xl font-bold">Виноделы винодельни</h2>
       <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
         <WinemakersPersonCard v-for="person in winery.persons" :key="person.id" :person="person" />
       </div>
     </section>
 
     <section v-if="winery.wines?.length" class="mt-12">
-      <h2 class="mb-5 font-heading text-2xl font-bold">Вина хозяйства</h2>
+      <h2 class="mb-5 font-heading text-2xl font-bold">Вина винодельни</h2>
       <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         <WinemakersWineCard v-for="wine in winery.wines" :key="wine.id" :wine="wine" />
       </div>

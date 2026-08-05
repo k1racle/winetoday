@@ -12,7 +12,6 @@ const tabs = [
   { label: 'Подписки', to: '/account/admin/subscribers' },
   { label: 'Страницы', to: '/account/admin/pages' },
   { label: 'UTM-ссылки', to: '/account/admin/utm' },
-  { label: 'Виноделы', to: '/account/admin/winemakers' },
   { label: 'Настройки', to: '/account/admin/settings' },
 ];
 

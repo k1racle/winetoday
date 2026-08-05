@@ -35,6 +35,8 @@ useSeoMeta({
     <nav class="text-xs font-bold uppercase tracking-wider text-foreground/45">
       <NuxtLink to="/">Главная</NuxtLink>
       <span class="mx-2">/</span>
+      <NuxtLink to="/winemakers">Виноделы России</NuxtLink>
+      <span class="mx-2">/</span>
       <NuxtLink to="/wines">Вина</NuxtLink>
       <span class="mx-2">/</span>
       <span>{{ wine.name }}</span>
@@ -62,7 +64,7 @@ useSeoMeta({
             <dd class="mt-1">{{ wine.grapes.join(', ') }}</dd>
           </div>
           <div v-if="wine.winery?.name">
-            <dt class="font-bold uppercase tracking-wider text-foreground/45">Хозяйство</dt>
+            <dt class="font-bold uppercase tracking-wider text-foreground/45">Винодельня</dt>
             <dd class="mt-1">
               <NuxtLink :to="`/wineries/${wine.winery.slug}`" class="text-accent hover:underline">{{ wine.winery.name }}</NuxtLink>
             </dd>

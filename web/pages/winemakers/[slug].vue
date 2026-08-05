@@ -25,6 +25,7 @@ const { data: person } = await useAsyncData(
 
 const relations = computed(() => {
   if (!person.value) return [];
+
   const direct = person.value.relationsFrom.map((entry) => ({
     type: entry.type,
     person: entry.related,
@@ -33,8 +34,18 @@ const relations = computed(() => {
     type: entry.type === 'parent' ? 'child' : entry.type,
     person: entry.person,
   }));
+
   return [...direct, ...reverse];
 });
+
+function relationLabel(type: string) {
+  if (type === 'parent') return 'Родитель';
+  if (type === 'child') return 'Ребенок';
+  if (type === 'spouse') return 'Супруги';
+  if (type === 'sibling') return 'Сиблинг';
+  if (type === 'founder') return 'Династия';
+  return type;
+}
 
 useCanonical();
 useSeoMeta({
@@ -49,6 +60,8 @@ useSeoMeta({
       <NuxtLink to="/">Главная</NuxtLink>
       <span class="mx-2">/</span>
       <NuxtLink to="/winemakers">Виноделы России</NuxtLink>
+      <span class="mx-2">/</span>
+      <NuxtLink to="/winemakers/persons">Виноделы</NuxtLink>
       <span class="mx-2">/</span>
       <span>{{ person.name }}</span>
     </nav>
@@ -76,7 +89,9 @@ useSeoMeta({
           <span>{{ person.deathYear || 'н.в.' }}</span>
         </p>
         <p v-if="person.winery?.name" class="mt-3 text-base text-foreground/72">
-          {{ person.winery.name }}
+          <NuxtLink :to="`/wineries/${person.winery.slug}`" class="text-accent hover:underline">
+            {{ person.winery.name }}
+          </NuxtLink>
           <span v-if="person.winery.region?.name"> · {{ person.winery.region.name }}</span>
         </p>
         <p v-if="person.summary" class="mt-5 max-w-3xl text-lg leading-8 text-foreground/72">
@@ -107,14 +122,16 @@ useSeoMeta({
 
     <section v-if="relations.length" class="mt-12">
       <h2 class="mb-6 font-heading text-2xl font-bold">Связи и династии</h2>
-      <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      <WinemakersPersonTree :person="person" :relations="relations" />
+
+      <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <NuxtLink
           v-for="entry in relations"
           :key="`${entry.type}-${entry.person.id}`"
           :to="`/winemakers/${entry.person.slug}`"
           class="block border border-foreground/10 bg-card p-4 transition hover:border-accent/40 hover:bg-foreground/5"
         >
-          <p class="text-[11px] font-bold uppercase tracking-wider text-foreground/50">{{ entry.type }}</p>
+          <p class="text-[11px] font-bold uppercase tracking-wider text-foreground/50">{{ relationLabel(entry.type) }}</p>
           <p class="mt-3 font-heading text-xl">{{ entry.person.name }}</p>
           <p v-if="entry.person.winery?.name" class="mt-2 text-sm text-foreground/70">{{ entry.person.winery.name }}</p>
         </NuxtLink>

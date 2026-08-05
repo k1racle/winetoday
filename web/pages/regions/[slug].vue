@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RegionDetail } from '~/types/winemakers';
+import type { RegionDetail, WinemakersMapPoint } from '~/types/winemakers';
 
 definePageMeta({
   layout: 'winemakers',
@@ -23,6 +23,55 @@ const { data: region } = await useAsyncData(
   },
 );
 
+const mapPoints = computed<WinemakersMapPoint[]>(() => {
+  if (!region.value) {
+    return [];
+  }
+
+  const points: WinemakersMapPoint[] = [];
+
+  if (Number.isFinite(region.value.lat) && Number.isFinite(region.value.lng)) {
+    points.push({
+      id: region.value.id,
+      slug: region.value.slug,
+      name: region.value.name,
+      summary: region.value.summary,
+      lat: Number(region.value.lat),
+      lng: Number(region.value.lng),
+      kind: 'region',
+      persons: [],
+      wineCount: region.value.wines?.length || 0,
+      wineryCount: region.value.wineries?.length || 0,
+      terroirCount: region.value.terroirs?.length || 0,
+    });
+  }
+
+  for (const terroir of region.value.terroirs || []) {
+    if (!Number.isFinite(terroir.lat) || !Number.isFinite(terroir.lng)) {
+      continue;
+    }
+
+    points.push({
+      id: terroir.id,
+      slug: terroir.slug,
+      name: terroir.name,
+      summary: terroir.summary,
+      lat: Number(terroir.lat),
+      lng: Number(terroir.lng),
+      kind: 'terroir',
+      region: {
+        id: region.value.id,
+        slug: region.value.slug,
+        name: region.value.name,
+      },
+      persons: [],
+      wineCount: 0,
+    });
+  }
+
+  return points;
+});
+
 useCanonical();
 useSeoMeta({
   title: () => (region.value ? `${region.value.name} — Виноделы России` : 'Регионы'),
@@ -34,6 +83,8 @@ useSeoMeta({
   <div v-if="region" class="mx-auto max-w-7xl px-4 py-8 md:py-10">
     <nav class="text-xs font-bold uppercase tracking-wider text-foreground/45">
       <NuxtLink to="/">Главная</NuxtLink>
+      <span class="mx-2">/</span>
+      <NuxtLink to="/winemakers">Виноделы России</NuxtLink>
       <span class="mx-2">/</span>
       <NuxtLink to="/regions">Регионы</NuxtLink>
       <span class="mx-2">/</span>
@@ -54,6 +105,18 @@ useSeoMeta({
       <WinemakersBlocks :blocks="region.description" :title="region.name" />
     </section>
 
+    <section v-if="mapPoints.length" class="mt-12">
+      <WinemakersGeoMap
+        :points="mapPoints"
+        :focus-lat="region.lat ?? null"
+        :focus-lng="region.lng ?? null"
+        :focus-zoom="7"
+        title="Карта региона"
+        description="На карте показаны центр региона и опубликованные терруары с координатами."
+        height-class="h-[360px]"
+      />
+    </section>
+
     <section v-if="region.children?.length" class="mt-12">
       <h2 class="mb-5 font-heading text-2xl font-bold">Подрегионы</h2>
       <div class="flex flex-wrap gap-3">
@@ -71,30 +134,28 @@ useSeoMeta({
     <section v-if="region.terroirs?.length" class="mt-12">
       <h2 class="mb-5 font-heading text-2xl font-bold">Терруары</h2>
       <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <NuxtLink
+        <WinemakersCatalogCard
           v-for="terroir in region.terroirs"
           :key="terroir.id"
           :to="`/terroirs/${terroir.slug}`"
-          class="block border border-foreground/10 bg-card p-4 transition hover:border-accent/40 hover:bg-foreground/5"
-        >
-          <p class="font-heading text-xl">{{ terroir.name }}</p>
-          <p v-if="terroir.summary" class="mt-2 text-sm leading-6 text-foreground/72">{{ terroir.summary }}</p>
-        </NuxtLink>
+          :title="terroir.name"
+          eyebrow="Терруар"
+          :summary="terroir.summary"
+        />
       </div>
     </section>
 
     <section v-if="region.wineries?.length" class="mt-12">
-      <h2 class="mb-5 font-heading text-2xl font-bold">Хозяйства</h2>
+      <h2 class="mb-5 font-heading text-2xl font-bold">Винодельни</h2>
       <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <NuxtLink
+        <WinemakersCatalogCard
           v-for="winery in region.wineries"
           :key="winery.id"
           :to="`/wineries/${winery.slug}`"
-          class="block border border-foreground/10 bg-card p-4 transition hover:border-accent/40 hover:bg-foreground/5"
-        >
-          <p class="font-heading text-xl">{{ winery.name }}</p>
-          <p v-if="winery.summary" class="mt-2 text-sm leading-6 text-foreground/72">{{ winery.summary }}</p>
-        </NuxtLink>
+          :title="winery.name"
+          eyebrow="Винодельня"
+          :summary="winery.summary"
+        />
       </div>
     </section>
 

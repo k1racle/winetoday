@@ -1,9 +1,8 @@
 <script setup lang="ts">
-const { getAdminSiteHeader, updateSiteHeader, getAdminSiteSeo, updateSiteSeo, getAdminSiteSettings, updateSiteSettings, uploadMedia, getCategories, getContent } = useApi();
+const { getAdminSiteHeader, updateSiteHeader, getAdminSiteSeo, updateSiteSeo, uploadMedia, getCategories, getContent } = useApi();
 
 const siteHeader = ref<any>(null);
 const siteSeo = ref<any>(null);
-const siteSettings = ref<any>(null);
 const loading = ref(false);
 const saving = ref(false);
 const error = ref('');
@@ -62,10 +61,6 @@ const seoForm = ref({
   sitemapEnabled: true,
 });
 
-const featureForm = ref({
-  winemakersEnabled: false,
-});
-
 const categories = ref<any[]>([]);
 const pages = ref<any[]>([]);
 const archiveSeo = ref<Record<string, { title?: string; description?: string; keywords?: string }>>({});
@@ -76,13 +71,7 @@ async function fetchHeader() {
   loading.value = true;
   error.value = '';
   try {
-    const [headerRes, settingsRes] = await Promise.all([
-      getAdminSiteHeader(),
-      getAdminSiteSettings(),
-    ]);
-    siteHeader.value = headerRes;
-    siteSettings.value = settingsRes;
-    featureForm.value.winemakersEnabled = !!settingsRes?.winemakersEnabled;
+    siteHeader.value = await getAdminSiteHeader();
   } catch (err: any) {
     error.value = err?.data?.message || err?.message || 'Ошибка загрузки настроек';
   } finally {
@@ -215,24 +204,6 @@ async function saveSeoText() {
   }
 }
 
-async function saveFeatureFlags() {
-  saving.value = true;
-  error.value = '';
-  message.value = '';
-  try {
-    siteSettings.value = await updateSiteSettings({
-      winemakersEnabled: featureForm.value.winemakersEnabled,
-    });
-    message.value = featureForm.value.winemakersEnabled
-      ? 'Раздел «Виноделы России» открыт для всех посетителей'
-      : 'Раздел «Виноделы России» скрыт для посетителей и доступен только администраторам';
-  } catch (err: any) {
-    error.value = err?.data?.message || err?.message || 'Ошибка сохранения настроек раздела';
-  } finally {
-    saving.value = false;
-  }
-}
-
 function ensureArchiveSeo(slug: string) {
   if (!archiveSeo.value[slug]) archiveSeo.value[slug] = {};
   return archiveSeo.value[slug];
@@ -265,34 +236,6 @@ onMounted(() => {
     <p v-if="message" class="mt-6 text-sm text-green-600">{{ message }}</p>
 
     <div v-if="!loading" class="mt-6 space-y-10">
-      <div class="space-y-4">
-        <h2 class="text-lg font-normal">Раздел «Виноделы России»</h2>
-        <div class="rounded border border-foreground/10 p-4">
-          <label class="flex items-start gap-3 text-sm">
-            <input
-              v-model="featureForm.winemakersEnabled"
-              type="checkbox"
-              class="mt-0.5 h-4 w-4 accent-accent"
-            >
-            <span>
-              <span class="block font-normal text-foreground">Открыть раздел для всех посетителей</span>
-              <span class="mt-1 block text-foreground/60">
-                Пока флаг выключен, раздел и кнопка входа в хедере скрыты для всех, кроме администраторов сайта.
-              </span>
-            </span>
-          </label>
-
-          <button
-            type="button"
-            class="mt-4 bg-accent px-5 py-2.5 text-sm font-normal text-black transition hover:bg-accent/90 disabled:opacity-50"
-            :disabled="saving"
-            @click="saveFeatureFlags"
-          >
-            {{ saving ? 'Сохранение...' : 'Сохранить доступ к разделу' }}
-          </button>
-        </div>
-      </div>
-
       <!-- Logo -->
       <div class="space-y-4">
         <h2 class="text-lg font-normal">Логотип</h2>

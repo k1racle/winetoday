@@ -118,6 +118,27 @@ async function signOutAndRedirect() {
             </NuxtLink>
           </div>
         </section>
+
+        <section
+          v-if="user.role === 'admin'"
+          class="border border-foreground/10 bg-card p-6 shadow-sm"
+        >
+          <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">
+            Спецпроекты
+          </p>
+          <h2 class="mt-2 font-heading text-xl font-normal">Виноделы России</h2>
+          <p class="mt-2 text-sm text-foreground/70">
+            Отдельный контур управления витриной, доступом и каталогом спецпроекта.
+          </p>
+          <div class="mt-4">
+            <NuxtLink
+              to="/account/projects/winemakers"
+              class="inline-block bg-accent px-5 py-2.5 text-sm font-normal text-black transition hover:bg-accent/90"
+            >
+              Открыть спецпроект
+            </NuxtLink>
+          </div>
+        </section>
       </div>
     </div>
   </div>

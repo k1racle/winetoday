@@ -39,7 +39,7 @@ useSeoMeta({
 
     <div v-if="result && q" class="mt-10 space-y-12">
       <section v-if="result.persons.length">
-        <h2 class="mb-5 font-heading text-2xl font-bold">Персоны</h2>
+        <h2 class="mb-5 font-heading text-2xl font-bold">Виноделы</h2>
         <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <WinemakersPersonCard v-for="person in result.persons" :key="person.id" :person="person" />
         </div>
@@ -55,31 +55,29 @@ useSeoMeta({
       <section v-if="result.regions.length">
         <h2 class="mb-5 font-heading text-2xl font-bold">Регионы</h2>
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <NuxtLink
+          <WinemakersCatalogCard
             v-for="region in result.regions"
             :key="region.id"
             :to="`/regions/${region.slug}`"
-            class="block border border-foreground/10 bg-card p-4 transition hover:border-accent/40 hover:bg-foreground/5"
-          >
-            <p class="font-heading text-xl">{{ region.name }}</p>
-            <p v-if="region.summary" class="mt-2 text-sm leading-6 text-foreground/72">{{ region.summary }}</p>
-          </NuxtLink>
+            :title="region.name"
+            eyebrow="Регион"
+            :summary="region.summary"
+          />
         </div>
       </section>
 
       <section v-if="result.wineries.length">
-        <h2 class="mb-5 font-heading text-2xl font-bold">Хозяйства</h2>
+        <h2 class="mb-5 font-heading text-2xl font-bold">Винодельни</h2>
         <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <NuxtLink
+          <WinemakersCatalogCard
             v-for="winery in result.wineries"
             :key="winery.id"
             :to="`/wineries/${winery.slug}`"
-            class="block border border-foreground/10 bg-card p-4 transition hover:border-accent/40 hover:bg-foreground/5"
-          >
-            <p class="font-heading text-xl">{{ winery.name }}</p>
-            <p v-if="winery.region?.name" class="mt-2 text-sm text-foreground/60">{{ winery.region.name }}</p>
-            <p v-if="winery.summary" class="mt-3 text-sm leading-6 text-foreground/72">{{ winery.summary }}</p>
-          </NuxtLink>
+            :title="winery.name"
+            eyebrow="Винодельня"
+            :summary="winery.summary"
+            :meta="[winery.region?.name || ''].filter(Boolean)"
+          />
         </div>
       </section>
 

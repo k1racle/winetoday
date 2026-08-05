@@ -22,7 +22,7 @@ const nodes = computed(() =>
         {{ node.name }}
       </NuxtLink>
       <span class="ml-2 text-sm text-foreground/45">
-        {{ node._count?.wineries || 0 }} хозяйств · {{ node._count?.wines || 0 }} вин
+        {{ node._count?.wineries || 0 }} виноделен · {{ node._count?.wines || 0 }} вин
       </span>
       <WinemakersRegionTree
         :items="items"

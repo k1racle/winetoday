@@ -81,6 +81,12 @@ const wineCardSelect = Prisma.validator<Prisma.WineSelect>()({
   },
 });
 
+const mapPersonSelect = Prisma.validator<Prisma.PersonSelect>()({
+  id: true,
+  slug: true,
+  name: true,
+});
+
 const adminOptionSelect = {
   id: true,
   slug: true,
@@ -482,6 +488,131 @@ export class WinemakersService {
     }
 
     return item;
+  }
+
+  async regionsMap() {
+    const [regions, terroirs] = await Promise.all([
+      this.prisma.region.findMany({
+        where: {
+          status: publishedStatus,
+          lat: { not: null },
+          lng: { not: null },
+        },
+        orderBy: [{ name: 'asc' }],
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          summary: true,
+          lat: true,
+          lng: true,
+          _count: {
+            select: {
+              wineries: {
+                where: { status: publishedStatus },
+              },
+              wines: {
+                where: { status: publishedStatus },
+              },
+              terroirs: {
+                where: { status: publishedStatus },
+              },
+            },
+          },
+          wineries: {
+            where: { status: publishedStatus },
+            take: 6,
+            orderBy: [{ name: 'asc' }],
+            select: {
+              persons: {
+                where: { status: publishedStatus },
+                take: 3,
+                orderBy: [{ featured: 'desc' }, { name: 'asc' }],
+                select: mapPersonSelect,
+              },
+            },
+          },
+        },
+      }),
+      this.prisma.terroir.findMany({
+        where: {
+          status: publishedStatus,
+          lat: { not: null },
+          lng: { not: null },
+        },
+        orderBy: [{ name: 'asc' }],
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          summary: true,
+          lat: true,
+          lng: true,
+          region: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+            },
+          },
+          _count: {
+            select: {
+              wines: {
+                where: { status: publishedStatus },
+              },
+            },
+          },
+          wines: {
+            where: { status: publishedStatus },
+            take: 6,
+            orderBy: [{ updatedAt: 'desc' }],
+            select: {
+              winemakers: {
+                take: 3,
+                orderBy: [{ person: { featured: 'desc' } }, { person: { name: 'asc' } }],
+                select: {
+                  person: {
+                    select: mapPersonSelect,
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      regions: regions.map((region) => ({
+        id: region.id,
+        slug: region.slug,
+        name: region.name,
+        summary: region.summary,
+        lat: region.lat,
+        lng: region.lng,
+        wineryCount: region._count.wineries,
+        wineCount: region._count.wines,
+        terroirCount: region._count.terroirs,
+        persons: this.uniqueMapPersons(
+          region.wineries.flatMap((winery) => winery.persons),
+        ),
+      })),
+      terroirs: terroirs.map((terroir) => ({
+        id: terroir.id,
+        slug: terroir.slug,
+        name: terroir.name,
+        summary: terroir.summary,
+        lat: terroir.lat,
+        lng: terroir.lng,
+        region: terroir.region,
+        wineCount: terroir._count.wines,
+        persons: this.uniqueMapPersons(
+          terroir.wines.flatMap((wine) =>
+            wine.winemakers.map((entry) => entry.person),
+          ),
+        ),
+      })),
+    };
   }
 
   async listWineries(dto: ListWineriesDto) {
@@ -1354,5 +1485,20 @@ export class WinemakersService {
     if (existing && existing.id !== currentId) {
       throw new BadRequestException('Slug already exists');
     }
+  }
+
+  private uniqueMapPersons(
+    persons: Array<{ id: string; slug: string; name: string }>,
+  ) {
+    const seen = new Set<string>();
+    return persons
+      .filter((person) => {
+        if (!person?.id || seen.has(person.id)) {
+          return false;
+        }
+        seen.add(person.id);
+        return true;
+      })
+      .slice(0, 3);
   }
 }

@@ -35,7 +35,9 @@ useSeoMeta({
     <nav class="text-xs font-bold uppercase tracking-wider text-foreground/45">
       <NuxtLink to="/">Главная</NuxtLink>
       <span class="mx-2">/</span>
-      <NuxtLink to="/regions">Регионы</NuxtLink>
+      <NuxtLink to="/winemakers">Виноделы России</NuxtLink>
+      <span class="mx-2">/</span>
+      <NuxtLink to="/terroirs">Терруары</NuxtLink>
       <span class="mx-2">/</span>
       <span>{{ terroir.name }}</span>
     </nav>

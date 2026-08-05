@@ -36,6 +36,11 @@ export class WinemakersController {
     return this.winemakersService.listRegions(query);
   }
 
+  @Get('regions/map')
+  regionsMap() {
+    return this.winemakersService.regionsMap();
+  }
+
   @Get('regions/:slug')
   regionBySlug(@Param('slug') slug: string) {
     return this.winemakersService.regionBySlug(slug);

@@ -4,6 +4,8 @@ import type {
   RegionSummary,
   TerroirSummary,
   WineSummary,
+  WinemakersMapResponse,
+  WinemakersMapPoint,
   WinerySummary,
   WinemakersHomeSectionEntity,
 } from '~/types/winemakers';
@@ -21,6 +23,7 @@ const {
   getSiteSettings,
   getWinemakers,
   getRegionsCatalog,
+  getRegionsMap,
   getWinesCatalog,
   getWineriesCatalog,
   getTerroirsCatalog,
@@ -40,7 +43,10 @@ const emptyItems: SectionItemsMap = {
 };
 
 const { data } = await useAsyncData('winemakers-home', async () => {
-  const siteSettings = await getSiteSettings().catch(() => null);
+  const [siteSettings, mapData] = await Promise.all([
+    getSiteSettings().catch(() => null),
+    getRegionsMap().catch(() => ({ regions: [], terroirs: [] }) as WinemakersMapResponse),
+  ]);
   const config = normalizeWinemakersHomeConfig(siteSettings?.winemakersHomeConfig);
 
   const entries = await Promise.all(
@@ -77,7 +83,7 @@ const { data } = await useAsyncData('winemakers-home', async () => {
     items[entity] = value as SectionItemsMap[typeof entity];
   }
 
-  return { config, items };
+  return { config, items, mapData };
 });
 
 const intro = computed(() => data.value?.config.intro || normalizeWinemakersHomeConfig().intro);
@@ -91,6 +97,26 @@ const sections = computed(() =>
     }))
     .filter((section) => section.items.length),
 );
+
+const mapPoints = computed<WinemakersMapPoint[]>(() => {
+  const mapData = data.value?.mapData;
+  if (!mapData) {
+    return [];
+  }
+
+  return [
+    ...(mapData.regions || []).map((region) => ({
+      ...region,
+      kind: 'region' as const,
+      persons: region.persons || [],
+    })),
+    ...(mapData.terroirs || []).map((terroir) => ({
+      ...terroir,
+      kind: 'terroir' as const,
+      persons: terroir.persons || [],
+    })),
+  ];
+});
 
 function cardMeta(section: { entity: WinemakersHomeSectionEntity }, item: any) {
   if (section.entity === 'region') {
@@ -183,6 +209,14 @@ useSeoMeta({
           </NuxtLink>
         </div>
       </div>
+    </section>
+
+    <section class="mt-12">
+      <WinemakersGeoMap
+        :points="mapPoints"
+        title="Карта винодельческих мест"
+        description="Регионы и терруары проекта. Наведите на маркер, чтобы увидеть связанные винодельни, терруары и виноделов."
+      />
     </section>
 
     <section

@@ -240,6 +240,8 @@ export function useApi() {
       api(`/admin/winemakers/wines/${id}`, { method: 'DELETE', credentials: 'include' }),
     getRegionsCatalog: (query?: Record<string, unknown>) =>
       api('/regions', { query }),
+    getRegionsMap: () =>
+      api('/regions/map'),
     getRegionCatalogItem: (slug: string) =>
       api(`/regions/${slug}`),
     getAdminWinemakersRegions: () =>
