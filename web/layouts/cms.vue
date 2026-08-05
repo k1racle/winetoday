@@ -14,7 +14,7 @@ function toggleSidebar() {
     <div class="relative lg:pl-[320px]">
       <CmsHeader :sidebar-open="sidebarOpen" @toggle-sidebar="toggleSidebar" />
       <main class="px-4 py-5 lg:px-8 lg:py-8">
-        <div class="mx-auto max-w-[1680px]">
+        <div class="w-full">
           <slot />
         </div>
       </main>

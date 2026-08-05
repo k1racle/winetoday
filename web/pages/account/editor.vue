@@ -49,7 +49,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-[1600px] overflow-x-hidden px-4 py-10">
+  <div class="w-full overflow-x-hidden py-8">
     <div v-if="user" class="space-y-8">
       <div>
         <template v-if="isCmsRoute">
