@@ -10,6 +10,13 @@ interface ContentSeo extends ContentItem {
 const SITE_DESCRIPTION =
   'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.';
 
+const SCHEMA_TYPE_BY_CONTENT: Record<ContentItem['type'], string> = {
+  article: 'Article',
+  news: 'NewsArticle',
+  video: 'NewsArticle',
+  gallery: 'Article',
+};
+
 export function useContentSeo(item: ContentItem | ContentSeo | null | undefined) {
   const route = useRoute();
   const config = useRuntimeConfig();
@@ -21,11 +28,12 @@ export function useContentSeo(item: ContentItem | ContentSeo | null | undefined)
   const description = extended.seo?.metaDescription || item.excerpt || SITE_DESCRIPTION;
   const siteUrl = (config.public.siteUrl as string)?.replace(/\/$/, '') || '';
   const canonicalUrl = `${siteUrl}${route.path}`;
-
   const isPreview = route.query.preview === '1' || route.query.preview === 'true';
 
   const coverUrl = item.coverMedia?.path ? useMediaUrl(item.coverMedia.path) : '';
   const ogImageUrl = useOgImageUrl(coverUrl);
+  const imageUrls = [coverUrl, ogImageUrl].filter(Boolean);
+  const authorUrl = item.author?.slug ? `${siteUrl}/author/${item.author.slug}` : undefined;
 
   useSeoMeta({
     title,
@@ -50,17 +58,28 @@ export function useContentSeo(item: ContentItem | ContentSeo | null | undefined)
 
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
+    '@type': SCHEMA_TYPE_BY_CONTENT[item.type],
     headline: item.title,
+    description,
     datePublished: item.publishedAt || undefined,
     dateModified,
     author: item.author?.name
-      ? { '@type': 'Person', name: item.author.name }
+      ? {
+          '@type': 'Person',
+          name: item.author.name,
+          url: authorUrl,
+        }
       : undefined,
-    image: coverUrl || undefined,
+    image: imageUrls.length ? imageUrls : undefined,
+    thumbnailUrl: imageUrls.length ? imageUrls : undefined,
     publisher: {
       '@type': 'Organization',
-      name: 'ВИНОДЕЛИЕ СЕГОДНЯ',
+      name: 'Виноделие Сегодня',
+      url: siteUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${siteUrl}/logo-light.png`,
+      },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
@@ -75,16 +94,16 @@ export function useContentSeo(item: ContentItem | ContentSeo | null | undefined)
     },
   ];
 
-  // Для видео добавляем второй ld+json скрипт VideoObject
   if (item.type === 'video') {
     const videoLd = {
       '@context': 'https://schema.org',
       '@type': 'VideoObject',
       name: item.title,
-      description: item.excerpt || undefined,
-      thumbnailUrl: coverUrl || undefined,
+      description: item.excerpt || description,
+      thumbnailUrl: imageUrls.length ? imageUrls : undefined,
       uploadDate: item.publishedAt || undefined,
       embedUrl: item.videoUrl || undefined,
+      url: canonicalUrl,
     };
     scripts.push({
       type: 'application/ld+json',

@@ -1,6 +1,4 @@
-// Статические страницы (/, /articles, /news, /videos, /gallery, /authors, /about,
-// /contacts, /editorial-policy, /corrections-policy, /legal, /privacy, /search)
-// в sitemap не включаем — здесь только рубрики, авторы и теги.
+// Публичные индексные и статические страницы + рубрики, авторы и теги.
 
 const escapeXml = (value: string) =>
   value
@@ -20,8 +18,31 @@ export default defineEventHandler(async (event) => {
   const apiUrl = (config.apiUrl as string)?.replace(/\/+$/, '') || '';
 
   const entries: string[] = [];
+  const staticPages = [
+    '/',
+    '/articles',
+    '/news',
+    '/videos',
+    '/gallery',
+    '/authors',
+    '/about',
+    '/contacts',
+    '/legal',
+    '/privacy',
+    '/editorial-policy',
+    '/corrections-policy',
+    '/winemakers',
+    '/winemakers/persons',
+    '/wines',
+    '/regions',
+    '/terroirs',
+    '/wineries',
+  ];
 
-  // Рубрики: /category/{slug}
+  for (const path of staticPages) {
+    entries.push(urlEntry(`${siteUrl}${path}`));
+  }
+
   try {
     const categories: any[] = await $fetch(`${apiUrl}/categories`);
     for (const category of categories || []) {
@@ -32,7 +53,6 @@ export default defineEventHandler(async (event) => {
     // ignore
   }
 
-  // Авторы: /author/{slug} (публичный список GET /authors)
   try {
     const authors: any[] = await $fetch(`${apiUrl}/authors`);
     for (const author of authors || []) {
@@ -43,7 +63,6 @@ export default defineEventHandler(async (event) => {
     // ignore
   }
 
-  // Теги: /tags/{slug} (публичный список GET /tags)
   try {
     const tags: any[] = await $fetch(`${apiUrl}/tags`);
     for (const tag of tags || []) {

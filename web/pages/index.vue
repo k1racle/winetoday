@@ -84,6 +84,7 @@ const homeOgImage = computed(() => {
 });
 
 useHead({ titleTemplate: '%s' });
+useCanonical('/');
 
 useSeoMeta({
   title: 'ВИНОДЕЛИЕ СЕГОДНЯ — федеральное отраслевое медиа',

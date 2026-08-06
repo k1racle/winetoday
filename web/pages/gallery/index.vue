@@ -1,6 +1,4 @@
 <script setup>
-// Пересоздаём страницу при смене query, чтобы пагинация (?page=N) и фильтры
-// (?sort, ?author, ?tag) инициализировались заново.
 definePageMeta({
   key: (route) => route.fullPath,
 });
@@ -22,6 +20,10 @@ const { data: authors } = await useAsyncData('authors-filter', () =>
 const { data: tags } = await useAsyncData('tags-filter', () => getTags().catch(() => []));
 
 useCanonical(currentPage.value > 1 ? `${route.path}?page=${currentPage.value}` : undefined);
+useBreadcrumbSchema([
+  { name: 'Главная', path: '/' },
+  { name: 'Галерея', path: '/gallery' },
+]);
 
 useSeoMeta({
   title: () =>

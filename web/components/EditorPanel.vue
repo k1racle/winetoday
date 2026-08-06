@@ -24,6 +24,8 @@ const {
   getAdminWinemakersOptions,
 } = useApi();
 const { user } = useAuth();
+const route = useRoute();
+const { isCmsRoute } = useUiContext();
 const coverBaseUrl = (config.public.mediaBaseUrl || (config.public.apiUrl as string).replace('/api', '') || 'http://localhost:4000').replace(/\/$/, '');
 
 const canPublish = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
@@ -194,6 +196,14 @@ const previewUrl = computed(() => {
   if (form.status === 'published' && !isFuturePublishedAt.value) return '';
   return `/${typeRouteMap[form.type]}/${form.slug}?preview=1`;
 });
+
+function editorPath() {
+  return isCmsRoute.value ? '/cms/editor' : '/account/editor';
+}
+
+function materialsPath() {
+  return isCmsRoute.value ? '/cms/materials' : '/account/editor';
+}
 
 const editorEls = new Map<string, HTMLElement>();
 
@@ -656,8 +666,12 @@ async function removeMaterial() {
   try {
     await deleteMaterial(form.id);
     message.value = 'Материал удалён';
+    const currentType = typeof route.query.type === 'string' ? route.query.type : form.type;
     setTimeout(() => {
-      navigateTo('/account');
+      navigateTo({
+        path: materialsPath(),
+        query: currentType && !isCmsRoute.value ? { type: currentType } : undefined,
+      });
     }, 500);
   } catch (e: any) {
     error.value = e?.data?.message || e?.message || 'Ошибка удаления';
@@ -684,6 +698,12 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
     }
     const res: any = await saveDraft(body);
     form.id = res.id;
+    form.status = res.status || (body.status as typeof form.status) || form.status;
+    if (res.publishedAt) {
+      const publishedDate = new Date(res.publishedAt);
+      form.publishedDate = publishedDate.toISOString().slice(0, 10);
+      form.publishedTime = publishedDate.toTimeString().slice(0, 5);
+    }
     if (body.status === 'scheduled') {
       message.value = 'Материал запланирован';
     } else if (body.status === 'published') {
@@ -691,6 +711,13 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
     } else {
       message.value = 'Черновик сохранён';
     }
+    await navigateTo({
+      path: editorPath(),
+      query: {
+        type: form.type,
+        id: res.id,
+      },
+    }, { replace: true });
     emit('saved', res.id);
     clearNuxtData();
   } catch (e: any) {

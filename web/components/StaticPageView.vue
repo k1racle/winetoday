@@ -24,6 +24,10 @@ const contentHtml = computed(() => {
 });
 
 useCanonical();
+useBreadcrumbSchema([
+  { name: 'Главная', path: '/' },
+  { name: title.value },
+]);
 useSeoMeta({
   title: title.value,
   description: page.value?.seo?.description || `${title.value}.`,

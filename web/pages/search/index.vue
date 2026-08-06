@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// Пересоздаём страницу при смене query, чтобы пагинация инициализировалась заново.
 definePageMeta({
   key: (route) => route.fullPath,
 });
@@ -73,8 +72,6 @@ function trackResultClick(item: { type: string; slug: string }) {
 }
 
 const pending = computed(() => Boolean(query.value) && !searched.value);
-
-// Альтернативная раскладка запроса («зdjghc» → «запрос») — только для подсказки.
 const altQuery = computed(() => (query.value ? convertKeyboardLayout(query.value, 'auto') : ''));
 
 const { data: altResult } = useAsyncData(
@@ -94,6 +91,7 @@ useSeoMeta({
     return currentPage.value > 1 ? `${base} — страница ${currentPage.value}` : base;
   },
   description: 'Поиск по материалам сайта.',
+  robots: 'noindex,follow',
 });
 </script>
 
