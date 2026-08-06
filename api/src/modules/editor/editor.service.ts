@@ -58,6 +58,25 @@ const editorContentInclude = {
           id: true,
           slug: true,
           name: true,
+          winery: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  regionLinks: {
+    include: {
+      region: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          summary: true,
         },
       },
     },
@@ -69,6 +88,33 @@ const editorContentInclude = {
           id: true,
           slug: true,
           name: true,
+          summary: true,
+          region: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  wineryLinks: {
+    include: {
+      winery: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          summary: true,
+          region: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+            },
+          },
         },
       },
     },
@@ -170,8 +216,14 @@ export class EditorService {
     const personIds = Array.isArray(dto.personIds)
       ? Array.from(new Set(dto.personIds.filter(Boolean)))
       : undefined;
+    const regionIds = Array.isArray(dto.regionIds)
+      ? Array.from(new Set(dto.regionIds.filter(Boolean)))
+      : undefined;
     const terroirIds = Array.isArray(dto.terroirIds)
       ? Array.from(new Set(dto.terroirIds.filter(Boolean)))
+      : undefined;
+    const wineryIds = Array.isArray(dto.wineryIds)
+      ? Array.from(new Set(dto.wineryIds.filter(Boolean)))
       : undefined;
 
     const previous = dto.id
@@ -204,8 +256,16 @@ export class EditorService {
       await this.syncContentPersons(result.id, personIds);
     }
 
+    if (regionIds !== undefined) {
+      await this.syncContentRegions(result.id, regionIds);
+    }
+
     if (terroirIds !== undefined) {
       await this.syncContentTerroirs(result.id, terroirIds);
+    }
+
+    if (wineryIds !== undefined) {
+      await this.syncContentWineries(result.id, wineryIds);
     }
 
     const resultWithLinks = await this.prisma.contentItem.findUniqueOrThrow({
@@ -765,6 +825,22 @@ export class EditorService {
     });
   }
 
+  private async syncContentRegions(contentItemId: string, regionIds: string[]) {
+    await this.prisma.contentItemRegion.deleteMany({
+      where: { contentItemId },
+    });
+
+    if (!regionIds.length) return;
+
+    await this.prisma.contentItemRegion.createMany({
+      data: regionIds.map((regionId) => ({
+        contentItemId,
+        regionId,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
   private async syncContentTerroirs(contentItemId: string, terroirIds: string[]) {
     await this.prisma.contentItemTerroir.deleteMany({
       where: { contentItemId },
@@ -776,6 +852,22 @@ export class EditorService {
       data: terroirIds.map((terroirId) => ({
         contentItemId,
         terroirId,
+      })),
+      skipDuplicates: true,
+    });
+  }
+
+  private async syncContentWineries(contentItemId: string, wineryIds: string[]) {
+    await this.prisma.contentItemWinery.deleteMany({
+      where: { contentItemId },
+    });
+
+    if (!wineryIds.length) return;
+
+    await this.prisma.contentItemWinery.createMany({
+      data: wineryIds.map((wineryId) => ({
+        contentItemId,
+        wineryId,
       })),
       skipDuplicates: true,
     });

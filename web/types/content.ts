@@ -47,6 +47,19 @@ export type ContentItem = {
       id: string;
       slug: string;
       name: string;
+      winery?: {
+        id: string;
+        slug: string;
+        name: string;
+      } | null;
+    };
+  }>;
+  regionLinks?: Array<{
+    region: {
+      id: string;
+      slug: string;
+      name: string;
+      summary?: string | null;
     };
   }>;
   terroirLinks?: Array<{
@@ -54,6 +67,25 @@ export type ContentItem = {
       id: string;
       slug: string;
       name: string;
+      summary?: string | null;
+      region?: {
+        id: string;
+        slug: string;
+        name: string;
+      } | null;
+    };
+  }>;
+  wineryLinks?: Array<{
+    winery: {
+      id: string;
+      slug: string;
+      name: string;
+      summary?: string | null;
+      region?: {
+        id: string;
+        slug: string;
+        name: string;
+      } | null;
     };
   }>;
   videoUrl?: string | null;

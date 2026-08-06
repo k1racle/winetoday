@@ -220,6 +220,14 @@ const linkedPersons = computed(() =>
     : [],
 );
 
+const linkedRegions = computed(() =>
+  Array.isArray(props.item.regionLinks)
+    ? props.item.regionLinks
+        .map((entry) => entry.region)
+        .filter(Boolean)
+    : [],
+);
+
 const linkedTerroirs = computed(() =>
   Array.isArray(props.item.terroirLinks)
     ? props.item.terroirLinks
@@ -227,6 +235,45 @@ const linkedTerroirs = computed(() =>
         .filter(Boolean)
     : [],
 );
+
+const linkedWineries = computed(() =>
+  Array.isArray(props.item.wineryLinks)
+    ? props.item.wineryLinks
+        .map((entry) => entry.winery)
+        .filter(Boolean)
+    : [],
+);
+
+const linkedProjectEntities = computed(() => [
+  ...linkedPersons.value.map((person) => ({
+    id: `person-${person.id}`,
+    to: `/winemakers/${person.slug}`,
+    eyebrow: 'Винодел',
+    title: person.name,
+    summary: person.winery?.name || '',
+  })),
+  ...linkedRegions.value.map((region) => ({
+    id: `region-${region.id}`,
+    to: `/regions/${region.slug}`,
+    eyebrow: 'Регион',
+    title: region.name,
+    summary: region.summary || '',
+  })),
+  ...linkedTerroirs.value.map((terroir) => ({
+    id: `terroir-${terroir.id}`,
+    to: `/terroirs/${terroir.slug}`,
+    eyebrow: 'Терруар',
+    title: terroir.name,
+    summary: terroir.region?.name || terroir.summary || '',
+  })),
+  ...linkedWineries.value.map((winery) => ({
+    id: `winery-${winery.id}`,
+    to: `/wineries/${winery.slug}`,
+    eyebrow: 'Винодельня',
+    title: winery.name,
+    summary: winery.region?.name || winery.summary || '',
+  })),
+]);
 
 function itemUrl(item: ContentItem) {
   switch (item.type) {
@@ -435,7 +482,7 @@ function onAuthorBylineClick(e: MouseEvent) {
           </p>
         </div>
 
-        <section v-if="linkedPersons.length || linkedTerroirs.length" class="mt-10 border-t border-foreground/10 pt-6">
+        <section v-if="false && (linkedPersons.length || linkedTerroirs.length)" class="mt-10 border-t border-foreground/10 pt-6">
           <h2 class="font-heading text-xl font-normal">Связано со спецпроектом</h2>
           <div class="mt-4 space-y-4">
             <div v-if="linkedPersons.length">
@@ -527,6 +574,42 @@ function onAuthorBylineClick(e: MouseEvent) {
           </div>
         </div>
         <p v-if="reactionError" class="mt-2 text-xs text-red-500">{{ reactionError }}</p>
+
+        <section v-if="linkedProjectEntities.length" class="mt-8 border-t border-foreground/10 pt-6">
+          <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p class="text-[11px] font-normal uppercase tracking-[0.24em] text-foreground/45">
+                Спецпроект
+              </p>
+              <h2 class="mt-2 font-heading text-2xl font-normal">Связано с «Виноделами России»</h2>
+            </div>
+            <NuxtLink
+              to="/winemakers"
+              class="text-sm font-normal text-accent transition hover:text-accent/80"
+            >
+              Открыть каталог →
+            </NuxtLink>
+          </div>
+
+          <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <NuxtLink
+              v-for="entry in linkedProjectEntities"
+              :key="entry.id"
+              :to="entry.to"
+              class="group flex h-full flex-col border border-foreground/10 bg-card p-4 transition hover:border-accent/40 hover:bg-foreground/5"
+            >
+              <p class="text-[11px] font-normal uppercase tracking-[0.24em] text-foreground/45">
+                {{ entry.eyebrow }}
+              </p>
+              <h3 class="mt-3 font-heading text-xl font-normal transition group-hover:text-accent">
+                {{ entry.title }}
+              </h3>
+              <p v-if="entry.summary" class="mt-2 text-sm leading-6 text-foreground/65">
+                {{ entry.summary }}
+              </p>
+            </NuxtLink>
+          </div>
+        </section>
 
 
         <!-- Related articles -->

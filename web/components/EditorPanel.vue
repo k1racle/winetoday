@@ -73,7 +73,9 @@ function emptyForm() {
     categoryIds: [] as string[],
     tagIds: [] as string[],
     personIds: [] as string[],
+    regionIds: [] as string[],
     terroirIds: [] as string[],
+    wineryIds: [] as string[],
     contentBlocks: [] as Array<{ id: string; type: string; title?: string; content?: string; data?: any }>,
     sources: [] as Array<{ name: string; url: string }>,
     seoTitle: '',
@@ -88,7 +90,9 @@ const categories = ref<Array<{ id: string; name: string; slug: string }>>([]);
 const tags = ref<Array<{ id: string; name: string; slug: string }>>([]);
 const authors = ref<Array<{ id: string; name: string; slug: string }>>([]);
 const winemakerOptions = ref<Array<{ id: string; name: string; slug: string }>>([]);
+const regionOptions = ref<Array<{ id: string; name: string; slug: string }>>([]);
 const terroirOptions = ref<Array<{ id: string; name: string; slug: string }>>([]);
+const wineryOptions = ref<Array<{ id: string; name: string; slug: string }>>([]);
 const dedupedAuthors = computed(() => {
   const map = new Map<string, { id: string; name: string; slug: string }>();
   for (const author of authors.value) {
@@ -315,7 +319,9 @@ async function loadDraft(id: string) {
       categoryIds: (res.categories || []).map((c: any) => c.id),
       tagIds: (res.tags || []).map((t: any) => t.id),
       personIds: (res.personLinks || []).map((entry: any) => entry.person?.id).filter(Boolean),
+      regionIds: (res.regionLinks || []).map((entry: any) => entry.region?.id).filter(Boolean),
       terroirIds: (res.terroirLinks || []).map((entry: any) => entry.terroir?.id).filter(Boolean),
+      wineryIds: (res.wineryLinks || []).map((entry: any) => entry.winery?.id).filter(Boolean),
       contentBlocks: rawBlocks.length ? rawBlocks.map((b: any) => normalizeBlock(b, mediaMap)) : [],
       sources: Array.isArray(res.sources) && res.sources.length ? res.sources : [{ name: '', url: '' }],
       seoTitle: res.seo?.title || '',
@@ -365,7 +371,9 @@ onMounted(async () => {
     tags.value = Array.isArray(tagRes) ? tagRes : [];
     authors.value = Array.isArray(authorRes) ? authorRes : [];
     winemakerOptions.value = Array.isArray((projectRes as any)?.persons) ? (projectRes as any).persons : [];
+    regionOptions.value = Array.isArray((projectRes as any)?.regions) ? (projectRes as any).regions : [];
     terroirOptions.value = Array.isArray((projectRes as any)?.terroirs) ? (projectRes as any).terroirs : [];
+    wineryOptions.value = Array.isArray((projectRes as any)?.wineries) ? (projectRes as any).wineries : [];
   } catch (e: any) {
     error.value = e?.data?.message || 'Не удалось загрузить рубрики и теги';
   } finally {
@@ -482,10 +490,22 @@ function togglePerson(id: string) {
   else form.personIds.splice(idx, 1);
 }
 
+function toggleRegion(id: string) {
+  const idx = form.regionIds.indexOf(id);
+  if (idx === -1) form.regionIds.push(id);
+  else form.regionIds.splice(idx, 1);
+}
+
 function toggleTerroir(id: string) {
   const idx = form.terroirIds.indexOf(id);
   if (idx === -1) form.terroirIds.push(id);
   else form.terroirIds.splice(idx, 1);
+}
+
+function toggleWinery(id: string) {
+  const idx = form.wineryIds.indexOf(id);
+  if (idx === -1) form.wineryIds.push(id);
+  else form.wineryIds.splice(idx, 1);
 }
 
 async function onCoverSelected(e: Event) {
@@ -644,7 +664,9 @@ function buildBody(status?: 'draft' | 'published' | 'scheduled'): Record<string,
     categoryIds: form.categoryIds,
     tagIds: form.tagIds,
     personIds: form.personIds,
+    regionIds: form.regionIds,
     terroirIds: form.terroirIds,
+    wineryIds: form.wineryIds,
     authorId: form.authorId || undefined,
     videoUrl: form.type === 'video' ? form.videoUrl || undefined : undefined,
     contentBlocks: blocks,
@@ -1099,6 +1121,26 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
             </div>
 
             <div>
+              <p class="mb-2 text-xs font-normal uppercase tracking-wide text-foreground/50">Регионы</p>
+              <div v-if="loading" class="text-xs text-foreground/50">Загрузка…</div>
+              <div v-else-if="regionOptions.length" class="flex flex-wrap gap-2">
+                <button
+                  v-for="region in regionOptions"
+                  :key="region.id"
+                  class="flex items-center gap-1.5 rounded px-2 py-1 text-xs transition"
+                  :class="form.regionIds.includes(region.id) ? 'bg-accent text-black' : 'bg-foreground/5 text-foreground/70 hover:bg-foreground/10'"
+                  @click="toggleRegion(region.id)"
+                >
+                  <span class="flex h-3 w-3 items-center justify-center rounded-sm border border-current text-[8px]">
+                    {{ form.regionIds.includes(region.id) ? '✓' : '' }}
+                  </span>
+                  {{ region.name }}
+                </button>
+              </div>
+              <p v-else class="text-xs text-foreground/50">Пока нет доступных карточек регионов.</p>
+            </div>
+
+            <div>
               <p class="mb-2 text-xs font-normal uppercase tracking-wide text-foreground/50">Терруары</p>
               <div v-if="loading" class="text-xs text-foreground/50">Загрузка…</div>
               <div v-else-if="terroirOptions.length" class="flex flex-wrap gap-2">
@@ -1118,8 +1160,28 @@ async function submit(status?: 'draft' | 'published' | 'scheduled') {
               <p v-else class="text-xs text-foreground/50">Пока нет доступных карточек терруаров.</p>
             </div>
 
+            <div>
+              <p class="mb-2 text-xs font-normal uppercase tracking-wide text-foreground/50">Винодельни</p>
+              <div v-if="loading" class="text-xs text-foreground/50">Загрузка…</div>
+              <div v-else-if="wineryOptions.length" class="flex flex-wrap gap-2">
+                <button
+                  v-for="winery in wineryOptions"
+                  :key="winery.id"
+                  class="flex items-center gap-1.5 rounded px-2 py-1 text-xs transition"
+                  :class="form.wineryIds.includes(winery.id) ? 'bg-accent text-black' : 'bg-foreground/5 text-foreground/70 hover:bg-foreground/10'"
+                  @click="toggleWinery(winery.id)"
+                >
+                  <span class="flex h-3 w-3 items-center justify-center rounded-sm border border-current text-[8px]">
+                    {{ form.wineryIds.includes(winery.id) ? '✓' : '' }}
+                  </span>
+                  {{ winery.name }}
+                </button>
+              </div>
+              <p v-else class="text-xs text-foreground/50">Пока нет доступных карточек виноделен.</p>
+            </div>
+
             <p class="text-xs leading-5 text-foreground/55">
-              Эти связи используются для двусторонней перелинковки: из материала можно перейти в каталог спецпроекта, а в карточках виноделов и терруаров появится блок со связанными публикациями.
+              Эти связи используются для двусторонней перелинковки: после реакций у материала появится аккуратный блок со связанными сущностями спецпроекта, а в карточках каталога останутся обратные ссылки на публикации.
             </p>
           </div>
         </div>

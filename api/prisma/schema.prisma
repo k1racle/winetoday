@@ -224,7 +224,9 @@ model ContentItem {
   categories  Category[]
   tags        Tag[]
   personLinks ContentItemPerson[]
+  regionLinks ContentItemRegion[]
   terroirLinks ContentItemTerroir[]
+  wineryLinks ContentItemWinery[]
   comments    Comment[]
   reactions   Reaction[]
   viewTotals  ContentViewTotal?
@@ -581,6 +583,7 @@ model Winery {
   logo     MediaAsset? @relation("WineryLogo", fields: [logoId], references: [id], onDelete: SetNull)
   persons  Person[]
   wines    Wine[]
+  contentItemLinks ContentItemWinery[]
 
   @@index([status, updatedAt])
   @@index([regionId])
@@ -608,6 +611,7 @@ model Region {
   terroirs  Terroir[]
   wineries  Winery[]
   wines     Wine[]
+  contentItemLinks ContentItemRegion[]
 
   @@index([status, updatedAt])
   @@index([parentId])
@@ -653,6 +657,19 @@ model ContentItemPerson {
   @@map("content_item_people")
 }
 
+model ContentItemRegion {
+  contentItemId String   @map("content_item_id") @db.Uuid
+  regionId      String   @map("region_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  region      Region      @relation(fields: [regionId], references: [id], onDelete: Cascade)
+
+  @@id([contentItemId, regionId])
+  @@index([regionId])
+  @@map("content_item_regions")
+}
+
 model ContentItemTerroir {
   contentItemId String   @map("content_item_id") @db.Uuid
   terroirId     String   @map("terroir_id") @db.Uuid
@@ -664,6 +681,19 @@ model ContentItemTerroir {
   @@id([contentItemId, terroirId])
   @@index([terroirId])
   @@map("content_item_terroirs")
+}
+
+model ContentItemWinery {
+  contentItemId String   @map("content_item_id") @db.Uuid
+  wineryId      String   @map("winery_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  winery      Winery      @relation(fields: [wineryId], references: [id], onDelete: Cascade)
+
+  @@id([contentItemId, wineryId])
+  @@index([wineryId])
+  @@map("content_item_wineries")
 }
 
 model Wine {

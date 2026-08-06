@@ -24,6 +24,25 @@ const contentInclude = {
           id: true,
           slug: true,
           name: true,
+          winery: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  regionLinks: {
+    include: {
+      region: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          summary: true,
         },
       },
     },
@@ -35,6 +54,33 @@ const contentInclude = {
           id: true,
           slug: true,
           name: true,
+          summary: true,
+          region: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  },
+  wineryLinks: {
+    include: {
+      winery: {
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          summary: true,
+          region: {
+            select: {
+              id: true,
+              slug: true,
+              name: true,
+            },
+          },
         },
       },
     },

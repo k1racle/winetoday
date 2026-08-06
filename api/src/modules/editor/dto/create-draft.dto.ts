@@ -81,7 +81,17 @@ export class CreateDraftDto {
   @IsOptional()
   @IsArray()
   @IsUUID('all', { each: true })
+  regionIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
   terroirIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('all', { each: true })
+  wineryIds?: string[];
 
   @IsOptional()
   contentBlocks?: any;
