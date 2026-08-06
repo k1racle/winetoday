@@ -1,5 +1,5 @@
 <script setup lang="ts">
-interface ContentItemPreview {
+interface CommentTargetPreview {
   id: string;
   type: string;
   title: string;
@@ -11,7 +11,8 @@ interface UserComment {
   body: string;
   createdAt: string;
   status: string;
-  contentItem: ContentItemPreview | null;
+  contentItem?: CommentTargetPreview | null;
+  target?: CommentTargetPreview | null;
 }
 
 const { isAuthenticated } = useAuth();
@@ -28,7 +29,9 @@ const typeRouteMap: Record<string, string> = {
   gallery: 'gallery',
 };
 
-function itemLink(item: ContentItemPreview) {
+function itemLink(item: CommentTargetPreview) {
+  if (item.type === 'person') return `/winemakers/${item.slug}`;
+  if (item.type === 'wine') return `/wines/${item.slug}`;
   const base = typeRouteMap[item.type] || item.type;
   return `/${base}/${item.slug}`;
 }
@@ -65,7 +68,7 @@ onMounted(() => {
     <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
 
     <div v-if="!loading && !comments.length" class="text-sm text-foreground/60">
-      Вы ещё не оставляли комментариев.
+      Вы еще не оставляли комментариев.
     </div>
 
     <div v-else class="space-y-4">
@@ -79,10 +82,10 @@ onMounted(() => {
           <span v-if="comment.status !== 'approved'" class="text-yellow-500">{{ comment.status }}</span>
         </div>
         <p class="text-sm leading-relaxed">{{ comment.body }}</p>
-        <div v-if="comment.contentItem" class="mt-2 text-sm">
-          <span class="text-foreground/50">К материалу:</span>
-          <NuxtLink :to="itemLink(comment.contentItem)" class="ml-1 text-accent hover:underline">
-            {{ comment.contentItem.title }}
+        <div v-if="comment.target || comment.contentItem" class="mt-2 text-sm">
+          <span class="text-foreground/50">К странице:</span>
+          <NuxtLink :to="itemLink(comment.target || comment.contentItem!)" class="ml-1 text-accent hover:underline">
+            {{ (comment.target || comment.contentItem)?.title }}
           </NuxtLink>
         </div>
       </div>

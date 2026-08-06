@@ -42,6 +42,11 @@ enum PersonRelationType {
   founder
 }
 
+enum CatalogEntityType {
+  person
+  wine
+}
+
 model User {
   id            String    @id @default(uuid()) @db.Uuid
   email         String    @unique
@@ -238,17 +243,23 @@ model ContentItem {
 
 model Comment {
   id              String    @id @default(uuid()) @db.Uuid
-  contentItemId   String    @db.Uuid
+  contentItemId   String?   @db.Uuid
+  personId        String?   @map("person_id") @db.Uuid
+  wineId          String?   @map("wine_id") @db.Uuid
   userId          String?   @db.Uuid
   body            String
   status          String    @default("pending")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
-  contentItem ContentItem @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
-  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  contentItem ContentItem? @relation(fields: [contentItemId], references: [id], onDelete: Cascade)
+  person      Person?      @relation(fields: [personId], references: [id], onDelete: Cascade)
+  wine        Wine?        @relation(fields: [wineId], references: [id], onDelete: Cascade)
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([contentItemId, status, createdAt])
+  @@index([personId, status, createdAt])
+  @@index([wineId, status, createdAt])
   @@map("comments")
 }
 
@@ -316,6 +327,20 @@ model ContentViewDaily {
   @@id([date, contentType, contentId])
   @@index([date])
   @@map("content_view_daily")
+}
+
+model CatalogViewEvent {
+  id         String            @id @default(uuid()) @db.Uuid
+  entityType CatalogEntityType @map("entity_type")
+  entityId   String            @map("entity_id") @db.Uuid
+  slug       String
+  viewerId   String            @map("viewer_id")
+  viewedAt   DateTime          @default(now()) @map("viewed_at")
+
+  @@unique([entityType, entityId, viewerId])
+  @@index([entityType, entityId])
+  @@index([viewedAt])
+  @@map("catalog_view_events")
 }
 
 model AuthorSubscription {
@@ -505,15 +530,17 @@ model Person {
   sortOrder   Int           @default(0) @map("sort_order")
   seo         Json?
   status      ContentStatus @default(draft)
+  viewsTotal  Int           @default(0) @map("views_total")
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
   photo         MediaAsset?      @relation("PersonPhoto", fields: [photoId], references: [id])
-    winery        Winery?          @relation(fields: [wineryId], references: [id], onDelete: SetNull)
-    relationsFrom PersonRelation[] @relation("PersonRelationFrom")
-    relationsTo   PersonRelation[] @relation("PersonRelationTo")
-    wines         WinePerson[]
-    contentItemLinks ContentItemPerson[]
+  winery        Winery?          @relation(fields: [wineryId], references: [id], onDelete: SetNull)
+  relationsFrom PersonRelation[] @relation("PersonRelationFrom")
+  relationsTo   PersonRelation[] @relation("PersonRelationTo")
+  wines         WinePerson[]
+  comments      Comment[]
+  contentItemLinks ContentItemPerson[]
 
   @@index([status, sortOrder, updatedAt])
   @@index([wineryId])
@@ -604,9 +631,9 @@ model Terroir {
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
-    region  Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
-    wines   Wine[]
-    contentItemLinks ContentItemTerroir[]
+  region  Region @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  wines   Wine[]
+  contentItemLinks ContentItemTerroir[]
 
   @@index([status, updatedAt])
   @@index([regionId])
@@ -654,6 +681,7 @@ model Wine {
   description Json          @default("[]")
   seo         Json?
   status      ContentStatus @default(draft)
+  viewsTotal  Int           @default(0) @map("views_total")
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
@@ -661,6 +689,7 @@ model Wine {
   region     Region?      @relation(fields: [regionId], references: [id], onDelete: SetNull)
   terroir    Terroir?     @relation(fields: [terroirId], references: [id], onDelete: SetNull)
   winemakers WinePerson[]
+  comments   Comment[]
 
   @@index([status, updatedAt])
   @@index([wineryId])

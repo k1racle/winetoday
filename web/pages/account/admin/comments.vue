@@ -1,11 +1,19 @@
 <script setup lang="ts">
+interface CommentTarget {
+  id: string;
+  title: string;
+  slug: string;
+  type: string;
+}
+
 interface AdminComment {
   id: string;
   body: string;
   status: string;
   createdAt: string;
   author: string;
-  contentItem: { id: string; title: string; slug: string; type: string };
+  contentItem?: CommentTarget | null;
+  target?: CommentTarget | null;
 }
 
 interface StopWord {
@@ -114,14 +122,19 @@ function formatDate(value: string) {
   });
 }
 
+function commentTarget(comment: AdminComment) {
+  return comment.target || comment.contentItem || null;
+}
+
 function materialUrl(comment: AdminComment) {
-  const type = comment.contentItem?.type;
-  const slug = comment.contentItem?.slug;
-  if (!slug) return '#';
-  if (type === 'article') return `/articles/${slug}`;
-  if (type === 'news') return `/news/${slug}`;
-  if (type === 'video') return `/videos/${slug}`;
-  if (type === 'gallery') return `/gallery/${slug}`;
+  const target = commentTarget(comment);
+  if (!target?.slug) return '#';
+  if (target.type === 'person') return `/winemakers/${target.slug}`;
+  if (target.type === 'wine') return `/wines/${target.slug}`;
+  if (target.type === 'article') return `/articles/${target.slug}`;
+  if (target.type === 'news') return `/news/${target.slug}`;
+  if (target.type === 'video') return `/videos/${target.slug}`;
+  if (target.type === 'gallery') return `/gallery/${target.slug}`;
   return '#';
 }
 
@@ -151,32 +164,32 @@ onMounted(() => {
           <thead class="bg-foreground/10">
             <tr>
               <th class="border border-foreground/10 px-4 py-2 text-left">Дата/время</th>
-              <th class="border border-foreground/10 px-4 py-2 text-left">Материал</th>
+              <th class="border border-foreground/10 px-4 py-2 text-left">Страница</th>
               <th class="border border-foreground/10 px-4 py-2 text-left">Автор</th>
               <th class="border border-foreground/10 px-4 py-2 text-left">Комментарий</th>
               <th class="border border-foreground/10 px-4 py-2 text-left">Действия</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="c in items" :key="c.id" class="bg-foreground/5 align-top">
+            <tr v-for="comment in items" :key="comment.id" class="bg-foreground/5 align-top">
               <td class="whitespace-nowrap border border-foreground/10 px-4 py-2 text-xs text-foreground/70">
-                {{ formatDate(c.createdAt) }}
+                {{ formatDate(comment.createdAt) }}
               </td>
               <td class="border border-foreground/10 px-4 py-2">
-                <NuxtLink :to="materialUrl(c)" class="text-accent hover:underline" target="_blank">
-                  {{ c.contentItem?.title || '—' }}
+                <NuxtLink :to="materialUrl(comment)" class="text-accent hover:underline" target="_blank">
+                  {{ commentTarget(comment)?.title || '—' }}
                 </NuxtLink>
               </td>
-              <td class="border border-foreground/10 px-4 py-2">{{ c.author }}</td>
-              <td class="max-w-md border border-foreground/10 px-4 py-2">{{ c.body }}</td>
+              <td class="border border-foreground/10 px-4 py-2">{{ comment.author }}</td>
+              <td class="max-w-md border border-foreground/10 px-4 py-2">{{ comment.body }}</td>
               <td class="border border-foreground/10 px-4 py-2">
                 <button
                   type="button"
                   class="inline-flex items-center rounded border border-red-600/40 px-3 py-1 text-xs text-red-600 transition hover:bg-red-600 hover:text-white disabled:opacity-50"
-                  :disabled="deleting[c.id]"
-                  @click="removeComment(c)"
+                  :disabled="deleting[comment.id]"
+                  @click="removeComment(comment)"
                 >
-                  {{ deleting[c.id] ? '…' : 'Удалить' }}
+                  {{ deleting[comment.id] ? '...' : 'Удалить' }}
                 </button>
               </td>
             </tr>
@@ -214,11 +227,10 @@ onMounted(() => {
       </nav>
     </template>
 
-    <!-- Stop words -->
     <div class="mt-12 border-t border-foreground/10 pt-6">
       <h2 class="font-heading text-lg font-normal">Стоп-слова</h2>
       <p class="mt-1 text-sm text-foreground/60">
-        Комментарии, содержащие эти слова (с начала слова), не будут опубликованы.
+        Комментарии, содержащие эти слова по началу слова, не будут опубликованы.
       </p>
 
       <form class="mt-4 flex flex-wrap items-center gap-2" @submit.prevent="onAddStopWord">
@@ -240,16 +252,16 @@ onMounted(() => {
 
       <div v-if="stopWords.length" class="mt-4 flex flex-wrap gap-2">
         <span
-          v-for="w in stopWords"
-          :key="w.id"
+          v-for="word in stopWords"
+          :key="word.id"
           class="inline-flex items-center gap-2 rounded border border-foreground/10 bg-card px-3 py-1 text-sm"
         >
-          {{ w.word }}
+          {{ word.word }}
           <button
             type="button"
             class="text-red-600 transition hover:text-red-400"
-            :aria-label="`Удалить ${w.word}`"
-            @click="onDeleteStopWord(w)"
+            :aria-label="`Удалить ${word.word}`"
+            @click="onDeleteStopWord(word)"
           >
             ✕
           </button>
@@ -264,6 +276,7 @@ onMounted(() => {
 .pg-btn {
   @apply flex h-9 min-w-9 items-center justify-center rounded border border-foreground/10 px-3 text-sm transition-colors hover:border-accent hover:text-accent;
 }
+
 .pg-btn-active {
   @apply border-accent bg-accent text-black hover:text-black;
 }

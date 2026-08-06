@@ -442,7 +442,16 @@ export class WinemakersService {
       throw new NotFoundException('Wine not found');
     }
 
-    return item;
+    const personIds = item.winemakers.map((entry) => entry.person.id);
+    const contentItemLinks = await this.findRelatedContentLinks({
+      personIds,
+      terroirId: item.terroirId,
+    });
+
+    return {
+      ...item,
+      contentItemLinks,
+    };
   }
 
   async listRegions(dto: ListRegionsDto) {
@@ -719,7 +728,14 @@ export class WinemakersService {
       throw new NotFoundException('Winery not found');
     }
 
-    return item;
+    const contentItemLinks = await this.findRelatedContentLinks({
+      personIds: item.persons.map((person) => person.id),
+    });
+
+    return {
+      ...item,
+      contentItemLinks,
+    };
   }
 
   async terroirBySlug(slug: string) {
@@ -1559,5 +1575,49 @@ export class WinemakersService {
         return true;
       })
       .slice(0, 3);
+  }
+
+  private async findRelatedContentLinks(input: {
+    personIds?: string[];
+    terroirId?: string | null;
+  }) {
+    const orConditions: Prisma.ContentItemWhereInput[] = [];
+
+    if (input.personIds?.length) {
+      orConditions.push({
+        personLinks: {
+          some: {
+            personId: { in: input.personIds },
+          },
+        },
+      });
+    }
+
+    if (input.terroirId) {
+      orConditions.push({
+        terroirLinks: {
+          some: {
+            terroirId: input.terroirId,
+          },
+        },
+      });
+    }
+
+    if (!orConditions.length) {
+      return [];
+    }
+
+    const items = await this.prisma.contentItem.findMany({
+      where: {
+        status: publishedStatus,
+        publishedAt: { lte: new Date() },
+        OR: orConditions,
+      },
+      select: relatedContentSelect,
+      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+      take: 6,
+    });
+
+    return items.map((contentItem) => ({ contentItem }));
   }
 }

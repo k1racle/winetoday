@@ -25,6 +25,14 @@ const { data: wine } = await useAsyncData(
   },
 );
 
+const relatedMaterials = computed(() =>
+  Array.isArray(wine.value?.contentItemLinks)
+    ? wine.value.contentItemLinks
+        .map((entry) => entry.contentItem)
+        .filter((item) => item?.id && item?.slug)
+    : [],
+);
+
 const breadcrumbItems = computed(() => [
   { name: 'Главная', url: '/' },
   { name: 'Виноделы России', url: '/winemakers' },
@@ -164,5 +172,25 @@ useSeoMeta({
         <WinemakersBlocks :blocks="wine.description" :title="wine.name" />
       </div>
     </div>
+
+    <section v-if="relatedMaterials.length" class="mt-12">
+      <h2 class="mb-6 font-heading text-2xl font-bold">Публикации о вине</h2>
+      <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <ArticleCard
+          v-for="item in relatedMaterials"
+          :key="item.id"
+          :item="item"
+          image-aspect="video"
+          variant="compact"
+        />
+      </div>
+    </section>
+
+    <EntityDiscussion
+      :target-id="wine.id"
+      target-type="wine"
+      :slug="wine.slug"
+      :title="wine.name"
+    />
   </div>
 </template>

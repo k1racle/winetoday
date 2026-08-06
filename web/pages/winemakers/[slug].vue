@@ -216,5 +216,12 @@ useSeoMeta({
         />
       </div>
     </section>
+
+    <EntityDiscussion
+      :target-id="person.id"
+      target-type="person"
+      :slug="person.slug"
+      :title="person.name"
+    />
   </div>
 </template>

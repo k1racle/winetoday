@@ -57,6 +57,7 @@ export interface PersonSummary {
   birthYear?: number | null;
   deathYear?: number | null;
   featured?: boolean;
+  viewsTotal?: number;
   photo?: MediaAsset | null;
   winery?: WinerySummary | null;
 }
@@ -69,6 +70,7 @@ export interface WineSummary {
   type?: string | null;
   style?: string | null;
   vintage?: number | null;
+  viewsTotal?: number;
   updatedAt?: string;
   winery?: WinerySummary | null;
   region?: RegionSummary | null;
@@ -108,6 +110,9 @@ export interface WineDetail extends WineSummary {
     role?: string | null;
     person: PersonSummary;
   }>;
+  contentItemLinks?: Array<{
+    contentItem: ContentItem;
+  }>;
 }
 
 export interface RegionDetail extends RegionSummary {
@@ -125,6 +130,9 @@ export interface WineryDetail extends WinerySummary {
   description: ContentBlocksValue;
   persons: PersonSummary[];
   wines: WineSummary[];
+  contentItemLinks?: Array<{
+    contentItem: ContentItem;
+  }>;
 }
 
 export interface TerroirDetail extends TerroirSummary {

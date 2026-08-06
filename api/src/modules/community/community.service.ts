@@ -23,6 +23,12 @@ export class CommunityService {
           contentItem: {
             select: { id: true, title: true, slug: true, type: true },
           },
+          person: {
+            select: { id: true, name: true, slug: true },
+          },
+          wine: {
+            select: { id: true, name: true, slug: true },
+          },
           user: {
             select: {
               username: true,
@@ -42,6 +48,28 @@ export class CommunityService {
         status: c.status,
         createdAt: c.createdAt,
         contentItem: c.contentItem,
+        target: c.contentItem
+          ? {
+              id: c.contentItem.id,
+              type: c.contentItem.type,
+              title: c.contentItem.title,
+              slug: c.contentItem.slug,
+            }
+          : c.person
+            ? {
+                id: c.person.id,
+                type: 'person',
+                title: c.person.name,
+                slug: c.person.slug,
+              }
+            : c.wine
+              ? {
+                  id: c.wine.id,
+                  type: 'wine',
+                  title: c.wine.name,
+                  slug: c.wine.slug,
+                }
+              : null,
         author:
           c.user?.memberProfile?.displayName ||
           c.user?.username ||

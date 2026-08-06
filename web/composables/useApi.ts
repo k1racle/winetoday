@@ -125,6 +125,12 @@ export function useApi() {
       api(`/content/${contentItemId}/comments`, { method: 'POST', body: { body }, credentials: 'include' }),
     deleteComment: (contentItemId: string, commentId: string) =>
       api(`/content/${contentItemId}/comments/${commentId}`, { method: 'DELETE', credentials: 'include' }),
+    getEntityComments: (targetType: 'person' | 'wine', targetId: string) =>
+      api(`/catalog/${targetType}/${targetId}/comments`),
+    createEntityComment: (targetType: 'person' | 'wine', targetId: string, body: string) =>
+      api(`/catalog/${targetType}/${targetId}/comments`, { method: 'POST', body: { body }, credentials: 'include' }),
+    deleteEntityComment: (targetType: 'person' | 'wine', targetId: string, commentId: string) =>
+      api(`/catalog/${targetType}/${targetId}/comments/${commentId}`, { method: 'DELETE', credentials: 'include' }),
     login: (body: { login: string; password: string }) =>
       api('/auth/login', { method: 'POST', body }),
     register: (body: { username: string; displayName?: string; email: string; password: string }) =>
