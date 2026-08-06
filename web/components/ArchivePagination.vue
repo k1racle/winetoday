@@ -2,7 +2,6 @@
 const props = defineProps<{
   total: number;
   itemsPerPage: number;
-  // Дополнительные query-параметры, которые нужно сохранять в ссылках (например, q в поиске).
   extraQuery?: Record<string, string>;
 }>();
 
@@ -15,7 +14,6 @@ const currentPage = computed(() => {
 
 const pageCount = computed(() => Math.max(1, Math.ceil(props.total / props.itemsPerPage)));
 
-// Первая, последняя и текущая ±2 страницы.
 const pages = computed<number[]>(() => {
   const set = new Set<number>([1, pageCount.value]);
   for (let p = currentPage.value - 2; p <= currentPage.value + 2; p++) {
@@ -26,12 +24,16 @@ const pages = computed<number[]>(() => {
 
 function pageLink(page: number) {
   const query: Record<string, string> = {};
-  for (const [k, v] of Object.entries(props.extraQuery || {})) {
-    if (v) query[k] = v;
+  for (const [key, value] of Object.entries(props.extraQuery || {})) {
+    if (value) query[key] = value;
   }
-  // Первая страница — чистый URL без ?page=1.
   if (page > 1) query.page = String(page);
   return { path: route.path, query };
+}
+
+function scrollToTop() {
+  if (!import.meta.client) return;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 const baseClass =
@@ -51,6 +53,7 @@ const activeClass = 'border-accent bg-accent text-black hover:text-black';
       :class="baseClass"
       aria-label="Предыдущая страница"
       rel="prev"
+      @click="scrollToTop"
     >
       ←
     </NuxtLink>
@@ -65,7 +68,12 @@ const activeClass = 'border-accent bg-accent text-black hover:text-black';
         :class="[baseClass, activeClass]"
         aria-current="page"
       >{{ page }}</span>
-      <NuxtLink v-else :to="pageLink(page)" :class="baseClass">{{ page }}</NuxtLink>
+      <NuxtLink
+        v-else
+        :to="pageLink(page)"
+        :class="baseClass"
+        @click="scrollToTop"
+      >{{ page }}</NuxtLink>
     </template>
     <NuxtLink
       v-if="currentPage < pageCount"
@@ -73,6 +81,7 @@ const activeClass = 'border-accent bg-accent text-black hover:text-black';
       :class="baseClass"
       aria-label="Следующая страница"
       rel="next"
+      @click="scrollToTop"
     >
       →
     </NuxtLink>
