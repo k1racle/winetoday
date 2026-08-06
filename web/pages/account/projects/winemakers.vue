@@ -835,7 +835,7 @@ onMounted(() => {
                     </div>
 
                     <div v-if="editor.entity === 'person'" class="space-y-6">
-                      <WinemakersBlocksEditor v-model="editor.bioBlocks" label="Полный текст карточки винодела" />
+                      <AdminWinemakersBlocksEditor v-model="editor.bioBlocks" label="Полный текст карточки винодела" />
 
                       <div class="grid gap-4 sm:grid-cols-2">
                         <div>
@@ -907,7 +907,7 @@ onMounted(() => {
                     </div>
 
                     <div v-else-if="editor.entity === 'wine'" class="space-y-6">
-                      <WinemakersBlocksEditor v-model="editor.description" label="Полный текст карточки вина" />
+                      <AdminWinemakersBlocksEditor v-model="editor.description" label="Полный текст карточки вина" />
 
                       <div class="grid gap-4 sm:grid-cols-2">
                         <div>
@@ -970,7 +970,7 @@ onMounted(() => {
                     </div>
 
                     <div v-else-if="editor.entity === 'region'" class="space-y-6">
-                      <WinemakersBlocksEditor v-model="editor.description" label="Полный текст карточки региона" />
+                      <AdminWinemakersBlocksEditor v-model="editor.description" label="Полный текст карточки региона" />
 
                       <div class="grid gap-4 sm:grid-cols-2">
                         <div class="sm:col-span-2">
@@ -1000,7 +1000,7 @@ onMounted(() => {
                     </div>
 
                     <div v-else-if="editor.entity === 'terroir'" class="space-y-6">
-                      <WinemakersBlocksEditor v-model="editor.description" label="Полный текст карточки терруара" />
+                      <AdminWinemakersBlocksEditor v-model="editor.description" label="Полный текст карточки терруара" />
 
                       <div class="grid gap-4 sm:grid-cols-2">
                         <div class="sm:col-span-2">
@@ -1034,7 +1034,7 @@ onMounted(() => {
                     </div>
 
                     <div v-else class="space-y-6">
-                      <WinemakersBlocksEditor v-model="editor.description" label="Полный текст карточки винодельни" />
+                      <AdminWinemakersBlocksEditor v-model="editor.description" label="Полный текст карточки винодельни" />
 
                       <div class="grid gap-4 sm:grid-cols-2">
                         <div>
