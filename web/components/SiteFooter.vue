@@ -120,13 +120,30 @@ async function onSubscribe() {
           <h4 class="mb-5 text-xs font-bold uppercase tracking-wider text-white">
             Рубрики
           </h4>
-          <ul class="space-y-3 text-sm font-normal">
-            <li v-for="cat in footerCategories" :key="cat.id">
-              <NuxtLink :to="`/category/${cat.slug}`" class="text-white/70 transition hover:text-white">
-                {{ cat.name }}
-              </NuxtLink>
-            </li>
-          </ul>
+          <nav aria-label="Основные разделы сайта">
+            <ul class="space-y-3 text-sm font-normal">
+              <li>
+                <NuxtLink to="/news" class="text-white/70 transition hover:text-white">
+                  Новости
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/videos" class="text-white/70 transition hover:text-white">
+                  Видео
+                </NuxtLink>
+              </li>
+              <li>
+                <NuxtLink to="/articles" class="text-white/70 transition hover:text-white">
+                  Статьи
+                </NuxtLink>
+              </li>
+              <li v-for="cat in footerCategories" :key="cat.id">
+                <NuxtLink :to="`/category/${cat.slug}`" class="text-white/70 transition hover:text-white">
+                  {{ cat.name }}
+                </NuxtLink>
+              </li>
+            </ul>
+          </nav>
         </div>
 
         <!-- About + socials -->

@@ -26,7 +26,7 @@ const description = computed(() => {
 });
 
 useHead({
-  title: `${statusCode.value} — ${title.value} — Виноделие сегодня`,
+  title: is404.value ? 'Страница не найдена — Виноделие сегодня' : 'Виноделие сегодня',
   meta: [
     { name: 'robots', content: 'noindex, nofollow' },
     { name: 'description', content: description.value },

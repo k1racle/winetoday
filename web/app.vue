@@ -12,6 +12,14 @@ const { user } = useAuth();
 useUtm();
 
 const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
+const siteNavigation = [
+  { name: 'О проекте', url: `${siteUrl}/about` },
+  { name: 'Новости', url: `${siteUrl}/news` },
+  { name: 'Видео', url: `${siteUrl}/videos` },
+  { name: 'Статьи', url: `${siteUrl}/articles` },
+  { name: 'Авторы', url: `${siteUrl}/authors` },
+  { name: 'Контакты', url: `${siteUrl}/contacts` },
+];
 
 const isInternalRoute = () => route.path.startsWith('/account') || route.path.startsWith('/cms');
 
@@ -52,6 +60,20 @@ useHead(() => {
               target: `${siteUrl}/search?q={search_term_string}`,
               'query-input': 'required name=search_term_string',
             },
+          }),
+        },
+        {
+          key: 'site-navigation-jsonld',
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'ItemList',
+            itemListElement: siteNavigation.map((item, index) => ({
+              '@type': 'SiteNavigationElement',
+              position: index + 1,
+              name: item.name,
+              url: item.url,
+            })),
           }),
         },
       ];
