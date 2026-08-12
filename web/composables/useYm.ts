@@ -11,7 +11,7 @@ export function useYm() {
 
   function goal(name: string) {
     if (import.meta.server) return;
-    if (route.path.startsWith('/account')) return;
+    if (isAnalyticsExcludedRoute(route.path)) return;
     try {
       if (typeof window.ym === 'function') {
         window.ym(ymId, 'reachGoal', name);
@@ -23,7 +23,7 @@ export function useYm() {
 
   function event(name: string, params?: Record<string, unknown>) {
     if (import.meta.server) return;
-    if (route.path.startsWith('/account')) return;
+    if (isAnalyticsExcludedRoute(route.path)) return;
     try {
       if (typeof window.ym === 'function') {
         window.ym(ymId, 'reachGoal', name, params);

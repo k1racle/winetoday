@@ -65,6 +65,7 @@ export function useUtm() {
 
   function updateUtm() {
     if (import.meta.server) return;
+    if (isAnalyticsExcludedRoute(route.path)) return;
     const fromQuery = parseUtm(route.query);
     const stored = readStoredUtm();
     const merged = { ...stored, ...fromQuery };

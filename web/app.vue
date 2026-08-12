@@ -21,7 +21,7 @@ const siteNavigation = [
   { name: 'Контакты', url: `${siteUrl}/contacts` },
 ];
 
-const isInternalRoute = () => route.path.startsWith('/account') || route.path.startsWith('/cms');
+const isInternalRoute = () => isAnalyticsExcludedRoute(route.path);
 
 useHead(() => {
   const internal = isInternalRoute();
