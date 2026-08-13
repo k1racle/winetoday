@@ -19,27 +19,28 @@ const { data: authors } = await useAsyncData('authors-filter', () =>
 );
 const { data: tags } = await useAsyncData('tags-filter', () => getTags().catch(() => []));
 
-useArchiveSeoControls({ currentPage, canonicalBasePath: route.path });
+const pageTitle = computed(() =>
+  currentPage.value > 1
+    ? `Р“Р°Р»РµСЂРµСЏ вЂ” СЃС‚СЂР°РЅРёС†Р° ${currentPage.value} вЂ” Р’РёРЅРѕРґРµР»РёРµ СЃРµРіРѕРґРЅСЏ`
+    : 'Р“Р°Р»РµСЂРµСЏ вЂ” Р’РёРЅРѕРґРµР»РёРµ СЃРµРіРѕРґРЅСЏ',
+);
+const pageDescription = 'Р¤РѕС‚РѕРіР°Р»РµСЂРµРё Рѕ РІРёРЅРµ, РІРёРЅРѕРґРµР»РёРё Рё РІРёРЅРѕРіСЂР°РґР°СЂСЃС‚РІРµ.';
+
+useArchiveSeoControls({
+  currentPage,
+  canonicalBasePath: route.path,
+  title: pageTitle,
+  description: pageDescription,
+  isIndexable: computed(() => items.value.length > 0),
+});
 useBreadcrumbSchema([
-  { name: 'Главная', path: '/' },
-  { name: 'Галерея', path: '/gallery' },
+  { name: 'Р“Р»Р°РІРЅР°СЏ', path: '/' },
+  { name: 'Р“Р°Р»РµСЂРµСЏ', path: '/gallery' },
 ]);
 
-useSeoMeta({
-  title: () =>
-    currentPage.value > 1
-      ? `Галерея — страница ${currentPage.value} — Виноделие сегодня`
-      : 'Галерея — Виноделие сегодня',
-  description: 'Фотогалереи о вине, виноделии и виноградарстве.',
-});
-
 useCollectionPageSchema({
-  title: computed(() =>
-    currentPage.value > 1
-      ? `Галерея — страница ${currentPage.value} — Виноделие сегодня`
-      : 'Галерея — Виноделие сегодня',
-  ),
-  description: 'Фотогалереи о вине, виноделии и виноградарстве.',
+  title: pageTitle,
+  description: pageDescription,
   path: computed(() => route.fullPath),
   items: computed(() =>
     items.value.map((item) => ({
@@ -52,7 +53,7 @@ useCollectionPageSchema({
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8">
-    <h1 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">Галерея</h1>
+    <h1 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">Р“Р°Р»РµСЂРµСЏ</h1>
 
     <ArchiveFilters :authors="authors || []" :tags="tags || []" />
 
@@ -62,7 +63,7 @@ useCollectionPageSchema({
           v-if="!items.length"
           class="rounded border border-foreground/10 bg-card px-4 py-12 text-center text-sm text-foreground/60"
         >
-          По выбранным фильтрам ничего не найдено.
+          РџРѕ РІС‹Р±СЂР°РЅРЅС‹Рј С„РёР»СЊС‚СЂР°Рј РЅРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ.
         </div>
         <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <ArticleCard

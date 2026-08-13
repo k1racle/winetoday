@@ -1,6 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ContentStatus, ContentType, Prisma, ReactionType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { RedirectsService } from '../redirects/redirects.service';
 import { ListContentDto } from './dto/list-content.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -93,7 +94,10 @@ export type ContentItemWithRelations = Prisma.ContentItemGetPayload<{
 
 @Injectable()
 export class ContentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redirectsService: RedirectsService,
+  ) {}
 
   async findMany(dto: ListContentDto) {
     const where: Prisma.ContentItemWhereInput = {
@@ -570,8 +574,8 @@ export class ContentService {
   }
 
   async updateCategory(id: string, dto: UpdateCategoryDto) {
-    await this.findCategoryOrThrow(id);
-    return this.prisma.category.update({
+    const existing = await this.findCategoryOrThrow(id);
+    const updated = await this.prisma.category.update({
       where: { id },
       data: {
         ...(dto.name !== undefined && { name: dto.name }),
@@ -580,6 +584,15 @@ export class ContentService {
       },
       select: { id: true, name: true, slug: true, parentId: true },
     });
+
+    if (existing.slug !== updated.slug) {
+      await Promise.all([
+        this.redirectsService.createIfChanged(`/category/${existing.slug}`, `/category/${updated.slug}`),
+        this.redirectsService.createIfChanged(`/categories/${existing.slug}`, `/category/${updated.slug}`),
+      ]);
+    }
+
+    return updated;
   }
 
   async deleteCategory(id: string) {
@@ -604,8 +617,8 @@ export class ContentService {
   }
 
   async updateTag(id: string, dto: UpdateTagDto) {
-    await this.findTagOrThrow(id);
-    return this.prisma.tag.update({
+    const existing = await this.findTagOrThrow(id);
+    const updated = await this.prisma.tag.update({
       where: { id },
       data: {
         ...(dto.name !== undefined && { name: dto.name }),
@@ -613,6 +626,12 @@ export class ContentService {
       },
       select: { id: true, name: true, slug: true },
     });
+
+    if (existing.slug !== updated.slug) {
+      await this.redirectsService.createIfChanged(`/tags/${existing.slug}`, `/tags/${updated.slug}`);
+    }
+
+    return updated;
   }
 
   async deleteTag(id: string) {

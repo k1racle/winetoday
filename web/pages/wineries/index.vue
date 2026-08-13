@@ -44,19 +44,23 @@ function submitFilters() {
   });
 }
 
+const pageTitle = computed(() =>
+  currentPage.value > 1 ? `Р’РёРЅРѕРґРµР»СЊРЅРё вЂ” СЃС‚СЂР°РЅРёС†Р° ${currentPage.value}` : 'Р’РёРЅРѕРґРµР»СЊРЅРё',
+);
+const pageDescription = 'РљР°С‚Р°Р»РѕРі РІРёРЅРѕРґРµР»РµРЅ РїСЂРѕРµРєС‚Р° В«Р’РёРЅРѕРґРµР»С‹ Р РѕСЃСЃРёРёВ».';
+
 useArchiveSeoControls({
   currentPage,
   canonicalBasePath: '/wineries',
   filterKeys: ['q'],
-});
-useSeoMeta({
-  title: () => (currentPage.value > 1 ? `Винодельни — страница ${currentPage.value}` : 'Винодельни'),
-  description: 'Каталог виноделен проекта «Виноделы России».',
+  title: pageTitle,
+  description: pageDescription,
+  isIndexable: computed(() => items.value.length > 0),
 });
 
 useCollectionPageSchema({
-  title: computed(() => (currentPage.value > 1 ? `Винодельни — страница ${currentPage.value}` : 'Винодельни')),
-  description: 'Каталог виноделен проекта «Виноделы России».',
+  title: pageTitle,
+  description: pageDescription,
   path: computed(() => route.fullPath),
   items: computed(() =>
     items.value.map((winery) => ({
@@ -69,17 +73,17 @@ useCollectionPageSchema({
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8 md:py-10">
-    <h1 class="inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">Винодельни</h1>
+    <h1 class="inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">Р’РёРЅРѕРґРµР»СЊРЅРё</h1>
 
     <form class="mt-8 grid gap-4 border border-foreground/10 bg-card p-4 md:grid-cols-[minmax(0,1fr)_auto]" @submit.prevent="submitFilters">
       <input
         v-model="form.q"
         type="search"
-        placeholder="Поиск по названию, региону или описанию"
+        placeholder="РџРѕРёСЃРє РїРѕ РЅР°Р·РІР°РЅРёСЋ, СЂРµРіРёРѕРЅСѓ РёР»Рё РѕРїРёСЃР°РЅРёСЋ"
         class="border border-foreground/10 bg-background px-4 py-3 text-sm outline-none transition focus:border-accent"
       >
       <button type="submit" class="bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wider text-black transition hover:bg-accent/90">
-        Фильтр
+        Р¤РёР»СЊС‚СЂ
       </button>
     </form>
 
@@ -89,13 +93,13 @@ useCollectionPageSchema({
         :key="winery.id"
         :to="`/wineries/${winery.slug}`"
         :title="winery.name"
-        eyebrow="Винодельня"
+        eyebrow="Р’РёРЅРѕРґРµР»СЊРЅСЏ"
         :summary="winery.summary"
-        :meta="[winery.region?.name || '', winery.foundedYear ? `Основана ${winery.foundedYear}` : ''].filter(Boolean)"
+        :meta="[winery.region?.name || '', winery.foundedYear ? `РћСЃРЅРѕРІР°РЅР° ${winery.foundedYear}` : ''].filter(Boolean)"
       />
     </div>
     <div v-else class="mt-8 border border-foreground/10 bg-card px-4 py-10 text-center text-sm text-foreground/60">
-      По текущим параметрам винодельни не найдены.
+      РџРѕ С‚РµРєСѓС‰РёРј РїР°СЂР°РјРµС‚СЂР°Рј РІРёРЅРѕРґРµР»СЊРЅРё РЅРµ РЅР°Р№РґРµРЅС‹.
     </div>
 
     <ArchivePagination

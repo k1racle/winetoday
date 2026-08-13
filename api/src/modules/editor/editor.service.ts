@@ -7,6 +7,7 @@ import {
 import { ContentStatus, ContentType, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { MediaService } from '../media/media.service';
+import { RedirectsService } from '../redirects/redirects.service';
 import { CreateDraftDto } from './dto/create-draft.dto';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
@@ -131,6 +132,7 @@ export class EditorService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mediaService: MediaService,
+    private readonly redirectsService: RedirectsService,
   ) {}
 
   async saveDraft(user: RequestUser, dto: CreateDraftDto) {
@@ -728,7 +730,7 @@ export class EditorService {
       }
     }
 
-    return this.prisma.author.update({
+    const updated = await this.prisma.author.update({
       where: { id },
       data: {
         ...(dto.name !== undefined && { name: dto.name }),
@@ -739,6 +741,15 @@ export class EditorService {
       },
       include: { avatarMedia: true },
     });
+
+    if (dto.slug && dto.slug !== existing.slug) {
+      await Promise.all([
+        this.redirectsService.createIfChanged(`/author/${existing.slug}`, `/author/${updated.slug}`),
+        this.redirectsService.createIfChanged(`/authors/${existing.slug}`, `/author/${updated.slug}`),
+      ]);
+    }
+
+    return updated;
   }
 
   async deleteAuthor(id: string) {

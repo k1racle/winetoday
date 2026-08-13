@@ -4,11 +4,17 @@ interface ArchiveSeoControlsOptions {
   currentPage: ComputedRef<number>;
   canonicalBasePath?: string;
   filterKeys?: string[];
+  title?: string | ComputedRef<string>;
+  description?: string | ComputedRef<string>;
+  keywords?: string | ComputedRef<string | undefined>;
+  isIndexable?: boolean | ComputedRef<boolean>;
 }
 
 export function useArchiveSeoControls(options: ArchiveSeoControlsOptions) {
+  const config = useRuntimeConfig();
   const route = useRoute();
   const filterKeys = options.filterKeys || ['sort', 'author', 'tag'];
+  const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
 
   const hasSeoFilters = computed(() =>
     filterKeys.some((key) => {
@@ -33,12 +39,33 @@ export function useArchiveSeoControls(options: ArchiveSeoControlsOptions) {
     useCanonical(canonicalPath.value);
   }
 
+  const isIndexable = computed(() =>
+    options.isIndexable === undefined ? true : Boolean(unref(options.isIndexable)),
+  );
+  const resolvedTitle = computed(() => options.title ? unref(options.title) : undefined);
+  const resolvedDescription = computed(() => options.description ? unref(options.description) : undefined);
+  const resolvedKeywords = computed(() => options.keywords ? unref(options.keywords) : undefined);
+  const canonicalUrl = computed(() =>
+    canonicalPath.value ? `${siteUrl}${canonicalPath.value}` : `${siteUrl}${route.path}`,
+  );
+
   useSeoMeta({
-    robots: () => (hasSeoFilters.value ? 'noindex,follow' : undefined),
+    title: () => resolvedTitle.value,
+    description: () => resolvedDescription.value,
+    keywords: () => resolvedKeywords.value,
+    robots: () => (hasSeoFilters.value || !isIndexable.value ? 'noindex,follow' : undefined),
+    ogTitle: () => resolvedTitle.value,
+    ogDescription: () => resolvedDescription.value,
+    ogUrl: () => canonicalUrl.value,
+    ogType: 'website',
+    twitterCard: 'summary_large_image',
+    twitterTitle: () => resolvedTitle.value,
+    twitterDescription: () => resolvedDescription.value,
   });
 
   return {
     hasSeoFilters,
     canonicalPath,
+    isIndexable,
   };
 }

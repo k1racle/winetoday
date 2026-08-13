@@ -1,6 +1,12 @@
 type RedirectEntry = { fromPath: string; toPath: string };
+type SlugEntry = { slug: string };
 
 type RedirectsCache = {
+  map: Map<string, string>;
+  expiresAt: number;
+};
+
+type AliasRedirectsCache = {
   map: Map<string, string>;
   expiresAt: number;
 };
@@ -9,7 +15,40 @@ const CACHE_TTL_MS = 60_000;
 
 const globalCache = globalThis as typeof globalThis & {
   __slugRedirectsCache?: RedirectsCache;
+  __seoAliasRedirectsCache?: AliasRedirectsCache;
 };
+
+function resolveDuplicateBaseSlug(slug: string, existingSlugs: Set<string>) {
+  const match = slug.match(/^(.*)-(\d+)$/);
+  if (!match) return null;
+
+  const baseSlug = match[1];
+  return existingSlugs.has(baseSlug) ? baseSlug : null;
+}
+
+function buildAliasRedirectMap(
+  entries: SlugEntry[],
+  canonicalPrefix: string,
+  legacyPrefix?: string,
+) {
+  const map = new Map<string, string>();
+  const slugs = new Set(entries.map((entry) => entry?.slug).filter(Boolean));
+
+  for (const slug of slugs) {
+    const canonicalSlug = resolveDuplicateBaseSlug(slug, slugs) || slug;
+    const canonicalPath = `${canonicalPrefix}/${canonicalSlug}`;
+
+    if (legacyPrefix) {
+      map.set(`${legacyPrefix}/${slug}`, canonicalPath);
+    }
+
+    if (canonicalSlug !== slug) {
+      map.set(`${canonicalPrefix}/${slug}`, canonicalPath);
+    }
+  }
+
+  return map;
+}
 
 async function getRedirectsMap(apiUrl: string): Promise<Map<string, string>> {
   const now = Date.now();
@@ -35,6 +74,38 @@ async function getRedirectsMap(apiUrl: string): Promise<Map<string, string>> {
   }
 }
 
+async function getAliasRedirectsMap(apiUrl: string): Promise<Map<string, string>> {
+  const now = Date.now();
+  if (globalCache.__seoAliasRedirectsCache && globalCache.__seoAliasRedirectsCache.expiresAt > now) {
+    return globalCache.__seoAliasRedirectsCache.map;
+  }
+
+  try {
+    const [categories, tags, authors] = await Promise.all([
+      $fetch<SlugEntry[]>(`${apiUrl}/categories`).catch(() => []),
+      $fetch<SlugEntry[]>(`${apiUrl}/tags`).catch(() => []),
+      $fetch<SlugEntry[]>(`${apiUrl}/authors`).catch(() => []),
+    ]);
+
+    const map = new Map<string, string>();
+
+    for (const [fromPath, toPath] of buildAliasRedirectMap(categories || [], '/category', '/categories')) {
+      map.set(fromPath, toPath);
+    }
+    for (const [fromPath, toPath] of buildAliasRedirectMap(tags || [], '/tags')) {
+      map.set(fromPath, toPath);
+    }
+    for (const [fromPath, toPath] of buildAliasRedirectMap(authors || [], '/author', '/authors')) {
+      map.set(fromPath, toPath);
+    }
+
+    globalCache.__seoAliasRedirectsCache = { map, expiresAt: now + CACHE_TTL_MS };
+    return map;
+  } catch {
+    return globalCache.__seoAliasRedirectsCache?.map ?? new Map();
+  }
+}
+
 export default defineEventHandler(async (event) => {
   const url = getRequestURL(event);
   const path = url.pathname;
@@ -57,6 +128,12 @@ export default defineEventHandler(async (event) => {
   const apiUrl = (config.apiUrl as string)?.replace(/\/+$/, '') || '';
   if (!apiUrl) {
     return;
+  }
+
+  const aliasRedirects = await getAliasRedirectsMap(apiUrl);
+  const aliasTarget = aliasRedirects.get(path);
+  if (aliasTarget && aliasTarget !== path) {
+    return sendRedirect(event, aliasTarget, 301);
   }
 
   const redirects = await getRedirectsMap(apiUrl);

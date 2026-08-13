@@ -4,6 +4,8 @@ const props = defineProps<{
   fallbackTitle?: string;
 }>();
 
+const route = useRoute();
+const config = useRuntimeConfig();
 const { getStaticPage, getLatestByCategory, getSiteSeo } = useApi();
 
 const { data: page } = await useAsyncData(`static-page-${props.slug}`, () =>
@@ -28,6 +30,10 @@ const description = computed(
   () => pageSeoOverride.value.description || page.value?.seo?.description || `${title.value}.`,
 );
 const keywords = computed(() => pageSeoOverride.value.keywords || undefined);
+const canonicalUrl = computed(() => {
+  const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
+  return `${siteUrl}${route.path}`;
+});
 const contentHtml = computed(() => {
   const blocks = page.value?.contentBlocks;
   if (!Array.isArray(blocks)) return '';
@@ -45,6 +51,13 @@ useSeoMeta({
   title: () => title.value,
   description: () => description.value,
   keywords: () => keywords.value,
+  ogTitle: () => title.value,
+  ogDescription: () => description.value,
+  ogUrl: () => canonicalUrl.value,
+  ogType: 'article',
+  twitterCard: 'summary_large_image',
+  twitterTitle: () => title.value,
+  twitterDescription: () => description.value,
 });
 </script>
 

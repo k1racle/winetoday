@@ -30,26 +30,30 @@ const category = computed(() =>
 );
 
 if (!category.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Рубрика не найдена' });
+  throw createError({ statusCode: 404, statusMessage: 'Р СѓР±СЂРёРєР° РЅРµ РЅР°Р№РґРµРЅР°' });
 }
 
-useArchiveSeoControls({ currentPage, canonicalBasePath: route.path });
-
 const archiveSeo = useArchiveSeo(slug, category.value?.name);
-useSeoMeta({
-  title: () => {
-    const base = archiveSeo.title.value || `${category.value?.name || slug} — Виноделие сегодня`;
-    return currentPage.value > 1 ? `${base} — страница ${currentPage.value}` : base;
-  },
-  description: archiveSeo.description.value || `Материалы по рубрике «${category.value?.name || slug}».`,
+const pageTitle = computed(() => {
+  const base = archiveSeo.title.value || `${category.value?.name || slug} вЂ” Р’РёРЅРѕРґРµР»РёРµ СЃРµРіРѕРґРЅСЏ`;
+  return currentPage.value > 1 ? `${base} вЂ” СЃС‚СЂР°РЅРёС†Р° ${currentPage.value}` : base;
+});
+const pageDescription = computed(() =>
+  archiveSeo.description.value || `РњР°С‚РµСЂРёР°Р»С‹ РїРѕ СЂСѓР±СЂРёРєРµ В«${category.value?.name || slug}В».`,
+);
+
+useArchiveSeoControls({
+  currentPage,
+  canonicalBasePath: route.path,
+  title: pageTitle,
+  description: pageDescription,
+  keywords: archiveSeo.keywords,
+  isIndexable: computed(() => items.value.length > 0),
 });
 
 useCollectionPageSchema({
-  title: computed(() => {
-    const base = archiveSeo.title.value || `${category.value?.name || slug} — Виноделие сегодня`;
-    return currentPage.value > 1 ? `${base} — страница ${currentPage.value}` : base;
-  }),
-  description: computed(() => archiveSeo.description.value || `Материалы по рубрике «${category.value?.name || slug}».`),
+  title: pageTitle,
+  description: pageDescription,
   path: computed(() => route.fullPath),
   items: computed(() =>
     items.value.map((item) => ({
@@ -70,7 +74,7 @@ useCollectionPageSchema({
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8">
     <nav class="mb-4 text-xs font-normal uppercase tracking-wider text-foreground/50">
-      <NuxtLink to="/" class="hover:text-foreground">Главная</NuxtLink>
+      <NuxtLink to="/" class="hover:text-foreground">Р“Р»Р°РІРЅР°СЏ</NuxtLink>
       <span class="mx-2">/</span>
       <span>{{ category?.name || slug }}</span>
     </nav>
@@ -84,10 +88,10 @@ useCollectionPageSchema({
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
       <div class="w-full lg:w-3/4">
         <div v-if="contentError" class="rounded border border-red-200 bg-red-50 px-4 py-8 text-center text-sm text-red-700">
-          Ошибка загрузки материалов рубрики.
+          РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё РјР°С‚РµСЂРёР°Р»РѕРІ СЂСѓР±СЂРёРєРё.
         </div>
         <div v-else-if="!items.length" class="rounded border border-foreground/10 bg-card px-4 py-12 text-center text-sm text-foreground/60">
-          В этой рубрике пока нет материалов.
+          Р’ СЌС‚РѕР№ СЂСѓР±СЂРёРєРµ РїРѕРєР° РЅРµС‚ РјР°С‚РµСЂРёР°Р»РѕРІ.
         </div>
         <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <ArticleCard
