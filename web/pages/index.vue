@@ -206,6 +206,17 @@ useSeoMeta({
             </div>
           </template>
 
+          <section class="mt-2 border-t border-foreground/10 pt-6 lg:mt-6">
+            <p class="text-[11px] uppercase tracking-[0.24em] text-foreground/50">Федеральное отраслевое медиа</p>
+            <h1 class="mt-3 max-w-4xl font-heading text-3xl font-bold tracking-tight text-foreground md:text-5xl">
+              ВИНОДЕЛИЕ СЕГОДНЯ
+            </h1>
+            <p class="mt-4 max-w-3xl text-sm leading-6 text-foreground/72 md:text-base">
+              Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.
+              Новости, статьи, интервью, аналитика и видео о российском и зарубежном виноделии.
+            </p>
+          </section>
+
           <!-- Latest news: left of sidebar -->
           <div v-if="articles.length" class="mt-1 pt-2 lg:pt-6">
             <h2 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-2xl font-normal">Последние статьи</h2>
@@ -250,19 +261,6 @@ useSeoMeta({
           <FreshList v-if="freshItems.length" :items="freshItems" />
           <SidebarByCategory v-if="latestByCategory?.length" :groups="latestByCategory" />
         </aside>
-      </div>
-    </section>
-
-    <section class="mx-auto mt-10 max-w-7xl px-4">
-      <div class="border-t border-foreground/10 pt-8">
-        <p class="text-[11px] uppercase tracking-[0.24em] text-foreground/50">Федеральное отраслевое медиа</p>
-        <h1 class="mt-3 max-w-4xl font-heading text-3xl font-bold tracking-tight text-foreground md:text-5xl">
-          ВИНОДЕЛИЕ СЕГОДНЯ
-        </h1>
-        <p class="mt-4 max-w-3xl text-sm leading-6 text-foreground/72 md:text-base">
-          Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.
-          Новости, статьи, интервью, аналитика и видео о российском и зарубежном виноделии.
-        </p>
       </div>
     </section>
   </div>
