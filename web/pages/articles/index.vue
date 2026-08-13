@@ -20,9 +20,9 @@ const { data: authors } = await useAsyncData('authors-filter', () =>
 const { data: tags } = await useAsyncData('tags-filter', () => getTags().catch(() => []));
 
 const pageTitle = computed(() =>
-  currentPage.value > 1 ? `РЎС‚Р°С‚СЊРё вЂ” СЃС‚СЂР°РЅРёС†Р° ${currentPage.value}` : 'РЎС‚Р°С‚СЊРё',
+  currentPage.value > 1 ? `Статьи — страница ${currentPage.value}` : 'Статьи',
 );
-const pageDescription = 'РЎС‚Р°С‚СЊРё Рѕ РІРёРЅРµ, РІРёРЅРѕРґРµР»РёРё Рё РІРёРЅРѕРіСЂР°РґР°СЂСЃС‚РІРµ.';
+const pageDescription = 'Статьи о вине, виноделии и виноградарстве.';
 
 useArchiveSeoControls({
   currentPage,
@@ -32,8 +32,8 @@ useArchiveSeoControls({
   isIndexable: computed(() => items.value.length > 0),
 });
 useBreadcrumbSchema([
-  { name: 'Р“Р»Р°РІРЅР°СЏ', path: '/' },
-  { name: 'РЎС‚Р°С‚СЊРё', path: '/articles' },
+  { name: 'Главная', path: '/' },
+  { name: 'Статьи', path: '/articles' },
 ]);
 
 useCollectionPageSchema({
@@ -51,7 +51,7 @@ useCollectionPageSchema({
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8">
-    <h1 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">РЎС‚Р°С‚СЊРё</h1>
+    <h1 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">Статьи</h1>
 
     <ArchiveFilters :authors="authors || []" :tags="tags || []" />
 
@@ -61,7 +61,7 @@ useCollectionPageSchema({
           v-if="!items.length"
           class="rounded border border-foreground/10 bg-card px-4 py-12 text-center text-sm text-foreground/60"
         >
-          РџРѕ РІС‹Р±СЂР°РЅРЅС‹Рј С„РёР»СЊС‚СЂР°Рј РЅРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ.
+          По выбранным фильтрам ничего не найдено.
         </div>
         <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <ArticleCard

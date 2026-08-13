@@ -20,11 +20,9 @@ const { data: authors } = await useAsyncData('authors-filter', () =>
 const { data: tags } = await useAsyncData('tags-filter', () => getTags().catch(() => []));
 
 const pageTitle = computed(() =>
-  currentPage.value > 1
-    ? `Р’РёРґРµРѕ вЂ” СЃС‚СЂР°РЅРёС†Р° ${currentPage.value} вЂ” Р’РёРЅРѕРґРµР»РёРµ СЃРµРіРѕРґРЅСЏ`
-    : 'Р’РёРґРµРѕ вЂ” Р’РёРЅРѕРґРµР»РёРµ СЃРµРіРѕРґРЅСЏ',
+  currentPage.value > 1 ? `Видео — страница ${currentPage.value}` : 'Видео',
 );
-const pageDescription = 'Р’РёРґРµРѕРјР°С‚РµСЂРёР°Р»С‹ Рѕ РІРёРЅРµ, РІРёРЅРѕРґРµР»РёРё Рё РІРёРЅРѕРіСЂР°РґР°СЂСЃС‚РІРµ.';
+const pageDescription = 'Видеоматериалы о вине, виноделии и виноградарстве.';
 
 useArchiveSeoControls({
   currentPage,
@@ -34,8 +32,8 @@ useArchiveSeoControls({
   isIndexable: computed(() => items.value.length > 0),
 });
 useBreadcrumbSchema([
-  { name: 'Р“Р»Р°РІРЅР°СЏ', path: '/' },
-  { name: 'Р’РёРґРµРѕ', path: '/videos' },
+  { name: 'Главная', path: '/' },
+  { name: 'Видео', path: '/videos' },
 ]);
 
 useCollectionPageSchema({
@@ -53,7 +51,7 @@ useCollectionPageSchema({
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8">
-    <h1 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">Р’РёРґРµРѕ</h1>
+    <h1 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">Видео</h1>
 
     <ArchiveFilters :authors="authors || []" :tags="tags || []" />
 
@@ -63,7 +61,7 @@ useCollectionPageSchema({
           v-if="!items.length"
           class="rounded border border-foreground/10 bg-card px-4 py-12 text-center text-sm text-foreground/60"
         >
-          РџРѕ РІС‹Р±СЂР°РЅРЅС‹Рј С„РёР»СЊС‚СЂР°Рј РЅРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ.
+          По выбранным фильтрам ничего не найдено.
         </div>
         <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <ArticleCard

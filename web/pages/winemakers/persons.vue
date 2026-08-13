@@ -46,9 +46,9 @@ function submitFilters() {
 }
 
 const pageTitle = computed(() =>
-  currentPage.value > 1 ? `Р’РёРЅРѕРґРµР»С‹ вЂ” СЃС‚СЂР°РЅРёС†Р° ${currentPage.value}` : 'Р’РёРЅРѕРґРµР»С‹',
+  currentPage.value > 1 ? `Виноделы — страница ${currentPage.value}` : 'Виноделы',
 );
-const pageDescription = 'РљР°С‚Р°Р»РѕРі РІРёРЅРѕРґРµР»РѕРІ РїСЂРѕРµРєС‚Р° В«Р’РёРЅРѕРґРµР»С‹ Р РѕСЃСЃРёРёВ».';
+const pageDescription = 'Каталог виноделов проекта «Виноделы России».';
 
 useArchiveSeoControls({
   currentPage,
@@ -74,17 +74,17 @@ useCollectionPageSchema({
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8 md:py-10">
-    <h1 class="inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">Р’РёРЅРѕРґРµР»С‹</h1>
+    <h1 class="inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">Виноделы</h1>
 
     <form class="mt-8 grid gap-4 border border-foreground/10 bg-card p-4 md:grid-cols-[minmax(0,1fr)_auto]" @submit.prevent="submitFilters">
       <input
         v-model="form.q"
         type="search"
-        placeholder="РџРѕРёСЃРє РїРѕ РёРјРµРЅРё, РІРёРЅРѕРґРµР»СЊРЅРµ РёР»Рё РѕРїРёСЃР°РЅРёСЋ"
+        placeholder="Поиск по имени, винодельне или описанию"
         class="border border-foreground/10 bg-background px-4 py-3 text-sm outline-none transition focus:border-accent"
       >
       <button type="submit" class="bg-accent px-4 py-3 text-sm font-bold uppercase tracking-wider text-black transition hover:bg-accent/90">
-        Р¤РёР»СЊС‚СЂ
+        Фильтр
       </button>
     </form>
 
@@ -92,7 +92,7 @@ useCollectionPageSchema({
       <WinemakersPersonCard v-for="person in items" :key="person.id" :person="person" />
     </div>
     <div v-else class="mt-8 border border-foreground/10 bg-card px-4 py-10 text-center text-sm text-foreground/60">
-      РџРѕ С‚РµРєСѓС‰РёРј РїР°СЂР°РјРµС‚СЂР°Рј РІРёРЅРѕРґРµР»С‹ РЅРµ РЅР°Р№РґРµРЅС‹.
+      По текущим параметрам виноделы не найдены.
     </div>
 
     <ArchivePagination
