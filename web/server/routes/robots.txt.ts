@@ -1,13 +1,29 @@
+import { getSiteSeoFlags } from '~/server/utils/site-seo';
+
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig();
-  const sitemap = `${(config.public.siteUrl as string)?.replace(/\/+$/, '')}/sitemap.xml`;
+  const siteUrl = `${(config.public.siteUrl as string)?.replace(/\/+$/, '')}`;
+  const apiUrl = (config.apiUrl as string)?.replace(/\/+$/, '') || '';
+  const { robotsEnabled, sitemapEnabled } = await getSiteSeoFlags(apiUrl);
+  const sitemap = `${siteUrl}/sitemap.xml`;
 
-  return [
+  if (robotsEnabled === false) {
+    return [
+      'User-agent: *',
+      'Disallow: /',
+    ].join('\n');
+  }
+
+  const lines = [
     'User-agent: *',
     'Allow: /',
     '',
     'Clean-param: utm_source&utm_medium&utm_campaign&utm_term&utm_content /',
-    '',
-    `Sitemap: ${sitemap}`,
-  ].join('\n');
+  ];
+
+  if (sitemapEnabled !== false) {
+    lines.push('', `Sitemap: ${sitemap}`);
+  }
+
+  return lines.join('\n');
 });

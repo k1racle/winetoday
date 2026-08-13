@@ -1,3 +1,5 @@
+import { ensureSitemapEnabled } from '~/server/utils/site-seo';
+
 const escapeXml = (value: string) =>
   value
     .replace(/&/g, '&amp;')
@@ -41,6 +43,9 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
   const apiUrl = (config.apiUrl as string)?.replace(/\/+$/, '') || '';
+  if (!(await ensureSitemapEnabled(event, apiUrl))) {
+    return '';
+  }
 
   const wines = await fetchPagedWines(apiUrl);
   const entries = wines

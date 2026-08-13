@@ -4,17 +4,30 @@ const props = defineProps<{
   fallbackTitle?: string;
 }>();
 
-const { getStaticPage, getLatestByCategory } = useApi();
+const { getStaticPage, getLatestByCategory, getSiteSeo } = useApi();
 
 const { data: page } = await useAsyncData(`static-page-${props.slug}`, () =>
   getStaticPage(props.slug).catch(() => null),
+);
+
+const { data: siteSeo } = await useAsyncData('site-seo-static-pages', () =>
+  getSiteSeo().catch(() => null),
 );
 
 const { data: latestByCategory } = await useAsyncData(`latest-by-category-${props.slug}`, () =>
   getLatestByCategory(10).catch(() => []),
 );
 
-const title = computed(() => page.value?.title || props.fallbackTitle || 'Страница в разработке');
+const pageSeo = computed<Record<string, { title?: string; description?: string; keywords?: string }>>(
+  () => (siteSeo.value as any)?.pageSeo || {},
+);
+const pageSeoOverride = computed(() => pageSeo.value?.[props.slug] || {});
+
+const title = computed(() => pageSeoOverride.value.title || page.value?.title || props.fallbackTitle || 'Страница в разработке');
+const description = computed(
+  () => pageSeoOverride.value.description || page.value?.seo?.description || `${title.value}.`,
+);
+const keywords = computed(() => pageSeoOverride.value.keywords || undefined);
 const contentHtml = computed(() => {
   const blocks = page.value?.contentBlocks;
   if (!Array.isArray(blocks)) return '';
@@ -29,8 +42,9 @@ useBreadcrumbSchema([
   { name: title.value },
 ]);
 useSeoMeta({
-  title: title.value,
-  description: page.value?.seo?.description || `${title.value}.`,
+  title: () => title.value,
+  description: () => description.value,
+  keywords: () => keywords.value,
 });
 </script>
 

@@ -1,3 +1,5 @@
+import { ensureSitemapEnabled } from '~/server/utils/site-seo';
+
 const PAGE_SIZE = 100; // API ListContentDto limit max is 100
 const NEWS_MAX_AGE_MS = 48 * 60 * 60 * 1000; // Google News: только новости за последние 48 часов
 
@@ -25,6 +27,9 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
   const apiUrl = (config.apiUrl as string)?.replace(/\/+$/, '') || '';
+  if (!(await ensureSitemapEnabled(event, apiUrl))) {
+    return '';
+  }
 
   const entries: string[] = [];
   const cutoff = Date.now() - NEWS_MAX_AGE_MS;

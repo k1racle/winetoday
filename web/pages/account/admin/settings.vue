@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const { getAdminSiteHeader, updateSiteHeader, getAdminSiteSeo, updateSiteSeo, uploadMedia, getCategories, getContent } = useApi();
+import { PUBLIC_STATIC_PAGES } from '~/utils/public-static-pages';
+
+const { getAdminSiteHeader, updateSiteHeader, getAdminSiteSeo, updateSiteSeo, uploadMedia, getCategories } = useApi();
 
 const siteHeader = ref<any>(null);
 const siteSeo = ref<any>(null);
@@ -83,10 +85,9 @@ async function fetchSeo() {
   loading.value = true;
   error.value = '';
   try {
-    const [seoRes, catRes, pageRes] = await Promise.all([
+    const [seoRes, catRes] = await Promise.all([
       getAdminSiteSeo(),
       getCategories().catch(() => []),
-      getContent({ type: 'page', limit: 100 }).catch(() => ({ items: [] })),
     ]);
     siteSeo.value = seoRes;
     const defaultSeo = seoRes?.defaultSeo || {};
@@ -97,7 +98,7 @@ async function fetchSeo() {
       sitemapEnabled: seoRes?.sitemapEnabled ?? true,
     };
     categories.value = Array.isArray(catRes) ? catRes : [];
-    pages.value = Array.isArray(pageRes?.items) ? pageRes.items : [];
+    pages.value = PUBLIC_STATIC_PAGES;
     const baseArchive = (seoRes?.archiveSeo || {}) as Record<string, any>;
     archiveSeo.value = Object.fromEntries(categories.value.map((c: any) => [c.slug, baseArchive[c.slug] || {}]));
     const basePage = (seoRes?.pageSeo || {}) as Record<string, any>;
@@ -508,10 +509,10 @@ onMounted(() => {
             <div v-if="activeSeoTab === 'pages'" class="space-y-4">
               <div
                 v-for="page in pages"
-                :key="page.id"
+                :key="page.slug"
                 class="rounded border border-foreground/10 p-4"
               >
-                <p class="mb-2 text-sm font-normal">{{ page.title }} <span class="text-foreground/50">({{ page.slug }})</span></p>
+                <p class="mb-2 text-sm font-normal">{{ page.label }} <span class="text-foreground/50">({{ page.slug }})</span></p>
                 <div class="grid gap-3 md:grid-cols-3">
                   <input
                     v-model="ensurePageSeo(page.slug).title"

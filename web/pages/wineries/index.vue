@@ -44,10 +44,26 @@ function submitFilters() {
   });
 }
 
-useCanonical(currentPage.value > 1 ? `/wineries?page=${currentPage.value}` : '/wineries');
+useArchiveSeoControls({
+  currentPage,
+  canonicalBasePath: '/wineries',
+  filterKeys: ['q'],
+});
 useSeoMeta({
   title: () => (currentPage.value > 1 ? `Винодельни — страница ${currentPage.value}` : 'Винодельни'),
   description: 'Каталог виноделен проекта «Виноделы России».',
+});
+
+useCollectionPageSchema({
+  title: computed(() => (currentPage.value > 1 ? `Винодельни — страница ${currentPage.value}` : 'Винодельни')),
+  description: 'Каталог виноделен проекта «Виноделы России».',
+  path: computed(() => route.fullPath),
+  items: computed(() =>
+    items.value.map((winery) => ({
+      name: winery.name,
+      url: `/wineries/${winery.slug}`,
+    })),
+  ),
 });
 </script>
 

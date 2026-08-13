@@ -57,10 +57,26 @@ function submitFilters() {
   });
 }
 
-useCanonical(currentPage.value > 1 ? `/wines?page=${currentPage.value}` : undefined);
+useArchiveSeoControls({
+  currentPage,
+  canonicalBasePath: '/wines',
+  filterKeys: ['q', 'type', 'style'],
+});
 useSeoMeta({
   title: () => (currentPage.value > 1 ? `Вина — страница ${currentPage.value}` : 'Вина'),
   description: 'Каталог вин проекта «Виноделы России».',
+});
+
+useCollectionPageSchema({
+  title: computed(() => (currentPage.value > 1 ? `Вина — страница ${currentPage.value}` : 'Вина')),
+  description: 'Каталог вин проекта «Виноделы России».',
+  path: computed(() => route.fullPath),
+  items: computed(() =>
+    items.value.map((wine) => ({
+      name: wine.name,
+      url: `/wines/${wine.slug}`,
+    })),
+  ),
 });
 </script>
 

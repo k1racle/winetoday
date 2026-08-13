@@ -45,10 +45,26 @@ function submitFilters() {
   });
 }
 
-useCanonical(currentPage.value > 1 ? `/winemakers/persons?page=${currentPage.value}` : '/winemakers/persons');
+useArchiveSeoControls({
+  currentPage,
+  canonicalBasePath: '/winemakers/persons',
+  filterKeys: ['q'],
+});
 useSeoMeta({
   title: () => (currentPage.value > 1 ? `Виноделы — страница ${currentPage.value}` : 'Виноделы'),
   description: 'Каталог виноделов проекта «Виноделы России».',
+});
+
+useCollectionPageSchema({
+  title: computed(() => (currentPage.value > 1 ? `Виноделы — страница ${currentPage.value}` : 'Виноделы')),
+  description: 'Каталог виноделов проекта «Виноделы России».',
+  path: computed(() => route.fullPath),
+  items: computed(() =>
+    items.value.map((person) => ({
+      name: person.name,
+      url: `/winemakers/${person.slug}`,
+    })),
+  ),
 });
 </script>
 

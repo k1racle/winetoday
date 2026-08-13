@@ -19,7 +19,7 @@ const { data: authors } = await useAsyncData('authors-filter', () =>
 );
 const { data: tags } = await useAsyncData('tags-filter', () => getTags().catch(() => []));
 
-useCanonical(currentPage.value > 1 ? `${route.path}?page=${currentPage.value}` : undefined);
+useArchiveSeoControls({ currentPage, canonicalBasePath: route.path });
 useBreadcrumbSchema([
   { name: 'Главная', path: '/' },
   { name: 'Статьи', path: '/articles' },
@@ -28,6 +28,20 @@ useBreadcrumbSchema([
 useSeoMeta({
   title: () => (currentPage.value > 1 ? `Статьи — страница ${currentPage.value}` : 'Статьи'),
   description: 'Статьи о вине, виноделии и виноградарстве.',
+});
+
+useCollectionPageSchema({
+  title: computed(() =>
+    currentPage.value > 1 ? `Статьи — страница ${currentPage.value}` : 'Статьи',
+  ),
+  description: 'Статьи о вине, виноделии и виноградарстве.',
+  path: computed(() => route.fullPath),
+  items: computed(() =>
+    items.value.map((item) => ({
+      name: item.title,
+      url: `/articles/${item.slug}`,
+    })),
+  ),
 });
 </script>
 
