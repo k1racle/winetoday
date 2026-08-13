@@ -5,9 +5,6 @@ export default defineEventHandler(async () => {
   return [
     'User-agent: *',
     'Allow: /',
-    'Disallow: /account',
-    'Disallow: /search',
-    'Disallow: /*preview=',
     '',
     'Clean-param: utm_source&utm_medium&utm_campaign&utm_term&utm_content /',
     '',

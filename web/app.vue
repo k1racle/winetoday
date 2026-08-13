@@ -80,7 +80,10 @@ useHead(() => {
 
   return {
     meta: internal
-      ? []
+      ? [
+          { name: 'robots', content: 'noindex, nofollow' },
+          { name: 'googlebot', content: 'noindex, nofollow' },
+        ]
       : [
           {
             name: 'googlebot',

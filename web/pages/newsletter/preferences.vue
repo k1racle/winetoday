@@ -64,6 +64,7 @@ async function onSave() {
 useSeoMeta({
   title: 'Настройки подписки',
   description: 'Управление темами и статусом подписки на рассылку «Виноделие Сегодня».',
+  robots: 'noindex,follow',
 });
 
 useCanonical();

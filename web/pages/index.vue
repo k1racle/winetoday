@@ -101,6 +101,45 @@ useSeoMeta({
 
 <template>
   <div class="pb-16">
+    <section class="mx-auto max-w-7xl px-4 pt-4">
+      <div class="overflow-hidden border border-foreground/10 bg-[linear-gradient(135deg,rgba(204,244,79,0.14),rgba(255,255,255,0.03)_42%,rgba(11,26,37,0.04))] px-5 py-6 md:px-7 md:py-7">
+        <p class="text-[11px] uppercase tracking-[0.24em] text-foreground/50">Федеральное отраслевое медиа</p>
+        <h1 class="mt-3 max-w-4xl font-heading text-3xl font-bold tracking-tight text-foreground md:text-5xl">
+          Виноделие Сегодня
+        </h1>
+        <p class="mt-4 max-w-3xl text-sm leading-6 text-foreground/72 md:text-base">
+          Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.
+          Новости, статьи, интервью, аналитика и видео о российском и зарубежном виноделии.
+        </p>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <NuxtLink
+            to="/news"
+            class="inline-flex items-center rounded border border-foreground/15 bg-card px-3 py-2 text-sm text-foreground/80 transition hover:border-accent hover:text-accent"
+          >
+            Новости
+          </NuxtLink>
+          <NuxtLink
+            to="/articles"
+            class="inline-flex items-center rounded border border-foreground/15 bg-card px-3 py-2 text-sm text-foreground/80 transition hover:border-accent hover:text-accent"
+          >
+            Статьи
+          </NuxtLink>
+          <NuxtLink
+            to="/videos"
+            class="inline-flex items-center rounded border border-foreground/15 bg-card px-3 py-2 text-sm text-foreground/80 transition hover:border-accent hover:text-accent"
+          >
+            Видео
+          </NuxtLink>
+          <NuxtLink
+            to="/about"
+            class="inline-flex items-center rounded border border-foreground/15 bg-card px-3 py-2 text-sm text-foreground/80 transition hover:border-accent hover:text-accent"
+          >
+            О проекте
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
     <!-- Main content + sidebar -->
     <section v-if="topItems.length || articles.length" class="mx-auto max-w-7xl px-4 py-4">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start">

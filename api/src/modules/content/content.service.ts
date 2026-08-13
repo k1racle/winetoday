@@ -316,6 +316,7 @@ export class ContentService {
         name: true,
         slug: true,
         parentId: true,
+        updatedAt: true,
         _count: {
           select: {
             contentItems: {
@@ -408,7 +409,7 @@ export class ContentService {
   async findTags() {
     return this.prisma.tag.findMany({
       orderBy: { name: 'asc' },
-      select: { id: true, name: true, slug: true },
+      select: { id: true, name: true, slug: true, updatedAt: true },
     });
   }
 

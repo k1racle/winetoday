@@ -43,6 +43,7 @@ export class AuthorsService {
         slug: true,
         name: true,
         position: true,
+        updatedAt: true,
         avatarMedia: { select: { path: true } },
         _count: {
           select: {
@@ -62,6 +63,7 @@ export class AuthorsService {
       slug: author.slug,
       name: author.name,
       position: author.position,
+      updatedAt: author.updatedAt,
       avatarMedia: author.avatarMedia,
       count: author._count.contentItems,
     }));

@@ -43,6 +43,7 @@ onMounted(async () => {
 useSeoMeta({
   title: 'Подтверждение подписки',
   description: 'Подтверждение подписки на рассылку «Виноделие Сегодня».',
+  robots: 'noindex,follow',
 });
 
 useCanonical();

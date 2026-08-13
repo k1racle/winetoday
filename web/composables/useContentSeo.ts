@@ -38,7 +38,7 @@ export function useContentSeo(item: ContentItem | ContentSeo | null | undefined)
   useSeoMeta({
     title,
     description,
-    robots: isPreview ? 'noindex' : undefined,
+    robots: isPreview ? 'noindex,follow' : undefined,
     ogTitle: title,
     ogDescription: description,
     ogUrl: canonicalUrl,
