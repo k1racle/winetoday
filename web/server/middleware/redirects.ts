@@ -38,16 +38,30 @@ function buildAliasRedirectMap(
     const canonicalSlug = resolveDuplicateBaseSlug(slug, slugs) || slug;
     const canonicalPath = `${canonicalPrefix}/${canonicalSlug}`;
 
+    map.set(`${canonicalPrefix}/${slug}`, canonicalPath);
+
     if (legacyPrefix) {
       map.set(`${legacyPrefix}/${slug}`, canonicalPath);
-    }
-
-    if (canonicalSlug !== slug) {
-      map.set(`${canonicalPrefix}/${slug}`, canonicalPath);
     }
   }
 
   return map;
+}
+
+function resolveNumericSuffixAlias(
+  path: string,
+  aliasRedirects: Map<string, string>,
+) {
+  const match = path.match(/^(\/category|\/tags|\/author)\/(.+)-(\d+)$/);
+  if (!match) {
+    return null;
+  }
+
+  const prefix = match[1];
+  const baseSlug = match[2];
+  const canonicalTarget = aliasRedirects.get(`${prefix}/${baseSlug}`);
+
+  return canonicalTarget && canonicalTarget !== path ? canonicalTarget : null;
 }
 
 async function getRedirectsMap(apiUrl: string): Promise<Map<string, string>> {
@@ -131,6 +145,11 @@ export default defineEventHandler(async (event) => {
   }
 
   const aliasRedirects = await getAliasRedirectsMap(apiUrl);
+  const numericSuffixTarget = resolveNumericSuffixAlias(path, aliasRedirects);
+  if (numericSuffixTarget) {
+    return sendRedirect(event, numericSuffixTarget, 301);
+  }
+
   const aliasTarget = aliasRedirects.get(path);
   if (aliasTarget && aliasTarget !== path) {
     return sendRedirect(event, aliasTarget, 301);
