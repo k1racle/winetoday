@@ -18,7 +18,7 @@ const config = computed<BadgeConfig | null>(() => {
     case 'exclusive':
       return { text: 'Эксклюзив', image: '/badges/badge-exclusive.png' };
     case 'hot':
-      return { text: 'Горячая новость', image: '/badges/badge-hot.svg' };
+      return { text: 'Горячая новость', image: '/badges/badge-hot.png' };
     case 'trends':
       return { text: 'Тренды', image: '/badges/badge-trends.png' };
     case 'photo':
