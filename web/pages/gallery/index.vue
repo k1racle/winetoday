@@ -4,18 +4,16 @@ definePageMeta({
 });
 
 const route = useRoute();
-const { getContent, getLatestByCategory, getAuthorsList, getTags } = useApi();
+const { getContent, getLatestByCategory, getTags } = useApi();
 
 const { items, total, currentPage, itemsPerPage, filterQuery } = usePagedArchive(
   (opts) => getContent({ type: 'gallery', ...opts }),
   'gallery-archive',
+  { enableAuthorFilter: false },
 );
 
 const { data: latestByCategory } = await useAsyncData('latest-by-category-gallery', () =>
   getLatestByCategory(10).catch(() => []),
-);
-const { data: authors } = await useAsyncData('authors-filter', () =>
-  getAuthorsList().catch(() => []),
 );
 const { data: tags } = await useAsyncData('tags-filter', () => getTags().catch(() => []));
 
@@ -27,6 +25,7 @@ const pageDescription = 'Фотогалереи о вине, виноделии 
 useArchiveSeoControls({
   currentPage,
   canonicalBasePath: route.path,
+  filterKeys: ['sort', 'tag'],
   title: pageTitle,
   description: pageDescription,
   isIndexable: computed(() => items.value.length > 0),
@@ -53,7 +52,7 @@ useCollectionPageSchema({
   <div class="mx-auto max-w-7xl px-4 py-8">
     <h1 class="mb-6 inline-block border-b-2 border-accent pb-1 font-heading text-4xl font-bold">Галерея</h1>
 
-    <ArchiveFilters :authors="authors || []" :tags="tags || []" />
+    <ArchiveFilters :tags="tags || []" :show-author="false" />
 
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
       <div class="w-full lg:w-3/4">

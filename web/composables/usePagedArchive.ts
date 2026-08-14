@@ -20,9 +20,10 @@ const SORT_VALUES = ['new', 'old', 'popular', 'author'] as const;
 export function usePagedArchive<T extends { id: string | number }>(
   fetcher: (opts: PagedFetchOptions) => Promise<PagedFetchResult<T>>,
   baseKey: string,
-  options: { itemsPerPage?: number } = {},
+  options: { itemsPerPage?: number; enableAuthorFilter?: boolean } = {},
 ) {
   const itemsPerPage = options.itemsPerPage ?? 42;
+  const enableAuthorFilter = options.enableAuthorFilter ?? true;
   const route = useRoute();
 
   const currentPage = computed(() => {
@@ -34,7 +35,9 @@ export function usePagedArchive<T extends { id: string | number }>(
     const s = String(route.query.sort || 'new');
     return (SORT_VALUES as readonly string[]).includes(s) ? s : 'new';
   });
-  const author = computed(() => (route.query.author ? String(route.query.author) : undefined));
+  const author = computed(() =>
+    enableAuthorFilter && route.query.author ? String(route.query.author) : undefined,
+  );
   const tag = computed(() => (route.query.tag ? String(route.query.tag) : undefined));
 
   const { data, pending, error } = useAsyncData(
