@@ -107,8 +107,25 @@ useSeoMeta({
         <div class="lg:hidden mb-4">
           <FreshList v-if="freshItems.length" :items="freshItems" />
         </div>
-        <!-- Main column: hero + video + latest news -->
+        <!-- Main column: site intro + hero + video + latest news -->
         <div class="flex w-full flex-col gap-4 lg:w-3/4">
+          <section class="relative isolate overflow-hidden rounded-[28px] border border-foreground/10 bg-[#07131f]">
+            <div
+              class="absolute inset-0 bg-cover bg-center opacity-60"
+              style="background-image: url('/back.png')"
+            />
+            <div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(6,17,28,0.92)_10%,rgba(6,17,28,0.72)_45%,rgba(6,17,28,0.9)_100%)]" />
+            <div class="relative px-6 py-8 md:px-10 md:py-12">
+              <p class="text-[11px] uppercase tracking-[0.24em] text-foreground/60">Федеральное отраслевое медиа</p>
+              <h1 class="mt-3 max-w-4xl font-heading text-3xl font-bold tracking-tight text-foreground md:text-5xl">
+                ВИНОДЕЛИЕ СЕГОДНЯ
+              </h1>
+              <p class="mt-4 max-w-3xl text-sm leading-6 text-foreground/80 md:text-base">
+                Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.
+                Новости, статьи, интервью, аналитика и видео о российском и зарубежном виноделии.
+              </p>
+            </div>
+          </section>
           <template v-if="topItems.length">
             <!-- Mobile: top 3 items look the same (photo on top, text below) -->
             <div class="flex flex-col gap-4 lg:hidden">
@@ -205,17 +222,6 @@ useSeoMeta({
               </div>
             </div>
           </template>
-
-          <section class="mt-2 border-t border-foreground/10 pt-6 lg:mt-6">
-            <p class="text-[11px] uppercase tracking-[0.24em] text-foreground/50">Федеральное отраслевое медиа</p>
-            <h1 class="mt-3 max-w-4xl font-heading text-3xl font-bold tracking-tight text-foreground md:text-5xl">
-              ВИНОДЕЛИЕ СЕГОДНЯ
-            </h1>
-            <p class="mt-4 max-w-3xl text-sm leading-6 text-foreground/72 md:text-base">
-              Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.
-              Новости, статьи, интервью, аналитика и видео о российском и зарубежном виноделии.
-            </p>
-          </section>
 
           <!-- Latest news: left of sidebar -->
           <div v-if="articles.length" class="mt-1 pt-2 lg:pt-6">
