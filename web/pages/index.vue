@@ -114,7 +114,6 @@ useSeoMeta({
               class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-60"
               style="background-image: url('/back.png')"
             />
-            <div class="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(6,17,28,0.92)_10%,rgba(6,17,28,0.72)_45%,rgba(6,17,28,0.9)_100%)]" />
             <div class="relative z-10 px-6 py-8 md:px-10 md:py-12" style="color: #fff">
               <p class="text-[11px] uppercase tracking-[0.24em]" style="color: rgba(255, 255, 255, 0.72)">Федеральное отраслевое медиа</p>
               <h1 class="mt-3 max-w-4xl font-heading text-3xl font-bold tracking-tight md:text-5xl" style="color: #fff">
