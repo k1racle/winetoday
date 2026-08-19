@@ -109,7 +109,7 @@ useSeoMeta({
         </div>
         <!-- Main column: site intro + hero + video + latest news -->
         <div class="flex w-full flex-col gap-4 lg:w-3/4">
-          <section class="relative isolate overflow-hidden rounded-[28px] border border-foreground/10 bg-[#07131f]">
+          <section class="relative isolate overflow-hidden border border-foreground/10 bg-[#07131f]">
             <div
               class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-60"
               style="background-image: url('/back.png')"
