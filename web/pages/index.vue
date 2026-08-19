@@ -116,11 +116,11 @@ useSeoMeta({
             />
             <div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(6,17,28,0.92)_10%,rgba(6,17,28,0.72)_45%,rgba(6,17,28,0.9)_100%)]" />
             <div class="relative px-6 py-8 md:px-10 md:py-12">
-              <p class="text-[11px] uppercase tracking-[0.24em] text-foreground/60">Федеральное отраслевое медиа</p>
-              <h1 class="mt-3 max-w-4xl font-heading text-3xl font-bold tracking-tight text-foreground md:text-5xl">
+              <p class="text-[11px] uppercase tracking-[0.24em] text-white/70">Федеральное отраслевое медиа</p>
+              <h1 class="mt-3 max-w-4xl font-heading text-3xl font-bold tracking-tight text-white md:text-5xl">
                 ВИНОДЕЛИЕ СЕГОДНЯ
               </h1>
-              <p class="mt-4 max-w-3xl text-sm leading-6 text-foreground/80 md:text-base">
+              <p class="mt-4 max-w-3xl text-sm leading-6 text-white/85 md:text-base">
                 Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.
                 Новости, статьи, интервью, аналитика и видео о российском и зарубежном виноделии.
               </p>
