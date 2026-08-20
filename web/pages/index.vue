@@ -165,7 +165,9 @@ useSeoMeta({
             </div>
           </section>
           <div class="mb-4 lg:hidden">
-            <FreshList v-if="freshItems.length" :items="freshItems" />
+            <component :is="'noindex'" v-if="freshItems.length" class="block">
+              <FreshList :items="freshItems" />
+            </component>
           </div>
           <template v-if="topItems.length">
             <!-- Mobile: top 3 items look the same (photo on top, text below) -->
@@ -305,7 +307,9 @@ useSeoMeta({
           v-if="freshItems.length || latestByCategory?.length"
           class="order-last hidden w-full flex-col gap-4 lg:flex lg:w-1/4"
         >
-          <FreshList v-if="freshItems.length" :items="freshItems" />
+          <component :is="'noindex'" v-if="freshItems.length" class="block">
+            <FreshList :items="freshItems" />
+          </component>
           <SidebarByCategory v-if="latestByCategory?.length" :groups="latestByCategory" />
         </aside>
       </div>
