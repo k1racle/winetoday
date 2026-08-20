@@ -98,3 +98,27 @@ export type ContentItem = {
   materialLabel?: string | null;
   pinned?: boolean;
 };
+
+export type ContentListResponse = {
+  items: ContentItem[];
+  total?: number;
+  limit?: number;
+  offset?: number;
+};
+
+export type HomepageResponse = {
+  lead: ContentItem[];
+  articles: ContentItem[];
+  news: ContentItem[];
+  videos: ContentItem[];
+  galleries: ContentItem[];
+};
+
+export type SidebarCategoryGroup = {
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  items: ContentItem[];
+};

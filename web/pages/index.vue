@@ -1,21 +1,26 @@
 <script setup lang="ts">
-import type { ContentItem } from '~/types/content';
+import type {
+  ContentItem,
+  ContentListResponse,
+  HomepageResponse,
+  SidebarCategoryGroup,
+} from '~/types/content';
 
 const { getHomepage, getContent, getLatestByCategory } = useApi();
 
-const { data: homepage } = useAsyncData('homepage', () =>
+const { data: homepage } = useAsyncData<HomepageResponse>('homepage', () =>
   getHomepage().catch(() => ({ lead: [], articles: [], news: [], videos: [], galleries: [] })),
 );
 
-const { data: fresh } = useAsyncData('fresh', () =>
+const { data: fresh } = useAsyncData<ContentListResponse>('fresh', () =>
   getContent({ limit: 7 }).catch(() => ({ items: [] })),
 );
 
-const { data: latestByCategory } = useAsyncData('latest-by-category-home', () =>
+const { data: latestByCategory } = useAsyncData<SidebarCategoryGroup[]>('latest-by-category-home', () =>
   getLatestByCategory(10).catch(() => []),
 );
 
-const { data: allMixed } = useAsyncData('all-mixed', () =>
+const { data: allMixed } = useAsyncData<ContentListResponse>('all-mixed', () =>
   getContent({ type: 'article', limit: 3 }).catch(() => ({ items: [] })),
 );
 
@@ -30,8 +35,8 @@ const freshItems = computed<ContentItem[]>(() => {
   const items = fresh.value?.items || [];
   return [...items]
     .sort((a, b) => {
-      const da = new Date(b.publishedAt || b.createdAt).getTime();
-      const db = new Date(a.publishedAt || a.createdAt).getTime();
+      const da = new Date(b.publishedAt || b.createdAt || 0).getTime();
+      const db = new Date(a.publishedAt || a.createdAt || 0).getTime();
       return da - db;
     })
     .slice(0, 7);
@@ -40,7 +45,7 @@ const freshItems = computed<ContentItem[]>(() => {
 // Изначально 36 статей, далее кнопка «Ещё» догружает по 12 — максимум 3 раза (72).
 const HOME_ARTICLES_LIMIT = 72;
 
-const { items: articles, total: articlesTotal, isLoading, loadMore } = useArchivePagination(
+const { items: articles, total: articlesTotal, isLoading, loadMore } = useArchivePagination<ContentItem>(
   ({ limit, offset }) => getContent({ type: 'article', limit, offset }),
   'home-articles',
   { itemsPerPage: 12, initialLimit: 36 },
@@ -73,6 +78,8 @@ function scrollThumbs(direction: number) {
 const runtimeConfig = useRuntimeConfig();
 const siteUrl = (runtimeConfig.public.siteUrl as string)?.replace(/\/$/, '') || '';
 const mediaBaseUrl = (runtimeConfig.public.mediaBaseUrl as string)?.replace(/\/$/, '') || '';
+const HOME_SEO_DESCRIPTION =
+  'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире. Новости, статьи, интервью, аналитика и видео о российском и зарубежном виноделии.';
 // Важно: computed, переданный в useSeoMeta, вычисляется unhead'ом вне контекста
 // компонента, поэтому внутри нельзя вызывать composable'ы (useMediaUrl и т.п.) —
 // иначе SSR падает с "[nuxt] instance unavailable".
@@ -83,18 +90,37 @@ const homeOgImage = computed(() => {
   return `${siteUrl}/api/og-image?src=${encodeURIComponent(src)}`;
 });
 
-useHead({ titleTemplate: '%s' });
+useHead({
+  titleTemplate: '%s',
+  script: [
+    {
+      key: 'home-webpage-jsonld',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        '@id': `${siteUrl}/#webpage`,
+        url: `${siteUrl}/`,
+        name: 'ВИНОДЕЛИЕ СЕГОДНЯ — федеральное отраслевое медиа',
+        description: HOME_SEO_DESCRIPTION,
+        inLanguage: 'ru-RU',
+      }),
+    },
+  ],
+});
 useCanonical('/');
 
 useSeoMeta({
   title: 'ВИНОДЕЛИЕ СЕГОДНЯ — федеральное отраслевое медиа',
-  description: 'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.',
+  description: HOME_SEO_DESCRIPTION,
   ogTitle: 'ВИНОДЕЛИЕ СЕГОДНЯ — федеральное отраслевое медиа',
-  ogDescription: 'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.',
+  ogDescription: HOME_SEO_DESCRIPTION,
   ogType: 'website',
   ogUrl: `${siteUrl}/`,
   ogImage: homeOgImage,
   twitterCard: 'summary_large_image',
+  twitterTitle: 'ВИНОДЕЛИЕ СЕГОДНЯ — федеральное отраслевое медиа',
+  twitterDescription: HOME_SEO_DESCRIPTION,
   twitterImage: homeOgImage,
 });
 </script>
@@ -102,29 +128,40 @@ useSeoMeta({
 <template>
   <div class="pb-16">
     <!-- Main content + sidebar -->
-    <section v-if="topItems.length || articles.length" class="mx-auto max-w-7xl px-4 py-4">
+    <section class="mx-auto max-w-7xl px-4 py-4">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
-        <div class="lg:hidden mb-4">
-          <FreshList v-if="freshItems.length" :items="freshItems" />
-        </div>
         <!-- Main column: site intro + hero + video + latest news -->
         <div class="flex w-full flex-col gap-4 lg:w-3/4">
-          <section class="relative isolate overflow-hidden border border-foreground/10 bg-[#07131f]">
+          <section
+            itemscope
+            itemtype="https://schema.org/WebPage"
+            class="relative isolate overflow-hidden border border-foreground/10 bg-[#07131f]"
+          >
             <div
               class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-60"
               style="background-image: url('/back.png')"
             />
             <div class="relative z-10 px-6 py-8 md:px-10 md:py-12" style="color: #fff">
               <p class="text-[11px] uppercase tracking-[0.24em]" style="color: rgba(255, 255, 255, 0.72)">Федеральное отраслевое медиа</p>
-              <h1 class="mt-3 max-w-4xl font-heading text-3xl font-bold tracking-tight md:text-5xl" style="color: #fff">
+              <h1
+                itemprop="name"
+                class="mt-3 max-w-4xl font-heading text-3xl font-bold tracking-tight md:text-5xl"
+                style="color: #fff"
+              >
                 ВИНОДЕЛИЕ СЕГОДНЯ
               </h1>
-              <p class="mt-4 max-w-3xl text-sm leading-6 md:text-base" style="color: rgba(255, 255, 255, 0.88)">
-                Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.
-                Новости, статьи, интервью, аналитика и видео о российском и зарубежном виноделии.
+              <p
+                itemprop="description"
+                class="mt-4 max-w-3xl text-sm leading-6 md:text-base"
+                style="color: rgba(255, 255, 255, 0.88)"
+              >
+                {{ HOME_SEO_DESCRIPTION }}
               </p>
             </div>
           </section>
+          <div class="mb-4 lg:hidden">
+            <FreshList v-if="freshItems.length" :items="freshItems" />
+          </div>
           <template v-if="topItems.length">
             <!-- Mobile: top 3 items look the same (photo on top, text below) -->
             <div class="flex flex-col gap-4 lg:hidden">

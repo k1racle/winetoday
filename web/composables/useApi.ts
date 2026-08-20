@@ -1,3 +1,9 @@
+import type {
+  ContentListResponse,
+  HomepageResponse,
+  SidebarCategoryGroup,
+} from '~/types/content';
+
 const fetcherCache = new Map<string, ReturnType<typeof $fetch.create>>();
 
 export function useApi() {
@@ -24,29 +30,29 @@ export function useApi() {
   return {
     api,
     getContent: (query?: Record<string, unknown>) =>
-      api('/content', { query }),
+      api('/content', { query }) as Promise<ContentListResponse>,
     getArticles: (query?: Record<string, unknown>) =>
-      api('/articles', { query }),
+      api('/articles', { query }) as Promise<ContentListResponse>,
     getArticle: (slug: string, preview?: boolean) =>
       api(`/articles/${slug}`, { query: preview ? { preview: true } : undefined }),
     getNews: (query?: Record<string, unknown>) =>
-      api('/news', { query }),
+      api('/news', { query }) as Promise<ContentListResponse>,
     getNewsItem: (slug: string, preview?: boolean) =>
       api(`/news/${slug}`, { query: preview ? { preview: true } : undefined }),
     getVideos: (query?: Record<string, unknown>) =>
-      api('/videos', { query }),
+      api('/videos', { query }) as Promise<ContentListResponse>,
     getVideo: (slug: string, preview?: boolean) =>
       api(`/videos/${slug}`, { query: preview ? { preview: true } : undefined }),
     getGallery: (slug: string, preview?: boolean) =>
       api(`/galleries/${slug}`, { query: preview ? { preview: true } : undefined }),
     getHomepage: () =>
-      api('/homepage'),
+      api('/homepage') as Promise<HomepageResponse>,
     getCategories: () =>
       api('/categories'),
     getTags: () =>
       api('/tags'),
     getLatestByCategory: (limit?: number) =>
-      api('/latest-by-category', { query: limit ? { limit } : undefined }),
+      api('/latest-by-category', { query: limit ? { limit } : undefined }) as Promise<SidebarCategoryGroup[]>,
     getRelated: (type: string, slug: string) =>
       api(`/content/related/${type}/${slug}`),
     getNeighbors: (type: string, slug: string) =>

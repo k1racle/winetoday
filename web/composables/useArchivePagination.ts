@@ -78,7 +78,7 @@ export function useArchivePagination<T extends { id: string | number }>(
 
   const isLoading = ref(false);
   const error = ref<any>(null);
-  const allItems = ref<T[]>([]);
+  const allItems = shallowRef<T[]>([]);
   const total = ref<number>(0);
   const restoredScrollY = ref<number | null>(null);
 
@@ -102,7 +102,7 @@ export function useArchivePagination<T extends { id: string | number }>(
       const next = await fetchChunk(needed, baseOffset + allItems.value.length);
       const newItems = next.items || [];
       if (!newItems.length) break;
-      allItems.value.push(...newItems);
+      allItems.value = [...allItems.value, ...newItems];
       total.value = next.total ?? total.value;
     }
   }
@@ -119,7 +119,7 @@ export function useArchivePagination<T extends { id: string | number }>(
       const next = await fetchChunk(itemsPerPage, baseOffset + allItems.value.length);
       const newItems = next.items || [];
       if (!newItems.length) break;
-      allItems.value.push(...newItems);
+      allItems.value = [...allItems.value, ...newItems];
       total.value = next.total ?? total.value;
     }
     restoredScrollY.value = saved.scrollY;
@@ -150,7 +150,7 @@ export function useArchivePagination<T extends { id: string | number }>(
     isLoading.value = true;
     try {
       const next = await fetchChunk(itemsPerPage, baseOffset + allItems.value.length);
-      allItems.value.push(...(next.items || []));
+      allItems.value = [...allItems.value, ...(next.items || [])];
       total.value = next.total ?? total.value;
       await fillToRow();
     } finally {
