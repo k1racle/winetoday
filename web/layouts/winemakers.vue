@@ -1,5 +1,5 @@
 <script setup lang="ts">
-await useSiteSeoDefaults();
+useSiteSeoDefaults();
 
 const route = useRoute();
 const { getSiteHeader } = useApi();
