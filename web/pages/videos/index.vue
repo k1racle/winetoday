@@ -6,7 +6,7 @@ definePageMeta({
 const route = useRoute();
 const { getVideos, getLatestByCategory, getTags } = useApi();
 
-const { items, total, currentPage, itemsPerPage, filterQuery } = usePagedArchive(
+const { items, total, currentPage, itemsPerPage, filterQuery } = await usePagedArchive(
   (opts) => getVideos(opts),
   'videos-list',
   { enableAuthorFilter: false },

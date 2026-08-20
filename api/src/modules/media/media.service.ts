@@ -138,7 +138,16 @@ export class MediaService {
 
     const usage: MediaUsage[] = [];
 
-    const [coverItems, archiveCoverItems, authors, siteSettings, siteHeaders, siteSeos] =
+    const [
+      coverItems,
+      archiveCoverItems,
+      authors,
+      persons,
+      wineries,
+      siteSettings,
+      siteHeaders,
+      siteSeos,
+    ] =
       await Promise.all([
         this.prisma.contentItem.findMany({
           where: { coverMediaId: id },
@@ -150,6 +159,14 @@ export class MediaService {
         }),
         this.prisma.author.findMany({
           where: { avatarMediaId: id },
+          select: { id: true, name: true },
+        }),
+        this.prisma.person.findMany({
+          where: { photoId: id },
+          select: { id: true, name: true },
+        }),
+        this.prisma.winery.findMany({
+          where: { logoId: id },
           select: { id: true, name: true },
         }),
         this.prisma.siteSettings.findMany({
@@ -175,6 +192,12 @@ export class MediaService {
     for (const author of authors) {
       usage.push({ type: 'author-avatar', id: author.id, name: author.name });
     }
+    for (const person of persons) {
+      usage.push({ type: 'person-photo', id: person.id, name: person.name });
+    }
+    for (const winery of wineries) {
+      usage.push({ type: 'winery-logo', id: winery.id, name: winery.name });
+    }
     if (siteSettings.length) {
       usage.push({ type: 'site-logo' });
     }
@@ -192,7 +215,6 @@ export class MediaService {
       SELECT id, title, type
       FROM content_items
       WHERE content_blocks::text ILIKE ${`%${id}%`}
-      LIMIT 50
     `;
 
     for (const item of contentBlocksMatches) {
@@ -213,14 +235,40 @@ export class MediaService {
       throw new BadRequestException('Нельзя удалить файл, он используется в материалах');
     }
 
-    try {
-      const filePath = path.join(process.cwd(), media.path);
-      await fs.unlink(filePath);
-    } catch (err: any) {
-      this.logger.warn(`Failed to delete file ${media.path}: ${err?.message || err}`);
+    // Keep the database authoritative: if deletion is rejected by a relation
+    // created after getUsage(), the physical file must remain available.
+    await this.prisma.mediaAsset.delete({ where: { id } });
+
+    for (const filePath of this.resolveUploadPaths(media.path)) {
+      try {
+        await fs.unlink(filePath);
+      } catch (err: any) {
+        if (err?.code !== 'ENOENT') {
+          this.logger.warn(`Failed to delete file ${filePath}: ${err?.message || err}`);
+        }
+      }
     }
 
-    await this.prisma.mediaAsset.delete({ where: { id } });
     return { deleted: true };
+  }
+
+  private resolveUploadPaths(mediaPath: string): string[] {
+    const relativePath = mediaPath.replace(/^\/+/, '').replace(/^uploads[\\/]/, '');
+    const normalizedRelative = path.normalize(relativePath);
+
+    if (
+      !relativePath ||
+      path.isAbsolute(normalizedRelative) ||
+      normalizedRelative === '..' ||
+      normalizedRelative.startsWith(`..${path.sep}`)
+    ) {
+      this.logger.warn(`Refusing to delete unsafe media path: ${mediaPath}`);
+      return [];
+    }
+
+    return [
+      path.resolve(process.cwd(), 'uploads', normalizedRelative),
+      path.resolve(process.cwd(), 'public', 'uploads', normalizedRelative),
+    ];
   }
 }

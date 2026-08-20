@@ -6,7 +6,7 @@ definePageMeta({
 const route = useRoute();
 const { getArticles, getLatestByCategory, getAuthorsList, getTags } = useApi();
 
-const { items, total, currentPage, itemsPerPage, filterQuery } = usePagedArchive(
+const { items, total, currentPage, itemsPerPage, filterQuery } = await usePagedArchive(
   (opts) => getArticles(opts),
   'articles-list',
 );

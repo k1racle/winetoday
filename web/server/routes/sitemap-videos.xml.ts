@@ -1,23 +1,5 @@
 import { ensureSitemapEnabled } from '~/server/utils/site-seo';
-
-const PAGE_SIZE = 100; // API ListContentDto limit max is 100
-
-const TYPE_TO_PATH: Record<string, string> = {
-  video: '/videos',
-  gallery: '/gallery',
-};
-
-const escapeXml = (value: string) =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-
-const urlEntry = (loc: string, lastmod?: string | null, videoBlock?: string) =>
-  `  <url>\n    <loc>${escapeXml(loc)}</loc>${
-    lastmod ? `\n    <lastmod>${escapeXml(lastmod)}</lastmod>` : ''
-  }${videoBlock ? `\n${videoBlock}` : ''}\n  </url>`;
+import { escapeXml, fetchPaginatedItems, SITEMAP_PAGE_SIZE, toIso, urlEntry } from '~/server/utils/sitemap';
 
 const videoEntry = (item: any, mediaBaseUrl: string) => {
   if (!item?.slug) return null;
@@ -60,31 +42,16 @@ export default defineEventHandler(async (event) => {
   }
 
   const mediaBaseUrl = ((config.public.mediaBaseUrl as string) || apiUrl.replace(/\/api$/, '')).replace(/\/+$/, '');
-  const entries: string[] = [];
-
-  for (const [type, base] of Object.entries(TYPE_TO_PATH)) {
-    try {
-      let offset = 0;
-      let fetched = 0;
-      do {
-        const res: any = await $fetch(`${apiUrl}/content`, {
-          query: { type, limit: PAGE_SIZE, offset },
-        });
-        const items: any[] = res?.items || [];
-        for (const item of items) {
-          if (!item?.slug) continue;
-          const lastmod = item.publishedAt ? new Date(item.publishedAt).toISOString() : null;
-          const loc = `${siteUrl}${base}/${item.slug}`;
-          const videoBlock = type === 'video' ? videoEntry(item, mediaBaseUrl) : null;
-          entries.push(urlEntry(loc, lastmod, videoBlock || undefined));
-        }
-        fetched = items.length;
-        offset += PAGE_SIZE;
-      } while (fetched === PAGE_SIZE);
-    } catch {
-      // ignore and move on to the next type
-    }
-  }
+  const items = await fetchPaginatedItems<any>(`${apiUrl}/content`, { type: 'video' }, SITEMAP_PAGE_SIZE);
+  const entries = items
+    .filter((item) => item?.slug)
+    .map((item) =>
+      urlEntry(
+        `${siteUrl}/videos/${item.slug}`,
+        toIso(item.updatedAt || item.publishedAt),
+        videoEntry(item, mediaBaseUrl) || undefined,
+      ),
+    );
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"

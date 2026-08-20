@@ -1,5 +1,7 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { BadRequestException, ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ContentStatus, ContentType, Prisma, ReactionType } from '@prisma/client';
+import type { Cache } from 'cache-manager';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedirectsService } from '../redirects/redirects.service';
 import { ListContentDto } from './dto/list-content.dto';
@@ -94,9 +96,12 @@ export type ContentItemWithRelations = Prisma.ContentItemGetPayload<{
 
 @Injectable()
 export class ContentService {
+  private readonly logger = new Logger(ContentService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly redirectsService: RedirectsService,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
   ) {}
 
   async findMany(dto: ListContentDto) {
@@ -418,43 +423,86 @@ export class ContentService {
   }
 
   async findLatestByCategory(limit = 5) {
+    const safeLimit = Number.isFinite(limit) ? Math.min(Math.max(Math.floor(limit), 1), 50) : 5;
+    const cacheKey = `content:latest-by-category:v2:${safeLimit}`;
+
+    try {
+      const cached = await this.cache.get<any[]>(cacheKey);
+      if (cached !== undefined && cached !== null) {
+        return cached;
+      }
+    } catch (error: any) {
+      this.logger.warn(`Cache read failed for ${cacheKey}: ${error?.message || error}`);
+    }
+
     const categories = await this.prisma.category.findMany({
-      select: { id: true, name: true, slug: true },
+      select: { id: true, name: true, slug: true, parentId: true },
     });
 
-    const result = [];
+    const childIdsByParent = new Map<string, string[]>();
+    for (const category of categories) {
+      if (!category.parentId) continue;
+      const childIds = childIdsByParent.get(category.parentId) || [];
+      childIds.push(category.id);
+      childIdsByParent.set(category.parentId, childIds);
+    }
 
-    for (const group of SIDEBAR_CATEGORY_GROUPS) {
-      const category = matchSidebarCategory(categories, group);
-      if (!category) {
-        continue;
+    const collectDescendantIds = (rootIds: string[]) => {
+      const ids = new Set<string>();
+      const queue = [...rootIds];
+      while (queue.length) {
+        const id = queue.shift()!;
+        if (ids.has(id)) continue;
+        ids.add(id);
+        queue.push(...(childIdsByParent.get(id) || []));
       }
+      return [...ids];
+    };
 
-      const categoryIds = await this.getCategoryAndDescendantIds(category.slug);
+    const matchedGroups = SIDEBAR_CATEGORY_GROUPS.map((group) => {
+      const category = matchSidebarCategory(categories, group);
+      if (!category) return null;
+
+      const rootIds = categories
+        .filter((candidate) => matchSidebarCategory([candidate], group) !== null)
+        .map((candidate) => candidate.id);
+
+      return {
+        group,
+        category,
+        categoryIds: collectDescendantIds(rootIds.length ? rootIds : [category.id]),
+      };
+    }).filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+
+    const groups = await Promise.all(matchedGroups.map(async ({ group, category, categoryIds }) => {
       const items = await this.prisma.contentItem.findMany({
         where: {
           status: ContentStatus.published,
-          categories: categoryIds.length
-            ? { some: { id: { in: categoryIds } } }
-            : { some: { id: category.id } },
+          categories: { some: { id: { in: categoryIds } } },
           publishedAt: { lte: new Date() },
         },
         include: contentInclude,
         orderBy: [{ pinned: 'desc' }, { publishedAt: 'desc' }, { createdAt: 'desc' }],
-        take: limit,
+        take: safeLimit,
       });
 
-      if (!items.length) {
-        continue;
-      }
+      if (!items.length) return null;
 
-      result.push({
+      return {
         category: {
           ...category,
           name: group.label,
         },
         items,
-      });
+      };
+    }));
+
+    const result = groups.filter((group): group is NonNullable<typeof group> => group !== null);
+
+    try {
+      await this.cache.set(cacheKey, result, 60_000);
+    } catch (error: any) {
+      this.logger.warn(`Cache write failed for ${cacheKey}: ${error?.message || error}`);
     }
 
     return result;

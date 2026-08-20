@@ -17,7 +17,7 @@ const SORT_VALUES = ['new', 'old', 'popular', 'author'] as const;
 // (?sort, ?author, ?tag) в query. Страницы архивов пересоздаются при смене
 // query (definePageMeta({ key: route => route.fullPath })), поэтому
 // useAsyncData всегда запрашивает актуальную порцию.
-export function usePagedArchive<T extends { id: string | number }>(
+export async function usePagedArchive<T extends { id: string | number }>(
   fetcher: (opts: PagedFetchOptions) => Promise<PagedFetchResult<T>>,
   baseKey: string,
   options: { itemsPerPage?: number; enableAuthorFilter?: boolean } = {},
@@ -40,7 +40,7 @@ export function usePagedArchive<T extends { id: string | number }>(
   );
   const tag = computed(() => (route.query.tag ? String(route.query.tag) : undefined));
 
-  const { data, pending, error } = useAsyncData(
+  const { data, pending, error } = await useAsyncData(
     `${baseKey}-p${currentPage.value}-${sort.value}-${author.value || ''}-${tag.value || ''}`,
     () =>
       fetcher({
@@ -49,8 +49,22 @@ export function usePagedArchive<T extends { id: string | number }>(
         sort: sort.value === 'new' ? undefined : sort.value,
         authorSlug: author.value,
         tagSlug: tag.value,
-      }).catch(() => ({ items: [] as T[], total: 0 })),
+      }),
   );
+
+  if (error.value) {
+    const statusCode = Number(
+      (error.value as any)?.statusCode ||
+        (error.value as any)?.status ||
+        (error.value as any)?.response?.status,
+    );
+
+    throw createError({
+      statusCode: statusCode >= 400 && statusCode < 500 ? statusCode : 503,
+      statusMessage: 'Не удалось загрузить архив',
+      cause: error.value,
+    });
+  }
 
   const items = computed<T[]>(() => (data.value?.items as T[]) || []);
   const total = computed(() => data.value?.total || 0);

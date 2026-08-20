@@ -1,24 +1,5 @@
-// Публичные индексные и статические страницы + рубрики, авторы и теги.
-
 import { ensureSitemapEnabled } from '~/server/utils/site-seo';
-
-const escapeXml = (value: string) =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-
-const urlEntry = (loc: string, lastmod?: string | null) =>
-  `  <url>\n    <loc>${escapeXml(loc)}</loc>${
-    lastmod ? `\n    <lastmod>${escapeXml(lastmod)}</lastmod>` : ''
-  }\n  </url>`;
-
-const toIso = (value?: string | Date | null) => {
-  if (!value) return null;
-  const date = value instanceof Date ? value : new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date.toISOString();
-};
+import { fetchSitemapResource, toIso, urlEntry } from '~/server/utils/sitemap';
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
@@ -50,18 +31,21 @@ export default defineEventHandler(async (event) => {
     { path: '/wineries' },
   ];
 
-  const [homepageMeta, staticPageMeta] = await Promise.all([
-    $fetch<{ updatedAt?: string | null }>(`${apiUrl}/homepage`).catch(() => null),
+  const [homepageMeta, staticPageMeta, categories, authors, tags] = await Promise.all([
+    fetchSitemapResource<{ updatedAt?: string | null }>(`${apiUrl}/homepage`),
     Promise.all(
       staticRoutes
         .filter((route): route is { path: string; slug: string } => Boolean(route.slug))
         .map(async (route) => {
-          const page = await $fetch<{ updatedAt?: string | null }>(`${apiUrl}/pages/${route.slug}`).catch(
-            () => null,
+          const page = await fetchSitemapResource<{ updatedAt?: string | null }>(
+            `${apiUrl}/pages/${route.slug}`,
           );
           return [route.slug, toIso(page?.updatedAt)] as const;
         }),
     ).then((items) => new Map(items)),
+    fetchSitemapResource<any[]>(`${apiUrl}/categories`),
+    fetchSitemapResource<any[]>(`${apiUrl}/authors`),
+    fetchSitemapResource<any[]>(`${apiUrl}/tags`),
   ]);
 
   for (const route of staticRoutes) {
@@ -74,34 +58,19 @@ export default defineEventHandler(async (event) => {
     entries.push(urlEntry(`${siteUrl}${route.path}`, lastmod));
   }
 
-  try {
-    const categories: any[] = await $fetch(`${apiUrl}/categories`);
-    for (const category of categories || []) {
-      if (!category?.slug) continue;
-      entries.push(urlEntry(`${siteUrl}/category/${category.slug}`, toIso(category.updatedAt)));
-    }
-  } catch {
-    // ignore
+  for (const category of categories || []) {
+    if (!category?.slug) continue;
+    entries.push(urlEntry(`${siteUrl}/category/${category.slug}`, toIso(category.updatedAt)));
   }
 
-  try {
-    const authors: any[] = await $fetch(`${apiUrl}/authors`);
-    for (const author of authors || []) {
-      if (!author?.slug) continue;
-      entries.push(urlEntry(`${siteUrl}/author/${author.slug}`, toIso(author.updatedAt)));
-    }
-  } catch {
-    // ignore
+  for (const author of authors || []) {
+    if (!author?.slug) continue;
+    entries.push(urlEntry(`${siteUrl}/author/${author.slug}`, toIso(author.updatedAt)));
   }
 
-  try {
-    const tags: any[] = await $fetch(`${apiUrl}/tags`);
-    for (const tag of tags || []) {
-      if (!tag?.slug) continue;
-      entries.push(urlEntry(`${siteUrl}/tags/${tag.slug}`, toIso(tag.updatedAt)));
-    }
-  } catch {
-    // ignore
+  for (const tag of tags || []) {
+    if (!tag?.slug) continue;
+    entries.push(urlEntry(`${siteUrl}/tags/${tag.slug}`, toIso(tag.updatedAt)));
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

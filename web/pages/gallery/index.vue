@@ -6,7 +6,7 @@ definePageMeta({
 const route = useRoute();
 const { getContent, getLatestByCategory, getTags } = useApi();
 
-const { items, total, currentPage, itemsPerPage, filterQuery } = usePagedArchive(
+const { items, total, currentPage, itemsPerPage, filterQuery } = await usePagedArchive(
   (opts) => getContent({ type: 'gallery', ...opts }),
   'gallery-archive',
   { enableAuthorFilter: false },

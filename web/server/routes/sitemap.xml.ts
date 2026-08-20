@@ -4,7 +4,9 @@ const CHILD_SITEMAPS = [
   'sitemap-pages.xml',
   'sitemap-articles.xml',
   'sitemap-news.xml',
+  'sitemap-google-news.xml',
   'sitemap-videos.xml',
+  'sitemap-galleries.xml',
   'sitemap-winemakers.xml',
   'sitemap-wines.xml',
 ];

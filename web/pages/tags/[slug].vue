@@ -8,7 +8,7 @@ const slug = route.params.slug as string;
 
 const { getContent, getTags, getLatestByCategory, getAuthorsList } = useApi();
 
-const { items, total, currentPage, itemsPerPage, filterQuery, error: contentError } = usePagedArchive(
+const { items, total, currentPage, itemsPerPage, filterQuery, error: contentError } = await usePagedArchive(
   (opts) => getContent({ tagSlug: slug, ...opts }),
   `tag-${slug}`,
 );

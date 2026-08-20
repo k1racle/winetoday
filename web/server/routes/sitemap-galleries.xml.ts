@@ -9,10 +9,10 @@ export default defineEventHandler(async (event) => {
     return '';
   }
 
-  const items = await fetchPaginatedItems<any>(`${apiUrl}/content`, { type: 'news' }, SITEMAP_PAGE_SIZE);
+  const items = await fetchPaginatedItems<any>(`${apiUrl}/content`, { type: 'gallery' }, SITEMAP_PAGE_SIZE);
   const entries = items
     .filter((item) => item?.slug)
-    .map((item) => urlEntry(`${siteUrl}/news/${item.slug}`, toIso(item.updatedAt || item.publishedAt)));
+    .map((item) => urlEntry(`${siteUrl}/gallery/${item.slug}`, toIso(item.updatedAt || item.publishedAt)));
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

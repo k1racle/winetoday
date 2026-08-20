@@ -11,15 +11,13 @@ interface SiteSeoResponse {
   } | null;
 }
 
-export function useSiteSeoDefaults() {
-  const config = useRuntimeConfig();
+export async function useSiteSeoDefaults() {
   const { getSiteSeo } = useApi();
 
-  const { data: siteSeo } = useAsyncData<SiteSeoResponse>('site-seo-defaults', () =>
+  const { data: siteSeo } = await useAsyncData<SiteSeoResponse>('site-seo-defaults', () =>
     getSiteSeo().catch(() => null),
   );
 
-  const siteUrl = (config.public.siteUrl as string)?.replace(/\/$/, '') || '';
   const defaultImagePath = siteSeo.value?.openGraphImage?.path || siteSeo.value?.twitterImage?.path;
   const defaultImageUrl = useOgImageUrl(defaultImagePath ? useMediaUrl(defaultImagePath) : '');
 
