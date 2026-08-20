@@ -53,8 +53,7 @@ function resolveGroupIndex(category: { name: string; slug: string }): number | n
   const normalizedName = normalizeName(category.name);
   const normalizedSlug = normalizeSlug(category.slug);
 
-  for (let index = 0; index < SIDEBAR_CATEGORY_GROUPS.length; index += 1) {
-    const group = SIDEBAR_CATEGORY_GROUPS[index];
+  for (const [index, group] of SIDEBAR_CATEGORY_GROUPS.entries()) {
     if (group.names.some((name) => normalizeName(name) === normalizedName)) {
       return index;
     }
@@ -90,7 +89,7 @@ export function resolveSidebarCategoryLabel(category: { name: string; slug: stri
   if (index === null) {
     return category.name.trim();
   }
-  return SIDEBAR_CATEGORY_GROUPS[index].label;
+  return SIDEBAR_CATEGORY_GROUPS[index]?.label ?? category.name.trim();
 }
 
 export function matchSidebarCategory<T extends { name: string; slug: string }>(

@@ -30,6 +30,7 @@ const topItems = computed<ContentItem[]>(() => {
   const articles = (allMixed.value?.items || []).filter((item) => item.type === 'article');
   return articles.slice(0, 3);
 });
+const primaryTopItem = computed<ContentItem | null>(() => topItems.value[0] ?? null);
 
 const freshItems = computed<ContentItem[]>(() => {
   const items = fresh.value?.items || [];
@@ -41,6 +42,10 @@ const freshItems = computed<ContentItem[]>(() => {
     })
     .slice(0, 7);
 });
+
+const videoItems = computed<ContentItem[]>(() => homepage.value?.videos ?? []);
+const featuredVideo = computed<ContentItem | null>(() => videoItems.value[0] ?? null);
+const secondaryVideos = computed<ContentItem[]>(() => videoItems.value.slice(1));
 
 // Изначально 36 статей, далее кнопка «Ещё» догружает по 12 — максимум 3 раза (72).
 const HOME_ARTICLES_LIMIT = 72;
@@ -84,7 +89,7 @@ const HOME_SEO_DESCRIPTION =
 // компонента, поэтому внутри нельзя вызывать composable'ы (useMediaUrl и т.п.) —
 // иначе SSR падает с "[nuxt] instance unavailable".
 const homeOgImage = computed(() => {
-  const path = topItems.value?.[0]?.coverMedia?.path;
+  const path = primaryTopItem.value?.coverMedia?.path;
   if (!path) return '';
   const src = /^https?:\/\//.test(path) ? path : `${mediaBaseUrl}${path}`;
   return `${siteUrl}/api/og-image?src=${encodeURIComponent(src)}`;
@@ -178,8 +183,8 @@ useSeoMeta({
               <div class="flex flex-col gap-4 lg:flex-row">
                 <div class="w-full lg:w-2/3">
                   <HeroCard
-                    v-if="topItems[0]"
-                    :item="topItems[0]"
+                    v-if="primaryTopItem"
+                    :item="primaryTopItem"
                     size="large"
                   />
                 </div>
@@ -195,7 +200,7 @@ useSeoMeta({
             </div>
 
             <!-- Video block -->
-            <div v-if="homepage?.videos?.length" class="mt-5 w-full">
+            <div v-if="featuredVideo" class="mt-5 w-full">
               <div class="mb-4 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <svg class="h-5 w-5 fill-current text-accent" viewBox="0 0 24 24">
@@ -214,10 +219,10 @@ useSeoMeta({
                 </NuxtLink>
               </div>
 
-              <VideoFeatureCard :item="homepage.videos[0]" :show-title="false" :show-play="false">
+              <VideoFeatureCard :item="featuredVideo" :show-title="false" :show-play="false">
                 <template #title>
                   <h3 class="mb-3 font-heading text-lg font-normal leading-snug text-foreground md:text-xl">
-                    {{ homepage.videos[0].title }}
+                    {{ featuredVideo.title }}
                   </h3>
                 </template>
               </VideoFeatureCard>
@@ -228,7 +233,7 @@ useSeoMeta({
                   class="flex min-w-0 gap-4 overflow-x-auto pb-2 scroll-smooth"
                 >
                   <VideoThumb
-                    v-for="item in homepage.videos.slice(1)"
+                    v-for="item in secondaryVideos"
                     :key="item.id"
                     :item="item"
                   />
