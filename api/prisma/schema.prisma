@@ -53,6 +53,9 @@ model User {
   username      String?   @unique
   passwordHash  String?
   role          Role      @default(member)
+  telegramUserId BigInt?  @unique @map("telegram_user_id")
+  telegramUsername String? @map("telegram_username")
+  telegramLinkedAt DateTime? @map("telegram_linked_at")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
@@ -62,6 +65,7 @@ model User {
   reactions           Reaction[]
   authorSubscriptions AuthorSubscription[]
   refreshTokens       RefreshToken[]
+  telegramLinkTokens  TelegramLinkToken[]
 
   @@map("users")
 }
@@ -178,6 +182,21 @@ model MediaAsset {
   wineryLogos              Winery[]      @relation("WineryLogo")
 
   @@map("media_assets")
+}
+
+model TelegramLinkToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("telegram_link_tokens")
 }
 
 model ContentItem {

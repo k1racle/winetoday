@@ -19,6 +19,7 @@ import { SchedulerModule } from './modules/scheduler/scheduler.module';
 import { RedirectsModule } from './modules/redirects/redirects.module';
 import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import { WinemakersModule } from './modules/winemakers/winemakers.module';
+import { TelegramIntegrationModule } from './modules/telegram-integration/telegram-integration.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { WinemakersModule } from './modules/winemakers/winemakers.module';
     RedirectsModule,
     NewsletterModule,
     WinemakersModule,
+    TelegramIntegrationModule,
 
     UsersModule,
   ],

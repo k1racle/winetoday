@@ -212,6 +212,12 @@ export function useApi() {
       api('/editor/materials/export/csv', { credentials: 'include', responseType: 'blob' }),
     getAuthors: () =>
       api('/editor/authors', { credentials: 'include' }),
+    getTelegramLinkStatus: () =>
+      api('/integrations/telegram/link-status', { credentials: 'include' }),
+    createTelegramLinkCode: () =>
+      api('/integrations/telegram/link-code', { method: 'POST', credentials: 'include' }),
+    unlinkTelegram: () =>
+      api('/integrations/telegram/link', { method: 'DELETE', credentials: 'include' }),
     getAdminAuthors: () =>
       api('/admin/authors', { credentials: 'include' }),
     createAuthor: (body: { name: string; slug?: string; position?: string; bio?: string; avatarMediaId?: string }) =>

@@ -1,10 +1,45 @@
 <script setup lang="ts">
 const { user, signOut } = useAuth();
-const { getMySubscriptions, getMyLikes, getMyComments } = useApi();
+const {
+  getMySubscriptions,
+  getMyLikes,
+  getMyComments,
+  getTelegramLinkStatus,
+  createTelegramLinkCode,
+  unlinkTelegram,
+} = useApi();
 
 const stats = ref({ subscriptions: 0, likes: 0, comments: 0 });
 const statsLoading = ref(false);
 const canOpenCms = computed(() => ['admin', 'editor', 'author'].includes(user.value?.role || ''));
+const telegramStatus = ref<any>(null);
+const telegramLink = ref<any>(null);
+const telegramLoading = ref(false);
+
+async function loadTelegramStatus() {
+  if (!canOpenCms.value) return;
+  telegramStatus.value = await getTelegramLinkStatus().catch(() => null);
+}
+
+async function connectTelegram() {
+  telegramLoading.value = true;
+  try {
+    telegramLink.value = await createTelegramLinkCode();
+  } finally {
+    telegramLoading.value = false;
+  }
+}
+
+async function disconnectTelegram() {
+  telegramLoading.value = true;
+  try {
+    await unlinkTelegram();
+    telegramLink.value = null;
+    await loadTelegramStatus();
+  } finally {
+    telegramLoading.value = false;
+  }
+}
 
 async function loadStats() {
   statsLoading.value = true;
@@ -26,6 +61,7 @@ async function loadStats() {
 
 onMounted(() => {
   loadStats();
+  loadTelegramStatus();
 });
 
 async function signOutAndRedirect() {
@@ -118,6 +154,45 @@ async function signOutAndRedirect() {
           </div>
         </section>
       </div>
+
+      <section
+        v-if="canOpenCms"
+        class="border border-foreground/10 bg-card p-6 shadow-sm"
+      >
+        <p class="text-xs font-normal uppercase tracking-wider text-foreground/50">Telegram Mini App</p>
+        <h2 class="mt-2 font-heading text-xl font-normal">Мобильный редактор материалов</h2>
+        <p class="mt-2 max-w-2xl text-sm text-foreground/70">
+          Привяжите Telegram, чтобы создавать и редактировать новости и статьи через Mini App.
+        </p>
+
+        <div v-if="telegramStatus?.linked" class="mt-4 flex flex-wrap items-center gap-3">
+          <span class="text-sm text-foreground/70">
+            Подключено<span v-if="telegramStatus.telegramUsername">: @{{ telegramStatus.telegramUsername }}</span>
+          </span>
+          <button class="btn-secondary" :disabled="telegramLoading" @click="disconnectTelegram">
+            Отключить
+          </button>
+        </div>
+
+        <div v-else class="mt-4">
+          <button class="btn-secondary" :disabled="telegramLoading" @click="connectTelegram">
+            {{ telegramLoading ? 'Создаём код…' : 'Подключить Telegram' }}
+          </button>
+          <div v-if="telegramLink" class="mt-4 border border-accent/30 bg-accent/5 p-4">
+            <p class="text-sm">Одноразовый код действует 10 минут:</p>
+            <p class="mt-2 font-mono text-2xl tracking-widest">{{ telegramLink.code }}</p>
+            <a
+              v-if="telegramLink.botUrl"
+              :href="telegramLink.botUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-3 inline-block text-sm text-accent underline"
+            >
+              Открыть бота и завершить подключение
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
