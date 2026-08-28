@@ -135,35 +135,8 @@ useSeoMeta({
     <!-- Main content + sidebar -->
     <section class="mx-auto max-w-7xl px-4 py-4">
       <div class="flex flex-col gap-4 lg:flex-row lg:items-start">
-        <!-- Main column: site intro + hero + video + latest news -->
+        <!-- Main column: hero + video + latest news -->
         <div class="flex w-full flex-col gap-4 lg:w-3/4">
-          <section
-            itemscope
-            itemtype="https://schema.org/WebPage"
-            class="relative isolate overflow-hidden border border-foreground/10 bg-[#07131f]"
-          >
-            <div
-              class="pointer-events-none absolute inset-0 bg-cover bg-center opacity-60"
-              style="background-image: url('/back.png')"
-            />
-            <div class="relative z-10 px-6 py-8 md:px-10 md:py-12" style="color: #fff">
-              <p class="text-[11px] uppercase tracking-[0.24em]" style="color: rgba(255, 255, 255, 0.72)">Федеральное отраслевое медиа</p>
-              <h1
-                itemprop="name"
-                class="mt-3 max-w-4xl font-heading text-3xl font-bold tracking-tight md:text-5xl"
-                style="color: #fff"
-              >
-                ВИНОДЕЛИЕ СЕГОДНЯ
-              </h1>
-              <p
-                itemprop="description"
-                class="mt-4 max-w-3xl text-sm leading-6 md:text-base"
-                style="color: rgba(255, 255, 255, 0.88)"
-              >
-                {{ HOME_SEO_DESCRIPTION }}
-              </p>
-            </div>
-          </section>
           <div class="mb-4 lg:hidden">
             <component :is="'noindex'" v-if="freshItems.length" class="block">
               <FreshList :items="freshItems" />
