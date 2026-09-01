@@ -156,18 +156,12 @@ useSeoMeta({
             <!-- Desktop: large square hero + two small cards on the right -->
             <div class="hidden w-full flex-col gap-4 lg:flex">
               <div class="flex flex-col gap-4 lg:flex-row">
-                <div class="relative w-full lg:w-2/3">
+                <div class="w-full lg:w-2/3">
                   <HeroCard
                     v-if="primaryTopItem"
                     :item="primaryTopItem"
                     size="large"
                   />
-                  <h1
-                    v-if="primaryTopItem"
-                    class="pointer-events-none absolute left-4 top-4 z-20 bg-black/60 px-3 py-2 font-heading text-xl font-bold uppercase leading-none tracking-wide text-white backdrop-blur-sm md:left-6 md:top-6 md:px-4 md:py-3 md:text-2xl xl:text-3xl"
-                  >
-                    ВИНОДЕЛИЕ СЕГОДНЯ
-                  </h1>
                 </div>
                 <div class="flex w-full flex-col gap-4 lg:w-1/3">
                   <NewsThumbCard
