@@ -7,8 +7,14 @@ const props = withDefaults(
     imageAspect?: 'square' | 'video';
     variant?: 'default' | 'compact';
     hideExcerpt?: boolean;
+    yandexNoindexDate?: boolean;
   }>(),
-  { imageAspect: 'square', variant: 'default', hideExcerpt: false },
+  {
+    imageAspect: 'square',
+    variant: 'default',
+    hideExcerpt: false,
+    yandexNoindexDate: false,
+  },
 );
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
@@ -75,7 +81,10 @@ const link = computed(() => {
       :class="variant === 'compact' ? 'flex flex-1 flex-col p-3' : 'p-4'"
     >
       <div class="mb-1.5 flex flex-wrap items-center gap-2 text-xs text-foreground/50">
-        <time v-if="date" :datetime="dateTime">{{ date }}</time>
+        <component :is="'noindex'" v-if="date && props.yandexNoindexDate">
+          <time :datetime="dateTime">{{ date }}</time>
+        </component>
+        <time v-else-if="date" :datetime="dateTime">{{ date }}</time>
         <span v-if="category">{{ category }}</span>
       </div>
       <h3

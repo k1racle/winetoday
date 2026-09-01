@@ -8,8 +8,11 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig();
   const indexNowKey = `${config.indexNowKey || ''}`.trim();
   if (/^[A-Za-z0-9-]{8,128}$/.test(indexNowKey) && path === `/${indexNowKey}.txt`) {
+    setHeader(event, 'Content-Type', 'text/plain; charset=utf-8');
+    setHeader(event, 'Cache-Control', 'public, max-age=300');
+    setHeader(event, 'X-Content-Type-Options', 'nosniff');
     setHeader(event, 'X-Robots-Tag', 'noindex');
-    return;
+    return indexNowKey;
   }
 
   const apiUrl = (config.apiUrl as string)?.replace(/\/+$/, '') || '';

@@ -5,8 +5,9 @@ const props = withDefaults(
   defineProps<{
     item: ContentItem;
     priority?: boolean;
+    yandexNoindexDate?: boolean;
   }>(),
-  { priority: false },
+  { priority: false, yandexNoindexDate: false },
 );
 
 const link = computed(() => {
@@ -63,7 +64,10 @@ function editUrl(item: ContentItem) {
     </div>
     <div class="flex flex-1 flex-col p-3 md:p-4">
       <div class="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] text-foreground/50 md:text-xs">
-        <time v-if="shortDate" :datetime="dateTime">{{ shortDate }}</time>
+        <component :is="'noindex'" v-if="shortDate && props.yandexNoindexDate">
+          <time :datetime="dateTime">{{ shortDate }}</time>
+        </component>
+        <time v-else-if="shortDate" :datetime="dateTime">{{ shortDate }}</time>
         <span v-if="category">{{ category }}</span>
       </div>
       <h3 class="font-sans text-base font-normal leading-snug text-foreground group-hover:text-foreground line-clamp-3 break-words md:text-[17px]" :class="{ 'font-bold': isImportant }">

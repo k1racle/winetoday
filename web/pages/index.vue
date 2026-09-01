@@ -150,6 +150,7 @@ useSeoMeta({
                 :key="`mob-${item.id}`"
                 :item="item"
                 :priority="index === 0"
+                yandex-noindex-date
               />
             </div>
 
@@ -161,6 +162,7 @@ useSeoMeta({
                     v-if="primaryTopItem"
                     :item="primaryTopItem"
                     size="large"
+                    yandex-noindex-date
                   />
                 </div>
                 <div class="flex w-full flex-col gap-4 lg:w-1/3">
@@ -168,6 +170,7 @@ useSeoMeta({
                     v-for="item in topItems.slice(1, 3)"
                     :key="`top-${item.id}`"
                     :item="item"
+                    yandex-noindex-date
                     class="min-h-0 flex-1"
                   />
                 </div>
@@ -249,6 +252,7 @@ useSeoMeta({
                 :item="item"
                 image-aspect="video"
                 variant="compact"
+                yandex-noindex-date
               />
             </div>
             <div class="mt-8 flex flex-wrap items-center gap-3">
@@ -283,7 +287,11 @@ useSeoMeta({
           <component :is="'noindex'" v-if="freshItems.length" class="block">
             <FreshList :items="freshItems" />
           </component>
-          <SidebarByCategory v-if="latestByCategory?.length" :groups="latestByCategory" />
+          <SidebarByCategory
+            v-if="latestByCategory?.length"
+            :groups="latestByCategory"
+            yandex-noindex-date
+          />
         </aside>
       </div>
     </section>

@@ -5,6 +5,7 @@ import { truncateTitle } from '~/utils/truncate-title';
 
 const props = defineProps<{
   groups: { category: { id: string; name: string; slug: string }; items: ContentItem[] }[];
+  yandexNoindexDate?: boolean;
 }>();
 
 const orderedGroups = computed(() =>
@@ -62,7 +63,16 @@ function dateTime(date?: string | null) {
           <li v-for="item in group.items.slice(0, 10)" :key="item.id">
             <NuxtLink :to="link(item)" class="group flex items-start gap-3">
               <div class="flex shrink-0 flex-col items-start pt-0.5">
+                <component :is="'noindex'" v-if="props.yandexNoindexDate">
+                  <time
+                    :datetime="dateTime(item.publishedAt || item.createdAt)"
+                    class="text-xs font-normal text-foreground/60"
+                  >
+                    {{ formatDayMonth(item.publishedAt || item.createdAt) }}
+                  </time>
+                </component>
                 <time
+                  v-else
                   :datetime="dateTime(item.publishedAt || item.createdAt)"
                   class="text-xs font-normal text-foreground/60"
                 >

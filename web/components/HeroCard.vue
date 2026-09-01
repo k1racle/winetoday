@@ -4,6 +4,7 @@ import type { ContentItem } from '~/types/content';
 const props = defineProps<{
   item: ContentItem;
   size?: 'small' | 'medium' | 'large';
+  yandexNoindexDate?: boolean;
 }>();
 
 const link = computed(() => {
@@ -69,7 +70,10 @@ function editUrl(item: ContentItem) {
     />
     <div class="relative z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-white md:p-6">
       <div class="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] font-normal uppercase tracking-wider text-white/80 md:text-xs">
-        <time v-if="shortDate" :datetime="dateTime">{{ shortDate }}</time>
+        <component :is="'noindex'" v-if="shortDate && props.yandexNoindexDate">
+          <time :datetime="dateTime">{{ shortDate }}</time>
+        </component>
+        <time v-else-if="shortDate" :datetime="dateTime">{{ shortDate }}</time>
         <span v-if="category">{{ category }}</span>
       </div>
       <h3 class="break-words font-sans text-base font-normal leading-snug md:text-xl" :class="[{ 'md:text-2xl': size === 'large' }, { 'font-bold': isImportant }]">
