@@ -12,7 +12,7 @@ const props = withDefaults(
 );
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
-const { date, category } = useContentMeta(props.item);
+const { date, dateTime, category } = useContentMeta(props.item);
 const { user } = useAuth();
 const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
 const isImportant = computed(() => props.item.materialLabel === 'important');
@@ -75,7 +75,7 @@ const link = computed(() => {
       :class="variant === 'compact' ? 'flex flex-1 flex-col p-3' : 'p-4'"
     >
       <div class="mb-1.5 flex flex-wrap items-center gap-2 text-xs text-foreground/50">
-        <span v-if="date">{{ date }}</span>
+        <time v-if="date" :datetime="dateTime">{{ date }}</time>
         <span v-if="category">{{ category }}</span>
       </div>
       <h3

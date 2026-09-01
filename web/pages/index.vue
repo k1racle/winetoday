@@ -84,7 +84,7 @@ const runtimeConfig = useRuntimeConfig();
 const siteUrl = (runtimeConfig.public.siteUrl as string)?.replace(/\/$/, '') || '';
 const mediaBaseUrl = (runtimeConfig.public.mediaBaseUrl as string)?.replace(/\/$/, '') || '';
 const HOME_SEO_DESCRIPTION =
-  'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире. Новости, статьи, интервью, аналитика и видео о российском и зарубежном виноделии.';
+  '«ВИНОДЕЛИЕ СЕГОДНЯ» — федеральное отраслевое медиа о виноделии и виноградарстве. Новости, статьи, интервью, аналитика и видео из России и мира.';
 // Важно: computed, переданный в useSeoMeta, вычисляется unhead'ом вне контекста
 // компонента, поэтому внутри нельзя вызывать composable'ы (useMediaUrl и т.п.) —
 // иначе SSR падает с "[nuxt] instance unavailable".
@@ -156,12 +156,18 @@ useSeoMeta({
             <!-- Desktop: large square hero + two small cards on the right -->
             <div class="hidden w-full flex-col gap-4 lg:flex">
               <div class="flex flex-col gap-4 lg:flex-row">
-                <div class="w-full lg:w-2/3">
+                <div class="relative w-full lg:w-2/3">
                   <HeroCard
                     v-if="primaryTopItem"
                     :item="primaryTopItem"
                     size="large"
                   />
+                  <h1
+                    v-if="primaryTopItem"
+                    class="pointer-events-none absolute left-4 top-4 z-20 bg-black/60 px-3 py-2 font-heading text-xl font-bold uppercase leading-none tracking-wide text-white backdrop-blur-sm md:left-6 md:top-6 md:px-4 md:py-3 md:text-2xl xl:text-3xl"
+                  >
+                    ВИНОДЕЛИЕ СЕГОДНЯ
+                  </h1>
                 </div>
                 <div class="flex w-full flex-col gap-4 lg:w-1/3">
                   <NewsThumbCard

@@ -24,14 +24,22 @@ const { data: neighbors } = await useAsyncData(`neighbors-${props.item.id}`, () 
   getNeighbors(props.item.type, props.item.slug).catch(() => ({ prev: null, next: null })),
 );
 
-const meta = computed(() => useContentMeta(props.item));
+const {
+  date: publishedDate,
+  dateTime: publishedDateTime,
+  category: publishedCategory,
+} = useContentMeta(props.item);
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
 const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
 
 const publishedTime = computed(() => {
   const d = props.item.publishedAt || props.item.createdAt;
   if (!d) return '';
-  return new Date(d).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  return new Date(d).toLocaleTimeString('ru-RU', {
+    timeZone: 'Europe/Moscow',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 });
 
 function editUrl(item: ContentItem) {
@@ -415,9 +423,11 @@ function onAuthorBylineClick(e: MouseEvent) {
         </h1>
 
         <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/50">
-          <span v-if="meta.date">{{ meta.date }}</span>
+          <time v-if="publishedDate" :datetime="publishedDateTime">
+            {{ publishedDate }}
+          </time>
           <span v-if="publishedTime">{{ publishedTime }}</span>
-          <span v-if="meta.category">{{ meta.category }}</span>
+          <span v-if="publishedCategory">{{ publishedCategory }}</span>
         </div>
 
         <AuthorByline v-if="item.author && item.type !== 'video'" :author="item.author" class="mt-4" @click="onAuthorBylineClick" />

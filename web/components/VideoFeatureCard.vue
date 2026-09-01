@@ -14,7 +14,7 @@ const props = withDefaults(
 );
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
-const { date, category } = useContentMeta(props.item);
+const { date, dateTime, category } = useContentMeta(props.item);
 const { user } = useAuth();
 const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
 
@@ -61,7 +61,7 @@ function editUrl(item: ContentItem) {
 
       <div v-if="showTitle" class="relative z-10 p-5 text-white md:p-8">
         <div class="mb-2 flex flex-wrap items-center gap-2 text-xs font-normal uppercase tracking-wider text-white/80">
-          <span v-if="date">{{ date }}</span>
+          <time v-if="date" :datetime="dateTime">{{ date }}</time>
           <span v-if="category">{{ category }}</span>
         </div>
         <h3 class="font-sans text-xl font-normal leading-snug md:text-2xl lg:text-3xl">

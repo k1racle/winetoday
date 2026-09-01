@@ -46,6 +46,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     apiUrl: process.env.API_URL || 'http://api:4000/api',
     revalidateSecret: process.env.REVALIDATE_SECRET,
+    indexNowKey: '',
     public: {
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost',
       apiUrl: process.env.NUXT_PUBLIC_API_URL || '/api',

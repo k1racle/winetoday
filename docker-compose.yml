@@ -16,6 +16,7 @@ services:
       NUXT_PUBLIC_UPLOADS_URL: ${NUXT_PUBLIC_UPLOADS_URL:-http://localhost:4000/uploads}
       API_URL: http://api:4000/api
       REVALIDATE_SECRET: ${REVALIDATE_SECRET}
+      NUXT_INDEX_NOW_KEY: ${INDEXNOW_KEY:-}
     ports:
       - "3001:3000"
     networks:
@@ -38,6 +39,7 @@ services:
       PORT: 4000
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${API_POSTGRES_DB:-winetoday_api}
       SITE_URL: ${SITE_URL:-http://localhost}
+      INDEXNOW_KEY: ${INDEXNOW_KEY:-}
       MEDIA_URL: ${MEDIA_URL:-http://localhost/uploads}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       JWT_SECRET: ${JWT_SECRET}

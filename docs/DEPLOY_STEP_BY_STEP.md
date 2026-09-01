@@ -57,6 +57,7 @@ MEDIA_URL=https://winemaking-today.ru/uploads
 JWT_SECRET=<старый_значение>
 JWT_REFRESH_SECRET=<старый_значение>
 REVALIDATE_SECRET=<старый_значение>
+INDEXNOW_KEY=<опциональный_случайный_ключ_8-128_символов>
 COOKIE_DOMAIN=winemaking-today.ru
 COOKIE_SECURE=true
 CORS_ORIGIN=https://winemaking-today.ru,https://winemaking-today.ru:3001
@@ -69,6 +70,12 @@ GOOGLE_CLIENT_SECRET=<если_было>
 VK_CLIENT_ID=<если_было>
 VK_CLIENT_SECRET=<если_было>
 ```
+
+`INDEXNOW_KEY` необязателен: пустое значение полностью отключает интеграцию. Допустимы
+только латинские буквы, цифры и дефис, длина — от 8 до 128 символов. Один и тот же
+ключ передаётся контейнерам `api` и `web`; после запуска проверь, что
+`https://winemaking-today.ru/<INDEXNOW_KEY>.txt` возвращает сам ключ как `text/plain`.
+Не добавляй ключ в репозиторий и не публикуй его в логах или скриншотах.
 
 **Что убрать:**
 - `MEILI_MASTER_KEY`
@@ -230,11 +237,23 @@ Nest application successfully started
 3. Удали location `/search/` (Meilisearch больше не используется).
 4. Убедись, что есть location `/uploads/` → `http://vino_api:4000/uploads/`.
 5. Добавь location `/api/revalidate` → `http://vino_web:3000/api/revalidate`.
+6. Добавь более специфичный location `/api/og-image` → `http://vino_web:3000/api/og-image`.
+   Он должен обрабатываться до общего `/api/`, который направлен в API.
+7. Создай для `www.winemaking-today.ru` Redirection Host: схема `https`, домен назначения
+   `winemaking-today.ru`, код `301`, опция **Preserve Path** включена. Выпусти для него
+   сертификат, включающий `www`.
 
 Пример конфигурации locations:
 
 ```
 Location: /api/revalidate
+Scheme: http
+Forward Hostname / IP: vino_web
+Forward Port: 3000
+```
+
+```
+Location: /api/og-image
 Scheme: http
 Forward Hostname / IP: vino_web
 Forward Port: 3000
@@ -255,6 +274,16 @@ Forward Port: 4000
 ```
 
 Сохрани и примени изменения.
+
+После применения проверь:
+
+```bash
+curl -I "https://winemaking-today.ru/api/og-image?src=https%3A%2F%2Fwinemaking-today.ru%2Flogo-light.png"
+curl -I https://www.winemaking-today.ru/test-path
+```
+
+Первый запрос не должен возвращать `404` от NestJS, второй должен вернуть `301` на
+`https://winemaking-today.ru/test-path` без ошибки TLS.
 
 ## 12. Проверь сайт
 

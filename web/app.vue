@@ -9,9 +9,14 @@ const route = useRoute();
 const config = useRuntimeConfig();
 const { ymId } = useYm();
 const { user } = useAuth();
+const { siteSettings } = useSharedSiteSettings();
 useUtm();
 
 const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
+const siteRootUrl = `${siteUrl}/`;
+const organizationId = `${siteRootUrl}#organization`;
+const websiteId = `${siteRootUrl}#website`;
+const logoUrl = `${siteUrl}/logo-light.png`;
 const siteNavigation = [
   { name: 'О проекте', url: `${siteUrl}/about` },
   { name: 'Новости', url: `${siteUrl}/news` },
@@ -21,10 +26,33 @@ const siteNavigation = [
   { name: 'Контакты', url: `${siteUrl}/contacts` },
 ];
 
+function getSocialProfileUrls(settings: unknown): string[] {
+  const links = (
+    settings as
+      | { socialLinks?: { links?: Array<{ href?: unknown }> | null } | null }
+      | null
+      | undefined
+  )?.socialLinks?.links;
+
+  if (!Array.isArray(links)) return [];
+
+  return [...new Set(links.flatMap((link) => {
+    if (typeof link?.href !== 'string') return [];
+
+    try {
+      const url = new URL(link.href.trim());
+      return url.protocol === 'http:' || url.protocol === 'https:' ? [url.href] : [];
+    } catch {
+      return [];
+    }
+  }))];
+}
+
 const isInternalRoute = () => isAnalyticsExcludedRoute(route.path);
 
 useHead(() => {
   const internal = isInternalRoute();
+  const sameAs = getSocialProfileUrls(siteSettings.value);
   const publicScripts = internal
     ? []
     : [
@@ -38,13 +66,22 @@ useHead(() => {
           type: 'application/ld+json',
           innerHTML: JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'Organization',
-            name: 'Виноделие Сегодня',
-            url: siteUrl,
-            logo: `${siteUrl}/logo-light.png`,
-            image: `${siteUrl}/logo-light.png`,
+            '@type': 'NewsMediaOrganization',
+            '@id': organizationId,
+            name: 'ВИНОДЕЛИЕ СЕГОДНЯ',
+            url: siteRootUrl,
+            logo: {
+              '@type': 'ImageObject',
+              '@id': `${siteRootUrl}#logo`,
+              url: logoUrl,
+            },
+            image: logoUrl,
             description:
               'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.',
+            sameAs: sameAs.length ? sameAs : undefined,
+            masthead: `${siteUrl}/authors`,
+            publishingPrinciples: `${siteUrl}/editorial-policy`,
+            correctionsPolicy: `${siteUrl}/corrections-policy`,
           }),
         },
         {
@@ -53,8 +90,15 @@ useHead(() => {
           innerHTML: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'WebSite',
-            name: 'Виноделие Сегодня',
-            url: siteUrl,
+            '@id': websiteId,
+            name: 'ВИНОДЕЛИЕ СЕГОДНЯ',
+            url: siteRootUrl,
+            description:
+              'Федеральное отраслевое медиа о виноделии, виноградарстве и винной культуре в России и мире.',
+            inLanguage: 'ru-RU',
+            publisher: {
+              '@id': organizationId,
+            },
           }),
         },
         {

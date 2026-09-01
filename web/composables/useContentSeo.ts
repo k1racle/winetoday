@@ -26,14 +26,18 @@ export function useContentSeo(item: ContentItem | ContentSeo | null | undefined)
   const extended = item as ContentSeo;
   const title = extended.seo?.metaTitle || item.title;
   const description = extended.seo?.metaDescription || item.excerpt || SITE_DESCRIPTION;
-  const siteUrl = (config.public.siteUrl as string)?.replace(/\/$/, '') || '';
+  const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
   const canonicalUrl = `${siteUrl}${route.path}`;
+  const organizationId = `${siteUrl}/#organization`;
+  const websiteId = `${siteUrl}/#website`;
   const isPreview = route.query.preview === '1' || route.query.preview === 'true';
 
   const coverUrl = item.coverMedia?.path ? useMediaUrl(item.coverMedia.path) : '';
   const ogImageUrl = useOgImageUrl(coverUrl);
   const imageUrls = [coverUrl, ogImageUrl].filter(Boolean);
   const authorUrl = item.author?.slug ? `${siteUrl}/author/${item.author.slug}` : undefined;
+  const dateModified =
+    (item as unknown as { updatedAt?: string | null }).updatedAt || item.publishedAt || undefined;
 
   useSeoMeta({
     title,
@@ -47,25 +51,27 @@ export function useContentSeo(item: ContentItem | ContentSeo | null | undefined)
     ogImageWidth: ogImageUrl ? 1200 : undefined,
     ogImageHeight: ogImageUrl ? 630 : undefined,
     ogImageType: ogImageUrl ? 'image/jpeg' : undefined,
+    articlePublishedTime: item.publishedAt || undefined,
+    articleModifiedTime: dateModified,
     twitterCard: 'summary_large_image',
     twitterTitle: title,
     twitterDescription: description,
     twitterImage: ogImageUrl,
   });
 
-  const dateModified =
-    (item as unknown as { updatedAt?: string | null }).updatedAt || item.publishedAt || undefined;
-
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': SCHEMA_TYPE_BY_CONTENT[item.type],
+    '@id': `${canonicalUrl}#article`,
     headline: item.title,
     description,
+    inLanguage: 'ru-RU',
     datePublished: item.publishedAt || undefined,
     dateModified,
     author: item.author?.name
       ? {
           '@type': 'Person',
+          '@id': authorUrl ? `${authorUrl}#person` : undefined,
           name: item.author.name,
           url: authorUrl,
         }
@@ -73,13 +79,10 @@ export function useContentSeo(item: ContentItem | ContentSeo | null | undefined)
     image: imageUrls.length ? imageUrls : undefined,
     thumbnailUrl: imageUrls.length ? imageUrls : undefined,
     publisher: {
-      '@type': 'Organization',
-      name: 'Виноделие Сегодня',
-      url: siteUrl,
-      logo: {
-        '@type': 'ImageObject',
-        url: `${siteUrl}/logo-light.png`,
-      },
+      '@id': organizationId,
+    },
+    isPartOf: {
+      '@id': websiteId,
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
@@ -100,6 +103,7 @@ export function useContentSeo(item: ContentItem | ContentSeo | null | undefined)
       '@type': 'VideoObject',
       name: item.title,
       description: item.excerpt || description,
+      inLanguage: 'ru-RU',
       thumbnailUrl: imageUrls.length ? imageUrls : undefined,
       uploadDate: item.publishedAt || undefined,
       embedUrl: item.videoUrl || undefined,

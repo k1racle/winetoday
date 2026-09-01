@@ -34,10 +34,18 @@ function link(item: ContentItem) {
 
 function formatDayMonth(date?: string | null) {
   if (!date) return '';
-  return new Date(date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' });
+  return new Date(date).toLocaleDateString('ru-RU', {
+    timeZone: 'Europe/Moscow',
+    day: '2-digit',
+    month: '2-digit',
+  });
 }
 
-
+function dateTime(date?: string | null) {
+  if (!date) return '';
+  const value = new Date(date);
+  return Number.isNaN(value.getTime()) ? '' : value.toISOString();
+}
 </script>
 
 <template>
@@ -54,9 +62,12 @@ function formatDayMonth(date?: string | null) {
           <li v-for="item in group.items.slice(0, 10)" :key="item.id">
             <NuxtLink :to="link(item)" class="group flex items-start gap-3">
               <div class="flex shrink-0 flex-col items-start pt-0.5">
-                <span class="text-xs font-normal text-foreground/60">
+                <time
+                  :datetime="dateTime(item.publishedAt || item.createdAt)"
+                  class="text-xs font-normal text-foreground/60"
+                >
                   {{ formatDayMonth(item.publishedAt || item.createdAt) }}
-                </span>
+                </time>
               </div>
               <div class="min-w-0 flex-1">
                 <p class="text-sm leading-snug text-foreground transition-colors group-hover:text-accent" :class="item.materialLabel === 'important' ? 'font-bold' : 'font-normal'">

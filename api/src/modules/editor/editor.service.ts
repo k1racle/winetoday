@@ -8,6 +8,7 @@ import { ContentStatus, ContentType, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { MediaService } from '../media/media.service';
 import { RedirectsService } from '../redirects/redirects.service';
+import { IndexNowService } from '../index-now/index-now.service';
 import { CreateDraftDto } from './dto/create-draft.dto';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { UpdateAuthorDto } from './dto/update-author.dto';
@@ -133,6 +134,7 @@ export class EditorService {
     private readonly prisma: PrismaService,
     private readonly mediaService: MediaService,
     private readonly redirectsService: RedirectsService,
+    private readonly indexNowService: IndexNowService,
   ) {}
 
   async saveDraft(user: RequestUser, dto: CreateDraftDto) {
@@ -231,7 +233,7 @@ export class EditorService {
     const previous = dto.id
       ? await this.prisma.contentItem.findUnique({
           where: { id: dto.id },
-          select: { slug: true, status: true },
+          select: { type: true, slug: true, status: true, publishedAt: true },
         })
       : null;
 
@@ -280,7 +282,7 @@ export class EditorService {
       previous.slug !== resultWithLinks.slug &&
       (previous.status === ContentStatus.published || resultWithLinks.status === ContentStatus.published)
     ) {
-      const fromPath = contentPath(result.type, previous.slug);
+      const fromPath = contentPath(previous.type, previous.slug);
       const toPath = contentPath(resultWithLinks.type, resultWithLinks.slug);
       if (fromPath && toPath && fromPath !== toPath) {
         await this.prisma.slugRedirect.upsert({
@@ -289,6 +291,24 @@ export class EditorService {
           create: { fromPath, toPath },
         });
       }
+    }
+
+    const now = new Date();
+    const wasPubliclyAvailable =
+      previous?.status === ContentStatus.published &&
+      (!previous.publishedAt || previous.publishedAt <= now);
+    const isPubliclyAvailable =
+      resultWithLinks.status === ContentStatus.published &&
+      (!resultWithLinks.publishedAt || resultWithLinks.publishedAt <= now);
+    if (wasPubliclyAvailable || isPubliclyAvailable) {
+      void this.indexNowService.notifyContent([
+        ...(wasPubliclyAvailable && previous
+          ? [{ type: previous.type, slug: previous.slug }]
+          : []),
+        ...(isPubliclyAvailable
+          ? [{ type: resultWithLinks.type, slug: resultWithLinks.slug }]
+          : []),
+      ]);
     }
 
     return resultWithLinks;
@@ -420,13 +440,26 @@ export class EditorService {
   async deleteMaterial(user: RequestUser, id: string) {
     const item = await this.prisma.contentItem.findUnique({
       where: { id },
-      select: { id: true, authorId: true },
+      select: {
+        id: true,
+        authorId: true,
+        type: true,
+        slug: true,
+        status: true,
+        publishedAt: true,
+      },
     });
     if (!item) throw new NotFoundException('Material not found');
     if (item.authorId && !(await this.canEdit(user, item.authorId))) {
       throw new ForbiddenException();
     }
     await this.prisma.contentItem.delete({ where: { id } });
+    const wasPubliclyAvailable =
+      item.status === ContentStatus.published &&
+      (!item.publishedAt || item.publishedAt <= new Date());
+    if (wasPubliclyAvailable) {
+      void this.indexNowService.notifyContent([{ type: item.type, slug: item.slug }]);
+    }
     return { id, deleted: true };
   }
 

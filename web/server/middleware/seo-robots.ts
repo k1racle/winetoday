@@ -6,6 +6,12 @@ export default defineEventHandler(async (event) => {
   const path = url.pathname;
   const isPreview = url.searchParams.get('preview') === '1' || url.searchParams.get('preview') === 'true';
   const config = useRuntimeConfig();
+  const indexNowKey = `${config.indexNowKey || ''}`.trim();
+  if (/^[A-Za-z0-9-]{8,128}$/.test(indexNowKey) && path === `/${indexNowKey}.txt`) {
+    setHeader(event, 'X-Robots-Tag', 'noindex');
+    return;
+  }
+
   const apiUrl = (config.apiUrl as string)?.replace(/\/+$/, '') || '';
   const { robotsEnabled } = await getSiteSeoFlags(apiUrl);
 

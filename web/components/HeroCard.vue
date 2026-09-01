@@ -23,7 +23,7 @@ const link = computed(() => {
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
 const archiveSrc = computed(() => useMediaUrl(props.item.archiveCoverMedia?.path));
-const { shortDate, category } = useContentMeta(props.item);
+const { shortDate, dateTime, category } = useContentMeta(props.item);
 const { user } = useAuth();
 const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
 const isImportant = computed(() => props.item.materialLabel === 'important');
@@ -69,7 +69,7 @@ function editUrl(item: ContentItem) {
     />
     <div class="relative z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-white md:p-6">
       <div class="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] font-normal uppercase tracking-wider text-white/80 md:text-xs">
-        <span v-if="shortDate">{{ shortDate }}</span>
+        <time v-if="shortDate" :datetime="dateTime">{{ shortDate }}</time>
         <span v-if="category">{{ category }}</span>
       </div>
       <h3 class="break-words font-sans text-base font-normal leading-snug md:text-xl" :class="[{ 'md:text-2xl': size === 'large' }, { 'font-bold': isImportant }]">

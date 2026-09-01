@@ -1,10 +1,20 @@
 import type { ContentItem } from '~/types/content';
 
 export function useContentMeta(item: ContentItem) {
+  const sourceDate = computed(() => item.publishedAt || item.createdAt || '');
+
+  const parsedDate = computed(() => {
+    if (!sourceDate.value) return null;
+    const value = new Date(sourceDate.value);
+    return Number.isNaN(value.getTime()) ? null : value;
+  });
+
+  const dateTime = computed(() => parsedDate.value?.toISOString() || '');
+
   const date = computed(() => {
-    const d = item.publishedAt || item.createdAt;
-    if (!d) return '';
-    return new Date(d).toLocaleDateString('ru-RU', {
+    if (!parsedDate.value) return '';
+    return parsedDate.value.toLocaleDateString('ru-RU', {
+      timeZone: 'Europe/Moscow',
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -12,9 +22,9 @@ export function useContentMeta(item: ContentItem) {
   });
 
   const shortDate = computed(() => {
-    const d = item.publishedAt || item.createdAt;
-    if (!d) return '';
-    return new Date(d).toLocaleDateString('ru-RU', {
+    if (!parsedDate.value) return '';
+    return parsedDate.value.toLocaleDateString('ru-RU', {
+      timeZone: 'Europe/Moscow',
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -44,5 +54,5 @@ export function useContentMeta(item: ContentItem) {
     }
   });
 
-  return { date, shortDate, category, categorySlug, typeLabel };
+  return { date, shortDate, dateTime, category, categorySlug, typeLabel };
 }

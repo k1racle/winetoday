@@ -52,7 +52,11 @@ function category(item: ContentItem) {
   return item.categories?.[0]?.name || '';
 }
 
-
+function dateTime(date?: string | null) {
+  if (!date) return '';
+  const value = new Date(date);
+  return Number.isNaN(value.getTime()) ? '' : value.toISOString();
+}
 
 const ITEM_LIMIT = 7;
 
@@ -100,9 +104,12 @@ const hasMobileMore = computed(() => displayedItems.value.length > 4);
       >
         <NuxtLink :to="link(item)" class="group flex min-w-0 items-start gap-3 transition-colors duration-200">
           <div class="flex shrink-0 flex-col items-start pt-0.5">
-            <span class="text-xs text-foreground/60">
+            <time
+              :datetime="dateTime(item.publishedAt || item.createdAt)"
+              class="text-xs text-foreground/60"
+            >
               {{ formatTime(item.publishedAt || item.createdAt) }}
-            </span>
+            </time>
           </div>
           <div class="min-w-0 flex-1">
             <p class="text-sm leading-snug text-foreground transition-colors group-hover:text-accent" :class="item.materialLabel === 'important' ? 'font-bold' : 'font-normal'">

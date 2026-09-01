@@ -25,7 +25,7 @@ const link = computed(() => {
 });
 
 const coverSrc = computed(() => useMediaUrl(props.item.coverMedia?.path));
-const { shortDate, category } = useContentMeta(props.item);
+const { shortDate, dateTime, category } = useContentMeta(props.item);
 const { user } = useAuth();
 const canEdit = computed(() => ['admin', 'editor'].includes(user.value?.role || ''));
 const isImportant = computed(() => props.item.materialLabel === 'important');
@@ -63,7 +63,7 @@ function editUrl(item: ContentItem) {
     </div>
     <div class="flex flex-1 flex-col p-3 md:p-4">
       <div class="mb-1.5 flex flex-wrap items-center gap-2 text-[10px] text-foreground/50 md:text-xs">
-        <span v-if="shortDate">{{ shortDate }}</span>
+        <time v-if="shortDate" :datetime="dateTime">{{ shortDate }}</time>
         <span v-if="category">{{ category }}</span>
       </div>
       <h3 class="font-sans text-base font-normal leading-snug text-foreground group-hover:text-foreground line-clamp-3 break-words md:text-[17px]" :class="{ 'font-bold': isImportant }">
