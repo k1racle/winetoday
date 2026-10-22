@@ -2,6 +2,8 @@ import type { ContentItem } from '~/types/content';
 
 interface ContentSeo extends ContentItem {
   seo?: {
+    title?: string | null;
+    description?: string | null;
     metaTitle?: string | null;
     metaDescription?: string | null;
   } | null;
@@ -24,8 +26,11 @@ export function useContentSeo(item: ContentItem | ContentSeo | null | undefined)
   if (!item) return;
 
   const extended = item as ContentSeo;
-  const title = extended.seo?.metaTitle || item.title;
-  const description = extended.seo?.metaDescription || item.excerpt || SITE_DESCRIPTION;
+  const title = extended.seo?.title?.trim() || extended.seo?.metaTitle?.trim() || item.title;
+  const description = extended.seo?.description?.trim()
+    || extended.seo?.metaDescription?.trim()
+    || item.excerpt
+    || SITE_DESCRIPTION;
   const siteUrl = (config.public.siteUrl as string)?.replace(/\/+$/, '') || '';
   const canonicalUrl = `${siteUrl}${route.path}`;
   const organizationId = `${siteUrl}/#organization`;
